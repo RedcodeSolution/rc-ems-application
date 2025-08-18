@@ -1,10 +1,21 @@
 <?php
 
+use App\Http\Controllers\Admin\EmployeeRatingsController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Employee\EmployeeRatingController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SuperAdmin\AdminLeaveController;
+use App\Http\Controllers\SuperAdmin\EventController;
+use App\Models\Admin;
+use App\Models\Department;
+use App\Models\Employee;
+use App\Models\Leave;
+use App\Models\Meeting;
+use App\Models\Project;
+use App\Models\Team;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\ReportController;
@@ -15,34 +26,32 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\MeetingController;
 
-// Guest route - Welcome page
+
 Route::get('/', function () {
     return view('guest');
 })->middleware('guest')->name('welcome');
 
-// Authentication required routes
+
 Route::middleware('auth')->group(function () {
-    // Dashboard routes with enhanced data
+
     Route::get('/admin/dashboard', function () {
-        // Get real data from database
-        $employees = \App\Models\Employee::with(['department', 'projects', 'leaves'])->get();
-        $projects = \App\Models\Project::with(['employees', 'team'])->get();
-        $leaves = \App\Models\Leave::with(['employee'])->get();
-        
-        // Get today's meetings (morning and evening)
-        $todayMeetings = \App\Models\Meeting::getTodayMeetings();
+
+        $employees = Employee::with(['department', 'projects', 'leaves'])->get();
+        $projects = Project::with(['employees', 'team'])->get();
+        $leaves = Leave::with(['employee'])->get();
+
+
+        $todayMeetings = Meeting::getTodayMeetings();
         if ($todayMeetings->count() == 0) {
-            \App\Models\Meeting::createDailyStandup();
-            $todayMeetings = \App\Models\Meeting::getTodayMeetings();
+            Meeting::createDailyStandup();
+            $todayMeetings = Meeting::getTodayMeetings();
         }
-        
-        // Calculate dashboard statistics
         $totalEmployees = $employees->count();
         $activeProjects = $projects->where('status', 'active')->count();
         $pendingLeaves = $leaves->where('status', 'pending')->count();
         $approvedLeaves = $leaves->where('status', 'approved')->count();
         $rejectedLeaves = $leaves->where('status', 'rejected')->count();
-        
+
         // Get employee project assignments and leave counts
         $employeeData = $employees->map(function($employee) {
             return [
@@ -61,7 +70,7 @@ Route::middleware('auth')->group(function () {
                 })
             ];
         });
-        
+
         $dashboardData = [
             'totalEmployees' => $totalEmployees,
             'activeProjects' => $activeProjects,
@@ -88,7 +97,7 @@ Route::middleware('auth')->group(function () {
             \App\Models\Meeting::createDailyStandup();
             $todayMeetings = \App\Models\Meeting::getTodayMeetings();
         }
-        
+
         return view('employees.dashboard', compact('todayMeetings'));
     })->name('employee.dashboard');
 
@@ -129,24 +138,22 @@ Route::middleware('auth')->group(function () {
             'destroy' => 'employee.leaves.destroy',
         ])
         ->parameters(['leaves' => 'leave']);
-    
-    // Additional leave routes
-    Route::patch('/employees/leaves/{leave}/cancel', [App\Http\Controllers\Employee\LeaveController::class, 'cancel'])
+
+    Route::patch('/employees/leaves/{leave}/cancel', [LeaveController::class, 'cancel'])
         ->name('employee.leaves.cancel');
-    Route::get('/employees/leaves/{leave}/download', [App\Http\Controllers\Employee\LeaveController::class, 'downloadDocument'])
+    Route::get('/employees/leaves/{leave}/download', [LeaveController::class, 'downloadDocument'])
         ->name('employee.leaves.download');
 
-    // Employee ratings routes
-    Route::resource('employees/ratings', \App\Http\Controllers\Employee\EmployeeRatingController::class)
+
+    Route::resource('employees/ratings', EmployeeRatingController::class)
         ->names([
             'index' => 'employee.ratings.index',
             'show' => 'employee.ratings.show',
         ])
         ->parameters(['ratings' => 'rating']);
-    
-    // Employee rating submission and data routes
-    Route::post('/employees/ratings', [\App\Http\Controllers\Employee\EmployeeRatingController::class, 'store'])->name('employee.ratings.store');
-    Route::get('/employees/ratings/employee/{employeeId}', [\App\Http\Controllers\Employee\EmployeeRatingController::class, 'getEmployeeRatings'])->name('employee.ratings.employee');
+
+    Route::post('/employees/ratings', [EmployeeRatingController::class, 'store'])->name('employee.ratings.store');
+    Route::get('/employees/ratings/employee/{employeeId}', [EmployeeRatingController::class, 'getEmployeeRatings'])->name('employee.ratings.employee');
 
     Route::get('/super_admin/dashboard', [SuperAdminController::class, 'dashboard'])->name('super_admin.dashboard');
     Route::get('/super_admin/system_stats', [SuperAdminController::class, 'systemStats'])->name('super_admin.system_stats');
@@ -167,26 +174,25 @@ Route::middleware('auth')->group(function () {
 
     // Super Admin Admin Leave Management Routes
     Route::prefix('super_admin/admin-leaves')->name('super_admin.admin_leaves.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'index'])->name('index');
-        Route::get('/{id}', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'show'])->name('show');
-        Route::post('/{id}/approve', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'approve'])->name('approve');
-        Route::post('/{id}/reject', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'reject'])->name('reject');
-        Route::post('/bulk-approve', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'bulkApprove'])->name('bulk_approve');
-        Route::post('/bulk-reject', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'bulkReject'])->name('bulk_reject');
+        Route::get('/', [AdminLeaveController::class, 'index'])->name('index');
+        Route::get('/{id}', [AdminLeaveController::class, 'show'])->name('show');
+        Route::post('/{id}/approve', [AdminLeaveController::class, 'approve'])->name('approve');
+        Route::post('/{id}/reject', [AdminLeaveController::class, 'reject'])->name('reject');
+        Route::post('/bulk-approve', [AdminLeaveController::class, 'bulkApprove'])->name('bulk_approve');
+        Route::post('/bulk-reject', [AdminLeaveController::class, 'bulkReject'])->name('bulk_reject');
     });
 
-    // Super Admin Events Management Routes
     Route::prefix('super_admin/events')->name('super_admin.events.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\SuperAdmin\EventController::class, 'index'])->name('index');
-        Route::get('/create', [\App\Http\Controllers\SuperAdmin\EventController::class, 'create'])->name('create');
-        Route::post('/', [\App\Http\Controllers\SuperAdmin\EventController::class, 'store'])->name('store');
-        Route::get('/{id}', [\App\Http\Controllers\SuperAdmin\EventController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [\App\Http\Controllers\SuperAdmin\EventController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [\App\Http\Controllers\SuperAdmin\EventController::class, 'update'])->name('update');
-        Route::delete('/{id}', [\App\Http\Controllers\SuperAdmin\EventController::class, 'destroy'])->name('destroy');
+        Route::get('/', [EventController::class, 'index'])->name('index');
+        Route::get('/create', [EventController::class, 'create'])->name('create');
+        Route::post('/', [EventController::class, 'store'])->name('store');
+        Route::get('/{id}', [EventController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [EventController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [EventController::class, 'update'])->name('update');
+        Route::delete('/{id}', [EventController::class, 'destroy'])->name('destroy');
     });
 
-    // Redirect authenticated users to their respective dashboards
+
     Route::get('/dashboard', function () {
         $user = auth()->check() ? auth()->user() : null;
         if ($user && $user->role === 'admin') {
@@ -205,34 +211,34 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         // Employee Management
         Route::get('/employees', function () {
-            $employees = \App\Models\Employee::with(['department', 'admin', 'teams'])->get();
-            $departments = \App\Models\Department::all();
-            $admins = \App\Models\Admin::all();
-            $teams = \App\Models\Team::all();
+            $employees = Employee::with(['department', 'admin', 'teams'])->get();
+            $departments = Department::all();
+            $admins = Admin::all();
+            $teams = Team::all();
             return view('admin.employees.index', compact('employees', 'departments', 'admins', 'teams'));
         })->name('employees');
 
-        // Management Overview
+
         Route::get('/management', function () {
             return view('admin.management.index');
         })->name('management');
 
-        // Project Management
+
         Route::get('/projects', function () {
             return view('admin.projects.index');
         })->name('projects');
 
-        // Team Management
+
         Route::get('/teams', function () {
             return view('admin.teams.index');
         })->name('teams');
 
-        // Leave Management
+
         Route::get('/leaves', function () {
             return view('admin.leaves.index');
         })->name('leaves');
 
-        // Reports & Analytics with enhanced data
+
         Route::get('/reports', function () {
             $reportData = [
                 'totalRevenue' => '$2.4M',
@@ -243,87 +249,85 @@ Route::middleware('auth')->group(function () {
             return view('admin.reports.index', $reportData);
         })->name('reports');
 
-        // Announcements
+
         Route::get('/announcements', function () {
             return view('admin.announcements.index');
         })->name('announcements');
 
-        // Administration (alias for management)
         Route::get('/administration', function () {
             return view('admin.management.index');
         })->name('administration');
 
-        // Admin Management
+
         Route::get('/admins', [AdminController::class, 'index'])->name('admins');
 
-        // Document Management
+
         Route::get('/documents', function () {
             return view('admin.documents.index');
         })->name('documents');
 
-        // Notification Center
+
         Route::get('/notifications', function () {
             return view('admin.notifications.index');
         })->name('notifications');
 
-        // System Settings
+
         Route::get('/system', function () {
             return view('admin.system.index');
         })->name('system');
 
-        // Other/Miscellaneous
+
         Route::get('/other', function () {
             return view('admin.other.index');
         })->name('other');
 
-        // Employee Ratings Management
-        Route::resource('employeeRatings', \App\Http\Controllers\Admin\EmployeeRatingsController::class);
+
+        Route::resource('employeeRatings', EmployeeRatingsController::class);
     });
 
-    // Authentication
+
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 
-// Resource routes for CRUD operations
+
 Route::middleware('auth')->group(function () {
-    // Employee management
+
     Route::resource('employees', EmployeeController::class);
 
-    // Department management
     Route::resource('departments', DepartmentController::class);
 
-    // Admin management
+
     Route::resource('admins', AdminController::class);
     Route::post('/admin/store', [AdminController::class, 'store'])->name('admin.store');
 
-    // Super admin management
+
     Route::resource('super_admins', SuperAdminController::class);
 
-    // Project management
+
     Route::resource('projects', ProjectController::class);
 
-    // Team management
+
     Route::resource('teams', TeamController::class);
     Route::get('teams/{team}/assign-employees', [TeamController::class, 'assignEmployeesForm'])->name('teams.assignEmployeesForm');
     Route::post('teams/{team}/assign-employees', [TeamController::class, 'assignEmployees'])->name('teams.assignEmployees');
 
-    // Leave management
+
     Route::resource('leaves', LeaveController::class);
 
-    // Report management
+
     Route::resource('reports', ReportController::class);
     Route::get('/admin/reports/download/{id}', [ReportController::class, 'download'])->name('reports.download');
 
-    // Announcement management
+
     Route::resource('announcements', AnnouncementController::class);
 
-    // Notification management
+
     Route::resource('notifications', NotificationController::class);
 
-    // Document management
+
     Route::resource('documents', DocumentController::class);
 
-    // Meeting management
+
     Route::resource('meetings', MeetingController::class);
     Route::get('/meetings/dashboard', [MeetingController::class, 'dashboard'])->name('meetings.dashboard');
     Route::get('/meetings/generate-today', [MeetingController::class, 'generateTodayMeeting'])->name('meetings.generate-today');
@@ -332,14 +336,14 @@ Route::middleware('auth')->group(function () {
     Route::patch('/meetings/{meeting}/status', [MeetingController::class, 'updateStatus'])->name('meetings.update-status');
 });
 
-// Employee-specific routes
+
 Route::middleware('auth')->prefix('employee')->name('employee.')->group(function () {
     // Leave Management
     Route::get('/leaves', function () {
         return view('employees.leaves.index');
     })->name('leaves.index');
-    
-    // Announcements
+
+
     Route::get('/announcements', function () {
         // Sample data - would be fetched from database
         $announcements = collect([
@@ -372,7 +376,7 @@ Route::middleware('auth')->prefix('employee')->name('employee.')->group(function
                 'likes' => 34
             ]
         ]);
-        
+
         return view('employees.announcements.index', [
             'announcements' => $announcements,
             'totalAnnouncements' => 8,

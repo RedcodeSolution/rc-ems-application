@@ -121,7 +121,7 @@
             background: var(--gradient-hero);
             background-size: 400% 400%;
             animation: gradientShift 18s ease infinite;
-            width: 280px;
+            width: 310px;
             position: fixed;
             top: 0;
             left: 0;
