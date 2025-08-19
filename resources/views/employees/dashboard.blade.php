@@ -7,7 +7,7 @@
     <!-- Welcome Section -->
     <div class="welcome-section">
         <div class="welcome-content">
-            <h1>Welcome back, {{ auth()->user()->name ?? 'Employee' }}!</h1>
+            <h1>Welcome back, {{ auth()->user()?->name ?? 'Employee' }}!</h1>
             <p>Here's what's happening in your workplace today</p>
         </div>
         <div class="welcome-actions">

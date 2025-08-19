@@ -557,11 +557,11 @@
                 
                 <div class="user-menu">
                     <div class="user-avatar">
-                        {{ strtoupper(substr(auth()->user()->name ?? 'E', 0, 1)) }}
+                        {{ strtoupper(substr(auth()->user()?->name ?? 'E', 0, 1)) }}
                     </div>
                     <div class="user-info">
-                        <h4>{{ auth()->user()->name ?? 'Employee' }}</h4>
-                        <p>{{ auth()->user()->email ?? 'employee@company.com' }}</p>
+                        <h4>{{ auth()->user()?->name ?? 'Employee' }}</h4>
+                        <p>{{ auth()->user()?->email ?? 'employee@company.com' }}</p>
                     </div>
                     <i class="fas fa-chevron-down"></i>
                 </div>

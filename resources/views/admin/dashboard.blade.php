@@ -1017,7 +1017,7 @@
                 Admin Dashboard
             </div>
             <div class="dashboard-subtitle">
-                Welcome back, {{ auth()->user()->name }}
+                Welcome back, {{ auth()->user()?->name ?? 'Admin' }}
                         <i class="fas fa-tasks"></i>
                     </div>
                 </div>
