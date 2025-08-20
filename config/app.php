@@ -54,6 +54,8 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
@@ -101,7 +103,7 @@ return [
 
     'previous_keys' => [
         ...array_filter(
-            explode(',', (string) env('APP_PREVIOUS_KEYS', ''))
+            explode(',', env('APP_PREVIOUS_KEYS', ''))
         ),
     ],
 
