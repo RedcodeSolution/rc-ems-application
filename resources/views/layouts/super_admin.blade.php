@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    
+
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -436,11 +436,11 @@
             .sidebar {
                 transform: translateX(-100%);
             }
-            
+
             .sidebar.active {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
             }
@@ -450,11 +450,11 @@
             .top-nav {
                 padding: 1rem;
             }
-            
+
             .nav-title {
                 font-size: 1.25rem;
             }
-            
+
             .content-area {
                 padding: 1rem;
             }
@@ -468,7 +468,7 @@
             <h2>RedCode Solutions</h2>
             <div class="subtitle">Super Admin Panel</div>
         </div>
-        
+
         <div class="sidebar-menu">
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Dashboard</div>
@@ -477,7 +477,7 @@
                     <span>Overview</span>
                 </a>
             </div>
-            
+
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Admins</div>
                 <a href="{{ route('super_admin.admins') }}" class="sidebar-menu-item {{ request()->routeIs('super_admin.admins') ? 'active' : '' }}">
@@ -489,7 +489,7 @@
                     <span> Account Management</span>
                 </a>
             </div>
-            
+
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Admin Management</div>
                 <a href="{{ route('super_admin.admin_leaves.index') }}" class="sidebar-menu-item {{ request()->routeIs('super_admin.admin_leaves.*') ? 'active' : '' }}">
@@ -497,7 +497,7 @@
                     <span>Admin Leave Management</span>
                 </a>
             </div>
-            
+
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Events</div>
                 <a href="{{ route('super_admin.events.index') }}" class="sidebar-menu-item {{ request()->routeIs('super_admin.events.*') ? 'active' : '' }}">
@@ -505,7 +505,7 @@
                     <span>Events Management</span>
                 </a>
             </div>
-            
+
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Notifications</div>
                 <a href="{{ route('super_admin.notifications') }}" class="sidebar-menu-item {{ request()->routeIs('super_admin.notifications') ? 'active' : '' }}">
@@ -517,23 +517,20 @@
                     <i class="fas fa-star"></i>
                     <span>Employee Ratings</span>
                 </a>
-                <a href="{{ route('super_admin.announcements') }}" class="sidebar-menu-item {{ request()->routeIs('super_admin.announcements') ? 'active' : '' }}">
-                    <i class="fas fa-bullhorn"></i>
-                    <span>Announcements</span>
-                </a>
+
             </div>
         </div>
     </div>
 
-    <!-- Main Content -->
+
     <div class="main-content">
-        <!-- Top Navigation -->
+
         <div class="top-nav">
             <div class="nav-title">
                 <i class="fas fa-crown"></i>
                 @yield('title', 'Super Admin Dashboard')
             </div>
-            
+
             <div class="nav-actions">
                 <a href="#" class="nav-bell">
                     <div class="nav-bell-icon">
@@ -541,7 +538,7 @@
                         <span class="nav-bell-dot"></span>
                     </div>
                 </a>
-                
+
                 <div class="user-menu">
                     <div class="user-avatar">
                         {{ strtoupper(substr(auth()->user()?->name ?? 'SA', 0, 1)) }}
@@ -552,7 +549,7 @@
                     </div>
                     <i class="fas fa-chevron-down"></i>
                 </div>
-                
+
                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                     @csrf
                     <button type="submit" class="btn btn-primary">
@@ -563,25 +560,24 @@
             </div>
         </div>
 
-        <!-- Content Area -->
+
         <div class="content-area">
             @yield('content')
         </div>
     </div>
 
-    <!-- Mobile Menu Toggle -->
     <script>
-        // Mobile menu toggle functionality
+
         function toggleSidebar() {
             const sidebar = document.querySelector('.sidebar');
             sidebar.classList.toggle('active');
         }
-        
-        // Close sidebar when clicking outside on mobile
+
+
         document.addEventListener('click', function(e) {
             const sidebar = document.querySelector('.sidebar');
             const toggleButton = document.querySelector('.sidebar-toggle');
-            
+
             if (window.innerWidth <= 1024 && !sidebar.contains(e.target) && !toggleButton?.contains(e.target)) {
                 sidebar.classList.remove('active');
             }
