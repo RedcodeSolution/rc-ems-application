@@ -27,8 +27,8 @@ Route::middleware('auth')->group(function () {
     // Dashboard routes with enhanced data
     Route::get('/admin/dashboard', function () {
         // Get real data from database
-        $employees = \App\Models\Employee::with(['department', 'projects', 'leaves'])->get();
-        $projects = \App\Models\Project::with(['employees', 'team'])->get();
+        $employees = Employee::with(['department', 'projects', 'leaves'])->get();
+        $projects = Project::with(['employees', 'team'])->get();
         $leaves = Leave::with(['employee'])->get();
 
         // Get today's meetings (morning and evening)

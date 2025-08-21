@@ -49,4 +49,6 @@ Route::get('/reset-password/{token}', function ($token) {
     return view('auth.reset-password', ['token' => $token]);
 })->middleware('guest')->name('password.reset');
 
+
+// routes/web.php
 Route::middleware('auth')->get('/api/notifications/me', [NotificationController::class, 'myNotifications']);
