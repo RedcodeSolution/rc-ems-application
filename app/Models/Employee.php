@@ -52,8 +52,8 @@ class Employee extends Model
     public function projects()
     {
         return $this->belongsToMany(Project::class, 'employee_project', 'employee_id', 'project_id')
-                    ->withPivot('role_in_project', 'assigned_date')
-                    ->withTimestamps();
+            ->withPivot('role_in_project', 'assigned_date')
+            ->withTimestamps();
     }
 
     public function ratings()

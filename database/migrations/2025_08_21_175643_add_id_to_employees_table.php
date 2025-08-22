@@ -11,18 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // This migration is not needed because the 'id' primary key already exists.
         // Schema::table('employees', function (Blueprint $table) {
-        //     $table->string('email')->nullable()->after('contact_no');
+        //     $table->bigIncrements('id')->first();
         // });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         // Schema::table('employees', function (Blueprint $table) {
-        //     $table->dropColumn('email');
+        //     $table->dropColumn('id');
         // });
     }
+
 };

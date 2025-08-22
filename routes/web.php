@@ -1,34 +1,37 @@
 <?php
 
-use App\Http\Controllers\AnnouncementController;
-use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SuperAdminController;
+use App\Http\Controllers\TeamController;
 use App\Models\Leave;
 use App\Models\Meeting;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SuperAdminController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\TeamController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\DocumentController;
-use App\Http\Controllers\MeetingController;
 
 // Guest route - Welcome page
 Route::get('/', function () {
     return view('guest');
 })->middleware('guest')->name('welcome');
+
+// Authentication required routes
 Route::middleware('auth')->group(function () {
-
+    // Dashboard routes with enhanced data
     Route::get('/admin/dashboard', function () {
-
-        $employees = Employee::with(['department', 'projects', 'leaves'])->get();
-        $projects = Project::with(['employees', 'team'])->get();
+        // Get real data from database
+        $employees = \App\Models\Employee::with(['department', 'projects', 'leaves'])->get();
+        $projects = \App\Models\Project::with(['employees', 'team'])->get();
         $leaves = Leave::with(['employee'])->get();
 
+        // Get today's meetings (morning and evening)
         $todayMeetings = \App\Models\Meeting::getTodayMeetings();
         if ($todayMeetings->count() == 0) {
             Meeting::createDailyStandup();
@@ -65,12 +68,12 @@ Route::middleware('auth')->group(function () {
             'totalEmployees' => $totalEmployees,
             'activeProjects' => $activeProjects,
             'pendingTasks' => 23,
-            'revenue' => '$2.4M',
-            'newJoinings' => 12,
+            'revenue' => '$2.4M', // Placeholder
+            'newJoinings' => 12, // Placeholder
             'pendingLeaves' => $pendingLeaves,
-            'efficiency' => '94.2%',
+            'efficiency' => '94.2%', // Placeholder
             'employeeData' => $employeeData,
-            'employees' => $employees,
+            'employees' => $employees, // Add employees variable
             'projects' => $projects,
             'leaves' => $leaves,
             'approvedLeaves' => $approvedLeaves,
@@ -82,10 +85,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/employee/dashboard', function () {
         // Get today's meetings (morning and evening)
-        $todayMeetings = Meeting::getTodayMeetings();
+        $todayMeetings = \App\Models\Meeting::getTodayMeetings();
         if ($todayMeetings->count() == 0) {
-            Meeting::createDailyStandup();
-            $todayMeetings = Meeting::getTodayMeetings();
+            \App\Models\Meeting::createDailyStandup();
+            $todayMeetings = \App\Models\Meeting::getTodayMeetings();
         }
 
         return view('employees.dashboard', compact('todayMeetings'));
@@ -148,6 +151,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/employees/ratings/employee/{employeeId}', [\App\Http\Controllers\Employee\EmployeeRatingController::class, 'getEmployeeRatings'])->name('employee.ratings.employee');
 
     Route::get('/super_admin/dashboard', [SuperAdminController::class, 'dashboard'])->name('super_admin.dashboard');
+    Route::get('/super_admin/system_stats', [SuperAdminController::class, 'systemStats'])->name('super_admin.system_stats');
     Route::get('/super_admin/admins', [SuperAdminController::class, 'admins'])->name('super_admin.admins');
     Route::get('/super_admin/admin_roles', [SuperAdminController::class, 'adminRoles'])->name('super_admin.admin_roles');
     Route::get('/super_admin/settings', [SuperAdminController::class, 'settings'])->name('super_admin.settings');
@@ -161,6 +165,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/super_admin/super_admin_accounts', [SuperAdminController::class, 'superAdminAccounts'])->name('super_admin.super_admin_accounts');
     Route::get('/super_admin/employee_ratings', [SuperAdminController::class, 'employeeRatings'])->name('super_admin.employee_ratings');
     Route::post('/super_admin/employee_ratings', [SuperAdminController::class, 'storeEmployeeRating'])->name('super_admin.employee_ratings.store');
+    Route::get('/super_admin/employee_ratings/employee/{employeeId}', [SuperAdminController::class, 'getEmployeeRatings'])->name('super_admin.employee_ratings.employee');
 
     // Super Admin Admin Leave Management Routes
     Route::prefix('super_admin/admin-leaves')->name('super_admin.admin_leaves.')->group(function () {

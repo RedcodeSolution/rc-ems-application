@@ -9,20 +9,19 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
-        // Schema::table('employees', function (Blueprint $table) {
-        //     $table->string('email')->nullable()->after('contact_no');
-        // });
+        Schema::table('employees', function (Blueprint $table) {
+            $table->dropColumn('date_of_birth');
+        });
     }
-
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        // Schema::table('employees', function (Blueprint $table) {
-        //     $table->dropColumn('email');
-        // });
+        Schema::table('employees', function (Blueprint $table) {
+            //
+        });
     }
 };

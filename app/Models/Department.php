@@ -59,7 +59,8 @@ class Department extends Model
     // Get department capacity utilization (if you have a max capacity field)
     public function getCapacityUtilizationAttribute()
     {
-
+        // You can add a max_capacity field to departments table if needed
+        // return $this->max_capacity ? ($this->total_employees / $this->max_capacity) * 100 : 0;
         return null;
     }
 
