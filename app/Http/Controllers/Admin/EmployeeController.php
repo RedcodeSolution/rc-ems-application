@@ -45,17 +45,16 @@ class EmployeeController extends Controller
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
             $filename = time() . '_' . $validated['employee_id'] . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('employee_photos', $filename, 'public');
+
             $validated['profile_photo'] = $path;
         }
 
         DB::transaction(function () use ($validated, $request) {
             $employee = Employee::create($validated);
-
             if ($request->has('team_ids')) {
                 $employee->teams()->sync($request->team_ids);
             }

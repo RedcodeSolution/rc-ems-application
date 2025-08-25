@@ -15,6 +15,7 @@ class Employee extends Model
         'contact_no', 'email', 'department_id', 'admin_id', 'paid_status', 'team_id', 'role', 'profile_photo'
     ];
 
+
     public function admin() {
         return $this->belongsTo(Admin::class, 'admin_id');
     }

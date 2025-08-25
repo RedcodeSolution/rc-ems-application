@@ -1098,8 +1098,23 @@
                     </td>
                     <td>
                         <div class="flex gap-1">
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" title="View Employee" onclick="openViewModal('{{ $employee->employee_id }}', '{{ $employee->employee_name }}', '{{ $employee->email }}', '{{ $employee->contact_no }}', '{{ $employee->employee_type }}', '{{ $employee->role }}', '{{ $employee->department->department_name ?? "Not Assigned" }}', '{{ $employee->admin->admin_name ?? "Not Assigned" }}', '{{ $employee->employee_status }}', '{{ $employee->paid_status }}', '{{ $employee->created_at ? $employee->created_at->format("M d, Y") : "N/A" }}', '{{ $employee->teams->pluck("team_name")->join(", ") ?: "No teams assigned" }}')">>
-                            <i class="fas fa-eye"></i>
+                            <button class="btn btn-secondary" style="padding: 0.5rem;" title="View Employee"
+                                onclick="openViewModal(
+                                    '{{ $employee->employee_id }}',
+                                    '{{ $employee->employee_name }}',
+                                    '{{ $employee->email }}',
+                                    '{{ $employee->contact_no }}',
+                                    '{{ $employee->employee_type }}',
+                                    '{{ $employee->role }}',
+                                    '{{ $employee->department->department_name ?? "Not Assigned" }}',
+                                    '{{ $employee->admin->admin_name ?? "Not Assigned" }}',
+                                    '{{ $employee->employee_status }}',
+                                    '{{ $employee->paid_status }}',
+                                    '{{ $employee->created_at ? $employee->created_at->format("M d, Y") : "N/A" }}',
+                                    '{{ $employee->teams->pluck("team_name")->join(", ") ?: "No teams assigned" }}',
+                                    '{{ $employee->profile_photo ? asset("storage/" . $employee->profile_photo) : "" }}'
+                                )">
+                                <i class="fas fa-eye"></i>
                             </button>
                             <button class="btn btn-warning" style="padding: 0.5rem;" title="Edit Employee" onclick="openEditModal('{{ $employee->employee_id }}', '{{ $employee->employee_name }}', '{{ $employee->email }}', '{{ $employee->contact_no }}', '{{ $employee->employee_type }}', '{{ $employee->role }}', '{{ $employee->department_id }}', '{{ $employee->admin_id }}', '{{ $employee->employee_status }}', '{{ $employee->paid_status }}')">
                                 <i class="fas fa-edit"></i>
@@ -1525,11 +1540,8 @@
                 <!-- Employee Photo and Basic Info Section -->
                 <div style="text-align: center; margin-bottom: 2rem; padding: 1.5rem; background: var(--gradient-glass); border-radius: 1rem; border: 1px solid var(--border-light);">
                     <div style="width: 80px; height: 80px; margin: 0 auto 1rem; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(220,38,38,0.2);">
-                        @if(isset($employee) && $employee->profile_photo)
-                        <img src="{{ asset('storage/' . $employee->profile_photo) }}" alt="Profile Photo" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; box-shadow: 0 2px 8px rgba(220,38,38,0.08); border: 3px solid var(--redcode-primary); background: #fff;">
-                        @else
-                        <i class="fas fa-user" style="font-size: 2rem; color: white;"></i>
-                        @endif
+                        <img id="view_profile_photo" src="" alt="Profile Photo" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; box-shadow: 0 2px 8px rgba(220,38,38,0.08); border: 3px solid var(--redcode-primary); background: #fff; display: none;">
+                        <i id="view_profile_photo_placeholder" class="fas fa-user" style="font-size: 2rem; color: white; display: block;"></i>
                     </div>
                     <h3 id="view_employee_name_header" style="margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--text-primary);"></h3>
                     <p id="view_employee_id_header" style="margin: 0.25rem 0 0; color: var(--text-secondary); font-size: 0.9rem;"></p>
@@ -2011,8 +2023,21 @@
     // View Modal Functions
     let currentViewEmployeeId = null;
 
-    function openViewModal(employeeId, employeeName, email, contactNo, employeeType, role, department, admin, employeeStatus, paidStatus, createdAt, teams) {
+    function openViewModal(employeeId, employeeName, email, contactNo, employeeType, role, department, admin, employeeStatus, paidStatus, createdAt, teams, profilePhotoUrl) {
         currentViewEmployeeId = employeeId;
+
+        // Profile photo logic
+        var img = document.getElementById('view_profile_photo');
+        var placeholder = document.getElementById('view_profile_photo_placeholder');
+        if (profilePhotoUrl && profilePhotoUrl !== '') {
+            img.src = profilePhotoUrl;
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+        } else {
+            img.src = '';
+            img.style.display = 'none';
+            placeholder.style.display = 'block';
+        }
 
         // Populate modal fields
         document.getElementById('view_employee_id').textContent = employeeId || 'Not specified';
