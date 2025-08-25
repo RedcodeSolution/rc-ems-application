@@ -11,7 +11,7 @@ return new class extends Migration {
         Schema::create('employee_notifications', function (Blueprint $table) {
             $table->id();
             $table->string('notifi_id');
-            $table->string('employee_id');
+            $table->unsignedBigInteger('employee_id'); // <-- Fix type to match employees table
             $table->timestamps();
 
             $table->foreign('notifi_id')->references('notifi_id')->on('notifications')->onDelete('cascade');

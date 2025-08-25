@@ -9,19 +9,26 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('employees', function (Blueprint $table) {
-            $table->dropColumn('date_of_birth');
-        });
+        // Only drop the column if it exists
+        if (Schema::hasColumn('employees', 'date_of_birth')) {
+            Schema::table('employees', function (Blueprint $table) {
+                $table->dropColumn('date_of_birth');
+            });
+        }
     }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::table('employees', function (Blueprint $table) {
-            //
-        });
+        // Optionally, add the column back if needed
+        if (!Schema::hasColumn('employees', 'date_of_birth')) {
+            Schema::table('employees', function (Blueprint $table) {
+                $table->date('date_of_birth')->nullable();
+            });
+        }
     }
 };

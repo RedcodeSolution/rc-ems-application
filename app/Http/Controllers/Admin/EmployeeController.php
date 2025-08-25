@@ -30,7 +30,6 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'employee_id' => 'required|unique:employees,employee_id',
             'employee_name' => 'required',
             'email' => 'required|email|unique:employees,email',
             'employee_type' => 'required',
@@ -40,23 +39,24 @@ class EmployeeController extends Controller
             'admin_id' => 'nullable',
             'paid_status' => 'required',
             'role' => 'required',
-            'team_ids' => 'nullable|array', // Accept multiple teams
+            'team_ids' => 'nullable|array',
             'team_ids.*' => 'exists:teams,team_id',
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
-            $filename = time() . '_' . $validated['employee_id'] . '.' . $file->getClientOriginalExtension();
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('employee_photos', $filename, 'public');
-
             $validated['profile_photo'] = $path;
         }
 
         DB::transaction(function () use ($validated, $request) {
             $employee = Employee::create($validated);
             if ($request->has('team_ids')) {
-                $employee->teams()->sync($request->team_ids);
+                $employee->teams()->sync($request->input('team_ids'));
+                // If you have a teams relationship, you can sync here
+                // $employee->teams()->sync($request->team_ids);
             }
         });
 
@@ -94,9 +94,8 @@ class EmployeeController extends Controller
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Handle profile photo upload
+
         if ($request->hasFile('profile_photo')) {
-            // Delete old photo if exists
             if ($employee->profile_photo && \Storage::disk('public')->exists($employee->profile_photo)) {
                 \Storage::disk('public')->delete($employee->profile_photo);
             }

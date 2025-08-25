@@ -9,17 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('employees', function (Blueprint $table) {
-            $table->string('profile_photo')->nullable();
-        });
+        // Column already exists, so do nothing or comment out the code below
+        // Schema::table('employees', function (Blueprint $table) {
+        //     $table->string('profile_photo')->nullable();
+        // });
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::table('employees', function (Blueprint $table) {
-            $table->dropColumn('profile_photo');
-        });
+        // If you want to remove the column on rollback, only do so if it exists
+        // if (Schema::hasColumn('employees', 'profile_photo')) {
+        //     Schema::table('employees', function (Blueprint $table) {
+        //         $table->dropColumn('profile_photo');
+        //     });
+        // }
     }
 };

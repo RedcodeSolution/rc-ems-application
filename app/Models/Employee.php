@@ -7,14 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Employee extends Model
 {
     protected $primaryKey = 'employee_id';
-    public $incrementing = false;
-    protected $keyType = 'string';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
-        'employee_id', 'employee_name', 'employee_type', 'employee_status',
-        'contact_no', 'email', 'department_id', 'admin_id', 'paid_status', 'team_id', 'role', 'profile_photo'
+        'employee_name', 'employee_type', 'employee_status',
+        'contact_no', 'email', 'department_id', 'admin_id', 'paid_status', 'role', 'profile_photo'
     ];
-
 
     public function admin() {
         return $this->belongsTo(Admin::class, 'admin_id');
@@ -62,4 +61,3 @@ class Employee extends Model
         return $this->hasMany(EmployeeRating::class, 'employee_id', 'employee_id');
     }
 }
-

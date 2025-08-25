@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('employee_announcement_details', function (Blueprint $table) {
             $table->id(); // optional, Laravel will auto-increment
-            $table->string('employee_id');
+            $table->unsignedBigInteger('employee_id');
             $table->string('announcement_id');
             $table->timestamps();
 

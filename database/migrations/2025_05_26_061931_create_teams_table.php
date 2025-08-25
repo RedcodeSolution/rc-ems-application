@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('teams', function (Blueprint $table) {
             $table->string('team_id')->primary();
             $table->string('team_name');
-            $table->string('employee_id')->nullable();
+            $table->unsignedBigInteger('employee_id');
             $table->timestamps();
 
-            $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('set null');
+            $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('cascade');
         });
 
     }

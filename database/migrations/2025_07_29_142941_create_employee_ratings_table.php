@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('employee_ratings', function (Blueprint $table) {
             $table->id();
-            $table->string('employee_id');
+            $table->unsignedBigInteger('employee_id');
             $table->integer('rating');
             $table->text('comment')->nullable();
             $table->unsignedBigInteger('rated_by');
             $table->timestamps();
-            
+
             // Foreign key constraints
             $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('cascade');
             $table->foreign('rated_by')->references('id')->on('users')->onDelete('cascade');

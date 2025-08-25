@@ -1177,15 +1177,6 @@
                     <!-- Basic Information Row -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="employee_id" class="form-label">
-                                <i class="fas fa-id-badge"></i>Employee ID
-                            </label>
-                            <div style="position: relative;">
-                                <input type="text" id="employee_id" name="employee_id" class="form-input" placeholder="Enter employee ID" value="{{ old('employee_id') }}" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
                             <label for="employee_name" class="form-label">
                                 <i class="fas fa-user"></i>Full Name
                             </label>

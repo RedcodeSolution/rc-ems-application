@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->string('document_id')->primary();
-            $table->string('employee_id');
+            $table->unsignedBigInteger('employee_id'); // <-- Fix type to match employees table
             $table->string('doc_path');
             $table->string('version');
             $table->date('review_date');
