@@ -9,9 +9,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('departments', function (Blueprint $table) {
-            $table->string('department_id')->primary();
+            $table->id('department_id');
             $table->string('department_name');
+            $table->text('description')->nullable();
+            $table->string('department_head')->nullable();
+            $table->string('location')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
+            $table->decimal('budget', 15, 2)->nullable();
+            $table->enum('status', ['Active', 'Inactive'])->default('Active');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

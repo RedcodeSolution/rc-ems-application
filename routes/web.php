@@ -1,10 +1,9 @@
 <?php
-
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\MeetingController;
@@ -13,6 +12,9 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\TeamController;
+use App\Models\Admin;
+use App\Models\Department;
+use App\Models\Employee;
 use App\Models\Leave;
 use App\Models\Meeting;
 use Illuminate\Support\Facades\Route;
@@ -119,24 +121,24 @@ Route::middleware('auth')->group(function () {
         return view('employees.attendance.index');
     })->name('employee.attendance');
 
-    // Employee leave management routes
-    Route::resource('employees/leaves', \App\Http\Controllers\Employee\LeaveController::class)
-        ->names([
-            'index' => 'employee.leaves.index',
-            'show' => 'employee.leaves.show',
-            'create' => 'employee.leaves.create',
-            'store' => 'employee.leaves.store',
-            'edit' => 'employee.leaves.edit',
-            'update' => 'employee.leaves.update',
-            'destroy' => 'employee.leaves.destroy',
-        ])
-        ->parameters(['leaves' => 'leave']);
-
-    // Additional leave routes
-    Route::patch('/employees/leaves/{leave}/cancel', [App\Http\Controllers\Employee\LeaveController::class, 'cancel'])
-        ->name('employee.leaves.cancel');
-    Route::get('/employees/leaves/{leave}/download', [App\Http\Controllers\Employee\LeaveController::class, 'downloadDocument'])
-        ->name('employee.leaves.download');
+//    // Employee leave management routes
+//    Route::resource('employees/leaves', \App\Http\Controllers\Employee\LeaveController::class)
+//        ->names([
+//            'index' => 'employee.leaves.index',
+//            'show' => 'employee.leaves.show',
+//            'create' => 'employee.leaves.create',
+//            'store' => 'employee.leaves.store',
+//            'edit' => 'employee.leaves.edit',
+//            'update' => 'employee.leaves.update',
+//            'destroy' => 'employee.leaves.destroy',
+//        ])
+//        ->parameters(['leaves' => 'leave']);
+//
+//    // Additional leave routes
+//    Route::patch('/employees/leaves/{leave}/cancel', [App\Http\Controllers\Employee\LeaveController::class, 'cancel'])
+//        ->name('employee.leaves.cancel');
+//    Route::get('/employees/leaves/{leave}/download', [App\Http\Controllers\Employee\LeaveController::class, 'downloadDocument'])
+//        ->name('employee.leaves.download');
 
     // Employee ratings routes
     Route::resource('employees/ratings', \App\Http\Controllers\Employee\EmployeeRatingController::class)
@@ -153,14 +155,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/super_admin/dashboard', [SuperAdminController::class, 'dashboard'])->name('super_admin.dashboard');
     Route::get('/super_admin/system_stats', [SuperAdminController::class, 'systemStats'])->name('super_admin.system_stats');
     Route::get('/super_admin/admins', [SuperAdminController::class, 'admins'])->name('super_admin.admins');
-    Route::get('/super_admin/admin_roles', [SuperAdminController::class, 'adminRoles'])->name('super_admin.admin_roles');
-    Route::get('/super_admin/settings', [SuperAdminController::class, 'settings'])->name('super_admin.settings');
-    Route::get('/super_admin/security_settings', [SuperAdminController::class, 'securitySettings'])->name('super_admin.security_settings');
-    Route::get('/super_admin/database_settings', [SuperAdminController::class, 'databaseSettings'])->name('super_admin.database_settings');
-    Route::get('/super_admin/announcements', [SuperAdminController::class, 'announcements'])->name('super_admin.announcements');
-    Route::get('/super_admin/system_alerts', [SuperAdminController::class, 'systemAlerts'])->name('super_admin.system_alerts');
-    Route::get('/super_admin/system_alerts/create', [SuperAdminController::class, 'createSystemAlert'])->name('super_admin.system_alerts.create');
-    Route::post('/super_admin/system_alerts', [SuperAdminController::class, 'storeSystemAlert'])->name('super_admin.system_alerts.store');
     Route::get('/super_admin/notifications', [SuperAdminController::class, 'notifications'])->name('super_admin.notifications');
     Route::get('/super_admin/super_admin_accounts', [SuperAdminController::class, 'superAdminAccounts'])->name('super_admin.super_admin_accounts');
     Route::get('/super_admin/employee_ratings', [SuperAdminController::class, 'employeeRatings'])->name('super_admin.employee_ratings');
@@ -204,13 +198,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/profile/update', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
 
     // Admin section routes (UI pages with enhanced data)
+
+
+
+
     Route::prefix('admin')->name('admin.')->group(function () {
         // Employee Management
         Route::get('/employees', function () {
-            $employees = \App\Models\Employee::with(['department', 'admin', 'teams'])->get();
-            $departments = \App\Models\Department::all();
-            $admins = \App\Models\Admin::all();
-            $teams = \App\Models\Team::all();
+            $employees = Employee::with(['department', 'admin', 'teams'])->get();
+            $departments = Department::all();
+            $admins = Admin::all();
+//            $teams = Team::all();
             return view('admin.employees.index', compact('employees', 'departments', 'admins', 'teams'));
         })->name('employees');
 
@@ -382,5 +380,16 @@ Route::middleware('auth')->prefix('employee')->name('employee.')->group(function
         ]);
     })->name('announcements');
 });
+
+//department Management
+Route::get('/admin/department', [DepartmentController::class, 'index'])->name('admin.departments.index');
+Route::post('/admin/department', [DepartmentController::class, 'store'])->name('admin.departments.store');
+Route::get('/departments/{departmentId}/edit', [DepartmentController::class, 'edit'])->name('admin.departments.edit');
+Route::put('/departments/{departmentId}', [DepartmentController::class, 'update'])->name('admin.departments.update');
+Route::get('/departments/{departmentId}/show', [DepartmentController::class, 'show'])->name('admin.departments.show');
+Route::delete('/departments/{departmentId}', [DepartmentController::class, 'destroy'])->name('admin.departments.destroy');
+
+
+
 
 require __DIR__.'/auth.php';

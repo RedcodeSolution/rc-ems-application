@@ -7,11 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Department extends Model
 {
     protected $primaryKey = 'department_id';
-    public $incrementing = false;
+    public $incrementing = true;
     protected $keyType = 'string';
 
     protected $fillable = [
-        'department_id',
         'department_name',
         'description',
         'department_head',
@@ -19,7 +18,7 @@ class Department extends Model
         'phone',
         'email',
         'budget',
-        'status'
+        'status',
     ];
 
     public function employees() {

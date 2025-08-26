@@ -706,7 +706,7 @@
                         <i class="fas fa-users"></i>
                         <span>Employees</span>
                     </a>
-                    <a href="{{ route('departments.index') }}" class="sidebar-menu-item {{ request()->routeIs('departments.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.departments.index') }}" class="sidebar-menu-item {{ request()->routeIs('departments.*') ? 'active' : '' }}">
                         <i class="fas fa-building"></i>
                         <span>Departments</span>
                     </a>
