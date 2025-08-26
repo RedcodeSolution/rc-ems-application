@@ -214,12 +214,11 @@ Route::middleware('auth')->group(function () {
             return view('admin.employees.index', compact('employees', 'departments', 'admins', 'teams'));
         })->name('employees');
 
-        // Management Overview
-        Route::get('/management', function () {
-            return view('admin.management.index');
-        })->name('management');
 
-        // Project Management
+        Route::match(['put', 'patch'], '/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
+
+
+
         Route::get('/projects', function () {
             return view('admin.projects.index');
         })->name('projects');
@@ -343,7 +342,7 @@ Route::middleware('auth')->prefix('employee')->name('employee.')->group(function
 
     // Announcements
     Route::get('/announcements', function () {
-        // Sample data - would be fetched from database
+
         $announcements = collect([
             (object) [
                 'announcement_id' => 'ann_001',

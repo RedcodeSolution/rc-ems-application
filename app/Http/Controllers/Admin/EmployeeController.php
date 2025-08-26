@@ -80,6 +80,7 @@ class EmployeeController extends Controller
     public function update(Request $request, $employee_id)
     {
         $employee = Employee::findOrFail($employee_id);
+
         $validated = $request->validate([
             'employee_name' => 'required',
             'email' => 'required|email|unique:employees,email,' . $employee_id . ',employee_id',
@@ -89,11 +90,10 @@ class EmployeeController extends Controller
             'department_id' => 'nullable',
             'admin_id' => 'nullable',
             'paid_status' => 'required',
-            'team_id' => 'nullable',
             'role' => 'required',
+            'team_ids' => 'nullable|array',  // ✅ multiple teams
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
 
         if ($request->hasFile('profile_photo')) {
             if ($employee->profile_photo && \Storage::disk('public')->exists($employee->profile_photo)) {
@@ -107,8 +107,15 @@ class EmployeeController extends Controller
         }
 
         $employee->update($validated);
+
+        // Sync teams if using many-to-many
+        if ($request->has('team_ids')) {
+            $employee->teams()->sync($request->team_ids);
+        }
+
         return redirect()->route('admin.employees')->with('success', 'Employee updated successfully.');
     }
+
 
     public function destroy($employee_id)
     {

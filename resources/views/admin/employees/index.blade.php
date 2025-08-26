@@ -2,7 +2,6 @@
 
 <style>
     :root {
-        /* RedCode Solutions Color Palette - Updated to match register/login pages */
         --redcode-primary: #DC2626; /* RedCode Brand Red */
         --redcode-primary-dark: #991B1B; /* Deep Red */
         --redcode-primary-light: #FEE2E2; /* Light Red Background */
@@ -304,7 +303,6 @@
         font-size: 0.75rem;
     }
 
-    /* Profile Photo Upload Styles */
     .profile-photo-upload {
         display: flex;
         flex-direction: column;
@@ -372,7 +370,7 @@
         font-size: 0.75rem;
     }
 
-    /* Modern Employees Management Styles */
+
     .card {
         border-radius: 1rem;
         box-shadow: 0 2px 16px 0 rgba(220,38,38,0.07);
@@ -554,7 +552,6 @@
         background: rgba(220,38,38,0.4);
     }
 
-    /* Error Messages */
     .error-message {
         background: rgba(217, 119, 6, 0.1);
         border: 1px solid rgba(217, 119, 6, 0.2);
@@ -565,7 +562,6 @@
         margin-top: 0.5rem;
     }
 
-    /* View Modal Specific Styles */
     .view-section {
         margin-bottom: 2rem;
         padding: 1.5rem;
@@ -640,7 +636,6 @@
         font-style: italic;
     }
 
-    /* Status badges in view modal */
     .view-value .status-badge {
         padding: 0.25rem 0.75rem;
         border-radius: 1rem;
@@ -690,7 +685,6 @@
         color: var(--text-secondary);
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
         .modal-container {
             width: 95%;
@@ -714,7 +708,6 @@
             flex-direction: column;
         }
 
-        /* View modal responsive */
         .view-grid {
             grid-template-columns: 1fr;
             gap: 1rem;
@@ -772,7 +765,6 @@
         </div>
     </div>
     <div class="card-body">
-        <!-- Search and Filter Section -->
         <div class="flex justify-between items-center mb-4">
             <div class="flex gap-2">
                 <input type="text" id="searchInput" placeholder="Search employees..." class="form-input" style="width: 300px;" onkeyup="searchEmployees()">
@@ -795,7 +787,6 @@
             </div>
         </div>
 
-        <!-- Employee Leave Management Filter Section -->
         <div class="card" style="margin-bottom: 1.5rem; border: 1px solid var(--border-light); border-radius: 1rem; background: rgba(255, 255, 255, 0.9);">
             <div class="card-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border-light);">
                 <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
@@ -805,7 +796,6 @@
             </div>
 
             <div class="card-body" style="padding: 1.5rem;">
-                <!-- Leave Filter Controls -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                     <div>
                         <label for="leaveStatusFilter" style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem;">
@@ -872,7 +862,7 @@
                 </div>
 
 
-                <!-- Leave Statistics -->
+
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
                     <div style="background: rgba(5, 150, 105, 0.1); border: 1px solid rgba(5, 150, 105, 0.2); border-radius: 0.75rem; padding: 1rem; text-align: center;">
                         <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">{{ $employees->where('employee_status', 'On Leave')->count() }}</div>
@@ -894,7 +884,6 @@
             </div>
         </div>
 
-        <!-- Employee Leave Information Display Section -->
         <div id="employeeLeaveInfo" class="card" style="margin-bottom: 1.5rem; display: none; border: 1px solid var(--border-light); border-radius: 1rem; background: rgba(255, 255, 255, 0.9);">
             <div class="card-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border-light);">
                 <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
@@ -912,7 +901,7 @@
             </div>
 
             <div class="card-body" style="padding: 1.5rem;">
-                <!-- Employee Details -->
+
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                     <div style="background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: 0.75rem; padding: 1.5rem;">
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
@@ -951,7 +940,6 @@
                     </div>
                 </div>
 
-                <!-- Leave Breakdown -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
                     <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 0.75rem; padding: 1rem; text-align: center;">
                         <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);" id="approvedLeaveCount">0</div>
@@ -971,7 +959,7 @@
                     </div>
                 </div>
 
-                <!-- Recent Leave History -->
+
                 <div style="margin-bottom: 1.5rem;">
                     <h4 style="margin: 0 0 1rem 0; font-size: 1.125rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fas fa-history" style="color: var(--redcode-primary);"></i>
@@ -990,20 +978,17 @@
                             </tr>
                             </thead>
                             <tbody id="recentLeaveHistoryTableBody">
-                            <!-- Recent leave history will be populated here -->
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- No Leave History Message -->
                 <div id="noLeaveHistory" style="display: none; text-align: center; padding: 2rem; color: var(--text-secondary);">
                     <i class="fas fa-calendar-times" style="font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.3;"></i>
                     <p style="margin: 0; font-size: 1.1rem;">No leave history found</p>
                     <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">This employee has no leave records</p>
                 </div>
 
-                <!-- Action Buttons -->
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <button class="btn btn-primary" onclick="viewFullLeaveHistory()">
                         <i class="fas fa-list"></i> View Full History
@@ -1021,7 +1006,6 @@
             </div>
         </div>
 
-        <!-- Employees Table -->
         <div class="table-container">
             <table class="table">
                 <thead>
@@ -1138,7 +1122,6 @@
             </table>
         </div>
 
-        <!-- Pagination -->
         <div class="flex justify-between items-center mt-4">
             <div style="color: var(--text-secondary); font-size: 0.875rem;">
                 Showing {{ $employees->count() }} of {{ $employees->count() }} employees
@@ -1156,7 +1139,6 @@
     </div>
 </div>
 
-<!-- Employee Creation Modal -->
 <div id="employeeModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
@@ -1174,7 +1156,6 @@
             <form action="{{ route('employees.store') }}" method="POST" id="employeeForm" enctype="multipart/form-data">
                 @csrf
                 <div class="form-container">
-                    <!-- Basic Information Row -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="employee_name" class="form-label">
@@ -1186,7 +1167,6 @@
                         </div>
                     </div>
 
-                    <!-- Contact Information Row -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="email" class="form-label">
@@ -1207,7 +1187,7 @@
                         </div>
                     </div>
 
-                    <!-- Employee Type Row -->
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="employee_type" class="form-label">
@@ -1234,7 +1214,6 @@
                         </div>
                     </div>
 
-                    <!-- Department Row -->
                     <div class="form-group">
                         <label for="department_id" class="form-label">
                             <i class="fas fa-building"></i>Department
@@ -1249,7 +1228,6 @@
                         </div>
                     </div>
 
-                    <!-- Teams Selection -->
                     <div class="form-group">
                         <label for="team_ids" class="form-label">
                             <i class="fas fa-users"></i>Teams (Hold Ctrl/Cmd to select multiple)
@@ -1263,7 +1241,6 @@
                         </div>
                     </div>
 
-                    <!-- Status and Admin Row -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="employee_status" class="form-label">
@@ -1295,7 +1272,6 @@
                         </div>
                     </div>
 
-                    <!-- Payment Status -->
                     <div class="form-group">
                         <label for="paid_status" class="form-label">
                             <i class="fas fa-credit-card"></i>Payment Status
@@ -1311,7 +1287,6 @@
                         </div>
                     </div>
 
-                    <!-- Profile Photo -->
                     <div class="form-group">
                         <label for="profile_photo" class="form-label">
                             <i class="fas fa-camera"></i>Profile Photo
@@ -1330,7 +1305,7 @@
                         </div>
                     </div>
 
-                    <!-- Form Actions -->
+
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeEmployeeModal()">
                             <i class="fas fa-times"></i> Cancel
@@ -1345,7 +1320,6 @@
     </div>
 </div>
 
-<!-- Employee Edit Modal -->
 <div id="editEmployeeModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
@@ -1360,11 +1334,11 @@
         </div>
 
         <div class="modal-body">
-            <form id="editEmployeeForm" method="POST">
+            <form id="editEmployeeForm" method="POST" action="{{ route('admin.employees.update', $employee->employee_id) }}" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="form-container">
-                    <!-- Basic Information Row -->
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit_employee_id" class="form-label">
@@ -1385,7 +1359,7 @@
                         </div>
                     </div>
 
-                    <!-- Contact Information Row -->
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit_email" class="form-label">
@@ -1406,7 +1380,6 @@
                         </div>
                     </div>
 
-                    <!-- Employee Type and Role Row -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit_employee_type" class="form-label">
@@ -1433,7 +1406,7 @@
                         </div>
                     </div>
 
-                    <!-- Department Row -->
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit_department_id" class="form-label">
@@ -1463,8 +1436,18 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Status and Payment Row -->
+                    <div class="form-group">
+                        <label for="edit_team_ids" class="form-label">
+                            <i class="fas fa-users"></i> Teams (Hold Ctrl/Cmd to select multiple)
+                        </label>
+                        <div style="position: relative;">
+                            <select id="edit_team_ids" name="team_ids[]" class="form-select" multiple>
+                                @foreach($teams as $team)
+                                <option value="{{ $team->team_id }}">{{ $team->team_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit_employee_status" class="form-label">
@@ -1497,7 +1480,25 @@
                         </div>
                     </div>
 
-                    <!-- Form Actions -->
+                    <div class="form-group">
+                        <label for="edit_profile_photo" class="form-label">
+                            <i class="fas fa-image"></i> Profile Photo
+                        </label>
+                        <div class="profile-photo-upload">
+                            <div class="photo-preview" id="edit_photoPreviewContainer" onclick="document.getElementById('edit_profile_photo').click();">
+                                <img id="edit_photoPreview" src="" alt="Profile Photo" style="display: none;">
+                                <div id="edit_photoPlaceholder" class="photo-placeholder">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>Choose Photo</span>
+                                </div>
+                            </div>
+                            <input type="file" id="edit_profile_photo" name="profile_photo" class="photo-input" accept="image/*">
+                            <div class="photo-upload-info">
+                                <small>JPG, PNG, GIF. Max 2MB.</small>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
                             <i class="fas fa-times"></i> Cancel
@@ -1512,7 +1513,7 @@
     </div>
 </div>
 
-<!-- Employee View Modal -->
+
 <div id="viewEmployeeModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
@@ -1528,7 +1529,6 @@
 
         <div class="modal-body">
             <div class="form-container">
-                <!-- Employee Photo and Basic Info Section -->
                 <div style="text-align: center; margin-bottom: 2rem; padding: 1.5rem; background: var(--gradient-glass); border-radius: 1rem; border: 1px solid var(--border-light);">
                     <div style="width: 80px; height: 80px; margin: 0 auto 1rem; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(220,38,38,0.2);">
                         <img id="view_profile_photo" src="" alt="Profile Photo" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; box-shadow: 0 2px 8px rgba(220,38,38,0.08); border: 3px solid var(--redcode-primary); background: #fff; display: none;">
@@ -1538,7 +1538,6 @@
                     <p id="view_employee_id_header" style="margin: 0.25rem 0 0; color: var(--text-secondary); font-size: 0.9rem;"></p>
                 </div>
 
-                <!-- Personal Information Section -->
                 <div class="view-section">
                     <h4 class="view-section-title">
                         <i class="fas fa-user"></i>
@@ -1575,7 +1574,6 @@
                     </div>
                 </div>
 
-                <!-- Employment Information Section -->
                 <div class="view-section">
                     <h4 class="view-section-title">
                         <i class="fas fa-briefcase"></i>
@@ -1619,7 +1617,6 @@
                     </div>
                 </div>
 
-                <!-- Status Information Section -->
                 <div class="view-section">
                     <h4 class="view-section-title">
                         <i class="fas fa-chart-line"></i>
@@ -1656,7 +1653,6 @@
                     </div>
                 </div>
 
-                <!-- Modal Actions -->
                 <div class="form-actions" style="justify-content: center; margin-top: 2rem;">
                     <button class="btn btn-secondary" style="padding: 0.5rem 1rem;" onclick="closeViewModal()">
                         <i class="fas fa-times"></i> Close
@@ -1680,31 +1676,28 @@
         document.getElementById('employeeModal').classList.remove('active');
         document.body.style.overflow = 'auto';
 
-        // Clear form when closing modal
+
         document.getElementById('employeeForm').reset();
 
-        // Remove any error messages
         const errorMessage = document.querySelector('#employeeModal .error-message');
         if (errorMessage) {
             errorMessage.remove();
         }
     }
 
-    // Close employee modal when clicking outside
     document.getElementById('employeeModal').addEventListener('click', function(e) {
         if (e.target === this) {
             closeEmployeeModal();
         }
     });
 
-    // Close modal with Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeEmployeeModal();
         }
     });
 
-    // Profile Photo Preview
+
     if (document.getElementById('photoPreview') && document.getElementById('profile_photo')) {
         document.getElementById('photoPreview').addEventListener('click', function() {
             document.getElementById('profile_photo').click();
@@ -1715,14 +1708,14 @@
             const preview = document.getElementById('photoPreview');
 
             if (file) {
-                // Validate file size (2MB)
+
                 if (file.size > 2 * 1024 * 1024) {
                     alert('File size must be less than 2MB');
                     this.value = '';
                     return;
                 }
 
-                // Validate file type
+
                 if (!file.type.match(/^image\/(jpeg|jpg|png|gif)$/)) {
                     alert('Please select a valid image file (JPG, PNG, GIF)');
                     this.value = '';
@@ -1745,27 +1738,66 @@
         });
     }
 
-    // Edit modal functions
+
     let currentEditEmployeeId = null;
 
-    function openEditModal(employeeId, employeeName, email, contactNo, employeeType, role, departmentId, adminId, employeeStatus, paidStatus) {
+    function openEditModal(employeeId, employeeName, email, contactNo, employeeType, role, departmentId, adminId, employeeStatus, paidStatus, profilePhotoUrl) {
         currentEditEmployeeId = employeeId;
 
-        // Populate modal fields
         document.getElementById('edit_employee_id').value = employeeId || '';
         document.getElementById('edit_employee_name').value = employeeName || '';
         document.getElementById('edit_email').value = email || '';
         document.getElementById('edit_contact_no').value = contactNo || '';
         document.getElementById('edit_role').value = role || '';
-
-        // Set select field values
         document.getElementById('edit_employee_type').value = employeeType || '';
         document.getElementById('edit_department_id').value = departmentId || '';
         document.getElementById('edit_admin_id').value = adminId || '';
         document.getElementById('edit_employee_status').value = employeeStatus || '';
         document.getElementById('edit_paid_status').value = paidStatus || '';
+        document.getElementById('edit_profile_photo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('edit_photoPreview');
+            const placeholder = document.getElementById('edit_photoPlaceholder');
 
-        // Show modal
+            if (file) {
+
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('File size must be less than 2MB');
+                    this.value = '';
+                    return;
+                }
+                if (!file.type.match(/^image\/(jpeg|jpg|png|gif)$/)) {
+                    alert('Please select a valid image file (JPG, PNG, GIF)');
+                    this.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+                placeholder.style.display = 'flex';
+            }
+        });
+        document.getElementById('editEmployeeForm').action = `/admin/employees/${employeeId}`;
+
+        const photoPreview = document.getElementById('edit_photoPreview');
+        const photoPlaceholder = document.getElementById('edit_photoPlaceholder');
+        if (profilePhotoUrl) {
+            photoPreview.src = profilePhotoUrl;
+            photoPreview.style.display = 'block';
+            photoPlaceholder.style.display = 'none';
+        } else {
+            photoPreview.src = '';
+            photoPreview.style.display = 'none';
+            photoPlaceholder.style.display = 'flex';
+        }
+
         document.getElementById('editEmployeeModal').classList.add('active');
         document.body.style.overflow = 'hidden';
     }
@@ -1774,24 +1806,20 @@
         document.getElementById('editEmployeeModal').classList.remove('active');
         document.body.style.overflow = 'auto';
 
-        // Clear form when closing modal
         document.getElementById('editEmployeeForm').reset();
 
-        // Remove any error messages
         const errorMessage = document.querySelector('#editEmployeeModal .error-message');
         if (errorMessage) {
             errorMessage.remove();
         }
     }
 
-    // Close edit modal when clicking outside
     document.getElementById('editEmployeeModal').addEventListener('click', function(e) {
         if (e.target === this) {
             closeEditModal();
         }
     });
 
-    // Close modal with Escape key (updated to handle both modals)
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             const addModal = document.getElementById('employeeModal');
@@ -1805,21 +1833,18 @@
         }
     });
 
-    // Close modal when clicking outside (for add modal)
     document.getElementById('employeeModal').addEventListener('click', function(e) {
         if (e.target === this) {
             closeEmployeeModal();
         }
     });
 
-    // Close modal with Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeEmployeeModal();
         }
     });
 
-    // Edit Form validation and enhancements
     document.getElementById('editEmployeeForm').addEventListener('submit', function(e) {
         const requiredFields = this.querySelectorAll('[required]');
         let isValid = true;
@@ -1841,7 +1866,6 @@
         }
     });
 
-    // Phone number formatting for edit form
     document.getElementById('edit_contact_no').addEventListener('input', function() {
         let value = this.value.replace(/\D/g, '');
         if (value.length > 15) {
@@ -1850,7 +1874,6 @@
         this.value = value;
     });
 
-    // Enhanced input interactions for edit form
     document.querySelectorAll('#editEmployeeModal .form-input, #editEmployeeModal .form-select').forEach(input => {
         input.addEventListener('focus', function() {
             const icon = this.nextElementSibling;
@@ -1869,7 +1892,6 @@
         });
     });
 
-    // Form validation and enhancements for add form
     document.getElementById('employeeForm').addEventListener('submit', function(e) {
         const requiredFields = this.querySelectorAll('[required]');
         let isValid = true;
@@ -1891,7 +1913,6 @@
         }
     });
 
-    // Phone number formatting
     document.getElementById('contact_no').addEventListener('input', function() {
         let value = this.value.replace(/\D/g, '');
         if (value.length > 15) {
@@ -1900,7 +1921,6 @@
         this.value = value;
     });
 
-    // Enhanced input interactions
     document.querySelectorAll('.form-input, .form-select').forEach(input => {
         input.addEventListener('focus', function() {
             const icon = this.nextElementSibling;
@@ -1919,20 +1939,20 @@
         });
     });
 
-    // Auto-open modal if there are validation errors from form submission
+
     @if ($errors->any())
         window.addEventListener('load', function() {
             openEmployeeModal();
         });
     @endif
 
-// Search functionality
+
     function searchEmployees() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
         const rows = document.querySelectorAll('tbody tr');
 
         rows.forEach(row => {
-            if (row.cells.length === 1) return; // Skip "no employees found" row
+            if (row.cells.length === 1) return;
 
             const employeeName = row.cells[0].textContent.toLowerCase();
             const employeeId = row.cells[0].textContent.toLowerCase();
@@ -1954,13 +1974,12 @@
         });
     }
 
-    // Filter functionality
     function filterEmployees() {
         const departmentFilter = document.getElementById('departmentFilter').value.toLowerCase();
         const rows = document.querySelectorAll('tbody tr');
 
         rows.forEach(row => {
-            if (row.cells.length === 1) return; // Skip "no employees found" row
+            if (row.cells.length === 1) return;
 
             const department = row.cells[1].textContent.toLowerCase();
 
@@ -1972,7 +1991,7 @@
         });
     }
 
-    // Reset filters
+
     function resetFilters() {
         document.getElementById('searchInput').value = '';
         document.getElementById('departmentFilter').value = '';
@@ -1983,10 +2002,10 @@
         });
     }
 
-    // Delete confirmation
+
     function confirmDelete(employeeId, employeeName) {
         if (confirm(`Are you sure you want to delete employee "${employeeName}" (ID: ${employeeId})?\n\nThis action cannot be undone.`)) {
-            // Create a form and submit it for deletion
+
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = `/employees/${employeeId}`;
@@ -2011,13 +2030,12 @@
         }
     }
 
-    // View Modal Functions
+
     let currentViewEmployeeId = null;
 
     function openViewModal(employeeId, employeeName, email, contactNo, employeeType, role, department, admin, employeeStatus, paidStatus, createdAt, teams, profilePhotoUrl) {
         currentViewEmployeeId = employeeId;
 
-        // Profile photo logic
         var img = document.getElementById('view_profile_photo');
         var placeholder = document.getElementById('view_profile_photo_placeholder');
         if (profilePhotoUrl && profilePhotoUrl !== '') {
@@ -2030,7 +2048,7 @@
             placeholder.style.display = 'block';
         }
 
-        // Populate modal fields
+
         document.getElementById('view_employee_id').textContent = employeeId || 'Not specified';
         document.getElementById('view_employee_name').textContent = employeeName || 'Not specified';
         document.getElementById('view_employee_name_header').textContent = employeeName || 'Unknown Employee';
@@ -2044,7 +2062,7 @@
         document.getElementById('view_teams').textContent = teams || 'No teams assigned';
         document.getElementById('view_created_at').textContent = createdAt || 'Not specified';
 
-        // Format and display employee status with badge
+
         const statusElement = document.getElementById('view_employee_status');
         if (employeeStatus) {
             let statusClass = '';
@@ -2069,7 +2087,7 @@
             statusElement.textContent = 'Not specified';
         }
 
-        // Format and display paid status with badge
+
         const paidElement = document.getElementById('view_paid_status');
         if (paidStatus) {
             let paidClass = '';
@@ -2094,7 +2112,7 @@
             paidElement.textContent = 'Not specified';
         }
 
-        // Calculate and display account age
+
         const accountAgeElement = document.getElementById('view_account_age');
         if (createdAt && createdAt !== 'N/A') {
             try {
@@ -2124,7 +2142,7 @@
             accountAgeElement.textContent = 'Not available';
         }
 
-        // Show modal
+
         const modal = document.getElementById('viewEmployeeModal');
         modal.classList.add('active');
     }
@@ -2137,13 +2155,13 @@
 
     function openEditModalFromView() {
         if (currentViewEmployeeId) {
-            // Find the employee row to get all the data needed for edit modal
+
             const rows = document.querySelectorAll('tbody tr');
             for (let row of rows) {
                 if (row.cells.length > 1) {
                     const employeeIdCell = row.cells[0].textContent.trim();
                     if (employeeIdCell === currentViewEmployeeId) {
-                        // Extract data from the edit button's onclick
+
                         const editButton = row.querySelector('button[title="Edit Employee"]');
                         if (editButton) {
                             editButton.click();
@@ -2155,7 +2173,7 @@
         }
     }
 
-    // Close modals when clicking outside
+
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('modal-overlay')) {
             if (e.target.id === 'viewEmployeeModal') {
@@ -2164,7 +2182,6 @@
         }
     });
 
-    // Close modals with Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             if (document.getElementById('viewEmployeeModal').classList.contains('active')) {
@@ -2173,20 +2190,20 @@
         }
     });
 
-    // Employee Leave Management Filter Functions
+
     let currentLeaveFilter = 'all';
 
     function filterByLeaveStatus(filterType) {
         currentLeaveFilter = filterType;
         applyLeaveFilters();
 
-        // Update button states
+
         document.querySelectorAll('[onclick^="filterByLeaveStatus"]').forEach(btn => {
             btn.classList.remove('btn-primary', 'btn-warning', 'btn-info', 'btn-success', 'btn-danger', 'btn-secondary');
             btn.classList.add('btn-secondary');
         });
 
-        // Highlight active button
+
         const activeButton = document.querySelector(`[onclick="filterByLeaveStatus('${filterType}')"]`);
         if (activeButton) {
             activeButton.classList.remove('btn-secondary');
@@ -2221,18 +2238,17 @@
         const leaveDateFilter = document.getElementById('leaveDateFilter').value;
 
         rows.forEach(row => {
-            if (row.cells.length < 8) return; // Skip header or empty rows
+            if (row.cells.length < 8) return;
 
-            const employeeName = row.cells[0].textContent.trim();
-            const department = row.cells[1].textContent.trim();
+
             const status = row.cells[5].textContent.trim();
             const leaveCountCell = row.cells[6];
 
-            // Extract leave count from the badge
+
             const leaveCountBadge = leaveCountCell.querySelector('.badge');
             const leaveCount = leaveCountBadge ? parseInt(leaveCountBadge.textContent) : 0;
 
-            // Extract leave status breakdown
+
             const leaveBreakdown = leaveCountCell.querySelectorAll('span');
             let pendingCount = 0, approvedCount = 0, rejectedCount = 0;
 
@@ -2249,7 +2265,7 @@
 
             let showRow = true;
 
-            // Apply main leave status filter
+
             if (currentLeaveFilter !== 'all') {
                 switch(currentLeaveFilter) {
                     case 'with-leaves':
@@ -2273,7 +2289,7 @@
                 }
             }
 
-            // Apply additional filters
+
             if (showRow && leaveStatusFilter) {
                 switch(leaveStatusFilter) {
                     case 'with-leaves':
@@ -2297,7 +2313,7 @@
                 }
             }
 
-            // Apply leave count filter
+
             if (showRow && leaveCountFilter) {
                 switch(leaveCountFilter) {
                     case '0':
@@ -2315,18 +2331,13 @@
                 }
             }
 
-            // Apply leave type filter (simplified - would need server-side data for full implementation)
+
             if (showRow && leaveTypeFilter) {
-                // This would typically check against actual leave types in the database
-                // For now, we'll show all rows with leaves if a type is selected
                 showRow = leaveCount > 0;
             }
 
-            // Apply date filter (simplified - would need server-side data for full implementation)
             if (showRow && leaveDateFilter) {
-                // This would typically check against actual leave dates in the database
-                // For now, we'll show all rows with leaves if a date filter is selected
-                showRow = leaveCount > 0;
+                            showRow = leaveCount > 0;
             }
 
             row.style.display = showRow ? '' : 'none';
@@ -2342,28 +2353,25 @@
         console.log(`Showing ${visibleRows.length} of ${totalRows.length} employees`);
     }
 
-    // Leave management action functions
+
     function exportLeaveReport() {
         alert('Exporting leave report...');
-        // Implement leave report export functionality
     }
 
     function bulkApproveLeaves() {
         alert('Opening bulk approve interface...');
-        // Implement bulk approve functionality
     }
 
     function viewLeaveCalendar() {
         alert('Opening leave calendar...');
-        // Implement leave calendar view
     }
 
     function generateLeaveAnalytics() {
         alert('Generating leave analytics...');
-        // Implement leave analytics
+
     }
 
-    // Enhanced search function to work with leave filters
+
     function searchEmployees() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
         const rows = document.querySelectorAll('tbody tr');
@@ -2381,10 +2389,10 @@
                 position.includes(searchTerm) ||
                 email.includes(searchTerm);
 
-            // Only show if it matches search AND current leave filter
+
             const currentDisplay = row.style.display;
             if (currentDisplay === 'none') {
-                // If already hidden by leave filter, keep hidden
+
                 row.style.display = 'none';
             } else {
                 row.style.display = matchesSearch ? '' : 'none';
@@ -2392,7 +2400,6 @@
         });
     }
 
-    // Enhanced filter function to work with leave filters
     function filterEmployees() {
         const departmentFilter = document.getElementById('departmentFilter').value;
         const rows = document.querySelectorAll('tbody tr');
@@ -2403,10 +2410,8 @@
             const department = row.cells[1].textContent.trim();
             const matchesDepartment = !departmentFilter || department === departmentFilter;
 
-            // Only show if it matches department AND current leave filter
             const currentDisplay = row.style.display;
             if (currentDisplay === 'none') {
-                // If already hidden by leave filter, keep hidden
                 row.style.display = 'none';
             } else {
                 row.style.display = matchesDepartment ? '' : 'none';
@@ -2414,9 +2419,8 @@
         });
     }
 
-    // Enhanced reset function to include leave filters
     function resetFilters() {
-        // Reset all filters
+
         document.getElementById('searchInput').value = '';
         document.getElementById('departmentFilter').value = '';
         document.getElementById('leaveStatusFilter').value = '';
@@ -2424,13 +2428,13 @@
         document.getElementById('leaveCountFilter').value = '';
         document.getElementById('leaveDateFilter').value = '';
 
-        // Reset button states
+
         document.querySelectorAll('[onclick^="filterByLeaveStatus"]').forEach(btn => {
             btn.classList.remove('btn-primary', 'btn-warning', 'btn-info', 'btn-success', 'btn-danger', 'btn-secondary');
             btn.classList.add('btn-secondary');
         });
 
-        // Show all rows
+
         const rows = document.querySelectorAll('tbody tr');
         rows.forEach(row => {
             row.style.display = '';
@@ -2440,7 +2444,6 @@
         updateFilterResults();
     }
 
-    // Employee Leave Information Display Functions
     let currentSearchedEmployee = null;
 
     function showEmployeeLeaveInfo(employeeId, employeeName, department, position) {
@@ -2448,15 +2451,14 @@
         document.getElementById('searchedEmployeeName').textContent = `${employeeName} - Leave Information`;
         document.getElementById('employeeLeaveInfo').style.display = 'block';
 
-        // Update employee details
+
         document.getElementById('employeeName').textContent = employeeName;
         document.getElementById('employeeDepartment').textContent = department;
         document.getElementById('employeePosition').textContent = position;
 
-        // Load leave information for the employee
+
         loadEmployeeLeaveInfo(employeeId);
 
-        // Scroll to the leave information section
         document.getElementById('employeeLeaveInfo').scrollIntoView({
             behavior: 'smooth',
             block: 'start'
@@ -2469,7 +2471,6 @@
     }
 
     function loadEmployeeLeaveInfo(employeeId) {
-        // Simulate loading leave information (in real implementation, this would be an AJAX call)
         const mockLeaveInfo = {
             totalLeaves: 8,
             pendingLeaves: 2,
@@ -2603,28 +2604,22 @@
         }
     }
 
-    // Action functions for employee leave information
     function viewFullLeaveHistory() {
         alert('Viewing full leave history');
-        // Implement view full leave history functionality
     }
 
     function exportEmployeeLeaveReport() {
         alert('Exporting employee leave report');
-        // Implement export functionality
     }
 
     function addLeaveRecord() {
         alert('Adding new leave record');
-        // Implement add leave record functionality
     }
 
     function viewLeaveCalendar() {
         alert('Viewing leave calendar');
-        // Implement calendar view functionality
     }
 
-    // Enhanced search function to show employee leave information
     function searchEmployees() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
         const rows = document.querySelectorAll('tbody tr');
@@ -2643,16 +2638,14 @@
                 position.includes(searchTerm) ||
                 email.includes(searchTerm);
 
-            // Only show if it matches search AND current leave filter
             const currentDisplay = row.style.display;
             if (currentDisplay === 'none') {
-                // If already hidden by leave filter, keep hidden
+
                 row.style.display = 'none';
             } else {
                 row.style.display = matchesSearch ? '' : 'none';
             }
 
-            // If this is an exact name match, store for leave information
             if (matchesSearch && employeeName.includes(searchTerm) && searchTerm.length > 2) {
                 const employeeId = row.querySelector('button[title="View Employee"]')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
                 if (employeeId) {
@@ -2698,6 +2691,7 @@
         form.insertBefore(errorContainer, form.firstChild);
     });
 </script>
+
 @endif
 
 @endsection
