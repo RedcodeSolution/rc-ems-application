@@ -205,10 +205,10 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         // Employee Management
         Route::get('/employees', function () {
-            $employees = Employee::with(['department', 'admin', 'teams'])->get();
+            $employees = Employee::with(['department', 'admin'])->get();
             $departments = Department::all();
             $admins = Admin::all();
-//            $teams = Team::all();
+            $teams = \App\Models\Team::all(); // <-- Add this line
             return view('admin.employees.index', compact('employees', 'departments', 'admins', 'teams'));
         })->name('employees');
 
