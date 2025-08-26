@@ -4,9 +4,9 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\RegistrationController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\RegistrationController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [RegistrationController::class, 'register'])->name('register');
@@ -49,4 +49,6 @@ Route::get('/reset-password/{token}', function ($token) {
     return view('auth.reset-password', ['token' => $token]);
 })->middleware('guest')->name('password.reset');
 
+
+// routes/web.php
 Route::middleware('auth')->get('/api/notifications/me', [NotificationController::class, 'myNotifications']);

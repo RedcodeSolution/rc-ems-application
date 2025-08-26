@@ -354,19 +354,19 @@
         margin: 1rem;
         border-radius: 1.25rem;
     }
-    
+
     .modal-header, .modal-body {
         padding: 1.5rem;
     }
-    
+
     .modal-title {
         font-size: 1.5rem;
     }
-    
+
     .form-actions {
         flex-direction: column;
     }
-    
+
     /* Make grid layouts single column on mobile */
     div[style*="grid-template-columns: 1fr 1fr"] {
         display: grid !important;
@@ -377,6 +377,7 @@
 </style>
 
 @section('title', 'Departments Management')
+
 
 @section('content')
 <div class="card">
@@ -413,7 +414,7 @@
                             // Dynamic icon based on department name/id
                             $icon = 'fas fa-building';
                             $iconColor = 'var(--primary)';
-                            
+
                             $deptLower = strtolower($department->department_name ?? $department->department_id);
                             if (str_contains($deptLower, 'development') || str_contains($deptLower, 'it') || str_contains($deptLower, 'tech')) {
                                 $icon = 'fas fa-code';
@@ -442,9 +443,11 @@
                         <button class="btn btn-warning" style="padding: 0.5rem;" title="Edit Department" onclick="openEditDepartmentModal('{{ $department->department_id }}')">
                             <i class="fas fa-edit"></i>
                         </button>
+
                         <button class="btn btn-danger" style="padding: 0.5rem;" title="Delete Department" onclick="confirmDeleteDepartment('{{ $department->department_id }}', '{{ $department->department_name ?? $department->department_id }}')">
                             <i class="fas fa-trash"></i>
                         </button>
+
                     </div>
                 </div>
                 <div class="card-body">
@@ -454,19 +457,19 @@
                         <div style="font-weight: 600;">{{ $department->department_head }}</div>
                     </div>
                     @endif
-                    
+
                     <div style="margin-bottom: 1rem;">
                         <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Total Employees</div>
                         <div style="font-size: 1.5rem; font-weight: 700; color: {{ $iconColor }};">{{ $department->employees_count ?? 0 }}</div>
                     </div>
-                    
+
                     @if($department->description)
                     <div style="margin-bottom: 1rem;">
                         <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Description</div>
                         <div style="font-size: 0.875rem; line-height: 1.5;">{{ Str::limit($department->description, 100) }}</div>
                     </div>
                     @endif
-                    
+
                     @if($department->location)
                     <div style="margin-bottom: 1rem;">
                         <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Location</div>
@@ -476,7 +479,7 @@
                         </div>
                     </div>
                     @endif
-                    
+
                     <div class="flex justify-between items-center">
                         @php
                             $statusClass = $department->status === 'Active' ? 'success' : 'text-secondary';
@@ -549,25 +552,15 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
+
         <div class="modal-body">
             <form id="departmentForm" action="{{ route('departments.store') }}" method="POST">
                 @csrf
                 <div class="form-container">
                     <!-- Basic Information Row -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                        <div class="form-group">
-                            <label for="department_id" class="form-label">
-                                <i class="fas fa-id-badge"></i>Department ID
-                            </label>
-                            <div style="position: relative;">
-                                <input type="text" id="department_id" name="department_id" class="form-input" placeholder="Enter unique department ID" required>
-                            </div>
-                            <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.25rem;">
-                                Use a unique identifier like "IT", "HR", "SALES", etc.
-                            </small>
-                        </div>
-                        
+
+
                         <div class="form-group">
                             <label for="department_name" class="form-label">
                                 <i class="fas fa-building"></i>Department Name
@@ -607,7 +600,7 @@
                                 Manager or head of this department
                             </small>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="location" class="form-label">
                                 <i class="fas fa-map-marker-alt"></i>Location
@@ -634,7 +627,7 @@
                                 Contact number for the department
                             </small>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="email" class="form-label">
                                 <i class="fas fa-envelope"></i>Email Address
@@ -661,7 +654,7 @@
                                 Annual budget allocation (optional)
                             </small>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="status" class="form-label">
                                 <i class="fas fa-toggle-on"></i>Department Status
@@ -677,7 +670,7 @@
                             </small>
                         </div>
                     </div>
-                    
+
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeDepartmentModal()">
                             <i class="fas fa-times"></i> Cancel
@@ -705,26 +698,15 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
+
         <div class="modal-body">
-            <form id="editDepartmentForm" method="POST">
+            <form id="editDepartmentForm"  method="POST">
                 @csrf
                 @method('PUT')
                 <div class="form-container">
                     <!-- Basic Information Row -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                        <div class="form-group">
-                            <label for="edit_department_id" class="form-label">
-                                <i class="fas fa-id-badge"></i>Department ID
-                            </label>
-                            <div style="position: relative;">
-                                <input type="text" id="edit_department_id" name="department_id" class="form-input" readonly style="background-color: #f8f9fa; cursor: not-allowed;">
-                            </div>
-                            <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.25rem;">
-                                Department ID cannot be changed
-                            </small>
-                        </div>
-                        
+
                         <div class="form-group">
                             <label for="edit_department_name" class="form-label">
                                 <i class="fas fa-building"></i>Department Name
@@ -764,7 +746,7 @@
                                 Name of the department head or manager
                             </small>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="edit_location" class="form-label">
                                 <i class="fas fa-map-marker-alt"></i>Location
@@ -791,7 +773,7 @@
                                 Department contact number
                             </small>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="edit_email" class="form-label">
                                 <i class="fas fa-envelope"></i>Email Address
@@ -818,7 +800,7 @@
                                 Annual budget allocation
                             </small>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="edit_status" class="form-label">
                                 <i class="fas fa-toggle-on"></i>Status
@@ -865,7 +847,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
+
         <div class="modal-body">
             <div class="form-container">
                 <!-- Department Header Info -->
@@ -960,10 +942,6 @@
                         <i class="fas fa-times"></i>
                         Close
                     </button>
-                    <button type="button" class="btn btn-warning" onclick="closeViewDepartmentModal(); openEditDepartmentModal(currentViewDepartmentId);">
-                        <i class="fas fa-edit"></i>
-                        Edit Department
-                    </button>
                 </div>
             </div>
         </div>
@@ -975,14 +953,14 @@
 function openDepartmentModal() {
     const modal = document.getElementById('departmentModal');
     modal.classList.add('active');
-    
+
     // Clear form
     document.getElementById('departmentForm').reset();
-    
+
     // Clear any previous error messages
     const errorMessages = modal.querySelectorAll('.error-message');
     errorMessages.forEach(msg => msg.remove());
-    
+
     // Focus on first input
     setTimeout(() => {
         document.getElementById('department_id').focus();
@@ -1013,7 +991,7 @@ document.addEventListener('keydown', function(e) {
 // Enhanced input interactions
 document.addEventListener('DOMContentLoaded', function() {
     const inputs = document.querySelectorAll('.form-input');
-    
+
     inputs.forEach(input => {
         input.addEventListener('focus', function() {
             const icon = this.nextElementSibling;
@@ -1022,7 +1000,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon.style.transform = 'translateY(-50%) scale(1.1)';
             }
         });
-        
+
         input.addEventListener('blur', function() {
             const icon = this.nextElementSibling;
             if (icon && icon.classList.contains('input-icon')) {
@@ -1036,19 +1014,19 @@ document.addEventListener('DOMContentLoaded', function() {
 // Form submission handling
 document.getElementById('departmentForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     const formData = new FormData(this);
     const submitButton = this.querySelector('button[type="submit"]');
     const originalText = submitButton.innerHTML;
-    
+
     // Show loading state
     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
     submitButton.disabled = true;
-    
+
     // Clear previous error messages
     const errorMessages = document.querySelectorAll('.error-message');
     errorMessages.forEach(msg => msg.remove());
-    
+
     fetch(this.action, {
         method: 'POST',
         body: formData,
@@ -1062,7 +1040,7 @@ document.getElementById('departmentForm').addEventListener('submit', function(e)
         if (data.success) {
             // Show success message and reload page
             closeDepartmentModal();
-            location.reload();
+            window.location.reload();
         } else {
             // Show error messages
             if (data.errors) {
@@ -1100,7 +1078,7 @@ function confirmDeleteDepartment(departmentId, departmentName) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = `/departments/${departmentId}`;
-        
+
         const csrfToken = document.querySelector('meta[name="csrf-token"]');
         if (csrfToken) {
             const csrfInput = document.createElement('input');
@@ -1109,17 +1087,18 @@ function confirmDeleteDepartment(departmentId, departmentName) {
             csrfInput.value = csrfToken.getAttribute('content');
             form.appendChild(csrfInput);
         }
-        
+
         const methodInput = document.createElement('input');
         methodInput.type = 'hidden';
         methodInput.name = '_method';
         methodInput.value = 'DELETE';
         form.appendChild(methodInput);
-        
+
         document.body.appendChild(form);
         form.submit();
     }
 }
+
 
 // View Department Details Function
 let currentViewDepartmentId = null;
@@ -1127,12 +1106,12 @@ let currentViewDepartmentId = null;
 function viewDepartmentDetails(departmentId) {
     currentViewDepartmentId = departmentId;
     const modal = document.getElementById('viewDepartmentModal');
-    
+
     // Show loading state
     modal.classList.add('active');
-    
+
     // Fetch department data
-    fetch(`/departments/${departmentId}/edit`, {
+    fetch(`/departments/${departmentId}/show`, {
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json',
@@ -1142,30 +1121,30 @@ function viewDepartmentDetails(departmentId) {
     .then(data => {
         if (data.success) {
             const department = data.department;
-            
+
             // Set department basic info
             document.getElementById('view_department_name').textContent = department.department_name || 'N/A';
             document.getElementById('view_department_id').textContent = `Department ID: ${department.department_id}`;
-            
+
             // Set department details
             document.getElementById('view_department_head').textContent = department.department_head || 'Not Assigned';
             document.getElementById('view_location').textContent = department.location || 'Not Specified';
             document.getElementById('view_phone').textContent = department.phone || 'Not Provided';
             document.getElementById('view_email').textContent = department.email || 'Not Provided';
             document.getElementById('view_description').textContent = department.description || 'No description available';
-            
+
             // Set statistics
             document.getElementById('view_employees_count').textContent = department.employees_count || 0;
-            
+
             // Format budget
             const budget = department.budget ? `$${parseFloat(department.budget).toLocaleString()}` : 'Not Set';
             document.getElementById('view_budget').textContent = budget;
-            
+
             // Set status with appropriate styling
             const statusCard = document.getElementById('view_status_card');
             const statusIcon = document.getElementById('view_status_icon');
             const statusText = document.getElementById('view_status');
-            
+
             if (department.status === 'Active') {
                 statusCard.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
                 statusCard.style.boxShadow = '0 8px 32px rgba(5, 150, 105, 0.3)';
@@ -1177,11 +1156,11 @@ function viewDepartmentDetails(departmentId) {
                 statusIcon.className = 'fas fa-pause-circle';
                 statusText.textContent = 'Inactive';
             }
-            
+
             // Set dynamic icon based on department name
             const iconElement = document.getElementById('view_department_icon').querySelector('i');
             const deptLower = (department.department_name || department.department_id).toLowerCase();
-            
+
             if (deptLower.includes('development') || deptLower.includes('it') || deptLower.includes('tech')) {
                 iconElement.className = 'fas fa-code';
             } else if (deptLower.includes('design') || deptLower.includes('creative')) {
@@ -1214,82 +1193,75 @@ function closeViewDepartmentModal() {
     currentViewDepartmentId = null;
 }
 
-// Edit Department Modal Functions
+
 function openEditDepartmentModal(departmentId) {
+    console.log(departmentId)
+    if (!departmentId) {
+        alert('Department ID missing!');
+        return;
+    }
+
     const modal = document.getElementById('editDepartmentModal');
-    
-    // Show loading state
     modal.classList.add('active');
-    
-    // Clear form and show loading
+
     const form = document.getElementById('editDepartmentForm');
     form.reset();
-    
-    // Clear any previous error messages
-    const errorMessages = modal.querySelectorAll('.error-message');
-    errorMessages.forEach(msg => msg.remove());
-    
-    // Fetch department data
+
     fetch(`/departments/${departmentId}/edit`, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json',
-        }
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const department = data.department;
-            
-            // Set form action
-            form.action = `/departments/${departmentId}`;
-            
-            // Populate form fields
-            document.getElementById('edit_department_id').value = department.department_id || '';
-            document.getElementById('edit_department_name').value = department.department_name || '';
-            document.getElementById('edit_description').value = department.description || '';
-            document.getElementById('edit_department_head').value = department.department_head || '';
-            document.getElementById('edit_location').value = department.location || '';
-            document.getElementById('edit_phone').value = department.phone || '';
-            document.getElementById('edit_email').value = department.email || '';
-            document.getElementById('edit_budget').value = department.budget || '';
-            document.getElementById('edit_status').value = department.status || 'Active';
-            
-            // Focus on first editable input
-            setTimeout(() => {
-                document.getElementById('edit_department_name').focus();
-            }, 300);
-        } else {
-            throw new Error(data.message || 'Failed to fetch department data');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error loading department data: ' + error.message);
-        closeEditDepartmentModal();
-    });
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const department = data.department;
+
+                form.action = `/departments/${departmentId}`;
+
+                document.getElementById('edit_department_name').value = department.department_name || '';
+                document.getElementById('edit_description').value = department.description || '';
+                document.getElementById('edit_department_head').value = department.department_head || '';
+                document.getElementById('edit_location').value = department.location || '';
+                document.getElementById('edit_phone').value = department.phone || '';
+                document.getElementById('edit_email').value = department.email || '';
+                document.getElementById('edit_budget').value = department.budget || '';
+                document.getElementById('edit_status').value = department.status || 'Active';
+
+                const input = document.getElementById('edit_department_name');
+                if (input) input.focus();
+
+            } else {
+                throw new Error(data.message || 'Failed to fetch department data');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading department data: ' + error.message);
+            closeEditDepartmentModal();
+        });
 }
+
 
 function closeEditDepartmentModal() {
     const modal = document.getElementById('editDepartmentModal');
     modal.classList.remove('active');
+
 }
 
 // Handle Edit Department Form Submission
 document.getElementById('editDepartmentForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     const submitButton = this.querySelector('button[type="submit"]');
     const originalText = submitButton.innerHTML;
-    
+
     // Show loading state
     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
     submitButton.disabled = true;
-    
+
     // Clear any previous error messages
     const errorMessages = this.querySelectorAll('.error-message');
     errorMessages.forEach(msg => msg.remove());
-    
+
     // Submit form
     fetch(this.action, {
         method: 'POST',
@@ -1307,7 +1279,7 @@ document.getElementById('editDepartmentForm').addEventListener('submit', functio
             successDiv.className = 'success-message';
             successDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
             this.querySelector('.form-container').insertBefore(successDiv, this.querySelector('.form-actions'));
-            
+
             // Close modal and reload page after a short delay
             setTimeout(() => {
                 closeEditDepartmentModal();
@@ -1371,7 +1343,7 @@ let filteredDepartments = departments;
 
 function renderDepartments(departmentsToRender) {
     const grid = document.getElementById('departmentsGrid');
-    
+
     if (departmentsToRender.length === 0) {
         grid.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-secondary);">
@@ -1382,14 +1354,14 @@ function renderDepartments(departmentsToRender) {
         `;
         return;
     }
-    
+
     let html = '';
-    
+
     departmentsToRender.forEach(department => {
         // Dynamic icon based on department name/id
         let icon = 'fas fa-building';
         let iconColor = 'var(--primary)';
-        
+
         const deptLower = (department.department_name || department.department_id).toLowerCase();
         if (deptLower.includes('development') || deptLower.includes('it') || deptLower.includes('tech')) {
             icon = 'fas fa-code';
@@ -1410,10 +1382,10 @@ function renderDepartments(departmentsToRender) {
             icon = 'fas fa-headset';
             iconColor = 'var(--info)';
         }
-        
+
         const statusClass = department.status === 'Active' ? 'success' : 'text-secondary';
         const statusBg = department.status === 'Active' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(107, 114, 128, 0.1)';
-        
+
         html += `
             <div class="card">
                 <div class="card-header">
@@ -1431,7 +1403,7 @@ function renderDepartments(departmentsToRender) {
                     </div>
                 </div>
                 <div class="card-body">`;
-        
+
         if (department.department_head) {
             html += `
                     <div style="margin-bottom: 1rem;">
@@ -1439,13 +1411,13 @@ function renderDepartments(departmentsToRender) {
                         <div style="font-weight: 600;">${department.department_head}</div>
                     </div>`;
         }
-        
+
         html += `
                     <div style="margin-bottom: 1rem;">
                         <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Total Employees</div>
                         <div style="font-size: 1.5rem; font-weight: 700; color: ${iconColor};">${department.employees_count || 0}</div>
                     </div>`;
-        
+
         if (department.description) {
             html += `
                     <div style="margin-bottom: 1rem;">
@@ -1453,7 +1425,7 @@ function renderDepartments(departmentsToRender) {
                         <div style="font-size: 0.875rem; line-height: 1.5;">${department.description.length > 100 ? department.description.substring(0, 100) + '...' : department.description}</div>
                     </div>`;
         }
-        
+
         if (department.location) {
             html += `
                     <div style="margin-bottom: 1rem;">
@@ -1464,7 +1436,7 @@ function renderDepartments(departmentsToRender) {
                         </div>
                     </div>`;
         }
-        
+
         html += `
                     <div class="flex justify-between items-center">
                         <span class="badge" style="background: ${statusBg}; color: var(--${statusClass}); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">
@@ -1478,7 +1450,7 @@ function renderDepartments(departmentsToRender) {
                 </div>
             </div>`;
     });
-    
+
     grid.innerHTML = html;
 }
 
@@ -1498,7 +1470,7 @@ function searchDepartments(searchTerm) {
             );
         });
     }
-    
+
     renderDepartments(filteredDepartments);
     updateStatistics();
 }
@@ -1509,7 +1481,7 @@ function updateStatistics() {
     const totalEmployees = filteredDepartments.reduce((sum, dept) => sum + (dept.employees_count || 0), 0);
     const averageEmployees = totalDepartments > 0 ? (totalEmployees / totalDepartments).toFixed(1) : 0;
     const largestDepartment = filteredDepartments.length > 0 ? Math.max(...filteredDepartments.map(dept => dept.employees_count || 0)) : 0;
-    
+
     // Update statistics cards
     const statsCards = document.querySelectorAll('.card-body.text-center');
     if (statsCards.length >= 4) {
@@ -1528,15 +1500,21 @@ function clearSearch() {
 // Initialize search functionality
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
-    
+
     // Real-time search as user types
     searchInput.addEventListener('input', function() {
         searchDepartments(this.value);
     });
-    
+
     // Initial render
     renderDepartments(departments);
 });
+
+
+
+
+
+
 </script>
 
 @endsection

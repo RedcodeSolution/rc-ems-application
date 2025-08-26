@@ -109,18 +109,18 @@ class Leave extends Model
     {
         $year = date('Y');
         $prefix = 'LEV-' . $year . '-';
-        
+
         $lastLeave = self::where('leave_id', 'like', $prefix . '%')
                          ->orderBy('leave_id', 'desc')
                          ->first();
-        
+
         if ($lastLeave) {
             $lastNumber = (int) substr($lastLeave->leave_id, -3);
             $newNumber = $lastNumber + 1;
         } else {
             $newNumber = 1;
         }
-        
+
         return $prefix . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
     }
 
@@ -128,16 +128,16 @@ class Leave extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($leave) {
             if (!$leave->leave_id) {
                 $leave->leave_id = self::generateLeaveId();
             }
-            
+
             if (!$leave->applied_date) {
                 $leave->applied_date = now();
             }
-            
+
             if (!$leave->status) {
                 $leave->status = 'pending';
             }
