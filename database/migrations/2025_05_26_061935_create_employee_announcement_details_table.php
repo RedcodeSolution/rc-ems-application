@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('employee_announcement_details', function (Blueprint $table) {
             $table->id(); // optional, Laravel will auto-increment
             $table->unsignedBigInteger('employee_id');
-            $table->string('announcement_id');
+            $table->unsignedBigInteger('announcement_id');
             $table->timestamps();
 
             $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('cascade');

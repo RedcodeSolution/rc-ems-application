@@ -91,7 +91,7 @@ class EmployeeController extends Controller
             'admin_id' => 'nullable',
             'paid_status' => 'required',
             'role' => 'required',
-            'team_ids' => 'nullable|array',  // ✅ multiple teams
+            'team_ids' => 'nullable|array',
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 

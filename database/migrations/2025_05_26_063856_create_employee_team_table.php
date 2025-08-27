@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('employee_team', function (Blueprint $table) {
             $table->unsignedBigInteger('employee_id');
-            $table->string('team_id');
+            $table->unsignedBigInteger('team_id'); // <-- must match teams.team_id type
             $table->primary(['employee_id', 'team_id']);
             $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('cascade');
             $table->foreign('team_id')->references('team_id')->on('teams')->onDelete('cascade');

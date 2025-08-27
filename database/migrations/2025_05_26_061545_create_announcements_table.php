@@ -12,15 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('announcements', function (Blueprint $table) {
-            $table->string('announcement_id')->primary();
+            $table->bigIncrements('announcement_id');
             $table->text('content');
             $table->date('date');
             $table->string('target_team_id')->nullable();
-            $table->string('department_id')->nullable();
+            $table->unsignedBigInteger('department_id')->nullable();
             $table->timestamps();
 
-            $table->foreign('department_id')->references('department_id')->on('departments')->onDelete('set null');
-            // You can create `teams` table separately and link target_team_id as FK if needed.
+            $table->foreign('department_id')
+                ->references('department_id')
+                ->on('departments')
+                ->onDelete('set null');
         });
 
     }

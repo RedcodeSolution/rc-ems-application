@@ -1,35 +1,26 @@
 <?php
 
+// database/migrations/xxxx_xx_xx_xxxxxx_create_documents_table.php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('documents', function (Blueprint $table) {
-            $table->string('document_id')->primary();
-            $table->unsignedBigInteger('employee_id'); // <-- Fix type to match employees table
-            $table->string('doc_path');
-            $table->string('version');
-            $table->date('review_date');
-            $table->string('access_permission');
-            $table->string('project_id')->nullable();
-            $table->timestamps();
-
-            $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('cascade');
-            $table->foreign('project_id')->references('project_id')->on('projects')->onDelete('set null');
-        });
-
+        if (!Schema::hasTable('documents')) {
+            Schema::create('documents', function (Blueprint $table) {
+                $table->bigIncrements('document_id');
+                $table->unsignedBigInteger('employee_id');
+                $table->string('file_path');
+                $table->string('document_type');
+                $table->timestamps();
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('documents');

@@ -1334,12 +1334,13 @@
         </div>
 
         <div class="modal-body">
-            <form id="editEmployeeForm" method="POST" action="{{ route('admin.employees.update', $employee->employee_id) }}" enctype="multipart/form-data">
+            <form id="editEmployeeForm" method="POST" action="" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="form-container">
 
-                    <div class="form-row">
+
+                <div class="form-row">
                         <div class="form-group">
                             <label for="edit_employee_id" class="form-label">
                                 <i class="fas fa-id-badge"></i>Employee ID
