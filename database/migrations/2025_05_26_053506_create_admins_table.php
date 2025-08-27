@@ -12,7 +12,7 @@ return new class extends Migration
     {
         if (!Schema::hasTable('admins')) {
             Schema::create('admins', function (Blueprint $table) {
-                $table->string('admin_id')->primary();
+                $table->bigIncrements('admin_id'); // <-- Change here
                 $table->string('admin_name');
                 $table->timestamps();
             });

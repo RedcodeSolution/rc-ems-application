@@ -6,17 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::table('super_admins', function (Blueprint $table) {
-            $table->dropColumn('employee_id');
+        Schema::create('events', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::table('super_admins', function (Blueprint $table) {
-            $table->string('employee_id');
-        });
+        Schema::dropIfExists('events');
     }
 };

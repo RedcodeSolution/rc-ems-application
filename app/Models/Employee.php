@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class Employee extends Model
 {
     protected $primaryKey = 'employee_id';
-    public $incrementing = false;
-    protected $keyType = 'string';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
-        'employee_id', 'employee_name', 'employee_type', 'employee_status',
-        'contact_no', 'email', 'department_id', 'admin_id', 'paid_status', 'team_id', 'role', 'profile_photo'
+        'employee_name', 'employee_type', 'employee_status',
+        'contact_no', 'email', 'department_id', 'admin_id', 'paid_status', 'role', 'profile_photo'
     ];
 
     public function admin() {
@@ -52,8 +52,8 @@ class Employee extends Model
     public function projects()
     {
         return $this->belongsToMany(Project::class, 'employee_project', 'employee_id', 'project_id')
-                    ->withPivot('role_in_project', 'assigned_date')
-                    ->withTimestamps();
+            ->withPivot('role_in_project', 'assigned_date')
+            ->withTimestamps();
     }
 
     public function ratings()
@@ -61,4 +61,3 @@ class Employee extends Model
         return $this->hasMany(EmployeeRating::class, 'employee_id', 'employee_id');
     }
 }
-

@@ -1,12 +1,12 @@
 <?php
-
-use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DocumentController;
-use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ReportController;
@@ -153,11 +153,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/employees/ratings/employee/{employeeId}', [\App\Http\Controllers\Employee\EmployeeRatingController::class, 'getEmployeeRatings'])->name('employee.ratings.employee');
 
     Route::get('/super_admin/dashboard', [SuperAdminController::class, 'dashboard'])->name('super_admin.dashboard');
+    Route::get('/super_admin/system_stats', [SuperAdminController::class, 'systemStats'])->name('super_admin.system_stats');
     Route::get('/super_admin/admins', [SuperAdminController::class, 'admins'])->name('super_admin.admins');
     Route::get('/super_admin/notifications', [SuperAdminController::class, 'notifications'])->name('super_admin.notifications');
     Route::get('/super_admin/super_admin_accounts', [SuperAdminController::class, 'superAdminAccounts'])->name('super_admin.super_admin_accounts');
     Route::get('/super_admin/employee_ratings', [SuperAdminController::class, 'employeeRatings'])->name('super_admin.employee_ratings');
     Route::post('/super_admin/employee_ratings', [SuperAdminController::class, 'storeEmployeeRating'])->name('super_admin.employee_ratings.store');
+    Route::get('/super_admin/employee_ratings/employee/{employeeId}', [SuperAdminController::class, 'getEmployeeRatings'])->name('super_admin.employee_ratings.employee');
 
     // Super Admin Admin Leave Management Routes
     Route::prefix('super_admin/admin-leaves')->name('super_admin.admin_leaves.')->group(function () {
@@ -203,19 +205,18 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         // Employee Management
         Route::get('/employees', function () {
-            $employees = Employee::with(['department', 'admin', 'teams'])->get();
+            $employees = Employee::with(['department', 'admin'])->get();
             $departments = Department::all();
             $admins = Admin::all();
-//            $teams = Team::all();
+            $teams = \App\Models\Team::all(); // <-- Add this line
             return view('admin.employees.index', compact('employees', 'departments', 'admins', 'teams'));
         })->name('employees');
 
-        // Management Overview
-        Route::get('/management', function () {
-            return view('admin.management.index');
-        })->name('management');
 
-        // Project Management
+        Route::match(['put', 'patch'], '/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
+
+
+
         Route::get('/projects', function () {
             return view('admin.projects.index');
         })->name('projects');
@@ -339,7 +340,7 @@ Route::middleware('auth')->prefix('employee')->name('employee.')->group(function
 
     // Announcements
     Route::get('/announcements', function () {
-        // Sample data - would be fetched from database
+
         $announcements = collect([
             (object) [
                 'announcement_id' => 'ann_001',

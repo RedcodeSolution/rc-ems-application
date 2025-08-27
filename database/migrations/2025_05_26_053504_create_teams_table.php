@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('team', function (Blueprint $table) {
-            $table->id();
+        Schema::create('teams', function (Blueprint $table) {
+            $table->bigIncrements('team_id');
             $table->string('team_name');
             $table->integer('max_team_size')->default(0);
             $table->decimal('monthly_budget', 12, 2)->nullable();
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('team');
+        Schema::dropIfExists('teams');
     }
 };

@@ -16,7 +16,6 @@
     --text-disabled: #BDBDBD;
     --divider: #E0E0E0;
 }
-/* Modern Admin Management Styles */
 .card {
     border-radius: 1rem;
     box-shadow: 0 2px 16px 0 rgba(0,0,0,0.07);
@@ -449,7 +448,7 @@
                         <span id="viewAdminRole" class="badge">Admin</span>
                     </div>
                 </div>
-                
+
                 <div class="details-grid">
                     <div class="detail-item">
                         <i class="fas fa-envelope detail-icon"></i>
@@ -494,7 +493,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="permissions-section">
                     <h5><i class="fas fa-key"></i> Permissions</h5>
                     <div class="permissions-list" id="viewAdminPermissions">
@@ -547,7 +546,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit_email" class="form-label">
@@ -568,7 +567,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit_department" class="form-label">
@@ -598,7 +597,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeEditAdminModal()">
                         <i class="fas fa-times"></i> Cancel
@@ -666,7 +665,7 @@
                         <h5 id="passwordAdminName">John Smith</h5>
                         <p id="passwordAdminId">ADM002</p>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="new_password" class="form-label">
                             <i class="fas fa-lock"></i> New Password
@@ -679,7 +678,7 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="confirm_password" class="form-label">
                             <i class="fas fa-lock"></i> Confirm Password
@@ -692,7 +691,7 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <div class="checkbox-group">
                             <input type="checkbox" id="send_email" name="send_email" checked>
@@ -700,7 +699,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeChangePasswordModal()">
                         <i class="fas fa-times"></i> Cancel
@@ -732,7 +731,7 @@
                         <h5 id="notificationAdminName">John Smith</h5>
                         <p id="notificationAdminId">ADM002</p>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="notification_type" class="form-label">
                             <i class="fas fa-tag"></i> Notification Type
@@ -748,7 +747,7 @@
                             </select>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="notification_title" class="form-label">
                             <i class="fas fa-heading"></i> Title
@@ -758,7 +757,7 @@
                             <input type="text" id="notification_title" name="title" class="form-field" placeholder="Enter notification title" required>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="notification_message" class="form-label">
                             <i class="fas fa-comment"></i> Message
@@ -768,7 +767,7 @@
                             <textarea id="notification_message" name="message" class="form-field" rows="4" placeholder="Enter notification message" required></textarea>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <div class="checkbox-group">
                             <input type="checkbox" id="send_email_notification" name="send_email" checked>
@@ -776,7 +775,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeSendNotificationModal()">
                         <i class="fas fa-times"></i> Cancel
@@ -823,7 +822,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="employee_id" class="form-label">
@@ -854,7 +853,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="department_id" class="form-label">
@@ -880,7 +879,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="contact_no" class="form-label">
@@ -905,7 +904,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="permissions" class="form-label">
                             <i class="fas fa-key"></i> Permissions
@@ -938,7 +937,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeAddAdminModal()">
                         <i class="fas fa-times"></i> Cancel
@@ -974,7 +973,7 @@ document.addEventListener('keydown', function(event) {
 // Form submission handling
 document.getElementById('addAdminForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     // Basic validation
     const adminId = document.getElementById('admin_id').value;
     const adminName = document.getElementById('admin_name').value;
@@ -983,26 +982,26 @@ document.getElementById('addAdminForm').addEventListener('submit', function(e) {
     const email = document.getElementById('email').value;
     const contactNo = document.getElementById('contact_no').value;
     const status = document.getElementById('status').value;
-    
+
     if (!adminId || !adminName || !employeeId || !role || !email || !contactNo || !status) {
         alert('Please fill in all required fields');
         return;
     }
-    
+
     // Email validation
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {
         alert('Please enter a valid email address');
         return;
     }
-    
+
     // Phone validation
     const phonePattern = /^[\d\s\-\+\(\)]+$/;
     if (!phonePattern.test(contactNo)) {
         alert('Please enter a valid contact number');
         return;
     }
-    
+
     // Submit the form
     this.submit();
 });
@@ -1014,7 +1013,7 @@ let currentAdminId = null;
 function searchAdmins() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const rows = document.querySelectorAll('#adminsTable tbody tr');
-    
+
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         if (text.includes(searchTerm)) {
@@ -1030,21 +1029,21 @@ function filterAdmins() {
     const roleFilter = document.getElementById('roleFilter').value;
     const statusFilter = document.getElementById('statusFilter').value;
     const rows = document.querySelectorAll('#adminsTable tbody tr');
-    
+
     rows.forEach(row => {
         const role = row.getAttribute('data-role');
         const status = row.getAttribute('data-status');
-        
+
         let showRow = true;
-        
+
         if (roleFilter && role !== roleFilter) {
             showRow = false;
         }
-        
+
         if (statusFilter && status !== statusFilter) {
             showRow = false;
         }
-        
+
         row.style.display = showRow ? '' : 'none';
     });
 }
@@ -1054,7 +1053,7 @@ function resetFilters() {
     document.getElementById('searchInput').value = '';
     document.getElementById('roleFilter').value = '';
     document.getElementById('statusFilter').value = '';
-    
+
     const rows = document.querySelectorAll('#adminsTable tbody tr');
     rows.forEach(row => {
         row.style.display = '';
@@ -1141,7 +1140,7 @@ function togglePassword(fieldId) {
     const field = document.getElementById(fieldId);
     const button = field.nextElementSibling;
     const icon = button.querySelector('i');
-    
+
     if (field.type === 'password') {
         field.type = 'text';
         icon.classList.replace('fa-eye', 'fa-eye-slash');
@@ -1352,15 +1351,15 @@ function togglePassword(fieldId) {
         width: 95%;
         max-width: none;
     }
-    
+
     .form-row {
         grid-template-columns: 1fr;
     }
-    
+
     .permission-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .modal-header, .modal-body {
         padding: 1rem;
     }
@@ -1637,22 +1636,22 @@ function togglePassword(fieldId) {
     .details-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .admin-avatar-section {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .bulk-actions-bar .flex {
         flex-direction: column;
         gap: 1rem;
     }
-    
+
     .bulk-buttons {
         margin-left: 0;
         justify-content: center;
     }
-    
+
     .delete-warning {
         flex-direction: column;
         text-align: center;

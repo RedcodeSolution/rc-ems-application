@@ -21,11 +21,15 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-
     }
 
     public function down(): void
     {
+        if (Schema::hasTable('employees')) {
+            Schema::table('employees', function (Blueprint $table) {
+                $table->dropForeign(['department_id']);
+            });
+        }
         Schema::dropIfExists('departments');
     }
 };

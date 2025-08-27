@@ -11,10 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('leaves', function (Blueprint $table) {
-            $table->id();
+        Schema::create('notifications', function (Blueprint $table) {
+            $table->string('notifi_id')->primary();
+            $table->timestamp('timestamp');
+            $table->string('type');
+            $table->string('delivery_channel');
+            $table->text('message');
             $table->timestamps();
         });
+
     }
 
     /**
@@ -22,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('leaves');
+        Schema::dropIfExists('notifications');
     }
 };
