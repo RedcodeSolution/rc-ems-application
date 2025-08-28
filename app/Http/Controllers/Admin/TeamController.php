@@ -5,28 +5,23 @@ use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\Team;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Models\Department;
 
 class TeamController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-
-    public function index()
+    public function index(Request $request)
     {
-        $teams = Team::all();
+        $query = Team::query();
+        if ($request->has('search') && $request->search) {
+            $query->where('team_name', 'like', '%' . $request->search . '%');
+        }
+        $teams = $query->get();
         $departments = \App\Models\Department::all();
-        return view('admin.teams.index', compact('teams', 'departments'));
+        $employees = \App\Models\Employee::all(); // Add this line
+        return view('admin.teams.index', compact('teams', 'departments', 'employees'));
     }
-
-//    public function create()
-//    {
-//        $departments = Department::all();
-//        $employees = Employee::all();
-//        return view('admin.teams.create', compact('departments', 'employees'));
-//    }
 
     /**
      * Store a newly created resource in storage.
@@ -37,7 +32,7 @@ class TeamController extends Controller
         $validated = $request->validate([
             'team_name' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,department_id',
-            'team_lead' => 'nullable|string|max:255',
+            'team_lead' => 'nullable|exists:employees,employee_id',
             'max_team_size' => 'required|integer|min:1|max:50',
             'monthly_budget' => 'nullable|numeric|min:0',
             'team_status' => 'required|in:Active,Inactive,On Hold,Disbanded',
@@ -48,10 +43,17 @@ class TeamController extends Controller
             'skills_required' => 'nullable|string',
         ]);
 
+        // Save the team lead as name instead of id
+        $teamLeadName = null;
+        if (!empty($validated['team_lead'])) {
+            $employee = \App\Models\Employee::find($validated['team_lead']);
+            $teamLeadName = $employee ? $employee->employee_name : null;
+        }
+
         $team = Team::create([
             'team_name' => $validated['team_name'],
             'department_id' => $validated['department_id'],
-            'team_lead' => $validated['team_lead'] ?? null,
+            'team_lead' => $teamLeadName, // Save name instead of id
             'max_team_size' => $validated['max_team_size'],
             'monthly_budget' => $validated['monthly_budget'] ?? null,
             'team_status' => $validated['team_status'],
@@ -68,7 +70,6 @@ class TeamController extends Controller
     /**
      * Display the specified resource.
      */
-    // app/Http/Controllers/TeamController.php
 
     public function show($id)
     {

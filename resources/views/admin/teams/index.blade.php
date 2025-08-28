@@ -591,11 +591,20 @@ input[type="text"].form-input::placeholder {
     <div class="card-body">
         <!-- Search Section -->
         <div class="flex justify-between items-center mb-4">
-            <input type="text" placeholder="Search teams..." class="form-input" style="width: 300px;">
-            <button class="btn btn-secondary">
-                <i class="fas fa-search"></i>
-                Search
-            </button>
+            <form method="GET" action="{{ route('admin.teams') }}" class="flex justify-between items-center mb-4" style="gap: 1rem;">
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search teams..."
+                    class="form-input"
+                    style="width: 300px;"
+                >
+                <button class="btn btn-secondary" type="submit">
+                    <i class="fas fa-search"></i>
+                    Search
+                </button>
+            </form>
         </div>
 
         <!-- Teams Grid -->
@@ -659,13 +668,16 @@ input[type="text"].form-input::placeholder {
                             <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Team Lead</div>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 @php
-                                    $lead = $team->team_lead ?? '';
-                                    $leadInitials = collect(explode(' ', $lead))->map(fn($w) => strtoupper(substr($w,0,1)))->implode('');
+                                    $leadEmployee = $team->teamLead;
+                                    $leadName = $leadEmployee ? $leadEmployee->employee_name : 'N/A';
+                                    $leadInitials = $leadEmployee
+                                        ? collect(explode(' ', $leadEmployee->employee_name))->map(fn($w) => strtoupper(substr($w,0,1)))->implode('')
+                                        : 'NA';
                                 @endphp
                                 <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700;">
-                                    {{ $leadInitials ?: 'NA' }}
+                                    {{ $leadInitials }}
                                 </div>
-                                <div style="font-weight: 600;">{{ $lead ?: 'N/A' }}</div>
+                                <div style="font-weight: 600;">{{ $leadName }}</div>
                             </div>
                         </div>
                         <!-- Team Members -->
@@ -784,7 +796,12 @@ input[type="text"].form-input::placeholder {
                                 <i class="fas fa-user-tie"></i>Team Lead
                             </label>
                             <div style="position: relative;">
-                                <input type="text" id="team_lead" name="team_lead" class="form-input" placeholder="Enter team lead">
+                                <select id="team_lead" name="team_lead" class="form-select" required>
+                                    <option value="">Select Team Lead</option>
+                                    @foreach($employees as $employee)
+                                        <option value="{{ $employee->employee_id }}">{{ $employee->employee_name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>

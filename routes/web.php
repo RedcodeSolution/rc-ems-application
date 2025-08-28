@@ -3,15 +3,7 @@
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\TeamController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\DocumentController;
-use App\Http\Controllers\LeaveController;
-use App\Http\Controllers\MeetingController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SuperAdminController;
 use App\Models\Admin;
 use App\Models\Department;
@@ -20,7 +12,7 @@ use App\Models\Leave;
 use App\Models\Meeting;
 use Illuminate\Support\Facades\Route;
 
-// Guest route - Welcome page
+
 Route::get('/', function () {
     return view('guest');
 })->middleware('guest')->name('welcome');
@@ -272,16 +264,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('admins', AdminController::class);
     Route::post('/admin/store', [AdminController::class, 'store'])->name('admin.store');
 
-    // Super admin management
     Route::resource('super_admins', SuperAdminController::class);
 
-    // Project management
+
     Route::resource('projects', ProjectController::class);
 
-    Route::get('teams/{team}/assign-employees', [TeamController::class, 'assignEmployeesForm'])->name('teams.assignEmployeesForm');
-    Route::post('teams/{team}/assign-employees', [TeamController::class, 'assignEmployees'])->name('teams.assignEmployees');
-
-    // Leave management
     Route::resource('leaves', LeaveController::class);
 
     // Report management
