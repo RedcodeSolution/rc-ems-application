@@ -7,15 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 class Team extends Model
 {
     protected $primaryKey = 'team_id';
-    public $incrementing = false;
-    protected $keyType = 'string';
+    public $incrementing = true;
+    protected $keyType = 'int';
 
-    protected $fillable = ['team_id', 'team_name'];
-
-    public function employee()
-    {
-        return $this->belongsTo(Employee::class, 'employee_id');
-    }
+    protected $fillable = [
+        'team_name',
+        'department_id',
+        'team_lead',
+        'max_team_size',
+        'monthly_budget',
+        'team_status',
+        'team_priority',
+        'work_mode',
+        'team_description',
+        'team_goals',
+        'skills_required'
+    ];
 
     public function projects()
     {
@@ -26,6 +33,4 @@ class Team extends Model
     {
         return $this->belongsToMany(Employee::class, 'employee_team', 'team_id', 'employee_id')->withTimestamps();
     }
-
 }
-
