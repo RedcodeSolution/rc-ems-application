@@ -637,15 +637,14 @@ input[type="text"].form-input::placeholder {
                             </button>
                             <button class="btn btn-warning" style="padding: 0.5rem;"
                                 onclick="openEditTeamModal(
+                                    '{{ $team->team_id }}',
                                     '{{ $team->team_name }}',
-                                    '',
                                     '{{ $team->department_id }}',
                                     '{{ $team->team_lead ?? '' }}',
                                     '{{ $team->max_team_size }}',
                                     '{{ $team->monthly_budget }}',
                                     '{{ $team->team_status }}',
                                     '{{ $team->team_priority }}',
-                                    '',
                                     '{{ $team->work_mode }}',
                                     `{{ $team->team_description ?? '' }}`,
                                     `{{ $team->team_goals ?? '' }}`,
@@ -931,13 +930,13 @@ input[type="text"].form-input::placeholder {
         </div>
 
         <div class="modal-body">
-            <form action="{{ route('teams.update', ['team' => 1]) }}" method="POST" id="editTeamForm">
+            <form action="" method="POST" id="editTeamForm">
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="edit_team_id" name="team_id">
 
                 <div class="form-container">
-                    <!-- Team Basic Information Row -->
+                    <!-- Team Name -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit_team_name" class="form-label">
@@ -945,50 +944,29 @@ input[type="text"].form-input::placeholder {
                             </label>
                             <input type="text" id="edit_team_name" name="team_name" class="form-input" placeholder="Enter team name" required>
                         </div>
-
-                        <div class="form-group">
-                            <label for="edit_team_code" class="form-label">
-                                <i class="fas fa-hashtag"></i>Team Code
-                            </label>
-                            <input type="text" id="edit_team_code" name="team_code" class="form-input" placeholder="Enter team code (e.g., DEV01)" required>
-                        </div>
                     </div>
-
                     <!-- Department and Team Lead Row -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="edit_department" class="form-label">
+                            <label for="edit_department_id" class="form-label">
                                 <i class="fas fa-building"></i>Department
                             </label>
-                            <select id="edit_department" name="department" class="form-select" required>
+                            <select id="edit_department_id" name="department_id" class="form-select" required>
                                 <option value="">Select Department</option>
-                                <option value="Engineering">Engineering</option>
-                                <option value="Creative">Creative</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Sales">Sales</option>
-                                <option value="Human Resources">Human Resources</option>
-                                <option value="Finance">Finance</option>
-                                <option value="Operations">Operations</option>
-                                <option value="Information Technology">Information Technology</option>
-                                <option value="Quality Assurance">Quality Assurance</option>
-                                <option value="Customer Support">Customer Support</option>
+                                @foreach($departments as $department)
+                                    <option value="{{ $department->department_id }}">{{ $department->department_name }}</option>
+                                @endforeach
                             </select>
                         </div>
-
                         <div class="form-group">
                             <label for="edit_team_lead" class="form-label">
                                 <i class="fas fa-user-tie"></i>Team Lead
                             </label>
-                            <select id="edit_team_lead" name="team_lead" class="form-select">
+                            <select id="edit_team_lead" name="team_lead" class="form-select" required>
                                 <option value="">Select Team Lead</option>
-                                <option value="1">John Smith - Senior Developer</option>
-                                <option value="2">Sarah Wilson - UI/UX Designer</option>
-                                <option value="3">Mike Johnson - Marketing Manager</option>
-                                <option value="4">Emily Davis - HR Specialist</option>
-                                <option value="5">David Brown - Finance Manager</option>
-                                <option value="6">Lisa Anderson - Operations Lead</option>
-                                <option value="7">Robert Miller - IT Manager</option>
-                                <option value="8">Jennifer Taylor - QA Lead</option>
+                                @foreach($employees as $employee)
+                                    <option value="{{ $employee->employee_id }}">{{ $employee->employee_name }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -996,39 +974,37 @@ input[type="text"].form-input::placeholder {
                     <!-- Team Size and Budget Row -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="edit_max_size" class="form-label">
+                            <label for="edit_max_team_size" class="form-label">
                                 <i class="fas fa-users-cog"></i>Maximum Team Size
                             </label>
-                            <input type="number" id="edit_max_size" name="max_size" class="form-input" placeholder="Enter maximum team size" min="1" max="50">
+                            <input type="number" id="edit_max_team_size" name="max_team_size" class="form-input" placeholder="Enter maximum team size" min="1" max="50" required>
                         </div>
-
                         <div class="form-group">
-                            <label for="edit_budget" class="form-label">
+                            <label for="edit_monthly_budget" class="form-label">
                                 <i class="fas fa-dollar-sign"></i>Monthly Budget
                             </label>
-                            <input type="number" id="edit_budget" name="budget" class="form-input" placeholder="Enter monthly budget" min="0" step="0.01">
+                            <input type="number" id="edit_monthly_budget" name="monthly_budget" class="form-input" placeholder="Enter monthly budget" min="0" step="0.01">
                         </div>
                     </div>
 
                     <!-- Status and Priority Row -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="edit_status" class="form-label">
+                            <label for="edit_team_status" class="form-label">
                                 <i class="fas fa-toggle-on"></i>Team Status
                             </label>
-                            <select id="edit_status" name="status" class="form-select" required>
+                            <select id="edit_team_status" name="team_status" class="form-select" required>
                                 <option value="Active">Active</option>
                                 <option value="Inactive">Inactive</option>
                                 <option value="On Hold">On Hold</option>
                                 <option value="Disbanded">Disbanded</option>
                             </select>
                         </div>
-
                         <div class="form-group">
-                            <label for="edit_priority" class="form-label">
+                            <label for="edit_team_priority" class="form-label">
                                 <i class="fas fa-star"></i>Team Priority
                             </label>
-                            <select id="edit_priority" name="priority" class="form-select">
+                            <select id="edit_team_priority" name="team_priority" class="form-select" required>
                                 <option value="Low">Low</option>
                                 <option value="Normal">Normal</option>
                                 <option value="High">High</option>
@@ -1037,14 +1013,13 @@ input[type="text"].form-input::placeholder {
                         </div>
                     </div>
 
-                    <!-- Team Location and Work Mode Row -->
+                    <!-- Work Mode Row -->
                     <div class="form-row">
-
                         <div class="form-group">
                             <label for="edit_work_mode" class="form-label">
                                 <i class="fas fa-laptop-house"></i>Work Mode
                             </label>
-                            <select id="edit_work_mode" name="work_mode" class="form-select">
+                            <select id="edit_work_mode" name="work_mode" class="form-select" required>
                                 <option value="On-site">On-site</option>
                                 <option value="Remote">Remote</option>
                                 <option value="Hybrid">Hybrid</option>
@@ -1055,18 +1030,18 @@ input[type="text"].form-input::placeholder {
 
                     <!-- Team Description -->
                     <div class="form-group">
-                        <label for="edit_description" class="form-label">
+                        <label for="edit_team_description" class="form-label">
                             <i class="fas fa-file-alt"></i>Team Description
                         </label>
-                        <textarea id="edit_description" name="description" class="form-textarea" placeholder="Describe the team's purpose, goals, and responsibilities" rows="4"></textarea>
+                        <textarea id="edit_team_description" name="team_description" class="form-textarea" placeholder="Describe the team's purpose, goals, and responsibilities" rows="4"></textarea>
                     </div>
 
                     <!-- Team Goals and Objectives -->
                     <div class="form-group">
-                        <label for="edit_goals" class="form-label">
+                        <label for="edit_team_goals" class="form-label">
                             <i class="fas fa-target"></i>Team Goals & Objectives
                         </label>
-                        <textarea id="edit_goals" name="goals" class="form-textarea" placeholder="Define the team's key goals and objectives" rows="3"></textarea>
+                        <textarea id="edit_team_goals" name="team_goals" class="form-textarea" placeholder="Define the team's key goals and objectives" rows="3"></textarea>
                     </div>
 
                     <!-- Skills Required -->
@@ -1335,26 +1310,42 @@ function closeTeamModal() {
 }
 
 // Edit Team Modal Functions
-function openEditTeamModal(teamName, teamCode, department, teamLead, maxSize, budget, status, priority, location, workMode, description, goals, skills) {
+function openEditTeamModal(teamId, teamName, departmentId, teamLeadName, maxTeamSize, monthlyBudget, teamStatus, teamPriority, workMode, teamDescription, teamGoals, skillsRequired) {
     document.getElementById('editTeamModal').classList.add('active');
     document.body.style.overflow = 'hidden';
 
-    // Populate form fields with existing data
+    // Set form action dynamically
+    document.getElementById('editTeamForm').action = '/admin/teams/' + teamId;
+    document.getElementById('edit_team_id').value = teamId;
     document.getElementById('edit_team_name').value = teamName;
-    document.getElementById('edit_team_code').value = teamCode;
-    document.getElementById('edit_department').value = department;
-    document.getElementById('edit_team_lead').value = teamLead;
-    document.getElementById('edit_max_size').value = maxSize;
-    document.getElementById('edit_budget').value = budget;
-    document.getElementById('edit_status').value = status;
-    document.getElementById('edit_priority').value = priority;
-    document.getElementById('edit_location').value = location;
-    document.getElementById('edit_work_mode').value = workMode;
-    document.getElementById('edit_description').value = description;
-    document.getElementById('edit_goals').value = goals;
-    document.getElementById('edit_skills_required').value = skills;
+    document.getElementById('edit_department_id').value = departmentId;
 
-    // Enhanced input interactions
+    // Set the team lead by name (since you store name, not id)
+    let teamLeadSelect = document.getElementById('edit_team_lead');
+    let foundLead = false;
+    for (let i = 0; i < teamLeadSelect.options.length; i++) {
+        if (teamLeadSelect.options[i].text.trim() === teamLeadName.trim()) {
+            teamLeadSelect.selectedIndex = i;
+            foundLead = true;
+            break;
+        }
+    }
+    if (!foundLead) {
+        teamLeadSelect.selectedIndex = 0;
+    }
+
+    document.getElementById('edit_max_team_size').value = maxTeamSize;
+    document.getElementById('edit_monthly_budget').value = monthlyBudget;
+    document.getElementById('edit_team_status').value = teamStatus;
+    document.getElementById('edit_team_priority').value = teamPriority;
+
+    // Fix for work mode select
+    document.getElementById('edit_work_mode').value = workMode;
+
+    document.getElementById('edit_team_description').value = teamDescription;
+    document.getElementById('edit_team_goals').value = teamGoals;
+    document.getElementById('edit_skills_required').value = skillsRequired;
+
     setupInputEnhancements();
 }
 
@@ -1370,9 +1361,9 @@ function closeEditTeamModal() {
     });
 }
 
-// View Team Modal Functions
+
 function openViewTeamModal(teamName, teamCode, department, teamLead, maxSize, budget, status, priority, location, workMode, description, goals, skills) {
-    // Debug log to verify data is being passed
+
     console.log('Opening view team modal with data:', {
         teamName, teamCode, department, teamLead, maxSize, budget, status, priority, location, workMode, description, goals, skills
     });
@@ -1424,16 +1415,14 @@ function closeViewTeamModal() {
 }
 
 function openEditTeamModalFromView() {
-    // Close view modal first
     closeViewTeamModal();
 
-    // Open edit modal with stored data
     const data = window.currentTeamData;
     if (data) {
         setTimeout(() => {
             openEditTeamModal(data.teamName, data.teamCode, data.department, data.teamLead,
                          data.maxSize, data.budget, data.status, data.priority, data.location, data.workMode, data.description, data.goals, data.skills);
-        }, 300); // Small delay to allow view modal to close
+        }, 300);
     }
 }
 
@@ -1447,7 +1436,6 @@ function openManageMembersModal(teamId, selectedEmployeeIds, teamName) {
     document.getElementById('manageMembersForm').action =
         '/admin/teams/' + teamId + '/manage-members';
 
-    // Set selected employees
     const select = document.getElementById('manage_employee_ids');
     for (let i = 0; i < select.options.length; i++) {
         select.options[i].selected = selectedEmployeeIds.includes(parseInt(select.options[i].value));
@@ -1518,52 +1506,6 @@ document.getElementById('teamForm').addEventListener('submit', function(e) {
     // If validation passes, allow the form to submit
 });
 
-// Form validation for team editing
-document.getElementById('editTeamForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    // Basic validation
-    const requiredFields = ['edit_team_name', 'edit_team_code', 'edit_department', 'edit_status'];
-    let isValid = true;
-
-    requiredFields.forEach(fieldName => {
-        const field = document.getElementById(fieldName);
-        if (field && !field.value.trim()) {
-            field.style.borderColor = 'var(--redcode-primary)';
-            field.style.background = 'rgba(220, 38, 38, 0.05)';
-            isValid = false;
-        } else if (field) {
-            field.style.borderColor = 'var(--redcode-green)';
-            field.style.background = 'rgba(5, 150, 105, 0.05)';
-        }
-    });
-
-    if (!isValid) {
-        alert('Please fill in all required fields');
-        return;
-    }
-
-    // Team code validation (should be unique)
-    const teamCode = document.getElementById('edit_team_code').value.trim();
-    if (teamCode.length < 3) {
-        alert('Team code must be at least 3 characters long');
-        return;
-    }
-
-    // Max size validation
-    const maxSize = document.getElementById('edit_max_size').value;
-    if (maxSize && (maxSize < 1 || maxSize > 50)) {
-        alert('Maximum team size must be between 1 and 50');
-        return;
-    }
-
-    // If validation passes, submit the form
-    alert('Team updated successfully!');
-    closeEditTeamModal();
-
-    // Here you would typically send the data to your server
-    // this.submit(); // Uncomment this to actually submit the form
-});
 
 // Close modal when clicking outside
 document.getElementById('teamModal').addEventListener('click', function(e) {
