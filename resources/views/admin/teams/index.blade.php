@@ -668,10 +668,9 @@ input[type="text"].form-input::placeholder {
                             <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Team Lead</div>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 @php
-                                    $leadEmployee = $team->teamLead;
-                                    $leadName = $leadEmployee ? $leadEmployee->employee_name : 'N/A';
-                                    $leadInitials = $leadEmployee
-                                        ? collect(explode(' ', $leadEmployee->employee_name))->map(fn($w) => strtoupper(substr($w,0,1)))->implode('')
+                                    $leadName = $team->team_lead ?? 'N/A';
+                                    $leadInitials = $leadName !== 'N/A'
+                                        ? collect(explode(' ', $leadName))->map(fn($w) => strtoupper(substr($w,0,1)))->implode('')
                                         : 'NA';
                                 @endphp
                                 <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700;">
