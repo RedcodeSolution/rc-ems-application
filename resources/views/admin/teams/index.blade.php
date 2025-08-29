@@ -620,7 +620,7 @@ input[type="text"].form-input::placeholder {
                             <button class="btn btn-secondary" style="padding: 0.5rem;"
                                 onclick="openViewTeamModal(
                                     '{{ $team->team_name }}',
-                                    '',
+                                    '{{ $team->team_id }}',
                                     '{{ optional($departments->firstWhere('department_id', $team->department_id))->department_name ?? '' }}',
                                     '{{ $team->team_lead ?? '' }}',
                                     '{{ $team->max_team_size }}',
@@ -1097,11 +1097,11 @@ input[type="text"].form-input::placeholder {
 
                     <div class="form-group">
                         <label class="form-label">
-                            <i class="fas fa-hashtag"></i>Team Code
+                            <i class="fas fa-hashtag"></i>Team ID
                         </label>
                         <div style="position: relative;">
                             <i class="input-icon fas fa-hashtag"></i>
-                            <div class="view-field" id="view_team_code"></div>
+                            <div class="view-field" id="view_team_id"></div>
                         </div>
                     </div>
                 </div>
@@ -1362,21 +1362,16 @@ function closeEditTeamModal() {
 }
 
 
-function openViewTeamModal(teamName, teamCode, department, teamLead, maxSize, budget, status, priority, location, workMode, description, goals, skills) {
-
-    console.log('Opening view team modal with data:', {
-        teamName, teamCode, department, teamLead, maxSize, budget, status, priority, location, workMode, description, goals, skills
-    });
-
+function openViewTeamModal(teamName, teamId, department, teamLead, maxSize, budget, status, priority, location, workMode, description, goals, skills) {
     // Populate view fields with the team data
     document.getElementById('view_team_name').textContent = teamName || 'N/A';
-    document.getElementById('view_team_code').textContent = teamCode || 'N/A';
+    document.getElementById('view_team_id').textContent = teamId || 'N/A';
     document.getElementById('view_department').textContent = department || 'N/A';
     document.getElementById('view_team_lead').textContent = teamLead || 'N/A';
     document.getElementById('view_max_size').textContent = maxSize || 'N/A';
 
     // Format budget with currency symbol
-    document.getElementById('view_budget').textContent = budget ? `$${parseInt(budget).toLocaleString()}` : 'N/A';
+    document.getElementById('view_budget').textContent = budget ? `$${parseFloat(budget).toLocaleString()}` : 'N/A';
 
     // Handle status with special styling
     const statusField = document.getElementById('view_status');
@@ -1393,7 +1388,6 @@ function openViewTeamModal(teamName, teamCode, department, teamLead, maxSize, bu
     }
 
     document.getElementById('view_priority').textContent = priority || 'N/A';
-    document.getElementById('view_location').textContent = location || 'N/A';
     document.getElementById('view_work_mode').textContent = workMode || 'N/A';
     document.getElementById('view_description').textContent = description || 'N/A';
     document.getElementById('view_goals').textContent = goals || 'N/A';
@@ -1401,7 +1395,7 @@ function openViewTeamModal(teamName, teamCode, department, teamLead, maxSize, bu
 
     // Store data for potential edit modal opening
     window.currentTeamData = {
-        teamName, teamCode, department, teamLead, maxSize, budget, status, priority, location, workMode, description, goals, skills
+        teamName, teamId, department, teamLead, maxSize, budget, status, priority, location, workMode, description, goals, skills
     };
 
     // Show the view modal
