@@ -552,19 +552,19 @@ input[type="text"].form-input::placeholder {
         margin: 1rem;
         border-radius: 1.5rem;
     }
-    
+
     .form-row {
         grid-template-columns: 1fr;
     }
-    
+
     .modal-header, .modal-body {
         padding: 1.5rem;
     }
-    
+
     .modal-title {
         font-size: 1.5rem;
     }
-    
+
     .form-actions {
         flex-direction: column;
     }
@@ -591,208 +591,156 @@ input[type="text"].form-input::placeholder {
     <div class="card-body">
         <!-- Search Section -->
         <div class="flex justify-between items-center mb-4">
-            <input type="text" placeholder="Search teams..." class="form-input" style="width: 300px;">
-            <button class="btn btn-secondary">
-                <i class="fas fa-search"></i>
-                Search
-            </button>
+            <form method="GET" action="{{ route('admin.teams') }}" class="flex justify-between items-center mb-4" style="gap: 1rem;">
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search teams..."
+                    class="form-input"
+                    style="width: 300px;"
+                >
+                <button class="btn btn-secondary" type="submit">
+                    <i class="fas fa-search"></i>
+                    Search
+                </button>
+            </form>
         </div>
 
         <!-- Teams Grid -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem;">
-            <div class="card">
-                <div class="card-header">
-                    <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--gray-800);">
-                        <i class="fas fa-code" style="color: var(--primary);"></i>
-                        Development Team
-                    </h3>
-                    <div class="flex gap-1">
-                        <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="openViewTeamModal('Development Team', 'DEV01', 'Engineering', 'John Smith', 8, 50000, 'Active', 'Normal', 'Head Office', 'On-site', 'Full-stack development team focused on building scalable web applications', 'Deliver high-quality software solutions on time', 'JavaScript, React, Node.js, Python, Docker')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-warning" style="padding: 0.5rem;" onclick="openEditTeamModal('Development Team', 'DEV01', 'Engineering', 'John Smith', 8, 50000, 'Active', 'Normal', 'Head Office', 'On-site', 'Full-stack development team focused on building scalable web applications', 'Deliver high-quality software solutions on time', 'JavaScript, React, Node.js, Python, Docker')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-danger" style="padding: 0.5rem; background: #dc3545; color: white;">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div style="margin-bottom: 1rem;">
-                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Team Lead</div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700;">JS</div>
-                            <div style="font-weight: 600;">John Smith</div>
+            @forelse($teams as $team)
+                <div class="card" style="padding: 1.5rem;">
+                    <div class="card-header">
+                        <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--gray-800);">
+                            <i class="fas fa-code" style="color: var(--primary);"></i>
+                            {{ $team->team_name }}
+                        </h3>
+                        <div class="flex gap-1">
+                            <button class="btn btn-secondary" style="padding: 0.5rem;"
+                                onclick="openViewTeamModal(
+                                    '{{ $team->team_name }}',
+                                    '{{ $team->team_id }}',
+                                    '{{ optional($departments->firstWhere('department_id', $team->department_id))->department_name ?? '' }}',
+                                    '{{ $team->team_lead ?? '' }}',
+                                    '{{ $team->max_team_size }}',
+                                    '{{ $team->monthly_budget }}',
+                                    '{{ $team->team_status }}',
+                                    '{{ $team->team_priority }}',
+                                    '',
+                                    '{{ $team->work_mode }}',
+                                    `{{ $team->team_description ?? '' }}`,
+                                    `{{ $team->team_goals ?? '' }}`,
+                                    `{{ $team->skills_required ?? '' }}`
+                                )">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-warning" style="padding: 0.5rem;"
+                                onclick="openEditTeamModal(
+                                    '{{ $team->team_id }}',
+                                    '{{ $team->team_name }}',
+                                    '{{ $team->department_id }}',
+                                    '{{ $team->team_lead ?? '' }}',
+                                    '{{ $team->max_team_size }}',
+                                    '{{ $team->monthly_budget }}',
+                                    '{{ $team->team_status }}',
+                                    '{{ $team->team_priority }}',
+                                    '{{ $team->work_mode }}',
+                                    `{{ $team->team_description ?? '' }}`,
+                                    `{{ $team->team_goals ?? '' }}`,
+                                    `{{ $team->skills_required ?? '' }}`
+                                )">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <form action="{{ route('teams.destroy', $team->team_id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-danger" style="padding: 0.5rem; background: #dc3545; color: white;" onclick="return confirm('Are you sure you want to delete this team?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Team Members</div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                            <div style="display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: reverse; flex-direction: row-reverse; justify-content: flex-end;">
-                                <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--success), var(--info)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; margin-left: -0.5rem; border: 2px solid white;">AB</div>
-                                <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--warning), var(--danger)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; margin-left: -0.5rem; border: 2px solid white;">CD</div>
-                                <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--secondary), var(--primary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; margin-left: -0.5rem; border: 2px solid white;">EF</div>
-                                <div style="width: 2rem; height: 2rem; background: var(--gray-400); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; margin-left: -0.5rem; border: 2px solid white;">+5</div>
+                    <div class="card-body">
+                        <!-- Team Lead -->
+                        <div style="margin-bottom: 1rem;">
+                            <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Team Lead</div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                @php
+                                    $leadName = $team->team_lead ?? 'N/A';
+                                    $leadInitials = $leadName !== 'N/A'
+                                        ? collect(explode(' ', $leadName))->map(fn($w) => strtoupper(substr($w,0,1)))->implode('')
+                                        : 'NA';
+                                @endphp
+                                <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700;">
+                                    {{ $leadInitials }}
+                                </div>
+                                <div style="font-weight: 600;">{{ $leadName }}</div>
                             </div>
                         </div>
-                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">8 Members</div>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Active Projects</div>
-                        <div style="font-size: 1.25rem; font-weight: 700, color: var(--success);">3 Projects</div>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Department</div>
-                        <div style="font-weight: 600;">Engineering</div>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Active</span>
-                        <a href="{{ route('teams.assignEmployeesForm', 1) }}" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.75rem;">
-                            <i class="fas fa-users"></i>
-                            Manage Members
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--gray-800);">
-                        <i class="fas fa-paint-brush" style="color: var(--secondary);"></i>
-                        Design Team
-                    </h3>
-                    <div class="flex gap-1">
-                        <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="openViewTeamModal('Design Team', 'DES01', 'Creative', 'Sarah Wilson', 5, 35000, 'Active', 'Normal', 'Head Office', 'Hybrid', 'Creative design team focused on user experience and visual design', 'Create engaging and intuitive user interfaces', 'Adobe Creative Suite, Figma, Sketch, UI/UX Design')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-warning" style="padding: 0.5rem;" onclick="openEditTeamModal('Design Team', 'DES01', 'Creative', 'Sarah Wilson', 5, 35000, 'Active', 'Normal', 'Head Office', 'Hybrid', 'Creative design team focused on user experience and visual design', 'Create engaging and intuitive user interfaces', 'Adobe Creative Suite, Figma, Sketch, UI/UX Design')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-danger" style="padding: 0.5rem; background: #dc3545; color: white;">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div style="margin-bottom: 1rem;">
-                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Team Lead</div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--secondary), var(--primary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700;">SW</div>
-                            <div style="font-weight: 600;">Sarah Wilson</div>
-                        </div>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Team Members</div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                            <div style="display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: reverse; flex-direction: row-reverse; justify-content: flex-end;">
-                                <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--info), var(--success)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; margin-left: -0.5rem; border: 2px solid white;">GH</div>
-                                <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--danger), var(--warning)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; margin-left: -0.5rem; border: 2px solid white;">IJ</div>
-                                <div style="width: 2rem; height: 2rem; background: var(--gray-400); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; margin-left: -0.5rem; border: 2px solid white;">+3</div>
+                        <!-- Team Members -->
+                        <div style="margin-bottom: 1rem;">
+                            <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Team Members</div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <div style="display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: reverse; flex-direction: row-reverse; justify-content: flex-end;">
+                                    @php
+                                        $members = $team->employees->take(3);
+                                    @endphp
+                                    @foreach($members as $member)
+                                        @php
+                                            $initials = collect(explode(' ', $member->employee_name))->map(fn($w) => strtoupper(substr($w,0,1)))->implode('');
+                                        @endphp
+                                        <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--success), var(--info)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; margin-left: -0.5rem; border: 2px solid white;">
+                                            {{ $initials }}
+                                        </div>
+                                    @endforeach
+                                    @if($team->employees->count() > 3)
+                                        <div style="width: 2rem; height: 2rem; background: var(--gray-400); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; margin-left: -0.5rem; border: 2px solid white;">
+                                            +{{ $team->employees->count() - 3 }}
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                            <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">
+                                {{ $team->employees->count() }} Members
                             </div>
                         </div>
-                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--secondary);">5 Members</div>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Active Projects</div>
-                        <div style="font-size: 1.25rem; font-weight: 700, color: var(--success);">2 Projects</div>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Department</div>
-                        <div style="font-weight: 600;">Creative</div>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Active</span>
-                        <a href="{{ route('teams.assignEmployeesForm', 2) }}" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.75rem;">
-                            <i class="fas fa-users"></i>
-                            Manage Members
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--gray-800);">
-                        <i class="fas fa-bullhorn" style="color: var(--warning);"></i>
-                        Marketing Team
-                    </h3>
-                    <div class="flex gap-1">
-                        <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="openViewTeamModal('Marketing Team', 'MKT01', 'Marketing', 'Mike Johnson', 6, 40000, 'Active', 'High', 'Branch Office A', 'Flexible', 'Digital marketing team focused on brand growth and customer acquisition', 'Increase brand awareness and drive customer engagement', 'Digital Marketing, SEO, Social Media, Analytics')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-warning" style="padding: 0.5rem;" onclick="openEditTeamModal('Marketing Team', 'MKT01', 'Marketing', 'Mike Johnson', 6, 40000, 'Active', 'High', 'Branch Office A', 'Flexible', 'Digital marketing team focused on brand growth and customer acquisition', 'Increase brand awareness and drive customer engagement', 'Digital Marketing, SEO, Social Media, Analytics')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-danger" style="padding: 0.5rem; background: #dc3545; color: white;">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div style="margin-bottom: 1rem;">
-                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Team Lead</div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--warning), var(--danger)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700;">MJ</div>
-                            <div style="font-weight: 600;">Mike Johnson</div>
-                        </div>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Team Members</div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                            <div style="display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: reverse; flex-direction: row-reverse; justify-content: flex-end;">
-                                <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--primary), var(--info)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; margin-left: -0.5rem; border: 2px solid white;">KL</div>
-                                <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--success), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; margin-left: -0.5rem; border: 2px solid white;">MN</div>
-                                <div style="width: 2rem; height: 2rem; background: var(--gray-400); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; margin-left: -0.5rem; border: 2px solid white;">+4</div>
+                        <!-- Active Projects -->
+                        <div style="margin-bottom: 1rem;">
+                            <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Active Projects</div>
+                            <div style="font-size: 1.25rem; font-weight: 700; color: var(--success);">
+                                {{ $team->projects->count() }} Projects
                             </div>
                         </div>
-                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--warning);">6 Members</div>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Active Projects</div>
-                        <div style="font-size: 1.25rem; font-weight: 700, color: var(--success);">4 Projects</div>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Department</div>
-                        <div style="font-weight: 600;">Marketing</div>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Active</span>
-                        <a href="{{ route('teams.assignEmployeesForm', 3) }}" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.75rem;">
-                            <i class="fas fa-users"></i>
-                            Manage Members
-                        </a>
+                        <!-- Department -->
+                        <div style="margin-bottom: 1rem;">
+                            <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Department</div>
+                            <div style="font-weight: 600;">
+                                {{ optional($departments->firstWhere('department_id', $team->department_id))->department_name ?? 'N/A' }}
+                            </div>
+                        </div>
+                        <!-- Status and Manage Members -->
+                        <div class="flex justify-between items-center">
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">
+                                {{ $team->team_status }}
+                            </span>
+                            <button
+                                class="btn btn-secondary"
+                                style="padding: 0.5rem 1rem; font-size: 0.75rem;"
+                                onclick="openManageMembersModal({{ $team->team_id }}, @json($team->employees->pluck('employee_id')), '{{ $team->team_name }}')"
+                                type="button"
+                            >
+                                <i class="fas fa-users"></i>
+                                Manage Members
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Team Statistics -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
-    <div class="card">
-        <div class="card-body text-center">
-            <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">8</div>
-            <div style="color: var(--gray-600); font-weight: 500;">Total Teams</div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-body text-center">
-            <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">67</div>
-            <div style="color: var(--gray-600); font-weight: 500;">Team Members</div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-body text-center">
-            <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">8.4</div>
-            <div style="color: var(--gray-600); font-weight: 500;">Avg Team Size</div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-body text-center">
-            <div style="font-size: 2rem; font-weight: 700; color: var(--info); margin-bottom: 0.5rem;">15</div>
-            <div style="color: var(--gray-600); font-weight: 500;">Active Projects</div>
+            @empty
+                <div style="grid-column: 1/-1; text-align: center; color: #a0aec0;">
+                    No teams found.
+                </div>
+            @endforelse
         </div>
     </div>
 </div>
@@ -810,64 +758,47 @@ input[type="text"].form-input::placeholder {
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
+
         <div class="modal-body">
             <form action="{{ route('teams.store') }}" method="POST" id="teamForm">
                 @csrf
                 <div class="form-container">
-                    <!-- Team Basic Information Row -->
+                    <!-- Team Name -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="team_name" class="form-label">
                                 <i class="fas fa-users"></i>Team Name
                             </label>
                             <div style="position: relative;">
-                                
                                 <input type="text" id="team_name" name="team_name" class="form-input" placeholder="Enter team name" required>
                             </div>
                         </div>
                     </div>
-
                     <!-- Department and Team Lead Row -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="department" class="form-label">
+                            <label for="department_id" class="form-label">
                                 <i class="fas fa-building"></i>Department
                             </label>
                             <div style="position: relative;">
-                                
-                                <select id="department" name="department" class="form-select" required>
+                                <select id="department_id" name="department_id" class="form-select" required>
                                     <option value="">Select Department</option>
-                                    <option value="Engineering">Engineering</option>
-                                    <option value="Creative">Creative</option>
-                                    <option value="Marketing">Marketing</option>
-                                    <option value="Sales">Sales</option>
-                                    <option value="Human Resources">Human Resources</option>
-                                    <option value="Finance">Finance</option>
-                                    <option value="Operations">Operations</option>
-                                    <option value="Information Technology">Information Technology</option>
-                                    <option value="Quality Assurance">Quality Assurance</option>
-                                    <option value="Customer Support">Customer Support</option>
+                                    @foreach($departments as $department)
+                                        <option value="{{ $department->department_id }}">{{ $department->department_name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
-                        
                         <div class="form-group">
                             <label for="team_lead" class="form-label">
                                 <i class="fas fa-user-tie"></i>Team Lead
                             </label>
                             <div style="position: relative;">
-                                
-                                <select id="team_lead" name="team_lead" class="form-select">
+                                <select id="team_lead" name="team_lead" class="form-select" required>
                                     <option value="">Select Team Lead</option>
-                                    <option value="1">John Smith - Senior Developer</option>
-                                    <option value="2">Sarah Wilson - UI/UX Designer</option>
-                                    <option value="3">Mike Johnson - Marketing Manager</option>
-                                    <option value="4">Emily Davis - HR Specialist</option>
-                                    <option value="5">David Brown - Finance Manager</option>
-                                    <option value="6">Lisa Anderson - Operations Lead</option>
-                                    <option value="7">Robert Miller - IT Manager</option>
-                                    <option value="8">Jennifer Taylor - QA Lead</option>
+                                    @foreach($employees as $employee)
+                                        <option value="{{ $employee->employee_id }}">{{ $employee->employee_name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -876,22 +807,19 @@ input[type="text"].form-input::placeholder {
                     <!-- Team Size and Budget Row -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="max_size" class="form-label">
+                            <label for="max_team_size" class="form-label">
                                 <i class="fas fa-users-cog"></i>Maximum Team Size
                             </label>
                             <div style="position: relative;">
-                                
-                                <input type="number" id="max_size" name="max_size" class="form-input" placeholder="Enter maximum team size" min="1" max="50" value="10">
+                                <input type="number" id="max_team_size" name="max_team_size" class="form-input" placeholder="Enter maximum team size" min="1" max="50" value="10" required>
                             </div>
                         </div>
-                        
                         <div class="form-group">
-                            <label for="budget" class="form-label">
+                            <label for="monthly_budget" class="form-label">
                                 <i class="fas fa-dollar-sign"></i>Monthly Budget
                             </label>
                             <div style="position: relative;">
-                              
-                                <input type="number" id="budget" name="budget" class="form-input" placeholder="Enter monthly budget" min="0" step="0.01">
+                                <input type="number" id="monthly_budget" name="monthly_budget" class="form-input" placeholder="Enter monthly budget" min="0" step="0.01">
                             </div>
                         </div>
                     </div>
@@ -899,12 +827,11 @@ input[type="text"].form-input::placeholder {
                     <!-- Status and Priority Row -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="status" class="form-label">
+                            <label for="team_status" class="form-label">
                                 <i class="fas fa-toggle-on"></i>Team Status
                             </label>
                             <div style="position: relative;">
-                                
-                                <select id="status" name="status" class="form-select" required>
+                                <select id="team_status" name="team_status" class="form-select" required>
                                     <option value="Active" selected>Active</option>
                                     <option value="Inactive">Inactive</option>
                                     <option value="On Hold">On Hold</option>
@@ -912,14 +839,12 @@ input[type="text"].form-input::placeholder {
                                 </select>
                             </div>
                         </div>
-                        
                         <div class="form-group">
-                            <label for="priority" class="form-label">
+                            <label for="team_priority" class="form-label">
                                 <i class="fas fa-star"></i>Team Priority
                             </label>
                             <div style="position: relative;">
-                                
-                                <select id="priority" name="priority" class="form-select">
+                                <select id="team_priority" name="team_priority" class="form-select" required>
                                     <option value="Normal" selected>Normal</option>
                                     <option value="High">High</option>
                                     <option value="Critical">Critical</option>
@@ -929,33 +854,14 @@ input[type="text"].form-input::placeholder {
                         </div>
                     </div>
 
-                    <!-- Team Location and Work Mode Row -->
+                    <!-- Work Mode Row -->
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="location" class="form-label">
-                                <i class="fas fa-map-marker-alt"></i>Team Location
-                            </label>
-                            <div style="position: relative;">
-                               
-                                <select id="location" name="location" class="form-select">
-                                    <option value="">Select Location</option>
-                                    <option value="Head Office">Head Office</option>
-                                    <option value="Branch Office A">Branch Office A</option>
-                                    <option value="Branch Office B">Branch Office B</option>
-                                    <option value="Remote">Remote</option>
-                                    <option value="Hybrid">Hybrid</option>
-                                    <option value="Client Site">Client Site</option>
-                                </select>
-                            </div>
-                        </div>
-                        
                         <div class="form-group">
                             <label for="work_mode" class="form-label">
                                 <i class="fas fa-laptop-house"></i>Work Mode
                             </label>
                             <div style="position: relative;">
-                                
-                                <select id="work_mode" name="work_mode" class="form-select">
+                                <select id="work_mode" name="work_mode" class="form-select" required>
                                     <option value="On-site" selected>On-site</option>
                                     <option value="Remote">Remote</option>
                                     <option value="Hybrid">Hybrid</option>
@@ -967,23 +873,21 @@ input[type="text"].form-input::placeholder {
 
                     <!-- Team Description -->
                     <div class="form-group">
-                        <label for="description" class="form-label">
+                        <label for="team_description" class="form-label">
                             <i class="fas fa-file-alt"></i>Team Description
                         </label>
                         <div style="position: relative;">
-                            
-                            <textarea id="description" name="description" class="form-textarea" placeholder="Describe the team's purpose, goals, and responsibilities" rows="4"></textarea>
+                            <textarea id="team_description" name="team_description" class="form-textarea" placeholder="Describe the team's purpose, goals, and responsibilities" rows="4"></textarea>
                         </div>
                     </div>
 
                     <!-- Team Goals and Objectives -->
                     <div class="form-group">
-                        <label for="goals" class="form-label">
+                        <label for="team_goals" class="form-label">
                             <i class="fas fa-target"></i>Team Goals & Objectives
                         </label>
                         <div style="position: relative;">
-                            
-                            <textarea id="goals" name="goals" class="form-textarea" placeholder="Define the team's key goals and objectives" rows="3"></textarea>
+                            <textarea id="team_goals" name="team_goals" class="form-textarea" placeholder="Define the team's key goals and objectives" rows="3"></textarea>
                         </div>
                     </div>
 
@@ -993,7 +897,6 @@ input[type="text"].form-input::placeholder {
                             <i class="fas fa-cogs"></i>Skills Required
                         </label>
                         <div style="position: relative;">
-                            
                             <textarea id="skills_required" name="skills_required" class="form-textarea" placeholder="List the key skills and technologies required for this team" rows="3"></textarea>
                         </div>
                     </div>
@@ -1012,7 +915,6 @@ input[type="text"].form-input::placeholder {
         </div>
     </div>
 </div>
-
 <!-- Team Edit Modal -->
 <div id="editTeamModal" class="modal-overlay">
     <div class="modal-container">
@@ -1026,15 +928,15 @@ input[type="text"].form-input::placeholder {
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
+
         <div class="modal-body">
-            <form action="{{ route('teams.update', ['team' => 1]) }}" method="POST" id="editTeamForm">
+            <form action="" method="POST" id="editTeamForm">
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="edit_team_id" name="team_id">
-                
+
                 <div class="form-container">
-                    <!-- Team Basic Information Row -->
+                    <!-- Team Name -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit_team_name" class="form-label">
@@ -1042,50 +944,29 @@ input[type="text"].form-input::placeholder {
                             </label>
                             <input type="text" id="edit_team_name" name="team_name" class="form-input" placeholder="Enter team name" required>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="edit_team_code" class="form-label">
-                                <i class="fas fa-hashtag"></i>Team Code
-                            </label>
-                            <input type="text" id="edit_team_code" name="team_code" class="form-input" placeholder="Enter team code (e.g., DEV01)" required>
-                        </div>
                     </div>
-
                     <!-- Department and Team Lead Row -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="edit_department" class="form-label">
+                            <label for="edit_department_id" class="form-label">
                                 <i class="fas fa-building"></i>Department
                             </label>
-                            <select id="edit_department" name="department" class="form-select" required>
+                            <select id="edit_department_id" name="department_id" class="form-select" required>
                                 <option value="">Select Department</option>
-                                <option value="Engineering">Engineering</option>
-                                <option value="Creative">Creative</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Sales">Sales</option>
-                                <option value="Human Resources">Human Resources</option>
-                                <option value="Finance">Finance</option>
-                                <option value="Operations">Operations</option>
-                                <option value="Information Technology">Information Technology</option>
-                                <option value="Quality Assurance">Quality Assurance</option>
-                                <option value="Customer Support">Customer Support</option>
+                                @foreach($departments as $department)
+                                    <option value="{{ $department->department_id }}">{{ $department->department_name }}</option>
+                                @endforeach
                             </select>
                         </div>
-                        
                         <div class="form-group">
                             <label for="edit_team_lead" class="form-label">
                                 <i class="fas fa-user-tie"></i>Team Lead
                             </label>
-                            <select id="edit_team_lead" name="team_lead" class="form-select">
+                            <select id="edit_team_lead" name="team_lead" class="form-select" required>
                                 <option value="">Select Team Lead</option>
-                                <option value="1">John Smith - Senior Developer</option>
-                                <option value="2">Sarah Wilson - UI/UX Designer</option>
-                                <option value="3">Mike Johnson - Marketing Manager</option>
-                                <option value="4">Emily Davis - HR Specialist</option>
-                                <option value="5">David Brown - Finance Manager</option>
-                                <option value="6">Lisa Anderson - Operations Lead</option>
-                                <option value="7">Robert Miller - IT Manager</option>
-                                <option value="8">Jennifer Taylor - QA Lead</option>
+                                @foreach($employees as $employee)
+                                    <option value="{{ $employee->employee_id }}">{{ $employee->employee_name }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -1093,39 +974,37 @@ input[type="text"].form-input::placeholder {
                     <!-- Team Size and Budget Row -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="edit_max_size" class="form-label">
+                            <label for="edit_max_team_size" class="form-label">
                                 <i class="fas fa-users-cog"></i>Maximum Team Size
                             </label>
-                            <input type="number" id="edit_max_size" name="max_size" class="form-input" placeholder="Enter maximum team size" min="1" max="50">
+                            <input type="number" id="edit_max_team_size" name="max_team_size" class="form-input" placeholder="Enter maximum team size" min="1" max="50" required>
                         </div>
-                        
                         <div class="form-group">
-                            <label for="edit_budget" class="form-label">
+                            <label for="edit_monthly_budget" class="form-label">
                                 <i class="fas fa-dollar-sign"></i>Monthly Budget
                             </label>
-                            <input type="number" id="edit_budget" name="budget" class="form-input" placeholder="Enter monthly budget" min="0" step="0.01">
+                            <input type="number" id="edit_monthly_budget" name="monthly_budget" class="form-input" placeholder="Enter monthly budget" min="0" step="0.01">
                         </div>
                     </div>
 
                     <!-- Status and Priority Row -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="edit_status" class="form-label">
+                            <label for="edit_team_status" class="form-label">
                                 <i class="fas fa-toggle-on"></i>Team Status
                             </label>
-                            <select id="edit_status" name="status" class="form-select" required>
+                            <select id="edit_team_status" name="team_status" class="form-select" required>
                                 <option value="Active">Active</option>
                                 <option value="Inactive">Inactive</option>
                                 <option value="On Hold">On Hold</option>
                                 <option value="Disbanded">Disbanded</option>
                             </select>
                         </div>
-                        
                         <div class="form-group">
-                            <label for="edit_priority" class="form-label">
+                            <label for="edit_team_priority" class="form-label">
                                 <i class="fas fa-star"></i>Team Priority
                             </label>
-                            <select id="edit_priority" name="priority" class="form-select">
+                            <select id="edit_team_priority" name="team_priority" class="form-select" required>
                                 <option value="Low">Low</option>
                                 <option value="Normal">Normal</option>
                                 <option value="High">High</option>
@@ -1134,28 +1013,13 @@ input[type="text"].form-input::placeholder {
                         </div>
                     </div>
 
-                    <!-- Team Location and Work Mode Row -->
+                    <!-- Work Mode Row -->
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="edit_location" class="form-label">
-                                <i class="fas fa-map-marker-alt"></i>Team Location
-                            </label>
-                            <select id="edit_location" name="location" class="form-select">
-                                <option value="">Select Location</option>
-                                <option value="Head Office">Head Office</option>
-                                <option value="Branch Office A">Branch Office A</option>
-                                <option value="Branch Office B">Branch Office B</option>
-                                <option value="Remote">Remote</option>
-                                <option value="Hybrid">Hybrid</option>
-                                <option value="Client Site">Client Site</option>
-                            </select>
-                        </div>
-                        
                         <div class="form-group">
                             <label for="edit_work_mode" class="form-label">
                                 <i class="fas fa-laptop-house"></i>Work Mode
                             </label>
-                            <select id="edit_work_mode" name="work_mode" class="form-select">
+                            <select id="edit_work_mode" name="work_mode" class="form-select" required>
                                 <option value="On-site">On-site</option>
                                 <option value="Remote">Remote</option>
                                 <option value="Hybrid">Hybrid</option>
@@ -1166,18 +1030,18 @@ input[type="text"].form-input::placeholder {
 
                     <!-- Team Description -->
                     <div class="form-group">
-                        <label for="edit_description" class="form-label">
+                        <label for="edit_team_description" class="form-label">
                             <i class="fas fa-file-alt"></i>Team Description
                         </label>
-                        <textarea id="edit_description" name="description" class="form-textarea" placeholder="Describe the team's purpose, goals, and responsibilities" rows="4"></textarea>
+                        <textarea id="edit_team_description" name="team_description" class="form-textarea" placeholder="Describe the team's purpose, goals, and responsibilities" rows="4"></textarea>
                     </div>
 
                     <!-- Team Goals and Objectives -->
                     <div class="form-group">
-                        <label for="edit_goals" class="form-label">
+                        <label for="edit_team_goals" class="form-label">
                             <i class="fas fa-target"></i>Team Goals & Objectives
                         </label>
-                        <textarea id="edit_goals" name="goals" class="form-textarea" placeholder="Define the team's key goals and objectives" rows="3"></textarea>
+                        <textarea id="edit_team_goals" name="team_goals" class="form-textarea" placeholder="Define the team's key goals and objectives" rows="3"></textarea>
                     </div>
 
                     <!-- Skills Required -->
@@ -1216,7 +1080,7 @@ input[type="text"].form-input::placeholder {
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
+
         <div class="modal-body">
             <div class="form-container">
                 <!-- Team Basic Information Row -->
@@ -1230,14 +1094,14 @@ input[type="text"].form-input::placeholder {
                             <div class="view-field" id="view_team_name"></div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label">
-                            <i class="fas fa-hashtag"></i>Team Code
+                            <i class="fas fa-hashtag"></i>Team ID
                         </label>
                         <div style="position: relative;">
                             <i class="input-icon fas fa-hashtag"></i>
-                            <div class="view-field" id="view_team_code"></div>
+                            <div class="view-field" id="view_team_id"></div>
                         </div>
                     </div>
                 </div>
@@ -1253,7 +1117,7 @@ input[type="text"].form-input::placeholder {
                             <div class="view-field" id="view_department"></div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label">
                             <i class="fas fa-user-tie"></i>Team Lead
@@ -1276,7 +1140,7 @@ input[type="text"].form-input::placeholder {
                             <div class="view-field" id="view_max_size"></div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label">
                             <i class="fas fa-dollar-sign"></i>Monthly Budget
@@ -1299,7 +1163,7 @@ input[type="text"].form-input::placeholder {
                             <div class="view-field" id="view_status"></div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label">
                             <i class="fas fa-star"></i>Team Priority
@@ -1313,16 +1177,8 @@ input[type="text"].form-input::placeholder {
 
                 <!-- Team Location and Work Mode Row -->
                 <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-map-marker-alt"></i>Team Location
-                        </label>
-                        <div style="position: relative;">
-                            <i class="input-icon fas fa-map-marker-alt"></i>
-                            <div class="view-field" id="view_location"></div>
-                        </div>
-                    </div>
-                    
+
+
                     <div class="form-group">
                         <label class="form-label">
                             <i class="fas fa-laptop-house"></i>Work Mode
@@ -1381,12 +1237,62 @@ input[type="text"].form-input::placeholder {
     </div>
 </div>
 
+<!-- Manage Members Modal -->
+<div id="manageMembersModal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 480px; padding-bottom: 0;">
+        <div class="modal-header" style="border-bottom: none;">
+            <div class="modal-title" style="font-size: 1.5rem;">
+                <i class="fas fa-users"></i>
+                Manage Team Members
+            </div>
+            <button class="modal-close" onclick="closeManageMembersModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" style="padding-top: 0;">
+            <form id="manageMembersForm" method="POST" style="margin-bottom: 0;">
+                @csrf
+                <input type="hidden" name="team_id" id="manageMembersTeamId">
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="font-weight: 600; color: var(--redcode-primary); margin-bottom: 0.25rem;">
+                        <i class="fas fa-users"></i>
+                        <span id="manageMembersTeamName" style="font-size: 1.1rem;"></span>
+                    </div>
+                    <div style="color: var(--text-secondary); font-size: 0.95rem;">
+                        Assign or remove members for this team. Hold <kbd>Ctrl</kbd> (or <kbd>Cmd</kbd>) to select multiple.
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label for="manage_employee_ids" class="form-label" style="font-weight: 500;">
+                        <i class="fas fa-user-friends"></i> Team Members
+                    </label>
+                    <select name="employee_ids[]" id="manage_employee_ids" class="form-select" multiple size="8" required style="min-height: 180px;">
+                        @foreach(\App\Models\Employee::all() as $employee)
+                            <option value="{{ $employee->employee_id }}">
+                                {{ $employee->employee_name }} ({{ $employee->email }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-actions" style="margin-top: 1.5rem; border-top: none; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeManageMembersModal()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Members
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 // Team Modal Functions
 function openTeamModal() {
     document.getElementById('teamModal').classList.add('active');
     document.body.style.overflow = 'hidden';
-    
+
     // Enhanced input interactions
     setupInputEnhancements();
 }
@@ -1395,7 +1301,7 @@ function closeTeamModal() {
     document.getElementById('teamModal').classList.remove('active');
     document.body.style.overflow = 'auto';
     document.getElementById('teamForm').reset();
-    
+
     // Clear any validation styles
     document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(field => {
         field.style.borderColor = '';
@@ -1404,26 +1310,42 @@ function closeTeamModal() {
 }
 
 // Edit Team Modal Functions
-function openEditTeamModal(teamName, teamCode, department, teamLead, maxSize, budget, status, priority, location, workMode, description, goals, skills) {
+function openEditTeamModal(teamId, teamName, departmentId, teamLeadName, maxTeamSize, monthlyBudget, teamStatus, teamPriority, workMode, teamDescription, teamGoals, skillsRequired) {
     document.getElementById('editTeamModal').classList.add('active');
     document.body.style.overflow = 'hidden';
-    
-    // Populate form fields with existing data
+
+    // Set form action dynamically
+    document.getElementById('editTeamForm').action = '/admin/teams/' + teamId;
+    document.getElementById('edit_team_id').value = teamId;
     document.getElementById('edit_team_name').value = teamName;
-    document.getElementById('edit_team_code').value = teamCode;
-    document.getElementById('edit_department').value = department;
-    document.getElementById('edit_team_lead').value = teamLead;
-    document.getElementById('edit_max_size').value = maxSize;
-    document.getElementById('edit_budget').value = budget;
-    document.getElementById('edit_status').value = status;
-    document.getElementById('edit_priority').value = priority;
-    document.getElementById('edit_location').value = location;
+    document.getElementById('edit_department_id').value = departmentId;
+
+    // Set the team lead by name (since you store name, not id)
+    let teamLeadSelect = document.getElementById('edit_team_lead');
+    let foundLead = false;
+    for (let i = 0; i < teamLeadSelect.options.length; i++) {
+        if (teamLeadSelect.options[i].text.trim() === teamLeadName.trim()) {
+            teamLeadSelect.selectedIndex = i;
+            foundLead = true;
+            break;
+        }
+    }
+    if (!foundLead) {
+        teamLeadSelect.selectedIndex = 0;
+    }
+
+    document.getElementById('edit_max_team_size').value = maxTeamSize;
+    document.getElementById('edit_monthly_budget').value = monthlyBudget;
+    document.getElementById('edit_team_status').value = teamStatus;
+    document.getElementById('edit_team_priority').value = teamPriority;
+
+    // Fix for work mode select
     document.getElementById('edit_work_mode').value = workMode;
-    document.getElementById('edit_description').value = description;
-    document.getElementById('edit_goals').value = goals;
-    document.getElementById('edit_skills_required').value = skills;
-    
-    // Enhanced input interactions
+
+    document.getElementById('edit_team_description').value = teamDescription;
+    document.getElementById('edit_team_goals').value = teamGoals;
+    document.getElementById('edit_skills_required').value = skillsRequired;
+
     setupInputEnhancements();
 }
 
@@ -1431,7 +1353,7 @@ function closeEditTeamModal() {
     document.getElementById('editTeamModal').classList.remove('active');
     document.body.style.overflow = 'auto';
     document.getElementById('editTeamForm').reset();
-    
+
     // Clear any validation styles
     document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(field => {
         field.style.borderColor = '';
@@ -1439,23 +1361,18 @@ function closeEditTeamModal() {
     });
 }
 
-// View Team Modal Functions
-function openViewTeamModal(teamName, teamCode, department, teamLead, maxSize, budget, status, priority, location, workMode, description, goals, skills) {
-    // Debug log to verify data is being passed
-    console.log('Opening view team modal with data:', {
-        teamName, teamCode, department, teamLead, maxSize, budget, status, priority, location, workMode, description, goals, skills
-    });
-    
+
+function openViewTeamModal(teamName, teamId, department, teamLead, maxSize, budget, status, priority, location, workMode, description, goals, skills) {
     // Populate view fields with the team data
     document.getElementById('view_team_name').textContent = teamName || 'N/A';
-    document.getElementById('view_team_code').textContent = teamCode || 'N/A';
+    document.getElementById('view_team_id').textContent = teamId || 'N/A';
     document.getElementById('view_department').textContent = department || 'N/A';
     document.getElementById('view_team_lead').textContent = teamLead || 'N/A';
     document.getElementById('view_max_size').textContent = maxSize || 'N/A';
-    
+
     // Format budget with currency symbol
-    document.getElementById('view_budget').textContent = budget ? `$${parseInt(budget).toLocaleString()}` : 'N/A';
-    
+    document.getElementById('view_budget').textContent = budget ? `$${parseFloat(budget).toLocaleString()}` : 'N/A';
+
     // Handle status with special styling
     const statusField = document.getElementById('view_status');
     statusField.textContent = status || 'N/A';
@@ -1469,19 +1386,18 @@ function openViewTeamModal(teamName, teamCode, department, teamLead, maxSize, bu
             statusField.classList.add('on-hold');
         }
     }
-    
+
     document.getElementById('view_priority').textContent = priority || 'N/A';
-    document.getElementById('view_location').textContent = location || 'N/A';
     document.getElementById('view_work_mode').textContent = workMode || 'N/A';
     document.getElementById('view_description').textContent = description || 'N/A';
     document.getElementById('view_goals').textContent = goals || 'N/A';
     document.getElementById('view_skills_required').textContent = skills || 'N/A';
-    
+
     // Store data for potential edit modal opening
     window.currentTeamData = {
-        teamName, teamCode, department, teamLead, maxSize, budget, status, priority, location, workMode, description, goals, skills
+        teamName, teamId, department, teamLead, maxSize, budget, status, priority, location, workMode, description, goals, skills
     };
-    
+
     // Show the view modal
     document.getElementById('viewTeamModal').classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -1493,21 +1409,41 @@ function closeViewTeamModal() {
 }
 
 function openEditTeamModalFromView() {
-    // Close view modal first
     closeViewTeamModal();
-    
-    // Open edit modal with stored data
+
     const data = window.currentTeamData;
     if (data) {
         setTimeout(() => {
-            openEditTeamModal(data.teamName, data.teamCode, data.department, data.teamLead, 
+            openEditTeamModal(data.teamName, data.teamCode, data.department, data.teamLead,
                          data.maxSize, data.budget, data.status, data.priority, data.location, data.workMode, data.description, data.goals, data.skills);
-        }, 300); // Small delay to allow view modal to close
+        }, 300);
     }
 }
 
+function openManageMembersModal(teamId, selectedEmployeeIds, teamName) {
+    document.getElementById('manageMembersModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('manageMembersTeamId').value = teamId;
+    document.getElementById('manageMembersTeamName').textContent = teamName;
+
+    // Set form action dynamically
+    document.getElementById('manageMembersForm').action =
+        '/admin/teams/' + teamId + '/manage-members';
+
+    const select = document.getElementById('manage_employee_ids');
+    for (let i = 0; i < select.options.length; i++) {
+        select.options[i].selected = selectedEmployeeIds.includes(parseInt(select.options[i].value));
+    }
+}
+
+function closeManageMembersModal() {
+    document.getElementById('manageMembersModal').classList.remove('active');
+    document.body.style.overflow = 'auto';
+    document.getElementById('manageMembersForm').reset();
+}
+
+// Enhanced input interactions
 function setupInputEnhancements() {
-    // Enhanced input interactions
     document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(input => {
         input.addEventListener('focus', function() {
             const icon = this.previousElementSibling;
@@ -1529,113 +1465,41 @@ function setupInputEnhancements() {
 
 // Form validation for team creation
 document.getElementById('teamForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
     // Basic validation
-    const requiredFields = ['team_name', 'team_code', 'department', 'status'];
+    const requiredFields = ['team_name', 'department_id', 'team_status', 'team_priority', 'work_mode', 'max_team_size'];
     let isValid = true;
-    
+    let firstInvalid = null;
+
     requiredFields.forEach(fieldName => {
         const field = document.getElementById(fieldName);
         if (field && !field.value.trim()) {
             field.style.borderColor = 'var(--redcode-primary)';
             field.style.background = 'rgba(220, 38, 38, 0.05)';
+            if (!firstInvalid) firstInvalid = field;
             isValid = false;
         } else if (field) {
             field.style.borderColor = 'var(--redcode-green)';
             field.style.background = 'rgba(5, 150, 105, 0.05)';
         }
     });
-    
+
     if (!isValid) {
         alert('Please fill in all required fields');
+        if (firstInvalid) firstInvalid.focus();
+        e.preventDefault();
         return;
     }
-    
-    // Team code validation (should be unique)
-    const teamCode = document.getElementById('team_code').value.trim();
-    if (teamCode.length < 3) {
-        alert('Team code must be at least 3 characters long');
-        return;
-    }
-    
+
     // Max size validation
-    const maxSize = document.getElementById('max_size').value;
+    const maxSize = document.getElementById('max_team_size').value;
     if (maxSize && (maxSize < 1 || maxSize > 50)) {
         alert('Maximum team size must be between 1 and 50');
+        e.preventDefault();
         return;
     }
-    
-    // If validation passes, submit the form
-    alert('Team created successfully!');
-    closeTeamModal();
-    
-    // Here you would typically send the data to your server
-    // this.submit(); // Uncomment this to actually submit the form
+    // If validation passes, allow the form to submit
 });
 
-// Form validation for team editing
-document.getElementById('editTeamForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Basic validation
-    const requiredFields = ['edit_team_name', 'edit_team_code', 'edit_department', 'edit_status'];
-    let isValid = true;
-    
-    requiredFields.forEach(fieldName => {
-        const field = document.getElementById(fieldName);
-        if (field && !field.value.trim()) {
-            field.style.borderColor = 'var(--redcode-primary)';
-            field.style.background = 'rgba(220, 38, 38, 0.05)';
-            isValid = false;
-        } else if (field) {
-            field.style.borderColor = 'var(--redcode-green)';
-            field.style.background = 'rgba(5, 150, 105, 0.05)';
-        }
-    });
-    
-    if (!isValid) {
-        alert('Please fill in all required fields');
-        return;
-    }
-    
-    // Team code validation (should be unique)
-    const teamCode = document.getElementById('edit_team_code').value.trim();
-    if (teamCode.length < 3) {
-        alert('Team code must be at least 3 characters long');
-        return;
-    }
-    
-    // Max size validation
-    const maxSize = document.getElementById('edit_max_size').value;
-    if (maxSize && (maxSize < 1 || maxSize > 50)) {
-        alert('Maximum team size must be between 1 and 50');
-        return;
-    }
-    
-    // If validation passes, submit the form
-    alert('Team updated successfully!');
-    closeEditTeamModal();
-    
-    // Here you would typically send the data to your server
-    // this.submit(); // Uncomment this to actually submit the form
-});
-
-// Auto-generate team code based on team name
-document.getElementById('team_name').addEventListener('input', function() {
-    const teamName = this.value.trim();
-    const teamCodeField = document.getElementById('team_code');
-    
-    if (teamName && !teamCodeField.value) {
-        // Generate team code from team name
-        const code = teamName
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase())
-            .join('')
-            .substring(0, 3) + '01';
-        teamCodeField.value = code;
-    }
-});
 
 // Close modal when clicking outside
 document.getElementById('teamModal').addEventListener('click', function(e) {
@@ -1656,13 +1520,19 @@ document.getElementById('viewTeamModal').addEventListener('click', function(e) {
     }
 });
 
+document.getElementById('manageMembersModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeManageMembersModal();
+    }
+});
+
 // Close modal with Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         const teamModal = document.getElementById('teamModal');
         const editTeamModal = document.getElementById('editTeamModal');
         const viewTeamModal = document.getElementById('viewTeamModal');
-        
+
         if (teamModal.classList.contains('active')) {
             closeTeamModal();
         }
