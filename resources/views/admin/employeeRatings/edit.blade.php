@@ -38,7 +38,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div>
                         <h4 style="margin-bottom: 1rem; color: var(--text-primary);">Current Rating</h4>
                         <div style="text-align: center;">
@@ -52,7 +52,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 @if($employeeRating->comment)
                     <div style="margin-top: 1rem;">
                         <h4 style="margin-bottom: 0.5rem; color: var(--text-primary);">Current Comment</h4>
@@ -73,7 +73,7 @@
                 <form action="{{ route('admin.employeeRatings.update', $employeeRating) }}" method="POST">
                     @csrf
                     @method('PUT')
-                    
+
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
                         <div class="form-group">
                             <label for="employee_id" class="form-label">Employee</label>
@@ -90,7 +90,22 @@
                                 </div>
                             @enderror
                         </div>
-                        
+                        <div class="form-group">
+                            <label for="department_id" class="form-label">Department</label>
+                            <select name="department_id" id="department_id" class="form-select" required>
+                                @foreach(\App\Models\Department::all() as $department)
+                                    <option value="{{ $department->department_id }}" {{ $employeeRating->employee->department_id == $department->department_id ? 'selected' : '' }}>
+                                        {{ $department->department_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('department_id')
+                                <div class="alert alert-error mt-2">
+                                    <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+
                         <div class="form-group">
                             <label class="form-label">Rating</label>
                             <div class="star-rating">
@@ -109,7 +124,7 @@
                             @enderror
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="comment" class="form-label">Comment</label>
                         <textarea name="comment" id="comment" class="form-input" rows="4" placeholder="Enter your updated feedback about the employee's performance...">{{ old('comment', $employeeRating->comment) }}</textarea>
@@ -120,7 +135,7 @@
                             </div>
                         @enderror
                     </div>
-                    
+
                     <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem;">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> Update Rating
@@ -155,7 +170,7 @@
                         ->orderBy('created_at', 'desc')
                         ->get();
                 @endphp
-                
+
                 @if($employeeRatings->count() > 1)
                     <div style="display: grid; gap: 1rem;">
                         @foreach($employeeRatings as $rating)
@@ -375,4 +390,4 @@ document.querySelector('form').addEventListener('submit', function(e) {
     }
 });
 </script>
-@endsection 
+@endsection

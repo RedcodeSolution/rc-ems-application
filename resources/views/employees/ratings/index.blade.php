@@ -355,11 +355,11 @@
             </div>
             <div class="role-notice-text">
                 @if(in_array($employee->role, ['ba', 'qa']))
-                    ✅ You can view all employee ratings and rate other employees
+                ✅ You can view all employee ratings and rate other employees
                 @elseif($employee->role === 'developer')
-                    👁️ You can view all employee ratings (rating functionality not available for developers)
+                👁️ You can view all employee ratings (rating functionality not available for developers)
                 @else
-                    👁️ You can view all employee ratings
+                👁️ You can view all employee ratings
                 @endif
             </div>
         </div>
@@ -389,85 +389,85 @@
 
         <!-- Rate Employee Button (only for BA and QA) -->
         @if(in_array($employee->role, ['ba', 'qa']))
-            <button class="rate-employee-btn" onclick="openRateEmployeeModal()">
-                <i class="fas fa-star" style="margin-right: 0.5rem;"></i>
-                Rate Employee
-            </button>
+        <button class="rate-employee-btn" onclick="openRateEmployeeModal()">
+            <i class="fas fa-star" style="margin-right: 0.5rem;"></i>
+            Rate Employee
+        </button>
         @endif
     </div>
 
     <!-- Employee Ratings Grid -->
     <div class="employee-ratings-grid">
         @php
-            // Group ratings by employee
-            $employeeRatings = $ratings->groupBy('employee_id');
+        // Group ratings by employee
+        $employeeRatings = $ratings->groupBy('employee_id');
         @endphp
 
         @if($employeeRatings->count() > 0)
-            @foreach($employeeRatings as $employeeId => $employeeRatingGroup)
-                @php
-                    $employeeData = $employeeRatingGroup->first()->employee;
-                    $totalRatings = $employeeRatingGroup->count();
-                    $averageRating = $employeeRatingGroup->avg('rating');
-                    $percentage = ($averageRating / 5) * 100;
+        @foreach($employeeRatings as $employeeId => $employeeRatingGroup)
+        @php
+        $employeeData = $employeeRatingGroup->first()->employee;
+        $totalRatings = $employeeRatingGroup->count();
+        $averageRating = $employeeRatingGroup->avg('rating');
+        $percentage = ($averageRating / 5) * 100;
 
-                    // Calculate ratings by role
-                    $superAdminRatings = $employeeRatingGroup->where('rater.role', 'super_admin')->count();
-                    $adminRatings = $employeeRatingGroup->where('rater.role', 'admin')->count();
-                    $baRatings = $employeeRatingGroup->where('rater.role', 'ba')->count();
-                    $qaRatings = $employeeRatingGroup->where('rater.role', 'qa')->count();
+        // Calculate ratings by role
+        $superAdminRatings = $employeeRatingGroup->where('rater.role', 'super_admin')->count();
+        $adminRatings = $employeeRatingGroup->where('rater.role', 'admin')->count();
+        $baRatings = $employeeRatingGroup->where('rater.role', 'ba')->count();
+        $qaRatings = $employeeRatingGroup->where('rater.role', 'qa')->count();
 
-                    // Calculate percentages for progress bar
-                    $totalRoleRatings = $superAdminRatings + $adminRatings + $baRatings + $qaRatings;
-                    $superAdminPercent = $totalRoleRatings > 0 ? ($superAdminRatings / $totalRoleRatings) * 100 : 0;
-                    $adminPercent = $totalRoleRatings > 0 ? ($adminRatings / $totalRoleRatings) * 100 : 0;
-                    $baPercent = $totalRoleRatings > 0 ? ($baRatings / $totalRoleRatings) * 100 : 0;
-                    $qaPercent = $totalRoleRatings > 0 ? ($qaRatings / $totalRoleRatings) * 100 : 0;
-                @endphp
+        // Calculate percentages for progress bar
+        $totalRoleRatings = $superAdminRatings + $adminRatings + $baRatings + $qaRatings;
+        $superAdminPercent = $totalRoleRatings > 0 ? ($superAdminRatings / $totalRoleRatings) * 100 : 0;
+        $adminPercent = $totalRoleRatings > 0 ? ($adminRatings / $totalRoleRatings) * 100 : 0;
+        $baPercent = $totalRoleRatings > 0 ? ($baRatings / $totalRoleRatings) * 100 : 0;
+        $qaPercent = $totalRoleRatings > 0 ? ($qaRatings / $totalRoleRatings) * 100 : 0;
+        @endphp
 
-                <div class="employee-rating-card">
-                    <div class="employee-info-section">
-                        <div class="employee-avatar">
-                            {{ strtoupper(substr($employeeData->employee_name ?? 'E', 0, 1)) }}
-                        </div>
-                        <div class="employee-details">
-                            <div class="employee-name">{{ $employeeData->employee_name ?? 'Unknown Employee' }}</div>
-                            <div class="employee-role">{{ ucfirst($employeeData->role ?? 'Unknown') }}</div>
-                        </div>
-                    </div>
-
-                    <div class="rating-progress-container">
-                        <div class="rating-progress-bar">
-                            <div class="rating-progress-segments">
-                                @if($superAdminPercent > 0)
-                                    <div class="progress-segment segment-super-admin" style="width: {{ $superAdminPercent }}%"></div>
-                                @endif
-                                @if($adminPercent > 0)
-                                    <div class="progress-segment segment-admin" style="width: {{ $adminPercent }}%"></div>
-                                @endif
-                                @if($baPercent > 0)
-                                    <div class="progress-segment segment-ba" style="width: {{ $baPercent }}%"></div>
-                                @endif
-                                @if($qaPercent > 0)
-                                    <div class="progress-segment segment-qa" style="width: {{ $qaPercent }}%"></div>
-                                @endif
-                                @if($percentage < 100)
-                                    <div class="progress-segment segment-empty" style="width: {{ 100 - $percentage }}%"></div>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="rating-percentage">{{ round($percentage) }}%</div>
-                    </div>
+        <div class="employee-rating-card">
+            <div class="employee-info-section">
+                <div class="employee-avatar">
+                    {{ strtoupper(substr($employeeData->employee_name ?? 'E', 0, 1)) }}
                 </div>
-            @endforeach
-        @else
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-star" style="color: var(--text-secondary); font-size: 1.5rem;"></i>
+                <div class="employee-details">
+                    <div class="employee-name">{{ $employeeData->employee_name ?? 'Unknown Employee' }}</div>
+                    <div class="employee-role">{{ ucfirst($employeeData->role ?? 'Unknown') }}</div>
                 </div>
-                <h3 class="empty-title">No Ratings Yet</h3>
-                <p class="empty-text">No employee ratings have been submitted yet.</p>
             </div>
+
+            <div class="rating-progress-container">
+                <div class="rating-progress-bar">
+                    <div class="rating-progress-segments">
+                        @if($superAdminPercent > 0)
+                        <div class="progress-segment segment-super-admin" style="width: {{ $superAdminPercent }}%"></div>
+                        @endif
+                        @if($adminPercent > 0)
+                        <div class="progress-segment segment-admin" style="width: {{ $adminPercent }}%"></div>
+                        @endif
+                        @if($baPercent > 0)
+                        <div class="progress-segment segment-ba" style="width: {{ $baPercent }}%"></div>
+                        @endif
+                        @if($qaPercent > 0)
+                        <div class="progress-segment segment-qa" style="width: {{ $qaPercent }}%"></div>
+                        @endif
+                        @if($percentage < 100)
+                        <div class="progress-segment segment-empty" style="width: {{ 100 - $percentage }}%"></div>
+                        @endif
+                    </div>
+                </div>
+                <div class="rating-percentage">{{ round($percentage) }}%</div>
+            </div>
+        </div>
+        @endforeach
+        @else
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-star" style="color: var(--text-secondary); font-size: 1.5rem;"></i>
+            </div>
+            <h3 class="empty-title">No Ratings Yet</h3>
+            <p class="empty-text">No employee ratings have been submitted yet.</p>
+        </div>
         @endif
     </div>
 </div>
@@ -488,7 +488,7 @@
                 <select name="employee_id" class="rating-form-select" required>
                     <option value="">Choose an employee to rate...</option>
                     @foreach($employees as $emp)
-                        <option value="{{ $emp->employee_id }}">{{ $emp->employee_name }} ({{ $emp->role }})</option>
+                    <option value="{{ $emp->employee_id }}">{{ $emp->employee_name }} ({{ $emp->role }})</option>
                     @endforeach
                 </select>
             </div>
@@ -524,53 +524,52 @@
 @endif
 
 <script>
-// Modal functions (only for BA and QA)
-@if(in_array($employee => role, ['ba', 'qa']))
-function openRateEmployeeModal() {
-    document.getElementById('ratingModal').style.display = 'block';
-}
+    @if(in_array($employee->role, ['ba', 'qa']))
+        function openRateEmployeeModal() {
+            document.getElementById('ratingModal').style.display = 'block';
+        }
 
-function closeRateEmployeeModal() {
-    document.getElementById('ratingModal').style.display = 'none';
-    document.getElementById('ratingForm').reset();
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const modal = document.getElementById('ratingModal');
-    if (event.target === modal) {
-        closeRateEmployeeModal();
+    function closeRateEmployeeModal() {
+        document.getElementById('ratingModal').style.display = 'none';
+        document.getElementById('ratingForm').reset();
     }
-}
 
-// Handle form submission
-document.getElementById('ratingForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const formData = new FormData(this);
-
-    fetch('{{ route("employee.ratings.store") }}', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('ratingModal');
+        if (event.target === modal) {
             closeRateEmployeeModal();
-            location.reload(); // Refresh to show new rating
-        } else {
-            alert('Error: ' + data.message);
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while submitting the rating.');
+    }
+
+    // Handle form submission
+    document.getElementById('ratingForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch('{{ route("employee.ratings.store") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    closeRateEmployeeModal();
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting the rating.');
+            });
     });
-});
-@endif
+    @endif
 </script>
 @endsection

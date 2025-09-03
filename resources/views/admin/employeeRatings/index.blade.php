@@ -13,7 +13,7 @@
         <p class="page-description">
             Visual overview of employee ratings across the organization
         </p>
-        
+
         <!-- Role-based Access Notice -->
         <div class="role-notice">
             <div class="role-notice-title">
@@ -24,7 +24,7 @@
                 ✅ You can view all employee ratings and rate other employees
             </div>
         </div>
-        
+
         <!-- Rating Legend -->
         <div class="rating-legend">
             <div class="rating-legend-title">Rating Color Legend:</div>
@@ -74,7 +74,7 @@
                 $fiveStarRatings = $ratings->where('rating', 5)->count();
                 $recentRatings = $ratings->where('created_at', '>=', now()->subDays(7))->count();
             @endphp
-            
+
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-star"></i>
@@ -85,7 +85,7 @@
                     <p>Overall performance</p>
                 </div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-chart-line"></i>
@@ -96,7 +96,7 @@
                     <p>All time ratings</p>
                 </div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-star"></i>
@@ -107,7 +107,7 @@
                     <p>Excellent performance</p>
                 </div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-calendar-week"></i>
@@ -128,7 +128,7 @@
         // Group ratings by employee
         $employeeRatings = $ratings->groupBy('employee_id');
     @endphp
-    
+
     @if($employeeRatings->count() > 0)
         @foreach($employeeRatings as $employeeId => $employeeRatingGroup)
             @php
@@ -136,13 +136,13 @@
                 $totalRatings = $employeeRatingGroup->count();
                 $averageRating = $employeeRatingGroup->avg('rating');
                 $percentage = ($averageRating / 5) * 100;
-                
+
                 // Calculate ratings by role
                 $superAdminRatings = $employeeRatingGroup->where('rater.role', 'super_admin')->count();
                 $adminRatings = $employeeRatingGroup->where('rater.role', 'admin')->count();
                 $baRatings = $employeeRatingGroup->where('rater.role', 'ba')->count();
                 $qaRatings = $employeeRatingGroup->where('rater.role', 'qa')->count();
-                
+
                 // Calculate percentages for progress bar
                 $totalRoleRatings = $superAdminRatings + $adminRatings + $baRatings + $qaRatings;
                 $superAdminPercent = $totalRoleRatings > 0 ? ($superAdminRatings / $totalRoleRatings) * 100 : 0;
@@ -150,7 +150,7 @@
                 $baPercent = $totalRoleRatings > 0 ? ($baRatings / $totalRoleRatings) * 100 : 0;
                 $qaPercent = $totalRoleRatings > 0 ? ($qaRatings / $totalRoleRatings) * 100 : 0;
             @endphp
-            
+
             <div class="employee-rating-card">
                 <div class="employee-info-section">
                     <div class="employee-avatar">
@@ -170,7 +170,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="rating-progress-container">
                     <div class="rating-progress-bar">
                         <div class="rating-progress-segments">
@@ -233,12 +233,12 @@
                         <option value="">Choose an employee...</option>
                         @foreach($employees as $employee)
                             <option value="{{ $employee->employee_id }}">
-                                {{ $employee->employee_name }} - {{ $employee->department->name ?? 'No Department' }}
+                                {{ $employee->employee_name }} -   {{ $employee->department->name ?? 'No Department' }}
                             </option>
                         @endforeach
                     </select>
                 </div>
-                
+
                 <div class="form-group" id="employee-rating-summary" style="display: none;">
                     <label>Employee Rating Summary</label>
                     <div class="rating-summary">
@@ -257,7 +257,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label>Rating *</label>
                     <div class="rating-input">
@@ -276,7 +276,7 @@
                         <span class="rating-text">Select a rating</span>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="comment">Comment</label>
                     <textarea name="comment" id="comment" class="form-control" rows="4" placeholder="Provide feedback about the employee's performance..."></textarea>
@@ -359,53 +359,53 @@
 }
 
 /* Role-based Access Notice */
-.role-notice { 
-    background: rgba(59, 130, 246, 0.1); 
-    padding: 1rem; 
-    border-radius: 0.5rem; 
-    margin-bottom: 1rem; 
+.role-notice {
+    background: rgba(59, 130, 246, 0.1);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
     border-left: 4px solid #3b82f6;
 }
-.role-notice-title { 
-    font-weight: 600; 
-    color: #1e40af; 
-    margin-bottom: 0.5rem; 
+.role-notice-title {
+    font-weight: 600;
+    color: #1e40af;
+    margin-bottom: 0.5rem;
 }
-.role-notice-text { 
-    color: var(--text-secondary); 
-    font-size: 0.875rem; 
+.role-notice-text {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
 }
 
 /* Rating Legend */
-.rating-legend { 
-    background: #fff; 
-    padding: 1rem; 
-    border-radius: 0.5rem; 
-    margin-bottom: 1rem; 
+.rating-legend {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
     border: 1px solid var(--border-light);
     box-shadow: 0 2px 16px 0 rgba(220,38,38,0.07);
 }
-.rating-legend-title { 
-    font-weight: 600; 
-    color: var(--text-primary); 
-    margin-bottom: 0.5rem; 
+.rating-legend-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
 }
-.rating-legend-items { 
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 1rem; 
+.rating-legend-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
-.rating-legend-item { 
-    display: flex; 
-    align-items: center; 
-    font-size: 0.875rem; 
+.rating-legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
     color: var(--text-secondary);
 }
-.rating-legend-color { 
-    width: 16px; 
-    height: 16px; 
-    border-radius: 3px; 
-    margin-right: 0.5rem; 
+.rating-legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    margin-right: 0.5rem;
 }
 
 /* Stats Section */
@@ -603,32 +603,32 @@
 }
 
 /* Empty State */
-.empty-state { 
-    text-align: center; 
-    padding: 3rem; 
+.empty-state {
+    text-align: center;
+    padding: 3rem;
     color: var(--text-secondary);
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 2px 16px 0 rgba(220,38,38,0.07);
 }
-.empty-icon { 
-    width: 4rem; 
-    height: 4rem; 
-    background: var(--border-light); 
-    border-radius: 50%; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    margin: 0 auto 1rem; 
+.empty-icon {
+    width: 4rem;
+    height: 4rem;
+    background: var(--border-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
 }
-.empty-title { 
-    font-size: 1.125rem; 
-    font-weight: 500; 
-    color: var(--text-primary); 
-    margin-bottom: 0.5rem; 
+.empty-title {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
 }
-.empty-text { 
-    color: var(--text-secondary); 
+.empty-text {
+    color: var(--text-secondary);
     margin-bottom: 1.5rem;
 }
 
@@ -888,17 +888,17 @@
         gap: 1rem;
         align-items: flex-start;
     }
-    
+
     .employee-ratings-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .employee-info-section {
         flex-direction: column;
         align-items: flex-start;
         text-align: center;
     }
-    
+
     .employee-actions {
         width: 100%;
         justify-content: center;
@@ -916,25 +916,25 @@ function openRateEmployeeModal() {
     // Reset form
     const form = document.getElementById('rateEmployeeForm');
     form.reset();
-    
+
     // Reset rating text
     const ratingText = document.querySelector('.rating-text');
     if (ratingText) {
         ratingText.textContent = 'Select a rating';
     }
-    
+
     // Reset star rating display
     const starInputs = document.querySelectorAll('.star-rating input[type="radio"]');
     starInputs.forEach(input => {
         input.checked = false;
     });
-    
+
     // Hide employee rating summary
     const summaryDiv = document.getElementById('employee-rating-summary');
     if (summaryDiv) {
         summaryDiv.style.display = 'none';
     }
-    
+
     // Show modal
     document.getElementById('rateEmployeeModal').style.display = 'block';
 }
@@ -942,10 +942,10 @@ function openRateEmployeeModal() {
 function rateEmployee(employeeId) {
     // Set the employee in the form
     document.getElementById('employee_id').value = employeeId;
-    
+
     // Load employee ratings
     loadEmployeeRatings(employeeId);
-    
+
     // Open modal
     openRateEmployeeModal();
 }
@@ -956,7 +956,7 @@ function viewEmployeeRatings(employeeId) {
     const content = document.getElementById('employee-ratings-content');
     content.innerHTML = '<p>Loading employee ratings...</p>';
     modal.style.display = 'block';
-    
+
     // Fetch employee ratings
     fetch(`/admin/employeeRatings/employee/${employeeId}`)
         .then(response => response.json())
@@ -1012,24 +1012,24 @@ function viewEmployeeRatings(employeeId) {
 function submitRating() {
     const form = document.getElementById('rateEmployeeForm');
     const formData = new FormData(form);
-    
+
     // Validate form
     if (!formData.get('employee_id')) {
         showNotification('Please select an employee', 'error');
         return;
     }
-    
+
     if (!formData.get('rating')) {
         showNotification('Please select a rating', 'error');
         return;
     }
-    
+
     // Disable submit button to prevent double submission
     const submitBtn = document.querySelector('#rateEmployeeModal .btn-primary');
     const originalText = submitBtn.innerHTML;
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-    
+
     // Submit form
     fetch(form.action, {
         method: 'POST',
@@ -1082,7 +1082,7 @@ function generateReport() {
 document.addEventListener('DOMContentLoaded', function() {
     const starInputs = document.querySelectorAll('.star-rating input[type="radio"]');
     const ratingText = document.querySelector('.rating-text');
-    
+
     starInputs.forEach(input => {
         input.addEventListener('change', function() {
             const rating = this.value;
@@ -1104,14 +1104,14 @@ function loadEmployeeRatings(employeeId) {
         document.getElementById('employee-rating-summary').style.display = 'none';
         return;
     }
-    
+
     // Show loading state
     const summaryDiv = document.getElementById('employee-rating-summary');
     summaryDiv.style.display = 'block';
     document.getElementById('avg-rating').textContent = 'Loading...';
     document.getElementById('total-ratings').textContent = 'Loading...';
     document.getElementById('recent-ratings-list').innerHTML = '<p>Loading recent ratings...</p>';
-    
+
     // Fetch employee ratings
     fetch(`/admin/employeeRatings/employee/${employeeId}`)
         .then(response => response.json())
@@ -1120,7 +1120,7 @@ function loadEmployeeRatings(employeeId) {
                 // Update summary stats
                 document.getElementById('avg-rating').textContent = data.average_rating + '/5';
                 document.getElementById('total-ratings').textContent = data.total_ratings;
-                
+
                 // Update recent ratings
                 const recentRatingsList = document.getElementById('recent-ratings-list');
                 if (data.ratings && data.ratings.length > 0) {
@@ -1169,7 +1169,7 @@ function showNotification(message, type = 'info') {
         z-index: 10000;
         animation: slideIn 0.3s ease;
     `;
-    
+
     // Set background color based on type
     const colors = {
         success: '#10b981',
@@ -1178,10 +1178,10 @@ function showNotification(message, type = 'info') {
         info: '#3b82f6'
     };
     notification.style.backgroundColor = colors[type] || colors.info;
-    
+
     notification.textContent = message;
     document.body.appendChild(notification);
-    
+
     // Remove notification after 3 seconds
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease';
