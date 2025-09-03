@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -30,15 +31,39 @@ class RegistrationController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        // Check if registering as employee and email exists in employees table
+        $role = $request->role;
+        if ($role === 'employee') {
+            $employee = \App\Models\Employee::where('email', $request->email)->first();
+            if ($employee) {
+                // Set user role to employee's role in employees table
+                $role = $employee->role;
+            }
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
             'contact_no' => $request->contact_no,
-            'role' => $request->role,
+            'role' => $role,
         ]);
 
-        Auth::login($user);
+        // If the user is an employee and not already in employees table, create an Employee record as well
+        if ($role === 'employee' && !$employee) {
+            \App\Models\Employee::create([
+                'employee_name' => $user->name,
+                'email' => $user->email,
+                'contact_no' => $user->contact_no,
+                'employee_type' => 'Full Time', // or set as needed
+                'employee_status' => 'Active',  // or set as needed
+                'paid_status' => 'Unpaid',      // or set as needed
+                'role' => $user->role,
+                // Set other fields as needed, e.g. department_id, admin_id, etc.
+            ]);
+        }
+
+        \Illuminate\Support\Facades\Auth::login($user);
 
         if ($user->role === 'super_admin') {
             return redirect()->route('super_admin.dashboard');

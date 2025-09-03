@@ -351,12 +351,19 @@
         <div class="role-notice">
             <div class="role-notice-title">
                 <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
-                Access Level: {{ ucfirst($employee->role) }}
+                Access Level:
+                @if(strtolower($employee->role) === 'qa')
+                    Quality Assurance
+                @elseif(strtolower($employee->role) === 'ba')
+                    Business Analysis
+                @else
+                    {{ ucfirst($employee->role) }}
+                @endif
             </div>
             <div class="role-notice-text">
-                @if(in_array($employee->role, ['ba', 'qa']))
+                @if(in_array(strtolower($employee->role), ['ba', 'qa']))
                 ✅ You can view all employee ratings and rate other employees
-                @elseif($employee->role === 'developer')
+                @elseif(strtolower($employee->role) === 'developer')
                 👁️ You can view all employee ratings (rating functionality not available for developers)
                 @else
                 👁️ You can view all employee ratings
@@ -378,17 +385,17 @@
                 </div>
                 <div class="rating-legend-item">
                     <div class="rating-legend-color" style="background-color: #f97316;"></div>
-                    <span>BA</span>
+                    <span>Business Analysis</span>
                 </div>
                 <div class="rating-legend-item">
                     <div class="rating-legend-color" style="background-color: #22c55e;"></div>
-                    <span>QA</span>
+                    <span>Quality Assurance</span>
                 </div>
             </div>
         </div>
 
         <!-- Rate Employee Button (only for BA and QA) -->
-        @if(in_array($employee->role, ['ba', 'qa']))
+        @if(in_array(strtolower($employee->role), ['ba', 'qa']))
         <button class="rate-employee-btn" onclick="openRateEmployeeModal()">
             <i class="fas fa-star" style="margin-right: 0.5rem;"></i>
             Rate Employee
@@ -432,7 +439,15 @@
                 </div>
                 <div class="employee-details">
                     <div class="employee-name">{{ $employeeData->employee_name ?? 'Unknown Employee' }}</div>
-                    <div class="employee-role">{{ ucfirst($employeeData->role ?? 'Unknown') }}</div>
+                    <div class="employee-role">
+                        @if(strtolower($employeeData->role ?? '') === 'qa')
+                            Quality Assurance
+                        @elseif(strtolower($employeeData->role ?? '') === 'ba')
+                            Business Analysis
+                        @else
+                            {{ ucfirst($employeeData->role ?? 'Unknown') }}
+                        @endif
+                    </div>
                 </div>
             </div>
 
