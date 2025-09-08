@@ -12,6 +12,7 @@ use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\SuperAdmin;
+use Illuminate\Support\Facades\Auth;
 
 class SuperAdminController extends Controller
 {
@@ -285,5 +286,97 @@ class SuperAdminController extends Controller
 
     public function storeEmployeeRating(Request $request)
     {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,employee_id',
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:500',
+        ]);
+
+        $user = Auth::user();
+
+        if (!$user || strtolower($user->role) !== 'super_admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only Super Admins can submit ratings here.'
+            ], 403);
+        }
+
+        // Prevent rating self if super admin is mapped to an employee_id
+        if (!empty($user->employee_id) && (string)$user->employee_id === (string)$request->employee_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot rate yourself.'
+            ], 400);
+        }
+
+        // Prevent duplicate rating by the same rater for the same employee
+        $existingRating = EmployeeRating::where('employee_id', $request->employee_id)
+            ->where('rated_by', $user->id)
+            ->first();
+
+        if ($existingRating) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have already rated this employee.'
+            ], 400);
+        }
+
+        $rating = EmployeeRating::create([
+            'employee_id' => $request->employee_id,
+            'rating' => $request->rating,
+            'comment' => $request->comment,
+            'rated_by' => $user->id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Rating submitted successfully!',
+            'rating' => $rating->load(['employee', 'rater'])
+        ]);
+    }
+
+    /**
+     * Get ratings summary for a specific employee (used by modal summary in blade).
+     */
+    public function getEmployeeRatings($employeeId)
+    {
+        $ratings = EmployeeRating::with(['rater', 'employee'])
+            ->where('employee_id', $employeeId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $employee = Employee::find($employeeId);
+
+        if (!$employee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Employee not found.'
+            ], 404);
+        }
+
+        $averageRating = $ratings->count() > 0 ? round($ratings->avg('rating'), 1) : 0;
+
+        $recentRatings = $ratings->take(10)->map(function ($rating) {
+            return [
+                'id' => $rating->id,
+                'rating' => $rating->rating,
+                'comment' => $rating->comment,
+                'created_at' => $rating->created_at->format('M d, Y'),
+                'rater_name' => $rating->rater->name ?? 'Unknown',
+                'rater_role' => $rating->rater->role ?? 'unknown',
+            ];
+        })->values();
+
+        return response()->json([
+            'success' => true,
+            'employee' => [
+                'name' => $employee->employee_name,
+                'email' => $employee->email,
+                'role' => $employee->role,
+            ],
+            'average_rating' => $averageRating,
+            'total_ratings' => $ratings->count(),
+            'recent_ratings' => $recentRatings,
+        ]);
     }
 }

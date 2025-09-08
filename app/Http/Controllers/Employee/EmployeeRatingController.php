@@ -73,7 +73,7 @@ class EmployeeRatingController extends Controller
 
         $user = Auth::user();
 
-        if (!in_array($user->role, ['ba', 'qa'])) {
+        if (!in_array(strtolower($user->role), ['ba', 'qa'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Only BA and QA employees can rate other employees.'

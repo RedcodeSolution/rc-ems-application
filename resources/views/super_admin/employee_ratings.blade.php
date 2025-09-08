@@ -95,9 +95,15 @@
             
             <div class="employee-rating-card">
                 <div class="employee-info-section">
+                    @if(!empty($employeeData->profile_photo))
+                    <div class="employee-avatar" style="padding:0;">
+                        <img src="{{ asset('storage/' . $employeeData->profile_photo) }}" alt="Profile Photo" style="width:60px;height:60px;border-radius:50%;object-fit:cover;">
+                    </div>
+                    @else
                     <div class="employee-avatar">
                         {{ strtoupper(substr($employeeData->employee_name ?? 'E', 0, 1)) }}
                     </div>
+                    @endif
                     <div class="employee-details">
                         <div class="employee-name">{{ $employeeData->employee_name ?? 'Unknown Employee' }}</div>
                         <div class="employee-role">{{ ucfirst($employeeData->role ?? 'Unknown') }}</div>

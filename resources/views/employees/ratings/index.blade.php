@@ -403,7 +403,6 @@
         @endif
     </div>
 
-    <!-- Employee Ratings Grid -->
     <div class="employee-ratings-grid">
         @php
         // Group ratings by employee
@@ -418,11 +417,11 @@
         $averageRating = $employeeRatingGroup->avg('rating');
         $percentage = ($averageRating / 5) * 100;
 
-        // Calculate ratings by role
-        $superAdminRatings = $employeeRatingGroup->where('rater.role', 'super_admin')->count();
-        $adminRatings = $employeeRatingGroup->where('rater.role', 'admin')->count();
-        $baRatings = $employeeRatingGroup->where('rater.role', 'ba')->count();
-        $qaRatings = $employeeRatingGroup->where('rater.role', 'qa')->count();
+        // Calculate ratings by role (case-insensitive)
+        $superAdminRatings = $employeeRatingGroup->filter(fn($r) => strtolower($r->rater->role ?? '') === 'super_admin')->count();
+        $adminRatings = $employeeRatingGroup->filter(fn($r) => strtolower($r->rater->role ?? '') === 'admin')->count();
+        $baRatings = $employeeRatingGroup->filter(fn($r) => strtolower($r->rater->role ?? '') === 'ba')->count();
+        $qaRatings = $employeeRatingGroup->filter(fn($r) => strtolower($r->rater->role ?? '') === 'qa')->count();
 
         // Calculate percentages for progress bar
         $totalRoleRatings = $superAdminRatings + $adminRatings + $baRatings + $qaRatings;
@@ -434,9 +433,15 @@
 
         <div class="employee-rating-card">
             <div class="employee-info-section">
-                <div class="employee-avatar">
-                    {{ strtoupper(substr($employeeData->employee_name ?? 'E', 0, 1)) }}
-                </div>
+                @if(!empty($employeeData->profile_photo))
+                    <div class="employee-avatar" style="padding:0;">
+                        <img src="{{ asset('storage/' . $employeeData->profile_photo) }}" alt="Profile Photo" style="width:60px;height:60px;border-radius:50%;object-fit:cover;">
+                    </div>
+                @else
+                    <div class="employee-avatar">
+                        {{ strtoupper(substr($employeeData->employee_name ?? 'E', 0, 1)) }}
+                    </div>
+                @endif
                 <div class="employee-details">
                     <div class="employee-name">{{ $employeeData->employee_name ?? 'Unknown Employee' }}</div>
                     <div class="employee-role">
@@ -473,6 +478,34 @@
                 </div>
                 <div class="rating-percentage">{{ round($percentage) }}%</div>
             </div>
+
+            {{-- Show rating breakdown by role with color indicators --}}
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                @if($superAdminRatings > 0)
+                    <span style="display:inline-flex;align-items:center;">
+                        <span style="display:inline-block;width:12px;height:12px;background:#DC2626;border-radius:2px;margin-right:4px;"></span>
+                        Super Admin: {{ $superAdminRatings }}
+                    </span>
+                @endif
+                @if($adminRatings > 0)
+                    <span style="display:inline-flex;align-items:center;">
+                        <span style="display:inline-block;width:12px;height:12px;background:#fbbf24;border-radius:2px;margin-right:4px;"></span>
+                        Admin: {{ $adminRatings }}
+                    </span>
+                @endif
+                @if($baRatings > 0)
+                    <span style="display:inline-flex;align-items:center;">
+                        <span style="display:inline-block;width:12px;height:12px;background:#f97316;border-radius:2px;margin-right:4px;"></span>
+                        Business Analysis: {{ $baRatings }}
+                    </span>
+                @endif
+                @if($qaRatings > 0)
+                    <span style="display:inline-flex;align-items:center;">
+                        <span style="display:inline-block;width:12px;height:12px;background:#22c55e;border-radius:2px;margin-right:4px;"></span>
+                        Quality Assurance: {{ $qaRatings }}
+                    </span>
+                @endif
+            </div>
         </div>
         @endforeach
         @else
@@ -488,7 +521,7 @@
 </div>
 
 <!-- Rating Modal (only for BA and QA) -->
-@if(in_array($employee->role, ['ba', 'qa']))
+@if(in_array(strtolower($employee->role), ['ba', 'qa']))
 <div id="ratingModal" class="rating-modal">
     <div class="rating-modal-content">
         <div class="rating-modal-header">
@@ -539,52 +572,52 @@
 @endif
 
 <script>
-    @if(in_array($employee->role, ['ba', 'qa']))
+    @if(in_array(strtolower($employee->role), ['ba', 'qa']))
         function openRateEmployeeModal() {
             document.getElementById('ratingModal').style.display = 'block';
         }
 
-    function closeRateEmployeeModal() {
-        document.getElementById('ratingModal').style.display = 'none';
-        document.getElementById('ratingForm').reset();
-    }
-
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-        const modal = document.getElementById('ratingModal');
-        if (event.target === modal) {
-            closeRateEmployeeModal();
+        function closeRateEmployeeModal() {
+            document.getElementById('ratingModal').style.display = 'none';
+            document.getElementById('ratingForm').reset();
         }
-    }
 
-    // Handle form submission
-    document.getElementById('ratingForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const formData = new FormData(this);
-
-        fetch('{{ route("employee.ratings.store") }}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('ratingModal');
+            if (event.target === modal) {
+                closeRateEmployeeModal();
             }
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    closeRateEmployeeModal();
-                    location.reload();
-                } else {
-                    alert('Error: ' + data.message);
+        }
+
+        // Handle form submission
+        document.getElementById('ratingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('{{ route("employee.ratings.store") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while submitting the rating.');
-            });
-    });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        closeRateEmployeeModal();
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while submitting the rating.');
+                });
+        });
     @endif
 </script>
 @endsection
