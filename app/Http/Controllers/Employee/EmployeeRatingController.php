@@ -87,15 +87,15 @@ class EmployeeRatingController extends Controller
             ], 400);
         }
 
-
         $existingRating = EmployeeRating::where('employee_id', $request->employee_id)
             ->where('rated_by', $user->id)
+            ->whereDate('created_at', today())
             ->first();
 
         if ($existingRating) {
             return response()->json([
                 'success' => false,
-                'message' => 'You have already rated this employee.'
+                'message' => 'You have already rated this employee today.'
             ], 400);
         }
 

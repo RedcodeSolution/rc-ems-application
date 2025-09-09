@@ -403,6 +403,63 @@
         @endif
     </div>
 
+    @if($ratings->count() > 0)
+    <div class="stats-section" style="margin-bottom: 2rem;">
+        <div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;">
+            @php
+                $avgRating = $ratings->avg('rating');
+                $totalRatings = $ratings->count();
+                $fiveStarRatings = $ratings->where('rating', 5)->count();
+                $recentRatings = $ratings->where('created_at', '>=', now()->subDays(7))->count();
+            @endphp
+
+            <div class="stat-card" style="background:#fff;border-radius:12px;padding:1.5rem;box-shadow:0 2px 16px 0 rgba(220,38,38,0.07);display:flex;align-items:center;gap:1rem;">
+                <div class="stat-icon" style="width:60px;height:60px;border-radius:12px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-secondary);margin:0 0 0.5rem 0;text-transform:uppercase;letter-spacing:0.05em;">Average Rating</h3>
+                    <div class="stat-number" style="font-size:2rem;font-weight:700;color:var(--text-primary);">{{ number_format($avgRating, 1) }}/5</div>
+                    <p style="font-size:0.875rem;color:var(--text-secondary);margin:0;">Overall performance</p>
+                </div>
+            </div>
+
+            <div class="stat-card" style="background:#fff;border-radius:12px;padding:1.5rem;box-shadow:0 2px 16px 0 rgba(220,38,38,0.07);display:flex;align-items:center;gap:1rem;">
+                <div class="stat-icon" style="width:60px;height:60px;border-radius:12px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-secondary);margin:0 0 0.5rem 0;text-transform:uppercase;letter-spacing:0.05em;">Total Ratings</h3>
+                    <div class="stat-number" style="font-size:2rem;font-weight:700;color:var(--text-primary);">{{ $totalRatings }}</div>
+                    <p style="font-size:0.875rem;color:var(--text-secondary);margin:0;">All time ratings</p>
+                </div>
+            </div>
+
+            <div class="stat-card" style="background:#fff;border-radius:12px;padding:1.5rem;box-shadow:0 2px 16px 0 rgba(220,38,38,0.07);display:flex;align-items:center;gap:1rem;">
+                <div class="stat-icon" style="width:60px;height:60px;border-radius:12px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-secondary);margin:0 0 0.5rem 0;text-transform:uppercase;letter-spacing:0.05em;">5-Star Ratings</h3>
+                    <div class="stat-number" style="font-size:2rem;font-weight:700;color:var(--text-primary);">{{ $fiveStarRatings }}</div>
+                    <p style="font-size:0.875rem;color:var(--text-secondary);margin:0;">Excellent performance</p>
+                </div>
+            </div>
+
+            <div class="stat-card" style="background:#fff;border-radius:12px;padding:1.5rem;box-shadow:0 2px 16px 0 rgba(220,38,38,0.07);display:flex;align-items:center;gap:1rem;">
+                <div class="stat-icon" style="width:60px;height:60px;border-radius:12px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;">
+                    <i class="fas fa-calendar-week"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-secondary);margin:0 0 0.5rem 0;text-transform:uppercase;letter-spacing:0.05em;">This Week</h3>
+                    <div class="stat-number" style="font-size:2rem;font-weight:700;color:var(--text-primary);">{{ $recentRatings }}</div>
+                    <p style="font-size:0.875rem;color:var(--text-secondary);margin:0;">Recent ratings</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <div class="employee-ratings-grid">
         @php
         // Group ratings by employee

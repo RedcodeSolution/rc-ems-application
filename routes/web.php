@@ -4,7 +4,8 @@ use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\SuperAdminController;
+use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
+use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Models\Admin;
 use App\Models\Department;
 use App\Models\Employee;
@@ -126,9 +127,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/super_admin/admins', [SuperAdminController::class, 'admins'])->name('super_admin.admins');
     Route::get('/super_admin/notifications', [SuperAdminController::class, 'notifications'])->name('super_admin.notifications');
     Route::get('/super_admin/super_admin_accounts', [SuperAdminController::class, 'superAdminAccounts'])->name('super_admin.super_admin_accounts');
-    Route::get('/super_admin/employee_ratings', [SuperAdminController::class, 'employeeRatings'])->name('super_admin.employee_ratings');
-    Route::post('/super_admin/employee_ratings', [SuperAdminController::class, 'storeEmployeeRating'])->name('super_admin.employee_ratings.store');
-    Route::get('/super_admin/employee_ratings/employee/{employeeId}', [SuperAdminController::class, 'getEmployeeRatings'])->name('super_admin.employee_ratings.employee');
+    Route::get('/super_admin/employee_ratings', [EmployeeRatingController::class, 'employeeRatings'])->name('super_admin.employee_ratings');
+    Route::post('/super_admin/employee_ratings', [EmployeeRatingController::class, 'storeEmployeeRating'])->name('super_admin.employee_ratings.store');
+    Route::get('/super_admin/employee_ratings/employee/{employeeId}', [EmployeeRatingController::class, 'getEmployeeRatings'])->name('super_admin.employee_ratings.employee');
 
     // Super Admin Admin Leave Management Routes
     Route::prefix('super_admin/admin-leaves')->name('super_admin.admin_leaves.')->group(function () {
@@ -259,7 +260,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('admins', AdminController::class);
     Route::post('/admin/store', [AdminController::class, 'store'])->name('admin.store');
 
-    Route::resource('super_admins', SuperAdminController::class);
+    Route::resource('super_admins', EmployeeRatingController::class);
 
 
     Route::resource('projects', ProjectController::class);
@@ -356,6 +357,9 @@ Route::delete('/admin/teams/{team}', [TeamController::class, 'destroy'])->name('
 Route::get('/admin/teams/{team}/manage-members', [TeamController::class, 'assignEmployeesForm'])->name('teams.assignEmployeesForm');
 Route::post('/admin/teams/{team}/manage-members', [TeamController::class, 'assignEmployees'])->name('teams.assignEmployees');
 
+
+// Admin employee ratings JSON endpoint
+Route::get('/admin/employeeRatings/employee/{employeeId}', [App\Http\Controllers\Admin\EmployeeRatingsController::class, 'employeeRatingsJson']);
 
 
 require __DIR__.'/auth.php';

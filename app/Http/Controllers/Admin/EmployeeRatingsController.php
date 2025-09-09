@@ -21,7 +21,7 @@ class EmployeeRatingsController extends Controller
             $search = $request->search;
             $query->whereHas('employee', function($q) use ($search) {
                 $q->where('employee_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -68,7 +68,7 @@ class EmployeeRatingsController extends Controller
                 break;
             case 'employee':
                 $query->join('employees', 'employee_ratings.employee_id', '=', 'employees.employee_id')
-                      ->orderBy('employees.employee_name', 'asc');
+                    ->orderBy('employees.employee_name', 'asc');
                 break;
             default:
                 $query->orderBy('created_at', 'desc');
@@ -91,16 +91,52 @@ class EmployeeRatingsController extends Controller
             'comment' => 'nullable|string|max:500',
         ]);
 
-        EmployeeRating::create([
+        $admin = Auth::user();
+
+        if ($admin->employee_id === $request->employee_id) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You cannot rate yourself.'
+                ], 400);
+            }
+            return redirect()->back()->with('error', 'You cannot rate yourself.');
+        }
+
+        $existingRating = EmployeeRating::where('employee_id', $request->employee_id)
+            ->where('rated_by', $admin->id)
+            ->whereDate('created_at', today())
+            ->first();
+
+        if ($existingRating) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You have already rated this employee today.'
+                ], 400);
+            }
+            return redirect()->back()->with('error', 'You have already rated this employee today.');
+        }
+
+        $rating = EmployeeRating::create([
             'employee_id' => $request->employee_id,
             'rating' => $request->rating,
             'comment' => $request->comment,
-            'rated_by' => Auth::id(),
+            'rated_by' => $admin->id,
         ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Employee rating added successfully!',
+                'rating' => $rating
+            ]);
+        }
 
         return redirect()->route('admin.employeeRatings.index')
             ->with('success', 'Employee rating added successfully!');
     }
+
 
     /**
      * Display the specified employee rating.

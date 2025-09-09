@@ -3,8 +3,14 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
-use App\Models\EmployeeRating;
+use App\Models\Admin;
+use App\Models\Department;
 use App\Models\Employee;
+use App\Models\EmployeeRating;
+use App\Models\Leave;
+use App\Models\Meeting;
+use App\Models\Project;
+use App\Models\SuperAdmin;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,14 +19,31 @@ class EmployeeRatingController extends Controller
 {
     public function index()
     {
-        // Get all employee ratings with relationships
-        $ratings = EmployeeRating::with(['rater', 'employee'])
+        $superAdmins = SuperAdmin::all();
+        return view('super_admin.index', compact('superAdmins'));
+    }
+
+
+    public function show(SuperAdmin $superAdmin)
+    {
+        return view('super_admin.show', compact('superAdmin'));
+    }
+
+
+
+    /**
+     * Display the Employee Ratings page for Super Admin.
+     */
+    public function employeeRatings()
+    {
+        // Get all employee ratings with employee and rater information
+        $ratings = EmployeeRating::with(['employee', 'rater'])
             ->orderBy('created_at', 'desc')
             ->get();
 
         // Calculate statistics
         $totalRatings = $ratings->count();
-        $averageRating = $totalRatings > 0 ? round($ratings->avg('rating'), 1) : 0;
+        $averageRating = $totalRatings > 0 ? $ratings->avg('rating') : 0;
         $fiveStarRatings = $ratings->where('rating', 5)->count();
         $fourStarRatings = $ratings->where('rating', 4)->count();
         $threeStarRatings = $ratings->where('rating', 3)->count();
@@ -39,36 +62,16 @@ class EmployeeRatingController extends Controller
             '1_star' => $totalRatings > 0 ? round(($oneStarRatings / $totalRatings) * 100, 1) : 0,
         ];
 
-        // Get top rated employees
-        $topEmployees = Employee::with(['ratings'])
-            ->whereHas('ratings')
-            ->get()
-            ->map(function ($employee) {
-                $avgRating = $employee->ratings->avg('rating');
-                $totalRatings = $employee->ratings->count();
+        $topRatedEmployees = $ratings->groupBy('employee_id')
+            ->map(function ($employeeRatings) {
                 return [
-                    'employee' => $employee,
-                    'average_rating' => round($avgRating, 1),
-                    'total_ratings' => $totalRatings
+                    'employee' => $employeeRatings->first()->employee,
+                    'average_rating' => $employeeRatings->avg('rating'),
+                    'total_ratings' => $employeeRatings->count(),
+                    'recent_ratings' => $employeeRatings->where('created_at', '>=', now()->subDays(30))->count()
                 ];
             })
             ->sortByDesc('average_rating')
-            ->take(5);
-
-        // Get employees with most ratings
-        $mostRatedEmployees = Employee::with(['ratings'])
-            ->whereHas('ratings')
-            ->get()
-            ->map(function ($employee) {
-                $totalRatings = $employee->ratings->count();
-                $avgRating = $employee->ratings->avg('rating');
-                return [
-                    'employee' => $employee,
-                    'total_ratings' => $totalRatings,
-                    'average_rating' => round($avgRating, 1)
-                ];
-            })
-            ->sortByDesc('total_ratings')
             ->take(5);
 
         $data = [
@@ -82,60 +85,106 @@ class EmployeeRatingController extends Controller
             'oneStarRatings' => $oneStarRatings,
             'recentRatings' => $recentRatings,
             'ratingDistribution' => $ratingDistribution,
-            'topEmployees' => $topEmployees,
-            'mostRatedEmployees' => $mostRatedEmployees
+            'topRatedEmployees' => $topRatedEmployees
         ];
 
-        return view('super_admin.employee_ratings.index', $data);
+        return view('super_admin.employee_ratings', $data);
     }
 
-    public function show($id)
+    public function storeEmployeeRating(Request $request)
     {
-        $rating = EmployeeRating::with(['rater', 'employee'])->findOrFail($id);
-        return view('super_admin.employee_ratings.show', compact('rating'));
+        $request->validate([
+            'employee_id' => 'required|exists:employees,employee_id',
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:500',
+        ]);
+
+        $user = Auth::user();
+
+        if (!$user || strtolower($user->role) !== 'super_admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only Super Admins can submit ratings here.'
+            ], 403);
+        }
+
+        // Prevent rating self if super admin is mapped to an employee_id
+        if (!empty($user->employee_id) && (string)$user->employee_id === (string)$request->employee_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot rate yourself.'
+            ], 400);
+        }
+
+        // Allow daily ratings: prevent multiple ratings in the same day per rater per employee
+        $existingRating = EmployeeRating::where('employee_id', $request->employee_id)
+            ->where('rated_by', $user->id)
+            ->whereDate('created_at', today())
+            ->first();
+
+        if ($existingRating) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have already rated this employee today.'
+            ], 400);
+        }
+
+        $rating = EmployeeRating::create([
+            'employee_id' => $request->employee_id,
+            'rating' => $request->rating,
+            'comment' => $request->comment,
+            'rated_by' => $user->id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Rating submitted successfully!',
+            'rating' => $rating->load(['employee', 'rater'])
+        ]);
     }
 
-    public function employeeDetails($employeeId)
+    /**
+     * Get ratings summary for a specific employee (used by modal summary in blade).
+     */
+    public function getEmployeeRatings($employeeId)
     {
-        $employee = Employee::with(['ratings.rater'])->findOrFail($employeeId);
-        
-        $ratings = $employee->ratings()->with('rater')->orderBy('created_at', 'desc')->get();
-        
-        $averageRating = $ratings->avg('rating');
-        $totalRatings = $ratings->count();
-        
-        $ratingBreakdown = [
-            '5_star' => $ratings->where('rating', 5)->count(),
-            '4_star' => $ratings->where('rating', 4)->count(),
-            '3_star' => $ratings->where('rating', 3)->count(),
-            '2_star' => $ratings->where('rating', 2)->count(),
-            '1_star' => $ratings->where('rating', 1)->count(),
-        ];
+        $ratings = EmployeeRating::with(['rater', 'employee'])
+            ->where('employee_id', $employeeId)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        $data = [
-            'employee' => $employee,
-            'ratings' => $ratings,
-            'averageRating' => round($averageRating, 1),
-            'totalRatings' => $totalRatings,
-            'ratingBreakdown' => $ratingBreakdown
-        ];
+        $employee = Employee::find($employeeId);
 
-        return view('super_admin.employee_ratings.employee_details', $data);
+        if (!$employee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Employee not found.'
+            ], 404);
+        }
+
+        $averageRating = $ratings->count() > 0 ? round($ratings->avg('rating'), 1) : 0;
+
+        $recentRatings = $ratings->take(10)->map(function ($rating) {
+            return [
+                'id' => $rating->id,
+                'rating' => $rating->rating,
+                'comment' => $rating->comment,
+                'created_at' => $rating->created_at->format('M d, Y'),
+                'rater_name' => $rating->rater->name ?? 'Unknown',
+                'rater_role' => $rating->rater->role ?? 'unknown',
+            ];
+        })->values();
+
+        return response()->json([
+            'success' => true,
+            'employee' => [
+                'name' => $employee->employee_name,
+                'email' => $employee->email,
+                'role' => $employee->role,
+            ],
+            'average_rating' => $averageRating,
+            'total_ratings' => $ratings->count(),
+            'recent_ratings' => $recentRatings,
+        ]);
     }
-
-    public function delete($id)
-    {
-        $rating = EmployeeRating::findOrFail($id);
-        $rating->delete();
-
-        return redirect()->route('super_admin.employee_ratings')
-            ->with('success', 'Rating deleted successfully!');
-    }
-
-    public function export()
-    {
-        // In a real application, this would generate a CSV/Excel file
-        return redirect()->route('super_admin.employee_ratings')
-            ->with('success', 'Ratings exported successfully!');
-    }
-} 
+}

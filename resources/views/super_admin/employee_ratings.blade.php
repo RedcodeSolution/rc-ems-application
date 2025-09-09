@@ -13,7 +13,7 @@
         <p class="page-description">
             Visual overview of employee ratings across the organization
         </p>
-        
+
         <!-- Role-based Access Notice -->
         <div class="role-notice">
             <div class="role-notice-title">
@@ -24,7 +24,7 @@
                 ✅ You can view all employee ratings and rate other employees
             </div>
         </div>
-        
+
         <!-- Rating Legend -->
         <div class="rating-legend">
             <div class="rating-legend-title">Rating Color Legend:</div>
@@ -53,16 +53,65 @@
             <i class="fas fa-plus"></i>
             Rate Employee
         </button>
-        <button class="btn btn-secondary" onclick="exportRatings()">
-            <i class="fas fa-download"></i>
-            Export Report
-        </button>
-        <button class="btn btn-primary" onclick="generateReport()">
-            <i class="fas fa-chart-bar"></i>
-            Generate Report
-        </button>
     </div>
 </div>
+
+@if($ratings->count() > 0)
+<div class="stats-section" style="margin-bottom: 2rem;">
+    <div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;">
+        @php
+            $avgRating = $ratings->avg('rating');
+            $totalRatings = $ratings->count();
+            $fiveStarRatings = $ratings->where('rating', 5)->count();
+            $recentRatings = $ratings->where('created_at', '>=', now()->subDays(7))->count();
+        @endphp
+
+        <div class="stat-card" style="background:#fff;border-radius:12px;padding:1.5rem;box-shadow:0 2px 16px 0 rgba(220,38,38,0.07);display:flex;align-items:center;gap:1rem;">
+            <div class="stat-icon" style="width:60px;height:60px;border-radius:12px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-content">
+                <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-secondary);margin:0 0 0.5rem 0;text-transform:uppercase;letter-spacing:0.05em;">Average Rating</h3>
+                <div class="stat-number" style="font-size:2rem;font-weight:700;color:var(--text-primary);">{{ number_format($avgRating, 1) }}/5</div>
+                <p style="font-size:0.875rem;color:var(--text-secondary);margin:0;">Overall performance</p>
+            </div>
+        </div>
+
+        <div class="stat-card" style="background:#fff;border-radius:12px;padding:1.5rem;box-shadow:0 2px 16px 0 rgba(220,38,38,0.07);display:flex;align-items:center;gap:1rem;">
+            <div class="stat-icon" style="width:60px;height:60px;border-radius:12px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+                <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-secondary);margin:0 0 0.5rem 0;text-transform:uppercase;letter-spacing:0.05em;">Total Ratings</h3>
+                <div class="stat-number" style="font-size:2rem;font-weight:700;color:var(--text-primary);">{{ $totalRatings }}</div>
+                <p style="font-size:0.875rem;color:var(--text-secondary);margin:0;">All time ratings</p>
+            </div>
+        </div>
+
+        <div class="stat-card" style="background:#fff;border-radius:12px;padding:1.5rem;box-shadow:0 2px 16px 0 rgba(220,38,38,0.07);display:flex;align-items:center;gap:1rem;">
+            <div class="stat-icon" style="width:60px;height:60px;border-radius:12px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-content">
+                <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-secondary);margin:0 0 0.5rem 0;text-transform:uppercase;letter-spacing:0.05em;">5-Star Ratings</h3>
+                <div class="stat-number" style="font-size:2rem;font-weight:700;color:var(--text-primary);">{{ $fiveStarRatings }}</div>
+                <p style="font-size:0.875rem;color:var(--text-secondary);margin:0;">Excellent performance</p>
+            </div>
+        </div>
+
+        <div class="stat-card" style="background:#fff;border-radius:12px;padding:1.5rem;box-shadow:0 2px 16px 0 rgba(220,38,38,0.07);display:flex;align-items:center;gap:1rem;">
+            <div class="stat-icon" style="width:60px;height:60px;border-radius:12px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;">
+                <i class="fas fa-calendar-week"></i>
+            </div>
+            <div class="stat-content">
+                <h3 style="font-size:0.875rem;font-weight:600;color:var(--text-secondary);margin:0 0 0.5rem 0;text-transform:uppercase;letter-spacing:0.05em;">This Week</h3>
+                <div class="stat-number" style="font-size:2rem;font-weight:700;color:var(--text-primary);">{{ $recentRatings }}</div>
+                <p style="font-size:0.875rem;color:var(--text-secondary);margin:0;">Recent ratings</p>
+            </div>
+        </div>
+    </div>
+    </div>
+@endif
 
 <!-- Employee Ratings Grid -->
 <div class="employee-ratings-grid">
@@ -70,7 +119,7 @@
         // Group ratings by employee
         $employeeRatings = $ratings->groupBy('employee_id');
     @endphp
-    
+
     @if($employeeRatings->count() > 0)
         @foreach($employeeRatings as $employeeId => $employeeRatingGroup)
             @php
@@ -78,21 +127,20 @@
                 $totalRatings = $employeeRatingGroup->count();
                 $averageRating = $employeeRatingGroup->avg('rating');
                 $percentage = ($averageRating / 5) * 100;
-                
-                // Calculate ratings by role
-                $superAdminRatings = $employeeRatingGroup->where('rater.role', 'super_admin')->count();
-                $adminRatings = $employeeRatingGroup->where('rater.role', 'admin')->count();
-                $baRatings = $employeeRatingGroup->where('rater.role', 'ba')->count();
-                $qaRatings = $employeeRatingGroup->where('rater.role', 'qa')->count();
-                
-                // Calculate percentages for progress bar
+
+                // FIX: Use case-insensitive filter for rater role
+                $superAdminRatings = $employeeRatingGroup->filter(fn($r) => strtolower($r->rater->role ?? '') === 'super_admin')->count();
+                $adminRatings = $employeeRatingGroup->filter(fn($r) => strtolower($r->rater->role ?? '') === 'admin')->count();
+                $baRatings = $employeeRatingGroup->filter(fn($r) => strtolower($r->rater->role ?? '') === 'ba')->count();
+                $qaRatings = $employeeRatingGroup->filter(fn($r) => strtolower($r->rater->role ?? '') === 'qa')->count();
+
                 $totalRoleRatings = $superAdminRatings + $adminRatings + $baRatings + $qaRatings;
                 $superAdminPercent = $totalRoleRatings > 0 ? ($superAdminRatings / $totalRoleRatings) * 100 : 0;
                 $adminPercent = $totalRoleRatings > 0 ? ($adminRatings / $totalRoleRatings) * 100 : 0;
                 $baPercent = $totalRoleRatings > 0 ? ($baRatings / $totalRoleRatings) * 100 : 0;
                 $qaPercent = $totalRoleRatings > 0 ? ($qaRatings / $totalRoleRatings) * 100 : 0;
             @endphp
-            
+
             <div class="employee-rating-card">
                 <div class="employee-info-section">
                     @if(!empty($employeeData->profile_photo))
@@ -109,7 +157,7 @@
                         <div class="employee-role">{{ ucfirst($employeeData->role ?? 'Unknown') }}</div>
                     </div>
                 </div>
-                
+
                 <div class="rating-progress-container">
                     <div class="rating-progress-bar">
                         <div class="rating-progress-segments">
@@ -167,13 +215,10 @@
                             <label>Email:</label>
                             <span id="modal-employee-email">john.doe@company.com</span>
                         </div>
-                        <div class="detail-item">
-                            <label>Department:</label>
-                            <span id="modal-employee-dept">Development</span>
-                        </div>
+
                     </div>
                 </div>
-                
+
                 <div class="detail-section">
                     <h3>Rating Information</h3>
                     <div class="detail-grid">
@@ -198,7 +243,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="detail-section">
                     <h3>Comment</h3>
                     <div class="comment-full" id="modal-comment">
@@ -232,13 +277,11 @@
                     <select name="employee_id" id="employee_id" class="form-control" required onchange="loadEmployeeRatings(this.value)">
                         <option value="">Choose an employee...</option>
                         @php
-                            $employees = \App\Models\Employee::with('department')->get();
+                            $employees = \App\Models\Employee::all();
                         @endphp
                         @if($employees->count() > 0)
                             @foreach($employees as $employee)
-                                <option value="{{ $employee->employee_id }}">
-                                    {{ $employee->employee_name }} - {{ $employee->department->name ?? 'No Department' }}
-                                </option>
+                                <option value="{{ $employee->employee_id }}">{{ $employee->employee_name }}</option>
                             @endforeach
                         @else
                             <option value="" disabled>No employees available</option>
@@ -248,7 +291,7 @@
                         <small class="text-danger">No employees found in the system.</small>
                     @endif
                 </div>
-                
+
                 <div class="form-group" id="employee-rating-summary" style="display: none;">
                     <label>Employee Rating Summary</label>
                     <div class="rating-summary">
@@ -267,7 +310,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label>Rating *</label>
                     <div class="rating-input">
@@ -286,7 +329,7 @@
                         <span class="rating-text">Select a rating</span>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="comment">Comment</label>
                     <textarea name="comment" id="comment" class="form-control" rows="4" placeholder="Provide feedback about the employee's performance..."></textarea>
@@ -347,53 +390,53 @@
 }
 
 /* Role-based Access Notice */
-.role-notice { 
-    background: rgba(59, 130, 246, 0.1); 
-    padding: 1rem; 
-    border-radius: 0.5rem; 
-    margin-bottom: 1rem; 
+.role-notice {
+    background: rgba(59, 130, 246, 0.1);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
     border-left: 4px solid #3b82f6;
 }
-.role-notice-title { 
-    font-weight: 600; 
-    color: #1e40af; 
-    margin-bottom: 0.5rem; 
+.role-notice-title {
+    font-weight: 600;
+    color: #1e40af;
+    margin-bottom: 0.5rem;
 }
-.role-notice-text { 
-    color: var(--text-secondary); 
-    font-size: 0.875rem; 
+.role-notice-text {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
 }
 
 /* Rating Legend */
-.rating-legend { 
-    background: #fff; 
-    padding: 1rem; 
-    border-radius: 0.5rem; 
-    margin-bottom: 1rem; 
+.rating-legend {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
     border: 1px solid var(--border-light);
     box-shadow: 0 2px 16px 0 rgba(220,38,38,0.07);
 }
-.rating-legend-title { 
-    font-weight: 600; 
-    color: var(--text-primary); 
-    margin-bottom: 0.5rem; 
+.rating-legend-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
 }
-.rating-legend-items { 
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 1rem; 
+.rating-legend-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
-.rating-legend-item { 
-    display: flex; 
-    align-items: center; 
-    font-size: 0.875rem; 
+.rating-legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
     color: var(--text-secondary);
 }
-.rating-legend-color { 
-    width: 16px; 
-    height: 16px; 
-    border-radius: 3px; 
-    margin-right: 0.5rem; 
+.rating-legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    margin-right: 0.5rem;
 }
 
 /* Employee Rating Cards */
@@ -493,32 +536,32 @@
 }
 
 /* Empty State */
-.empty-state { 
-    text-align: center; 
-    padding: 2rem; 
+.empty-state {
+    text-align: center;
+    padding: 2rem;
     color: var(--text-secondary);
     background: #fff;
     border-radius: 0.75rem;
     box-shadow: 0 2px 16px 0 rgba(220,38,38,0.07);
 }
-.empty-icon { 
-    width: 4rem; 
-    height: 4rem; 
-    background: var(--border-light); 
-    border-radius: 50%; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    margin: 0 auto 1rem; 
+.empty-icon {
+    width: 4rem;
+    height: 4rem;
+    background: var(--border-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
 }
-.empty-title { 
-    font-size: 1.125rem; 
-    font-weight: 500; 
-    color: var(--text-primary); 
-    margin-bottom: 0.5rem; 
+.empty-title {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
 }
-.empty-text { 
-    color: var(--text-secondary); 
+.empty-text {
+    color: var(--text-secondary);
 }
 
 /* Modal Styles */
@@ -841,7 +884,7 @@
 }
 
 .rating-display .fas.fa-star.filled {
-    color: #DC2626; /* Red for Super Admin ratings */
+    color: #DC2626;
 }
 
 .rating-number {
@@ -857,7 +900,7 @@
         gap: 1rem;
         align-items: flex-start;
     }
-    
+
     .employee-ratings-grid {
         grid-template-columns: 1fr;
     }
@@ -865,34 +908,31 @@
 </style>
 
 <script>
-// Modal functions
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
 }
 
 function openRateEmployeeModal() {
-    // Reset form
+
     const form = document.getElementById('rateEmployeeForm');
     form.reset();
-    
-    // Reset rating text
+
     const ratingText = document.querySelector('.rating-text');
     if (ratingText) {
         ratingText.textContent = 'Select a rating';
     }
-    
-    // Reset star rating display
+
     const starInputs = document.querySelectorAll('.star-rating input[type="radio"]');
     starInputs.forEach(input => {
         input.checked = false;
     });
-    
+
     // Hide employee rating summary
     const summaryDiv = document.getElementById('employee-rating-summary');
     if (summaryDiv) {
         summaryDiv.style.display = 'none';
     }
-    
+
     // Show modal
     document.getElementById('rateEmployeeModal').style.display = 'block';
 }
@@ -900,24 +940,24 @@ function openRateEmployeeModal() {
 function submitRating() {
     const form = document.getElementById('rateEmployeeForm');
     const formData = new FormData(form);
-    
+
     // Validate form
     if (!formData.get('employee_id')) {
         showNotification('Please select an employee', 'error');
         return;
     }
-    
+
     if (!formData.get('rating')) {
         showNotification('Please select a rating', 'error');
         return;
     }
-    
+
     // Disable submit button to prevent double submission
     const submitBtn = document.querySelector('#rateEmployeeModal .btn-primary');
     const originalText = submitBtn.innerHTML;
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-    
+
     // Submit form
     fetch(form.action, {
         method: 'POST',
@@ -969,7 +1009,7 @@ function viewRating(id) {
         ratingDate: 'January 15, 2024',
         comment: 'Excellent work on the project. Very professional and dedicated to the task. Great communication skills and always meets deadlines.'
     };
-    
+
     // Populate modal
     document.getElementById('modal-employee-name').textContent = ratingData.employeeName;
     document.getElementById('modal-employee-email').textContent = ratingData.employeeEmail;
@@ -977,7 +1017,7 @@ function viewRating(id) {
     document.getElementById('modal-rater-name').textContent = ratingData.raterName;
     document.getElementById('modal-rating-date').textContent = ratingData.ratingDate;
     document.getElementById('modal-comment').innerHTML = `<p>${ratingData.comment}</p>`;
-    
+
     // Update rating stars
     const ratingDisplay = document.getElementById('modal-rating');
     ratingDisplay.innerHTML = '';
@@ -986,7 +1026,7 @@ function viewRating(id) {
         star.className = `fas fa-star ${i <= ratingData.rating ? 'filled' : 'empty'}`;
         if (i <= ratingData.rating) {
             // Use role-based colors
-            const roleColor = ratingData.raterRole === 'super_admin' ? '#DC2626' : 
+            const roleColor = ratingData.raterRole === 'super_admin' ? '#DC2626' :
                              ratingData.raterRole === 'admin' ? '#fbbf24' :
                              ratingData.raterRole === 'ba' ? '#f97316' :
                              ratingData.raterRole === 'qa' ? '#22c55e' : '#6b7280';
@@ -998,26 +1038,19 @@ function viewRating(id) {
     ratingNumber.className = 'rating-number';
     ratingNumber.textContent = `(${ratingData.rating}/5)`;
     ratingDisplay.appendChild(ratingNumber);
-    
+
     // Show modal
     document.getElementById('viewRatingModal').style.display = 'block';
 }
 
 function exportRatings() {
     console.log('Exporting ratings data...');
-    // Implement export functionality
 }
 
-function generateReport() {
-    console.log('Generating ratings report...');
-    // Implement report generation
-}
-
-// Star rating functionality
 document.addEventListener('DOMContentLoaded', function() {
     const starInputs = document.querySelectorAll('.star-rating input[type="radio"]');
     const ratingText = document.querySelector('.rating-text');
-    
+
     starInputs.forEach(input => {
         input.addEventListener('change', function() {
             const rating = this.value;
@@ -1039,14 +1072,14 @@ function loadEmployeeRatings(employeeId) {
         document.getElementById('employee-rating-summary').style.display = 'none';
         return;
     }
-    
+
     // Show loading state
     const summaryDiv = document.getElementById('employee-rating-summary');
     summaryDiv.style.display = 'block';
     document.getElementById('avg-rating').textContent = 'Loading...';
     document.getElementById('total-ratings').textContent = 'Loading...';
     document.getElementById('recent-ratings-list').innerHTML = '<p>Loading recent ratings...</p>';
-    
+
     // Fetch employee ratings
     fetch(`/super_admin/employee_ratings/employee/${employeeId}`)
         .then(response => response.json())
@@ -1055,7 +1088,7 @@ function loadEmployeeRatings(employeeId) {
                 // Update summary stats
                 document.getElementById('avg-rating').textContent = data.average_rating + '/5';
                 document.getElementById('total-ratings').textContent = data.total_ratings;
-                
+
                 // Update recent ratings
                 const recentRatingsList = document.getElementById('recent-ratings-list');
                 if (data.recent_ratings && data.recent_ratings.length > 0) {
@@ -1065,7 +1098,7 @@ function loadEmployeeRatings(employeeId) {
                                 <div class="rating-stars">
                                     ${Array.from({length: 5}, (_, i) => {
                                         const isFilled = i < rating.rating;
-                                        const roleColor = rating.rater_role === 'super_admin' ? '#DC2626' : 
+                                        const roleColor = rating.rater_role === 'super_admin' ? '#DC2626' :
                                                          rating.rater_role === 'admin' ? '#fbbf24' :
                                                          rating.rater_role === 'ba' ? '#f97316' :
                                                          rating.rater_role === 'qa' ? '#22c55e' : '#6b7280';
@@ -1095,7 +1128,7 @@ function loadEmployeeRatings(employeeId) {
 
 // Notification function
 function showNotification(message, type = 'info') {
-    // Create notification element
+
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.style.cssText = `
@@ -1109,8 +1142,7 @@ function showNotification(message, type = 'info') {
         z-index: 10000;
         animation: slideIn 0.3s ease;
     `;
-    
-    // Set background color based on type
+
     const colors = {
         success: '#10b981',
         error: '#ef4444',
@@ -1118,10 +1150,10 @@ function showNotification(message, type = 'info') {
         info: '#3b82f6'
     };
     notification.style.backgroundColor = colors[type] || colors.info;
-    
+
     notification.textContent = message;
     document.body.appendChild(notification);
-    
+
     // Remove notification after 3 seconds
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease';
@@ -1145,7 +1177,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Close modal when clicking outside
 window.onclick = function(event) {
     const modals = document.querySelectorAll('.modal');
     modals.forEach(modal => {
@@ -1156,4 +1187,4 @@ window.onclick = function(event) {
 }
 </script>
 </div>
-@endsection 
+@endsection
