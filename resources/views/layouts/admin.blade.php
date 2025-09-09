@@ -722,7 +722,7 @@
 
                 <div class="sidebar-menu-section">
                     <div class="sidebar-menu-title">Project Management</div>
-                    <a href="{{ route('admin.projects') }}" class="sidebar-menu-item {{ request()->routeIs('admin.projects') ? 'active' : '' }}">
+                    <a href="{{ route('admin.projects.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.projects') ? 'active' : '' }}">
                         <i class="fas fa-project-diagram"></i>
                         <span>Projects</span>
                     </a>

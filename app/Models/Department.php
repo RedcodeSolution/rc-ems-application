@@ -8,12 +8,12 @@ class Department extends Model
 {
     protected $primaryKey = 'department_id';
     public $incrementing = true;
-    protected $keyType = 'string';
+    protected $keyType = 'int';
 
     protected $fillable = [
         'department_name',
         'description',
-        'department_head',
+        'employee_id',
         'location',
         'phone',
         'email',
@@ -21,9 +21,17 @@ class Department extends Model
         'status',
     ];
 
-    public function employees() {
-        return $this->hasMany(Employee::class, 'department_id');
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
     }
+
+    public function employees()
+    {
+        return $this->hasMany(Employee::class, 'department_id', 'department_id');
+    }
+
+
 
     // Get total number of employees in this department
     public function getTotalEmployeesAttribute()

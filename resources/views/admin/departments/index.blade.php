@@ -451,17 +451,32 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    @if($department->department_head)
+
+                    @if($department->employee)
                     <div style="margin-bottom: 1rem;">
                         <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Department Head</div>
-                        <div style="font-weight: 600;">{{ $department->department_head }}</div>
+                        <div style="font-weight: 600;">{{ $department->employee->employee_name }}</div>
+                    </div>
+                    @else
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            Department Head
+                        </div>
+                        <div style="font-weight: 600; color: #aaa;">
+                            Not Assigned
+                        </div>
                     </div>
                     @endif
 
+
+                    {{-- Total Employees --}}
                     <div style="margin-bottom: 1rem;">
                         <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Total Employees</div>
-                        <div style="font-size: 1.5rem; font-weight: 700; color: {{ $iconColor }};">{{ $department->employees_count ?? 0 }}</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: {{ $iconColor }};">
+                            {{ $department->employees_count ?? 0 }}
+                        </div>
                     </div>
+
 
                     @if($department->description)
                     <div style="margin-bottom: 1rem;">
@@ -554,7 +569,7 @@
         </div>
 
         <div class="modal-body">
-            <form id="departmentForm" action="{{ route('departments.store') }}" method="POST">
+            <form id="departmentForm" action="{{ route('admin.departments.store') }}" method="POST">
                 @csrf
                 <div class="form-container">
                     <!-- Basic Information Row -->
@@ -590,16 +605,29 @@
                     <!-- Department Head and Location Row -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                         <div class="form-group">
-                            <label for="department_head" class="form-label">
-                                <i class="fas fa-user-tie"></i>Department Head
-                            </label>
-                            <div style="position: relative;">
-                                <input type="text" id="department_head" name="department_head" class="form-input" placeholder="Name of department head">
-                            </div>
-                            <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.25rem;">
-                                Manager or head of this department
-                            </small>
+                        <label for="employee_id" class="form-label">
+                            <i class="fas fa-user-tie"></i> Department Head
+                        </label>
+                        <div style="position: relative;">
+                            <select id="employee_id" name="employee_id" class="form-input">
+                                <option value="">-- Select Department Head --</option>
+                                @foreach($employees as $employee)
+                                <option value="{{ $employee->employee_id }}"
+                                        {{ old('employee_id') == $employee->employee_id ? 'selected' : '' }}>
+                                {{ $employee->employee_name }}
+                                </option>
+                                @endforeach
+                            </select>
                         </div>
+                        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.25rem;">
+                            Manager or head of this department (optional)
+                        </small>
+                        @error('employee_id')
+                        <div class="text-danger" style="font-size: .85rem;">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+
 
                         <div class="form-group">
                             <label for="location" class="form-label">
@@ -613,6 +641,7 @@
                             </small>
                         </div>
                     </div>
+
 
                     <!-- Contact Information Row -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
@@ -736,16 +765,24 @@
                     <!-- Department Head and Location Row -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                         <div class="form-group">
-                            <label for="edit_department_head" class="form-label">
-                                <i class="fas fa-user-tie"></i>Department Head
+                            <label for="employee_id" class="form-label">
+                                <i class="fas fa-user-tie"></i> Department Head
                             </label>
-                            <div style="position: relative;">
-                                <input type="text" id="edit_department_head" name="department_head" class="form-input" placeholder="Enter department head name">
-                            </div>
+                            <select id="edit_employee_id" name="employee_id" class="form-input">
+                                <option value="">-- Select Department Head --</option>
+                                @foreach($employees as $employee)
+                                <option value="{{ $employee->employee_id }}">
+                                    {{ $employee->employee_name }}
+                                </option>
+                                @endforeach
+                            </select>
+
+
                             <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.25rem;">
                                 Name of the department head or manager
                             </small>
                         </div>
+
 
                         <div class="form-group">
                             <label for="edit_location" class="form-label">
@@ -1107,45 +1144,66 @@ function viewDepartmentDetails(departmentId) {
     currentViewDepartmentId = departmentId;
     const modal = document.getElementById('viewDepartmentModal');
 
-    // Show loading state
+    // Show loading / modal
     modal.classList.add('active');
 
-    // Fetch department data
     fetch(`/departments/${departmentId}/show`, {
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json',
+            'Accept': 'application/json'
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const department = data.department;
+        .then(response => {
+            // Ensure we surface JSON errors from server
+            if (!response.ok) return response.json().then(err => { throw new Error(err.message || 'Network error'); });
+            return response.json();
+        })
+        .then(data => {
+            if (!data.success) throw new Error(data.message || 'Failed to fetch department data');
 
-            // Set department basic info
-            document.getElementById('view_department_name').textContent = department.department_name || 'N/A';
-            document.getElementById('view_department_id').textContent = `Department ID: ${department.department_id}`;
+            const dept = data.department || {};
 
-            // Set department details
-            document.getElementById('view_department_head').textContent = department.department_head || 'Not Assigned';
-            document.getElementById('view_location').textContent = department.location || 'Not Specified';
-            document.getElementById('view_phone').textContent = department.phone || 'Not Provided';
-            document.getElementById('view_email').textContent = department.email || 'Not Provided';
-            document.getElementById('view_description').textContent = department.description || 'No description available';
+            // Basic fields
+            document.getElementById('view_department_name').textContent = dept.department_name || 'N/A';
+            document.getElementById('view_department_id').textContent = `Department ID: ${dept.department_id ?? 'N/A'}`;
+            document.getElementById('view_location').textContent = dept.location || 'Not Specified';
+            document.getElementById('view_phone').textContent = dept.phone || 'Not Provided';
+            document.getElementById('view_email').textContent = dept.email || 'Not Provided';
+            document.getElementById('view_description').textContent = dept.description || 'No description available';
+            document.getElementById('view_employees_count').textContent = dept.employees_count ?? 0;
 
-            // Set statistics
-            document.getElementById('view_employees_count').textContent = department.employees_count || 0;
-
-            // Format budget
-            const budget = department.budget ? `$${parseFloat(department.budget).toLocaleString()}` : 'Not Set';
+            // Budget formatting
+            const budget = (dept.budget !== undefined && dept.budget !== null)
+                ? `$${Number(dept.budget).toLocaleString()}`
+                : 'Not Set';
             document.getElementById('view_budget').textContent = budget;
 
-            // Set status with appropriate styling
+            // ----- Department Head: robust logic (checks several possible shapes) -----
+            const headElement = document.getElementById('view_department_head');
+            let headName = null;
+
+            // Common case: relation 'employee' included as object (preferred)
+            if (dept.employee && typeof dept.employee === 'object') {
+                headName = dept.employee.employee_name || dept.employee.name || dept.employee.full_name || null;
+            }
+
+            // Convenience fields sometimes added by backend
+            if (!headName) headName = dept.department_head_name || dept.employee_name || null;
+
+            // Some APIs may include the employee as employee_id object (less common)
+            if (!headName && dept.employee_id && typeof dept.employee_id === 'object') {
+                headName = dept.employee_id.employee_name || dept.employee_id.name || null;
+            }
+
+            // If still nothing, fallback to Not Assigned
+            headElement.textContent = headName || 'Not Assigned';
+
+            // ----- Status card (unchanged logic) -----
             const statusCard = document.getElementById('view_status_card');
             const statusIcon = document.getElementById('view_status_icon');
             const statusText = document.getElementById('view_status');
 
-            if (department.status === 'Active') {
+            if (dept.status === 'Active') {
                 statusCard.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
                 statusCard.style.boxShadow = '0 8px 32px rgba(5, 150, 105, 0.3)';
                 statusIcon.className = 'fas fa-check-circle';
@@ -1154,12 +1212,12 @@ function viewDepartmentDetails(departmentId) {
                 statusCard.style.background = 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
                 statusCard.style.boxShadow = '0 8px 32px rgba(107, 114, 128, 0.3)';
                 statusIcon.className = 'fas fa-pause-circle';
-                statusText.textContent = 'Inactive';
+                statusText.textContent = dept.status || 'Inactive';
             }
 
-            // Set dynamic icon based on department name
+            // ----- Department icon based on name -----
             const iconElement = document.getElementById('view_department_icon').querySelector('i');
-            const deptLower = (department.department_name || department.department_id).toLowerCase();
+            const deptLower = (dept.department_name || String(dept.department_id || '')).toLowerCase();
 
             if (deptLower.includes('development') || deptLower.includes('it') || deptLower.includes('tech')) {
                 iconElement.className = 'fas fa-code';
@@ -1176,15 +1234,13 @@ function viewDepartmentDetails(departmentId) {
             } else {
                 iconElement.className = 'fas fa-building';
             }
-        } else {
-            throw new Error(data.message || 'Failed to fetch department data');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error loading department data: ' + error.message);
-        closeViewDepartmentModal();
-    });
+        })
+        .catch(error => {
+            console.error('Error loading department data:', error);
+            alert('Error loading department data: ' + error.message);
+            // closeViewDepartmentModal() -- keep your close function if you have one
+            if (typeof closeViewDepartmentModal === 'function') closeViewDepartmentModal();
+        });
 }
 
 function closeViewDepartmentModal() {
@@ -1192,7 +1248,6 @@ function closeViewDepartmentModal() {
     modal.classList.remove('active');
     currentViewDepartmentId = null;
 }
-
 
 function openEditDepartmentModal(departmentId) {
     console.log(departmentId)
@@ -1219,12 +1274,23 @@ function openEditDepartmentModal(departmentId) {
 
                 document.getElementById('edit_department_name').value = department.department_name || '';
                 document.getElementById('edit_description').value = department.description || '';
-                document.getElementById('edit_department_head').value = department.department_head || '';
+                document.getElementById('employee_id').value = department.employee_id || '';
                 document.getElementById('edit_location').value = department.location || '';
                 document.getElementById('edit_phone').value = department.phone || '';
                 document.getElementById('edit_email').value = department.email || '';
                 document.getElementById('edit_budget').value = department.budget || '';
                 document.getElementById('edit_status').value = department.status || 'Active';
+
+                // const headSelect = document.getElementById('employee_id');
+                // if (headSelect) {
+                //     headSelect.value = department.employee_id || '';
+                // }
+
+                // ✅ Set selected Department Head
+                const headSelect = document.getElementById('edit_employee_id');
+                if (headSelect && department.employee_id) {
+                    headSelect.value = department.employee_id;
+                }
 
                 const input = document.getElementById('edit_department_name');
                 if (input) input.focus();
@@ -1239,7 +1305,6 @@ function openEditDepartmentModal(departmentId) {
             closeEditDepartmentModal();
         });
 }
-
 
 function closeEditDepartmentModal() {
     const modal = document.getElementById('editDepartmentModal');
@@ -1404,19 +1469,26 @@ function renderDepartments(departmentsToRender) {
                 </div>
                 <div class="card-body">`;
 
-        if (department.department_head) {
+        if (department.employee && department.employee.employee_name) {
             html += `
-                    <div style="margin-bottom: 1rem;">
-                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Department Head</div>
-                        <div style="font-weight: 600;">${department.department_head}</div>
-                    </div>`;
+        <div style="margin-bottom: 1rem;">
+            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Department Head</div>
+            <div style="font-weight: 600;">${department.employee.employee_name}</div>
+        </div>`;
+        } else {
+            html += `
+        <div style="margin-bottom: 1rem;">
+            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Department Head</div>
+            <div style="font-weight: 600; color: #aaa;">Not Assigned</div>
+        </div>`;
         }
 
         html += `
-                    <div style="margin-bottom: 1rem;">
-                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Total Employees</div>
-                        <div style="font-size: 1.5rem; font-weight: 700; color: ${iconColor};">${department.employees_count || 0}</div>
-                    </div>`;
+         <div style="margin-bottom: 1rem;">
+            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Total Employees</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: ${iconColor};">${department.employees_count || 0}</div>
+         </div>`;
+
 
         if (department.description) {
             html += `

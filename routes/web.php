@@ -1,14 +1,15 @@
 <?php
+
+use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnnouncementController;
-use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\TeamController;
@@ -17,6 +18,7 @@ use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Leave;
 use App\Models\Meeting;
+use App\Models\Team;
 use Illuminate\Support\Facades\Route;
 
 // Guest route - Welcome page
@@ -208,7 +210,7 @@ Route::middleware('auth')->group(function () {
             $employees = Employee::with(['department', 'admin'])->get();
             $departments = Department::all();
             $admins = Admin::all();
-            $teams = \App\Models\Team::all(); // <-- Add this line
+            $teams = Team::all(); // <-- Add this line
             return view('admin.employees.index', compact('employees', 'departments', 'admins', 'teams'));
         })->name('employees');
 
@@ -383,13 +385,20 @@ Route::middleware('auth')->prefix('employee')->name('employee.')->group(function
 
 //department Management
 Route::get('/admin/department', [DepartmentController::class, 'index'])->name('admin.departments.index');
+Route::get('/admin/create', [ProjectController::class, 'create'])->name('admin.departments.create');
 Route::post('/admin/department', [DepartmentController::class, 'store'])->name('admin.departments.store');
 Route::get('/departments/{departmentId}/edit', [DepartmentController::class, 'edit'])->name('admin.departments.edit');
 Route::put('/departments/{departmentId}', [DepartmentController::class, 'update'])->name('admin.departments.update');
 Route::get('/departments/{departmentId}/show', [DepartmentController::class, 'show'])->name('admin.departments.show');
 Route::delete('/departments/{departmentId}', [DepartmentController::class, 'destroy'])->name('admin.departments.destroy');
 
-
-
+//project Management
+Route::get('/admin/project', [ProjectController::class, 'index'])->name('admin.projects.index');
+Route::get('/projects/create', [ProjectController::class, 'create'])->name('admin.projects.create');
+Route::post('/admin/projects', [ProjectController::class, 'store'])->name('admin.projects.store');
+Route::get('/projects/{projectId}/edit', [ProjectController::class, 'edit'])->name('admin.projects.edit');
+Route::put('/projects/{projectId}', [ProjectController::class, 'update'])->name('admin.projects.update');
+Route::get('/projects/{projectId}/show', [ProjectController::class, 'show'])->name('admin.projects.show');
+Route::delete('/projects/{projectId}', [ProjectController::class, 'destroy'])->name('admin.projects.destroy');
 
 require __DIR__.'/auth.php';
