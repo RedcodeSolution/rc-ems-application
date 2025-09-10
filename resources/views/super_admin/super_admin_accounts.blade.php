@@ -36,7 +36,7 @@
             <p class="stat-label">Total Super Admins</p>
         </div>
     </div>
-    
+
     <div class="stat-card">
         <div class="stat-icon active">
             <i class="fas fa-user-check"></i>
@@ -46,7 +46,7 @@
             <p class="stat-label">Active Accounts</p>
         </div>
     </div>
-    
+
     <div class="stat-card">
         <div class="stat-icon inactive">
             <i class="fas fa-user-times"></i>
@@ -56,7 +56,7 @@
             <p class="stat-label">Inactive Accounts</p>
         </div>
     </div>
-    
+
     <div class="stat-card">
         <div class="stat-icon recent">
             <i class="fas fa-sign-in-alt"></i>
@@ -88,7 +88,7 @@
                 </button>
             </div>
         </div>
-        
+
         <div class="table-container">
             <table class="data-table">
                 <thead>
@@ -108,45 +108,41 @@
                     @forelse($superAdminUsers as $user)
                     <tr>
                         <td>
-                            <input type="checkbox" class="row-select" value="{{ $user->id }}">
+                            <input type="checkbox" class="row-select" value="{{ $user->super_admin_id }}">
                         </td>
                         <td>
                             <div class="user-info">
                                 <div class="user-avatar">
-                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                    {{ strtoupper(substr($user->super_admin_name, 0, 1)) }}
                                 </div>
                                 <div class="user-details">
-                                    <span class="user-name">{{ $user->name }}</span>
-                                    <span class="user-id">ID: {{ $user->id }}</span>
+                                    <span class="user-name">{{ $user->super_admin_name }}</span>
+                                    <span class="user-id">ID: {{ $user->super_admin_id }}</span>
                                 </div>
                             </div>
                         </td>
-                        <td>{{ $user->email }}</td>
+                        <td>{{ $user->super_admin_email }}</td>
                         <td>
-                            <span class="status-badge {{ $user->status ?? 'active' }}">
-                                {{ ucfirst($user->status ?? 'active') }}
+                            <span class="status-badge active">
+                                Active
                             </span>
                         </td>
                         <td>
-                            @if($user->last_login_at)
-                                {{ \Carbon\Carbon::parse($user->last_login_at)->diffForHumans() }}
-                            @else
-                                <span class="text-muted">Never</span>
-                            @endif
+                            <span class="text-muted">Never</span>
                         </td>
                         <td>{{ \Carbon\Carbon::parse($user->created_at)->format('M d, Y') }}</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-sm btn-icon" onclick="viewAccount({{ $user->id }})" title="View">
+                                <button class="btn btn-sm btn-icon" onclick="viewAccount('{{ $user->super_admin_id }}')" title="View">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="btn btn-sm btn-icon" onclick="editAccount({{ $user->id }})" title="Edit">
+                                <button class="btn btn-sm btn-icon" onclick="editAccount('{{ $user->super_admin_id }}')" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-sm btn-icon" onclick="resetPassword({{ $user->id }})" title="Reset Password">
+                                <button class="btn btn-sm btn-icon" onclick="resetPassword('{{ $user->super_admin_id }}')" title="Reset Password">
                                     <i class="fas fa-key"></i>
                                 </button>
-                                <button class="btn btn-sm btn-icon danger" onclick="deleteAccount({{ $user->id }})" title="Delete">
+                                <button class="btn btn-sm btn-icon danger" onclick="deleteAccount('{{ $user->super_admin_id }}')" title="Delete">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -171,8 +167,7 @@
             </table>
         </div>
     </div>
-    
-    <!-- Recent Activities -->
+
     <div class="content-card">
         <div class="card-header">
             <h2 class="card-title">
@@ -180,7 +175,7 @@
                 Recent Activities
             </h2>
         </div>
-        
+
         <div class="activities-list">
             @foreach($recentActivities as $activity)
             <div class="activity-item">
@@ -207,7 +202,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <form class="modal-form">
+        <form class="modal-form" id="createAccountForm">
             <div class="form-row">
                 <div class="form-group">
                     <label for="name">Full Name *</label>
@@ -218,18 +213,18 @@
                     <input type="email" id="email" name="email" required class="form-control">
                 </div>
             </div>
-            
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="password">Password *</label>
                     <input type="password" id="password" name="password" required class="form-control">
                 </div>
                 <div class="form-group">
-                    <label for="confirm_password">Confirm Password *</label>
-                    <input type="password" id="confirm_password" name="confirm_password" required class="form-control">
+                    <label for="password_confirmation">Confirm Password *</label>
+                    <input type="password" id="password_confirmation" name="password_confirmation" required class="form-control">
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label for="permissions">Permissions</label>
                 <div class="permissions-grid">
@@ -251,7 +246,7 @@
                     </label>
                 </div>
             </div>
-            
+
             <div class="form-actions">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('createAccountModal')">
                     Cancel
@@ -297,7 +292,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="detail-section">
                     <h3>Account Information</h3>
                     <div class="detail-grid">
@@ -319,7 +314,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="detail-section">
                     <h3>Permissions</h3>
                     <div class="permissions-list" id="view-permissions">
@@ -363,7 +358,7 @@
                     <input type="email" id="edit-email" name="email" required class="form-control">
                 </div>
             </div>
-            
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="edit-status">Account Status</label>
@@ -382,7 +377,7 @@
                     </select>
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label>Permissions</label>
                 <div class="permissions-grid">
@@ -412,7 +407,7 @@
                     </label>
                 </div>
             </div>
-            
+
             <div class="form-actions">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('editAccountModal')">
                     Cancel
@@ -441,7 +436,7 @@
                 <input type="password" id="current-password" name="current_password" required class="form-control">
                 <small class="form-help">Enter the current password to verify your identity</small>
             </div>
-            
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="new-password">New Password *</label>
@@ -458,7 +453,7 @@
                     <input type="password" id="confirm-new-password" name="confirm_new_password" required class="form-control">
                 </div>
             </div>
-            
+
             <div class="password-requirements">
                 <h4>Password Requirements:</h4>
                 <ul>
@@ -469,7 +464,7 @@
                     <li id="req-special">One special character</li>
                 </ul>
             </div>
-            
+
             <div class="form-actions">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('changePasswordModal')">
                     Cancel
@@ -484,7 +479,7 @@
 </div>
 
 <style>
-/* Page Header */
+
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -1157,23 +1152,23 @@
         gap: 1rem;
         align-items: flex-start;
     }
-    
+
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .form-row {
         grid-template-columns: 1fr;
     }
-    
+
     .permissions-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .detail-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .password-requirements ul {
         grid-template-columns: 1fr;
     }
@@ -1194,7 +1189,7 @@ function closeModal(modalId) {
 function toggleSelectAll() {
     const selectAll = document.getElementById('select-all');
     const checkboxes = document.querySelectorAll('.row-select');
-    
+
     checkboxes.forEach(checkbox => {
         checkbox.checked = selectAll.checked;
     });
@@ -1210,7 +1205,7 @@ function bulkAction() {
         alert('Please select at least one account.');
         return;
     }
-    
+
     const action = prompt('Enter action (activate/deactivate/delete):');
     if (action) {
         // Implement bulk action logic here
@@ -1218,78 +1213,65 @@ function bulkAction() {
     }
 }
 
-// Account management functions
 function viewAccount(id) {
-    // Sample data - in real app, fetch from server
-    const accountData = {
-        id: id,
-        name: 'John Smith',
-        email: 'john.smith@company.com',
-        status: 'active',
-        created: 'January 15, 2024',
-        lastLogin: '2 hours ago',
-        loginCount: 47,
-        lastIp: '192.168.1.100',
-        permissions: ['User Management', 'System Settings', 'Security Settings', 'Reports & Analytics']
-    };
-    
-    // Populate view modal
-    document.getElementById('view-name').textContent = accountData.name;
-    document.getElementById('view-email').textContent = accountData.email;
-    document.getElementById('view-id').textContent = `SA${String(id).padStart(3, '0')}`;
-    document.getElementById('view-status').textContent = accountData.status.charAt(0).toUpperCase() + accountData.status.slice(1);
-    document.getElementById('view-created').textContent = accountData.created;
-    document.getElementById('view-last-login').textContent = accountData.lastLogin;
-    document.getElementById('view-login-count').textContent = accountData.loginCount;
-    document.getElementById('view-last-ip').textContent = accountData.lastIp;
-    
-    // Update status badge class
-    const statusBadge = document.getElementById('view-status');
-    statusBadge.className = `status-badge ${accountData.status}`;
-    
-    // Update permissions
-    const permissionsContainer = document.getElementById('view-permissions');
-    permissionsContainer.innerHTML = accountData.permissions.map(perm => 
-        `<span class="permission-badge">${perm}</span>`
-    ).join('');
-    
-    // Store current account ID for edit function
-    window.currentAccountId = id;
-    
-    // Show modal
-    document.getElementById('viewAccountModal').style.display = 'block';
+    fetch(`{{ url('/super_admin/super_admin_accounts') }}/${id}`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(accountData => {
+        document.getElementById('view-name').textContent = accountData.name;
+        document.getElementById('view-email').textContent = accountData.email;
+        document.getElementById('view-id').textContent = accountData.id;
+        document.getElementById('view-status').textContent = accountData.status.charAt(0).toUpperCase() + accountData.status.slice(1);
+        document.getElementById('view-created').textContent = accountData.created;
+        document.getElementById('view-last-login').textContent = accountData.lastLogin;
+        document.getElementById('view-login-count').textContent = accountData.loginCount;
+        document.getElementById('view-last-ip').textContent = accountData.lastIp;
+
+        const statusBadge = document.getElementById('view-status');
+        statusBadge.className = `status-badge ${accountData.status}`;
+
+        // Update permissions
+        const permissionsContainer = document.getElementById('view-permissions');
+        permissionsContainer.innerHTML = accountData.permissions.map(perm =>
+            `<span class="permission-badge">${perm}</span>`
+        ).join('');
+
+        window.currentAccountId = id;
+        document.getElementById('viewAccountModal').style.display = 'block';
+    })
+    .catch(() => {
+        alert('Failed to load account details.');
+    });
 }
 
 function editAccount(id) {
-    // Sample data - in real app, fetch from server
-    const accountData = {
-        id: id,
-        name: 'John Smith',
-        email: 'john.smith@company.com',
-        status: 'active',
-        role: 'super_admin',
-        permissions: ['user_management', 'system_settings', 'security', 'reports']
-    };
-    
-    // Populate edit form
-    document.getElementById('edit-name').value = accountData.name;
-    document.getElementById('edit-email').value = accountData.email;
-    document.getElementById('edit-status').value = accountData.status;
-    document.getElementById('edit-role').value = accountData.role;
-    
-    // Set permissions
-    document.getElementById('edit-perm-user').checked = accountData.permissions.includes('user_management');
-    document.getElementById('edit-perm-system').checked = accountData.permissions.includes('system_settings');
-    document.getElementById('edit-perm-security').checked = accountData.permissions.includes('security');
-    document.getElementById('edit-perm-reports').checked = accountData.permissions.includes('reports');
-    document.getElementById('edit-perm-backup').checked = accountData.permissions.includes('backup');
-    document.getElementById('edit-perm-logs').checked = accountData.permissions.includes('logs');
-    
-    // Store current account ID
-    window.currentAccountId = id;
-    
-    // Show modal
-    document.getElementById('editAccountModal').style.display = 'block';
+    fetch(`{{ url('/super_admin/super_admin_accounts') }}/${id}`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(accountData => {
+        document.getElementById('edit-name').value = accountData.name;
+        document.getElementById('edit-email').value = accountData.email;
+        document.getElementById('edit-perm-user').checked = accountData.permissions.includes('User Management');
+        document.getElementById('edit-perm-system').checked = accountData.permissions.includes('System Settings');
+        document.getElementById('edit-perm-security').checked = accountData.permissions.includes('Security Settings');
+        document.getElementById('edit-perm-reports').checked = accountData.permissions.includes('Reports & Analytics');
+        document.getElementById('edit-perm-backup').checked = accountData.permissions.includes('Backup & Restore');
+        document.getElementById('edit-perm-logs').checked = accountData.permissions.includes('System Logs');
+
+        window.currentAccountId = id;
+        document.getElementById('editAccountModal').style.display = 'block';
+    })
+    .catch(() => {
+        alert('Failed to load account details.');
+    });
 }
 
 function editAccountFromView() {
@@ -1300,21 +1282,21 @@ function editAccountFromView() {
 function resetPassword(id) {
     // Store current account ID
     window.currentAccountId = id;
-    
+
     // Clear form
     document.getElementById('current-password').value = '';
     document.getElementById('new-password').value = '';
     document.getElementById('confirm-new-password').value = '';
-    
+
     // Reset password strength
     document.getElementById('strength-fill').className = 'strength-fill';
     document.getElementById('strength-text').textContent = 'Weak';
-    
+
     // Reset requirements
     document.querySelectorAll('.password-requirements li').forEach(li => {
         li.classList.remove('valid');
     });
-    
+
     // Show modal
     document.getElementById('changePasswordModal').style.display = 'block';
 }
@@ -1336,7 +1318,7 @@ document.getElementById('new-password').addEventListener('input', function() {
     const password = this.value;
     const strengthFill = document.getElementById('strength-fill');
     const strengthText = document.getElementById('strength-text');
-    
+
     // Check requirements
     const requirements = {
         length: password.length >= 8,
@@ -1345,19 +1327,19 @@ document.getElementById('new-password').addEventListener('input', function() {
         number: /[0-9]/.test(password),
         special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
     };
-    
+
     // Update requirement indicators
     document.getElementById('req-length').classList.toggle('valid', requirements.length);
     document.getElementById('req-uppercase').classList.toggle('valid', requirements.uppercase);
     document.getElementById('req-lowercase').classList.toggle('valid', requirements.lowercase);
     document.getElementById('req-number').classList.toggle('valid', requirements.number);
     document.getElementById('req-special').classList.toggle('valid', requirements.special);
-    
+
     // Calculate strength
     const validRequirements = Object.values(requirements).filter(Boolean).length;
     let strength = 'weak';
     let strengthClass = 'weak';
-    
+
     if (validRequirements >= 4 && password.length >= 8) {
         strength = 'strong';
         strengthClass = 'strong';
@@ -1368,54 +1350,73 @@ document.getElementById('new-password').addEventListener('input', function() {
         strength = 'fair';
         strengthClass = 'fair';
     }
-    
+
     strengthFill.className = `strength-fill ${strengthClass}`;
     strengthText.textContent = strength.charAt(0).toUpperCase() + strength.slice(1);
 });
 
-// Form submissions
 document.getElementById('editAccountForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
-    // Collect form data
-    const formData = new FormData(this);
-    const data = Object.fromEntries(formData);
-    
-    // Add permissions
-    data.permissions = [];
-    document.querySelectorAll('#editAccountForm input[name="permissions[]"]:checked').forEach(checkbox => {
-        data.permissions.push(checkbox.value);
+
+    const id = window.currentAccountId;
+    const form = e.target;
+    const formData = new FormData(form);
+
+
+    const permissions = [];
+    form.querySelectorAll('input[name="permissions[]"]:checked').forEach(cb => {
+        permissions.push(cb.value);
     });
-    
-    console.log('Updating account:', window.currentAccountId, data);
-    
-    // Simulate API call
-    setTimeout(() => {
-        alert('Account updated successfully!');
-        closeModal('editAccountModal');
-        // Refresh table or update specific row
-    }, 1000);
+    formData.delete('permissions[]');
+
+    if (permissions.length === 0) {
+        formData.append('permissions', []);
+    } else {
+        permissions.forEach(p => formData.append('permissions[]', p));
+    }
+
+    fetch(`{{ url('/super_admin/super_admin_accounts') }}/${id}`, {
+        method: 'PUT',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Account updated successfully!');
+            closeModal('editAccountModal');
+            location.reload();
+        } else {
+            alert('Failed to update account.');
+        }
+    })
+    .catch(error => {
+        alert('Error updating account.');
+        console.error(error);
+    });
 });
 
 document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     const currentPassword = document.getElementById('current-password').value;
     const newPassword = document.getElementById('new-password').value;
     const confirmPassword = document.getElementById('confirm-new-password').value;
-    
+
     // Validation
     if (newPassword !== confirmPassword) {
         alert('New passwords do not match!');
         return;
     }
-    
+
     if (newPassword.length < 8) {
         alert('Password must be at least 8 characters long!');
         return;
     }
-    
-    // Check all requirements
+
     const requirements = {
         length: newPassword.length >= 8,
         uppercase: /[A-Z]/.test(newPassword),
@@ -1423,20 +1424,66 @@ document.getElementById('changePasswordForm').addEventListener('submit', functio
         number: /[0-9]/.test(newPassword),
         special: /[!@#$%^&*(),.?":{}|<>]/.test(newPassword)
     };
-    
+
     const validRequirements = Object.values(requirements).filter(Boolean).length;
     if (validRequirements < 3) {
         alert('Password does not meet security requirements!');
         return;
     }
-    
+
     console.log('Changing password for account:', window.currentAccountId);
-    
-    // Simulate API call
+
+
     setTimeout(() => {
         alert('Password changed successfully!');
         closeModal('changePasswordModal');
     }, 1000);
+});
+
+document.getElementById('createAccountForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    if (formData.get('password') !== formData.get('password_confirmation')) {
+        alert('Passwords do not match!');
+        return;
+    }
+
+    const permissions = [];
+    form.querySelectorAll('input[name="permissions[]"]:checked').forEach(cb => {
+        permissions.push(cb.value);
+    });
+    formData.delete('permissions[]');
+    if (permissions.length === 0) {
+        formData.append('permissions', []);
+    } else {
+        permissions.forEach(p => formData.append('permissions[]', p));
+    }
+
+    fetch('{{ url("/super_admin/super_admin_accounts") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Super Admin account created successfully!');
+            closeModal('createAccountModal');
+            location.reload();
+        } else {
+            alert('Failed to create account.');
+        }
+    })
+    .catch(error => {
+        alert('Error creating account.');
+        console.error(error);
+    });
 });
 
 // Close modal when clicking outside
@@ -1449,4 +1496,4 @@ window.onclick = function(event) {
     });
 }
 </script>
-@endsection 
+@endsection

@@ -4,7 +4,10 @@ use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\SuperAdminController;
+use App\Http\Controllers\SuperAdmin\AdminLeaveController;
+use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
+use App\Http\Controllers\SuperAdmin\SuperAdminAccountsController;
+use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Models\Admin;
 use App\Models\Department;
 use App\Models\Employee;
@@ -17,11 +20,9 @@ Route::get('/', function () {
     return view('guest');
 })->middleware('guest')->name('welcome');
 
-// Authentication required routes
 Route::middleware('auth')->group(function () {
     // Dashboard routes with enhanced data
     Route::get('/admin/dashboard', function () {
-        // Get real data from database
         $employees = \App\Models\Employee::with(['department', 'projects', 'leaves'])->get();
         $projects = \App\Models\Project::with(['employees', 'team'])->get();
         $leaves = Leave::with(['employee'])->get();
@@ -63,12 +64,12 @@ Route::middleware('auth')->group(function () {
             'totalEmployees' => $totalEmployees,
             'activeProjects' => $activeProjects,
             'pendingTasks' => 23,
-            'revenue' => '$2.4M', // Placeholder
-            'newJoinings' => 12, // Placeholder
+            'revenue' => '$2.4M',
+            'newJoinings' => 12,
             'pendingLeaves' => $pendingLeaves,
-            'efficiency' => '94.2%', // Placeholder
+            'efficiency' => '94.2%',
             'employeeData' => $employeeData,
-            'employees' => $employees, // Add employees variable
+            'employees' => $employees,
             'projects' => $projects,
             'leaves' => $leaves,
             'approvedLeaves' => $approvedLeaves,
@@ -79,7 +80,6 @@ Route::middleware('auth')->group(function () {
     })->name('admin.dashboard');
 
     Route::get('/employee/dashboard', function () {
-        // Get today's meetings (morning and evening)
         $todayMeetings = \App\Models\Meeting::getTodayMeetings();
         if ($todayMeetings->count() == 0) {
             \App\Models\Meeting::createDailyStandup();
@@ -89,12 +89,10 @@ Route::middleware('auth')->group(function () {
         return view('employees.dashboard', compact('todayMeetings'));
     })->name('employee.dashboard');
 
-    // Employee profile route (frontend only)
     Route::get('/employees/profile', function () {
         return view('employees.profile.index');
     })->name('employee.profile');
 
-    // Employee documents route (frontend only)
     Route::get('/employees/documents', function () {
         return view('employees.documents.index');
     })->name('employee.documents');
@@ -130,14 +128,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/super_admin/system_stats', [SuperAdminController::class, 'systemStats'])->name('super_admin.system_stats');
     Route::get('/super_admin/admins', [SuperAdminController::class, 'admins'])->name('super_admin.admins');
     Route::get('/super_admin/notifications', [SuperAdminController::class, 'notifications'])->name('super_admin.notifications');
-    Route::get('/super_admin/super_admin_accounts', [SuperAdminController::class, 'superAdminAccounts'])->name('super_admin.super_admin_accounts');
-    Route::get('/super_admin/employee_ratings', [SuperAdminController::class, 'employeeRatings'])->name('super_admin.employee_ratings');
-    Route::post('/super_admin/employee_ratings', [SuperAdminController::class, 'storeEmployeeRating'])->name('super_admin.employee_ratings.store');
-    Route::get('/super_admin/employee_ratings/employee/{employeeId}', [SuperAdminController::class, 'getEmployeeRatings'])->name('super_admin.employee_ratings.employee');
+
+    Route::get('/super_admin/employee_ratings', [EmployeeRatingController::class, 'employeeRatings'])->name('super_admin.employee_ratings');
+    Route::post('/super_admin/employee_ratings', [EmployeeRatingController::class, 'storeEmployeeRating'])->name('super_admin.employee_ratings.store');
+    Route::get('/super_admin/employee_ratings/employee/{employeeId}', [EmployeeRatingController::class, 'getEmployeeRatings'])->name('super_admin.employee_ratings.employee');
 
     // Super Admin Admin Leave Management Routes
     Route::prefix('super_admin/admin-leaves')->name('super_admin.admin_leaves.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'index'])->name('index');
+        Route::get('/', [AdminLeaveController::class, 'index'])->name('index');
         Route::get('/{id}', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'show'])->name('show');
         Route::post('/{id}/approve', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'approve'])->name('approve');
         Route::post('/{id}/reject', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'reject'])->name('reject');
@@ -264,7 +262,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('admins', AdminController::class);
     Route::post('/admin/store', [AdminController::class, 'store'])->name('admin.store');
 
-    Route::resource('super_admins', SuperAdminController::class);
+    Route::resource('super_admins', EmployeeRatingController::class);
 
 
     Route::resource('projects', ProjectController::class);
@@ -362,5 +360,13 @@ Route::get('/admin/teams/{team}/manage-members', [TeamController::class, 'assign
 Route::post('/admin/teams/{team}/manage-members', [TeamController::class, 'assignEmployees'])->name('teams.assignEmployees');
 
 
+// Admin employee ratings JSON endpoint
+Route::get('/admin/employeeRatings/employee/{employeeId}', [App\Http\Controllers\Admin\EmployeeRatingsController::class, 'employeeRatingsJson']);
+
+// Add this route for account creation
+Route::get('/super_admin/super_admin_accounts', [SuperAdminAccountsController::class, 'index'])->name('super_admin.super_admin_accounts');
+Route::post('/super_admin/super_admin_accounts', [SuperAdminAccountsController::class, 'store'])->name('super_admin_accounts.store');
+Route::get('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'show'])->name('super_admin_accounts.show');
+Route::put('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'update'])->name('super_admin_accounts.update');
 
 require __DIR__.'/auth.php';
