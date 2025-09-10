@@ -11,7 +11,9 @@ return new class extends Migration
         Schema::create('super_admins', function (Blueprint $table) {
             $table->string('super_admin_id')->primary();
             $table->string('super_admin_name');
-            $table->string('employee_id');
+            $table->string('super_admin_email')->unique();
+            $table->string('password');
+            $table->text('permissions')->nullable();
             $table->timestamps();
         });
     }
