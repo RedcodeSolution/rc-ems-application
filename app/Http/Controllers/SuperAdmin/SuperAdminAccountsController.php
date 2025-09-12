@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SuperAdmin;
+use App\Models\SuperAdminActivity;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -14,20 +15,37 @@ class SuperAdminAccountsController extends Controller
     {
         $superAdmins = SuperAdmin::all();
 
-        // Example statistics (customize as needed)
         $totalSuperAdmins = $superAdmins->count();
-        $activeSuperAdmins = $superAdmins->count(); // If you have a status field, filter by status
-        $inactiveSuperAdmins = 0; // If you have a status field, filter by status
-        $recentLogins = 0; // If you track logins, calculate here
+        $activeSuperAdmins = $superAdmins->where('status', 'active')->count();
+        $inactiveSuperAdmins = $superAdmins->where('status', 'inactive')->count();
+        $recentLogins = 0;
 
-        // Pass accounts and stats to the view
+        $superAdmins->transform(function ($user) {
+            $user->last_login = $user->last_login ?? null;
+            return $user;
+        });
+
+        // Fetch recent activities from DB (last 10)
+        $recentActivities = SuperAdminActivity::orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function ($activity) {
+                return [
+                    'type' => $activity->type,
+                    'icon' => $activity->icon,
+                    'action' => $activity->action,
+                    'details' => $activity->details,
+                    'timestamp' => $activity->created_at
+                ];
+            });
+
         return view('super_admin.super_admin_accounts', [
             'superAdminUsers' => $superAdmins,
             'totalSuperAdmins' => $totalSuperAdmins,
             'activeSuperAdmins' => $activeSuperAdmins,
             'inactiveSuperAdmins' => $inactiveSuperAdmins,
             'recentLogins' => $recentLogins,
-            'recentActivities' => [] // Fill if you have activity data
+            'recentActivities' => $recentActivities
         ]);
     }
 
@@ -49,6 +67,15 @@ class SuperAdminAccountsController extends Controller
 
         ]);
 
+        // Log activity
+        SuperAdminActivity::create([
+            'super_admin_id' => $superAdmin->super_admin_id,
+            'type' => 'create',
+            'icon' => 'fas fa-user-plus',
+            'action' => 'Account Created',
+            'details' => "Super admin account created: {$superAdmin->super_admin_name}"
+        ]);
+
         return response()->json(['success' => true, 'super_admin' => $superAdmin]);
     }
 
@@ -56,18 +83,17 @@ class SuperAdminAccountsController extends Controller
     {
         $user = SuperAdmin::findOrFail($id);
 
-        // Example: If you want to add login info, you can add those fields here
         $data = [
             'id' => $user->super_admin_id,
             'name' => $user->super_admin_name,
             'email' => $user->super_admin_email,
             'created' => $user->created_at ? $user->created_at->format('F d, Y') : '',
-            'status' => 'active', // You can change this if you have a status field
-            'lastLogin' => 'Never', // Replace with actual last login if available
-            'loginCount' => 0, // Replace with actual login count if available
-            'lastIp' => '', // Replace with actual last IP if available
+            'status' => $user->status ?? 'active',
+            'role' => $user->role ?? 'super_admin',
+            'lastLogin' => 'Never',
+            'loginCount' => 0,
+            'lastIp' => '',
             'permissions' => collect(json_decode($user->permissions, true))->map(function($perm) {
-                // Map permission keys to readable names
                 switch ($perm) {
                     case 'user_management': return 'User Management';
                     case 'system_settings': return 'System Settings';
@@ -87,7 +113,6 @@ class SuperAdminAccountsController extends Controller
     {
         $user = SuperAdmin::findOrFail($id);
 
-        // Ensure permissions is always an array for validation
         if (!$request->has('permissions')) {
             $request->merge(['permissions' => []]);
         }
@@ -95,14 +120,79 @@ class SuperAdminAccountsController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:super_admins,super_admin_email,' . $id . ',super_admin_id',
+            'status' => 'required|string|in:active,inactive,suspended',
+            'role' => 'required|string|in:super_admin,system_admin,security_admin',
             'permissions' => 'nullable|array'
         ]);
 
         $user->super_admin_name = $validated['name'];
         $user->super_admin_email = $validated['email'];
+        $user->status = $validated['status'];
+        $user->role = $validated['role'];
         $user->permissions = json_encode($validated['permissions'] ?? []);
         $user->save();
 
+        // Log activity
+        SuperAdminActivity::create([
+            'super_admin_id' => $user->super_admin_id,
+            'type' => 'update',
+            'icon' => 'fas fa-edit',
+            'action' => 'Account Updated',
+            'details' => "Account updated: {$user->super_admin_name}"
+        ]);
+
         return response()->json(['success' => true, 'super_admin' => $user]);
+    }
+
+    // Add this method for password change
+    public function changePassword(Request $request, $id)
+    {
+        $user = SuperAdmin::findOrFail($id);
+
+        $validated = $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed'
+        ]);
+
+        if (!\Hash::check($validated['current_password'], $user->password)) {
+            return response()->json(['success' => false, 'message' => 'Current password incorrect.'], 422);
+        }
+
+        $user->password = \Hash::make($validated['new_password']);
+        $user->save();
+
+        // Log activity
+        SuperAdminActivity::create([
+            'super_admin_id' => $user->super_admin_id,
+            'type' => 'security',
+            'icon' => 'fas fa-key',
+            'action' => 'Password Changed',
+            'details' => "Password changed for: {$user->super_admin_name}"
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    // Add this method for deleting a super admin account
+    public function destroy($id)
+    {
+        $user = SuperAdmin::find($id);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Account not found.'], 404);
+        }
+
+        $userName = $user->super_admin_name;
+        $user->delete();
+
+        // Log activity
+        SuperAdminActivity::create([
+            'super_admin_id' => $id,
+            'type' => 'delete',
+            'icon' => 'fas fa-trash',
+            'action' => 'Account Deleted',
+            'details' => "Super admin account deleted: {$userName}"
+        ]);
+
+        return response()->json(['success' => true]);
     }
 }

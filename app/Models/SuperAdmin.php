@@ -15,9 +15,10 @@ class SuperAdmin extends Model
         'super_admin_name',
         'super_admin_email',
         'password',
-        'permissions'
+        'permissions',
+        'status',
+        'role'
     ];
-
 
     public function reports() {
         return $this->hasMany(Report::class, 'super_admin_id');
