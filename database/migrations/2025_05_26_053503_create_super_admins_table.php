@@ -14,6 +14,8 @@ return new class extends Migration
             $table->string('super_admin_email')->unique();
             $table->string('password');
             $table->text('permissions')->nullable();
+            $table->string('status')->default('active');
+            $table->string('role')->default('super_admin');
             $table->timestamps();
         });
     }
