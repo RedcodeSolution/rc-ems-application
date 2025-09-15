@@ -1281,12 +1281,8 @@ function openEditDepartmentModal(departmentId) {
                 document.getElementById('edit_budget').value = department.budget || '';
                 document.getElementById('edit_status').value = department.status || 'Active';
 
-                // const headSelect = document.getElementById('employee_id');
-                // if (headSelect) {
-                //     headSelect.value = department.employee_id || '';
-                // }
 
-                // ✅ Set selected Department Head
+                //  Set selected Department Head
                 const headSelect = document.getElementById('edit_employee_id');
                 if (headSelect && department.employee_id) {
                     headSelect.value = department.employee_id;

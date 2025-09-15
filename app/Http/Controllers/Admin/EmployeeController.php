@@ -55,8 +55,6 @@ class EmployeeController extends Controller
             $employee = Employee::create($validated);
             if ($request->has('team_ids')) {
                 $employee->teams()->sync($request->input('team_ids'));
-                // If you have a teams relationship, you can sync here
-                // $employee->teams()->sync($request->team_ids);
             }
         });
 
@@ -107,8 +105,7 @@ class EmployeeController extends Controller
         }
 
         $employee->update($validated);
-
-        // Sync teams if using many-to-many
+        
         if ($request->has('team_ids')) {
             $employee->teams()->sync($request->team_ids);
         }

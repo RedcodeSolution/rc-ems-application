@@ -24,6 +24,8 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('set null');
+
+
         });
     }
 

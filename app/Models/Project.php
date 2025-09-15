@@ -15,6 +15,7 @@ class Project extends Model
         'project_name',
         'description',
         'client',
+        'team_id',
         'status',
         'start_date',
         'end_date',
@@ -23,8 +24,9 @@ class Project extends Model
 
     public function team()
     {
-        return $this->belongsTo(Team::class, 'team_id');
+        return $this->belongsTo(Team::class, 'team_id', 'team_id');
     }
+
 
     public function documents()
     {

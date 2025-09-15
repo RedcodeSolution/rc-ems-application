@@ -3,7 +3,7 @@
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ProjectController;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DocumentController;
@@ -11,8 +11,8 @@ use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SuperAdmin\AdminController;
 use App\Http\Controllers\SuperAdminController;
-use App\Http\Controllers\TeamController;
 use App\Models\Admin;
 use App\Models\Department;
 use App\Models\Employee;
@@ -21,7 +21,9 @@ use App\Models\Meeting;
 use App\Models\Team;
 use Illuminate\Support\Facades\Route;
 
-// Guest route - Welcome page
+//use App\Http\Controllers\Auth\AuthenticatedSessionController;
+
+
 Route::get('/', function () {
     return view('guest');
 })->middleware('guest')->name('welcome');
@@ -123,25 +125,6 @@ Route::middleware('auth')->group(function () {
         return view('employees.attendance.index');
     })->name('employee.attendance');
 
-//    // Employee leave management routes
-//    Route::resource('employees/leaves', \App\Http\Controllers\Employee\LeaveController::class)
-//        ->names([
-//            'index' => 'employee.leaves.index',
-//            'show' => 'employee.leaves.show',
-//            'create' => 'employee.leaves.create',
-//            'store' => 'employee.leaves.store',
-//            'edit' => 'employee.leaves.edit',
-//            'update' => 'employee.leaves.update',
-//            'destroy' => 'employee.leaves.destroy',
-//        ])
-//        ->parameters(['leaves' => 'leave']);
-//
-//    // Additional leave routes
-//    Route::patch('/employees/leaves/{leave}/cancel', [App\Http\Controllers\Employee\LeaveController::class, 'cancel'])
-//        ->name('employee.leaves.cancel');
-//    Route::get('/employees/leaves/{leave}/download', [App\Http\Controllers\Employee\LeaveController::class, 'downloadDocument'])
-//        ->name('employee.leaves.download');
-
     // Employee ratings routes
     Route::resource('employees/ratings', \App\Http\Controllers\Employee\EmployeeRatingController::class)
         ->names([
@@ -223,11 +206,6 @@ Route::middleware('auth')->group(function () {
             return view('admin.projects.index');
         })->name('projects');
 
-        // Team Management
-        Route::get('/teams', function () {
-            return view('admin.teams.index');
-        })->name('teams');
-
         // Leave Management
         Route::get('/leaves', function () {
             return view('admin.leaves.index');
@@ -297,18 +275,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('admins', AdminController::class);
     Route::post('/admin/store', [AdminController::class, 'store'])->name('admin.store');
 
-    // Super admin management
     Route::resource('super_admins', SuperAdminController::class);
 
-    // Project management
+
     Route::resource('projects', ProjectController::class);
 
-    // Team management
-    Route::resource('teams', TeamController::class);
-    Route::get('teams/{team}/assign-employees', [TeamController::class, 'assignEmployeesForm'])->name('teams.assignEmployeesForm');
-    Route::post('teams/{team}/assign-employees', [TeamController::class, 'assignEmployees'])->name('teams.assignEmployees');
-
-    // Leave management
     Route::resource('leaves', LeaveController::class);
 
     // Report management
@@ -392,6 +363,7 @@ Route::put('/departments/{departmentId}', [DepartmentController::class, 'update'
 Route::get('/departments/{departmentId}/show', [DepartmentController::class, 'show'])->name('admin.departments.show');
 Route::delete('/departments/{departmentId}', [DepartmentController::class, 'destroy'])->name('admin.departments.destroy');
 
+
 //project Management
 Route::get('/admin/project', [ProjectController::class, 'index'])->name('admin.projects.index');
 Route::get('/projects/create', [ProjectController::class, 'create'])->name('admin.projects.create');
@@ -400,5 +372,26 @@ Route::get('/projects/{projectId}/edit', [ProjectController::class, 'edit'])->na
 Route::put('/projects/{projectId}', [ProjectController::class, 'update'])->name('admin.projects.update');
 Route::get('/projects/{projectId}/show', [ProjectController::class, 'show'])->name('admin.projects.show');
 Route::delete('/projects/{projectId}', [ProjectController::class, 'destroy'])->name('admin.projects.destroy');
+
+//team management
+Route::get('/admin/teams', [TeamController::class, 'index'])->name('admin.teams');
+Route::post('/admin/teams', [TeamController::class, 'store'])->name('teams.store');
+Route::get('/admin/teams/{team}/edit', [TeamController::class, 'edit'])->name('teams.edit');
+Route::put('/admin/teams/{team}', [TeamController::class, 'update'])->name('teams.update');
+Route::get('/admin/teams/{team}/show', [TeamController::class, 'show'])->name('teams.show');
+Route::delete('/admin/teams/{team}', [TeamController::class, 'destroy'])->name('teams.destroy');
+Route::get('/admin/teams/{team}/manage-members', [TeamController::class, 'assignEmployeesForm'])->name('teams.assignEmployeesForm');
+Route::post('/admin/teams/{team}/manage-members', [TeamController::class, 'assignEmployees'])->name('teams.assignEmployees');
+
+// admin profile management
+Route::prefix('super-admin')->name('super_admin.')->group(function() {
+    Route::get('/admins', [AdminController::class, 'index'])->name('admins');
+    Route::post('/admins/store', [AdminController::class, 'store'])->name('store');
+    Route::get('/admins/{adminId}/edit', [AdminController::class, 'edit'])->name('edit');
+    Route::put('/admins/{adminId}', [AdminController::class, 'update'])->name('update');
+    Route::get('/{adminId}/show', [AdminController::class, 'show'])->name('show');
+    Route::delete('/admins/{adminId}', [AdminController::class, 'destroy'])->name('destroy');
+});
+
 
 require __DIR__.'/auth.php';

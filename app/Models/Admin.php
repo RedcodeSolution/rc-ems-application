@@ -10,14 +10,19 @@ class Admin extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $fillable = ['admin_id', 'admin_name'];
+    protected $fillable = [
+        'admin_name',
+        'role',
+        'department_id',
+        'email',
+        'contact_no',
+        'status',
+    ];
 
-    public function employee() {
-        return $this->belongsTo(Employee::class, 'employee_id');
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id', 'department_id');
     }
 
-    public function employees() {
-        return $this->hasMany(Employee::class, 'admin_id');
-    }
 }
 

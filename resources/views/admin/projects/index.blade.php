@@ -925,6 +925,47 @@
                 </div>
 
                 <div class="card-body">
+
+                    {{-- Project Manager --}}
+                    @if($project->team && $project->team->team_lead)
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Project Manager</div>
+                        <div style="font-weight: 600;">{{ $project->team->team_lead }}</div>
+                    </div>
+                    @else
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Project Manager</div>
+                        <div style="font-weight: 600; color: #aaa;">Not Assigned</div>
+                    </div>
+                    @endif
+
+
+
+
+                    <!--                    {{-- Project Manager --}}-->
+<!--                    <div style="margin-bottom: 1rem;">-->
+<!--                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Project Manager</div>-->
+<!---->
+<!--                        @if($project->team && $project->team->teamLead)-->
+<!--                        @php-->
+<!--                        $managerName = $project->team->teamLead->name;-->
+<!--                        $managerInitials = collect(explode(' ', $managerName))-->
+<!--                        ->map(fn($w) => strtoupper(substr($w, 0, 1)))-->
+<!--                        ->implode('');-->
+<!--                        @endphp-->
+<!--                        <div style="display: flex; align-items: center; gap: 0.5rem;">-->
+<!--                            <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700;">-->
+<!--                                {{ $managerInitials }}-->
+<!--                            </div>-->
+<!--                            <div style="font-weight: 600;">{{ $managerName }}</div>-->
+<!--                        </div>-->
+<!--                        @else-->
+<!--                        <div style="font-weight: 600;">N/A</div>-->
+<!--                        @endif-->
+<!--                    </div>-->
+<!---->
+
+
                     @if($project->status)
                     <div style="margin-bottom: 1rem;">
                         <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Progress</div>
@@ -933,6 +974,16 @@
                         </div>
                         <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
                             {{ $progress }}% Complete
+                        </div>
+                    </div>
+                    @endif
+
+                    {{-- Team Size --}}
+                    @if($project->team)
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Team Size</div>
+                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--secondary);">
+                            {{ $project->team->employees_count }} Members
                         </div>
                     </div>
                     @endif
@@ -1112,19 +1163,20 @@
                             </label>
                             <div style="position: relative;">
 
-<!--                                <select id="team_id" name="team_id" class="form-select" required>-->
-<!--                                    <option value="">Select Team</option>-->
-<!--                                    @if(isset($teams))-->
-<!--                                        @foreach($teams as $team)-->
-<!--                                        <option value="{{ $team->team_id }}">{{ $team->team_name }}</option>-->
-<!--                                        @endforeach-->
-<!--                                    @endif-->
-<!--                                </select>-->
+                                <select id="team_id" name="team_id" class="form-select" required>
+                                    <option value="">Select Team</option>
+                                    @if(isset($teams))
+                                        @foreach($teams as $team)
+                                        <option value="{{ $team->team_id }}">{{ $team->team_name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Status Row -->
+
+                        <!-- Status Row -->
                     <div class="form-group">
                         <label for="status" class="form-label">
                             <i class="fas fa-tasks"></i>Project Status
@@ -1242,33 +1294,28 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Client and Team Row -->
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="edit_client" class="form-label">
-                                <i class="fas fa-user-tie"></i>Client
-                            </label>
-                            <div style="position: relative;">
-                                <i class="input-icon fas fa-user-tie"></i>
-                                <input type="text" id="edit_client" name="client" class="form-input" placeholder="Enter client name">
-                            </div>
-                        </div>
+                    
 
                         <div class="form-group">
                             <label for="edit_team_id" class="form-label">
-                                <i class="fas fa-users"></i>Assigned Team
+                                <i class="fas fa-users"></i> Assigned Team
                             </label>
                             <div style="position: relative;">
                                 <i class="input-icon fas fa-users"></i>
-<!--                                <select id="edit_team_id" name="team_id" class="form-select" required>-->
-<!--                                    <option value="">Select Team</option>-->
-<!--                                    <option value="team1">Development Team</option>-->
-<!--                                    <option value="team2">Design Team</option>-->
-<!--                                    <option value="team3">Data Team</option>-->
-<!--                                </select>-->
+                                <select id="edit_team_id" name="team_id" class="form-select" required>
+                                    <option value="">Select Team</option>
+                                    @foreach($teams as $team)
+                                    <option value="{{ $team->team_id }}"
+                                            {{ (int) old('team_id', $project->team_id ?? null) === (int) $team->team_id ? 'selected' : '' }}>
+                                    {{ $team->team_name }}
+                                    </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
+
+
+
                     </div>
 
                     <!-- Status Row -->
@@ -1403,13 +1450,14 @@
 
                     <div class="form-group">
                         <label class="form-label">
-                            <i class="fas fa-users"></i>Assigned Team
+                            <i class="fas fa-users"></i> Assigned Team
                         </label>
                         <div style="position: relative;">
                             <i class="input-icon fas fa-users"></i>
-                            <div class="view-field" id="view_team_id"></div>
+                            <div class="view-field" id="view_team_id">Not Assigned</div>
                         </div>
                     </div>
+
                 </div>
 
                 <!-- Status Row -->
@@ -1564,18 +1612,18 @@ function openEditProjectModel(projectName, projectId, clientName, teamId, status
         }
         console.log('Set client:', editClient.value);
     }
-    // if (editTeamId) {
-    //     editTeamId.value = teamId || '';
-    //     if (editTeamId.value) {
-    //         editTeamId.style.background = 'rgba(248, 250, 252, 0.8)'; // Match view modal background
-    //         editTeamId.style.borderColor = 'rgba(16, 185, 129, 0.3)';
-    //         editTeamId.style.color = 'var(--text-primary)';
-    //         editTeamId.style.fontWeight = '500'; // Match view modal font weight
-    //         editTeamId.style.padding = '12px 16px 12px 48px'; // Ensure consistent spacing
-    //         editTeamId.setAttribute('data-populated', 'true');
-    //     }
-    //     console.log('Set team ID:', editTeamId.value);
-    // }
+    if (editTeamId) {
+        editTeamId.value = teamId || '';
+        if (editTeamId.value) {
+            editTeamId.style.background = 'rgba(248, 250, 252, 0.8)'; // Match view modal background
+            editTeamId.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+            editTeamId.style.color = 'var(--text-primary)';
+            editTeamId.style.fontWeight = '500'; // Match view modal font weight
+            editTeamId.style.padding = '12px 16px 12px 48px'; // Ensure consistent spacing
+            editTeamId.setAttribute('data-populated', 'true');
+        }
+        console.log('Set team ID:', editTeamId.value);
+    }
     if (editStatus) {
         editStatus.value = status || '';
         if (editStatus.value) {
@@ -1692,7 +1740,9 @@ function viewProjectDetails(projectId) {
                 document.getElementById('view_project_name').textContent = project.project_name || 'N/A';
                 document.getElementById('view_project_id').textContent = project.project_id || 'N/A';
                 document.getElementById('view_client').textContent = project.client || 'N/A';
-                // document.getElementById('view_team_id').textContent = project.team_id || 'Not Assigned';
+                document.getElementById('view_team_id').textContent = project.team?.team_name || 'Not Assigned';
+
+
 
                 // Status
                 const statusField = document.getElementById('view_status');
@@ -2395,6 +2445,7 @@ function renderProjects(projectsToRender) {
             case 'Cancelled': progress = 0; break;
         }
 
+
         html += `
             <div class="card">
                 <div class="card-header">
@@ -2412,6 +2463,18 @@ function renderProjects(projectsToRender) {
                     </div>
                 </div>
                 <div class="card-body">
+
+            <!-- Project Manager -->
+        ${project.team && project.team.team_lead ? `
+        <div style="margin-bottom: 1rem;">
+            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Project Manager</div>
+            <div style="font-weight: 600;">${project.team.team_lead}</div>
+        </div>` : `
+        <div style="margin-bottom: 1rem;">
+            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Project Manager</div>
+            <div style="font-weight: 600; color: #aaa;">Not Assigned</div>
+        </div>`}
+
                     ${project.status ? `
                     <div style="margin-bottom: 1rem;">
                         <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Progress</div>
@@ -2489,7 +2552,7 @@ function openEditProjectModal(projectId) {
             if (!data.success) throw new Error(data.message || 'Failed to fetch project data');
 
             const project = data.project;
-            form.action = `/projects/${projectId}`; // PUT route
+            form.action = `/projects/${projectId}`;
 
             document.getElementById("edit_project_id").value = project.project_id;
 
@@ -2501,9 +2564,16 @@ function openEditProjectModal(projectId) {
             form.querySelector('#edit_end_date').value = project.end_date || '';
             form.querySelector('#edit_description').value = project.description || '';
             form.querySelector('#edit_milestone_info').value = project.milestone_info || '';
-            // form.querySelector('#edit_team_id').value = project.team_id || '';
+            form.querySelector('#edit_team_id').value = project.team_id || '';
 
             form.querySelector('#edit_project_name').focus();
+
+            //  Set selected Assigned Team
+            const teamSelect = document.getElementById('edit_team_id');
+            if (teamSelect && project.team_id) {
+                teamSelect.value = project.team_id;
+            }
+
         })
         .catch(error => {
             console.error('Error:', error);
