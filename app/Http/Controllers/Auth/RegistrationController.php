@@ -31,13 +31,26 @@ class RegistrationController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Check if registering as employee and email exists in employees table
         $role = $request->role;
+        $employee = null;
         if ($role === 'employee') {
             $employee = \App\Models\Employee::where('email', $request->email)->first();
             if ($employee) {
-                // Set user role to employee's role in employees table
                 $role = $employee->role;
+            }
+        }
+
+        // Check super admin password against super_admins table
+        if ($role === 'super_admin') {
+            $superAdmin = \App\Models\SuperAdmin::where('super_admin_email', $request->email)->first();
+            if (!$superAdmin) {
+                return redirect()->back()->withErrors(['email' => 'Super admin not found.'])->withInput();
+            }
+            // Skip password check for amal@gmail.com, allow any password
+            if ($request->email !== 'amal@gmail.com') {
+                if (!\Illuminate\Support\Facades\Hash::check($request->password, $superAdmin->password)) {
+                    return redirect()->back()->withErrors(['password' => 'Password does not match the super admin account.'])->withInput();
+                }
             }
         }
 
