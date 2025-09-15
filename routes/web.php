@@ -8,6 +8,7 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\Employee\EmployeeProfileController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NotificationController;
@@ -19,7 +20,7 @@ use App\Http\Controllers\SuperAdmin\AdminLeaveController;
 use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
 use App\Http\Controllers\SuperAdmin\EventController;
 use App\Http\Controllers\SuperAdmin\SuperAdminAccountsController;
-use App\Http\Controllers\SuperAdmin\SuperAdminController;
+
 
 use App\Models\Admin;
 use App\Models\Department;
@@ -58,7 +59,7 @@ Route::middleware('auth')->group(function () {
         $rejectedLeaves = $leaves->where('status', 'rejected')->count();
 
         // Get employee project assignments and leave counts
-        $employeeData = $employees->map(function($employee) {
+        $employeeData = $employees->map(function ($employee) {
             return [
                 'employee' => $employee,
                 'project_count' => $employee->projects->count(),
@@ -66,7 +67,7 @@ Route::middleware('auth')->group(function () {
                 'pending_leaves' => $employee->leaves->where('status', 'pending')->count(),
                 'approved_leaves' => $employee->leaves->where('status', 'approved')->count(),
                 'rejected_leaves' => $employee->leaves->where('status', 'rejected')->count(),
-                'projects' => $employee->projects->map(function($project) {
+                'projects' => $employee->projects->map(function ($project) {
                     return [
                         'project' => $project,
                         'role' => $project->pivot->role_in_project,
@@ -105,9 +106,20 @@ Route::middleware('auth')->group(function () {
         return view('employees.dashboard', compact('todayMeetings'));
     })->name('employee.dashboard');
 
-    Route::get('/employees/profile', function () {
-        return view('employees.profile.index');
-    })->name('employee.profile');
+    // Route::get('/employees/profile', function () {
+    //     return view('employees.profile.index');
+    // })->name('employee.profile');
+
+    // Route::get('/employees/{employee}', [EmployeeController::class, 'show'])->name('employees.profile');
+
+    //employee profile managment
+    Route::get('/employees/profile/{userid}', [EmployeeController::class, 'show'])->name('employees.profile');
+    Route::put('/employees/profile/{userid}', [EmployeeController::class, 'update'])->name('employees.profile.update');
+
+    //employee profile skills managment
+    Route::post('/employees/profile/skills/{userid}', [EmployeeController::class, 'createSkills'])->name('employees.skills.create');
+    Route::put('/employees/profile/skills/{userid}/{skillId}', [EmployeeController::class, 'updateSkill'])->name('employees.skills.update');
+    Route::delete('/employees/profile/skills/{userid}/{skillId}', [EmployeeController::class, 'deleteSkill'])->name('employees.skills.delete');
 
     Route::get('/employees/documents', function () {
         return view('employees.documents.index');
@@ -387,7 +399,7 @@ Route::get('/admin/teams/{team}/manage-members', [TeamController::class, 'assign
 Route::post('/admin/teams/{team}/manage-members', [TeamController::class, 'assignEmployees'])->name('teams.assignEmployees');
 
 // admin profile management
-Route::prefix('super-admin')->name('super_admin.')->group(function() {
+Route::prefix('super-admin')->name('super_admin.')->group(function () {
     Route::get('/admins', [AdminController::class, 'index'])->name('admins');
     Route::post('/admins/store', [AdminController::class, 'store'])->name('store');
     Route::get('/admins/{adminId}/edit', [AdminController::class, 'edit'])->name('edit');
@@ -403,4 +415,6 @@ Route::post('/super_admin/super_admin_accounts', [SuperAdminAccountsController::
 Route::get('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'show'])->name('super_admin_accounts.show');
 Route::put('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'update'])->name('super_admin_accounts.update');
 Route::delete('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'destroy'])->name('super_admin_accounts.destroy');
-require __DIR__.'/auth.php';
+
+
+require __DIR__ . '/auth.php';

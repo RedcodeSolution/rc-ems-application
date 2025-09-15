@@ -11,19 +11,30 @@ class Employee extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
-        'employee_name', 'employee_type', 'employee_status',
-        'contact_no', 'email', 'department_id', 'admin_id', 'paid_status', 'role', 'profile_photo'
+        'employee_name',
+        'employee_type',
+        'employee_status',
+        'contact_no',
+        'email',
+        'department_id',
+        'admin_id',
+        'paid_status',
+        'role',
+        'profile_photo'
     ];
 
-    public function admin() {
+    public function admin()
+    {
         return $this->belongsTo(Admin::class, 'admin_id');
     }
 
-    public function superAdmin() {
+    public function superAdmin()
+    {
         return $this->hasOne(SuperAdmin::class, 'employee_id', 'employee_id');
     }
 
-    public function department() {
+    public function department()
+    {
         return $this->belongsTo(Department::class, 'department_id');
     }
     public function team()
@@ -59,5 +70,10 @@ class Employee extends Model
     public function ratings()
     {
         return $this->hasMany(EmployeeRating::class, 'employee_id', 'employee_id');
+    }
+
+    public function employeeSkills()
+    {
+        return $this->hasMany(EmployeeSkill::class, 'employee_id', 'employee_id');
     }
 }
