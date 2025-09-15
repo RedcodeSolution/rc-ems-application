@@ -13,12 +13,12 @@ class AdminLeaveController extends Controller
 {
     public function index()
     {
-        // Get all admin employees and their leave requests
+
         $adminEmployees = Employee::whereHas('admin')->with(['admin', 'leaves' => function($query) {
             $query->orderBy('applied_date', 'desc');
         }])->get();
 
-        // Collect all admin leave requests
+
         $adminLeaves = collect();
         foreach ($adminEmployees as $employee) {
             $adminLeaves = $adminLeaves->merge($employee->leaves);

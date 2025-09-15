@@ -70,6 +70,12 @@ class Department extends Model
         // return $this->max_capacity ? ($this->total_employees / $this->max_capacity) * 100 : 0;
         return null;
     }
+    // In Employee.php
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
+
 
     // Scope to get departments with employee counts
     public function scopeWithEmployeeCounts($query)
