@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SuperAdmin\AdminLeaveController;
 use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
+use App\Http\Controllers\SuperAdmin\EventController;
 use App\Http\Controllers\SuperAdmin\SuperAdminAccountsController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Models\Admin;
@@ -145,8 +146,8 @@ Route::middleware('auth')->group(function () {
 
     // Super Admin Events Management Routes
     Route::prefix('super_admin/events')->name('super_admin.events.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\SuperAdmin\EventController::class, 'index'])->name('index');
-        Route::get('/create', [\App\Http\Controllers\SuperAdmin\EventController::class, 'create'])->name('create');
+        Route::get('/', [EventController::class, 'index'])->name('index');
+        Route::get('/create', [EventController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\SuperAdmin\EventController::class, 'store'])->name('store');
         Route::get('/{id}', [\App\Http\Controllers\SuperAdmin\EventController::class, 'show'])->name('show');
         Route::get('/{id}/edit', [\App\Http\Controllers\SuperAdmin\EventController::class, 'edit'])->name('edit');
