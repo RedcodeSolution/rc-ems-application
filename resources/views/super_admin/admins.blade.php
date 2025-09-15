@@ -31,7 +31,7 @@
                 <div class="stat-label">Total Admins</div>
             </div>
         </div>
-        
+
         <div class="stat-card active-admins">
             <div class="stat-icon">
                 <i class="fas fa-user-check"></i>
@@ -41,7 +41,7 @@
                 <div class="stat-label">Active Admins</div>
             </div>
         </div>
-        
+
         <div class="stat-card recent-activity">
             <div class="stat-icon">
                 <i class="fas fa-clock"></i>
@@ -51,7 +51,7 @@
                 <div class="stat-label">Added This Week</div>
             </div>
         </div>
-        
+
         <div class="stat-card permissions">
             <div class="stat-icon">
                 <i class="fas fa-shield-alt"></i>
@@ -74,9 +74,12 @@
         <div class="filter-container">
             <select id="statusFilter" class="filter-select">
                 <option value="">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="On Leave">On Leave</option>
+                <option value="Terminated">Terminated</option>
             </select>
+
             <select id="roleFilter" class="filter-select">
                 <option value="">All Roles</option>
                 <option value="admin">Admin</option>
@@ -105,7 +108,7 @@
                         </th>
                         <th>Admin ID</th>
                         <th>Admin Name</th>
-                        <th>Employee Info</th>
+                        <th>Department Info</th>
                         <th>Created Date</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -134,14 +137,15 @@
                             </div>
                         </td>
                         <td>
-                            <div class="employee-info">
-                                @if($admin->employee)
-                                    <div class="employee-name">{{ $admin->employee->employee_name ?? 'N/A' }}</div>
-                                    <div class="employee-id">ID: {{ $admin->employee->employee_id ?? 'N/A' }}</div>
+                            <div class="department-info">
+                                @if($admin->department)
+                                <div class="department-name">{{ $admin->department->department_name ?? 'N/A' }}</div>
+                                <div class="department-id">ID: {{ $admin->department->department_id ?? 'N/A' }}</div>
                                 @else
-                                    <div class="no-employee">No associated employee</div>
+                                <div class="no-department">No assigned department</div>
                                 @endif
                             </div>
+
                         </td>
                         <td>
                             <div class="created-date">
@@ -150,22 +154,48 @@
                             </div>
                         </td>
                         <td>
-                            <span class="status-badge status-active">
-                                <i class="fas fa-check-circle"></i>
-                                Active
+                            @php
+                            $statusClass = match($admin->status) {
+                            'Active' => 'status-active',
+                            'Inactive' => 'status-inactive',
+                            'On Leave' => 'status-on-leave',
+                            'Terminated' => 'status-terminated',
+                            default => 'status-default',
+                            };
+                            $statusIcon = match($admin->status) {
+                            'Active' => 'fa-check-circle',
+                            'Inactive' => 'fa-times-circle',
+                            'On Leave' => 'fa-clock',
+                            'Terminated' => 'fa-ban',
+                            default => 'fa-question-circle',
+                            };
+                            @endphp
+
+                            <span class="status-badge {{ $statusClass }}">
+                          <i class="fas {{ $statusIcon }}"></i>
+                           {{ $admin->status }}
                             </span>
                         </td>
+
                         <td>
                             <div class="action-buttons">
                                 <button class="action-btn view-btn" onclick="viewAdmin('{{ $admin->admin_id }}')" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="action-btn edit-btn" onclick="editAdmin('{{ $admin->admin_id }}')" title="Edit Admin">
+
+                                <button class="action-btn edit-btn" onclick="openEditAdminModal('{{ $admin->admin_id }}')" title="Edit Admin">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="action-btn delete-btn" onclick="deleteAdmin('{{ $admin->admin_id }}')" title="Delete Admin">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+
+                                <form action="{{ route('super_admin.destroy', $admin->admin_id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="action-btn delete-btn" title="Delete Admin"
+                                            onclick="return confirm('Are you sure you want to delete this admin?');">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+
                             </div>
                         </td>
                     </tr>
@@ -207,37 +237,642 @@
             <button class="modal-close" onclick="closeAddAdminModal()">&times;</button>
         </div>
         <div class="modal-body">
-            <form id="addAdminForm" onsubmit="submitAddAdminForm(event)">
-                <div class="form-group">
-                    <label for="newAdminId">Admin ID</label>
-                    <input type="text" id="newAdminId" name="admin_id" class="form-input" placeholder="Enter admin ID" required>
+
+            @if(session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+            @endif
+
+            <form id="addAdminForm" action="{{ route('super_admin.store') }}" method="POST">
+                @csrf
+                <div class="form-container">
+                    <div class="form-row">
+                        <!-- Admin Name -->
+                        <div class="form-group">
+                            <label for="admin_name" class="form-label">
+                                <i class="fas fa-user"></i> Full Name
+                            </label>
+                            <input type="text" id="admin_name" name="admin_name" class="form-input"
+                                   value="{{ old('admin_name') }}" placeholder="Enter full name" required>
+                        </div>
+
+                        <!-- Role -->
+                        <div class="form-group">
+                            <label for="role" class="form-label">
+                                <i class="fas fa-user-tag"></i> Role/Position
+                            </label>
+                            <input type="text" id="role" name="role" class="form-input"
+                                   value="{{ old('role') }}" placeholder="Enter role or position" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Department -->
+                        <div class="form-group">
+                            <label for="department_id" class="form-label">
+                                <i class="fas fa-building"></i> Department
+                            </label>
+                            <select id="department_id" name="department_id" class="form-select">
+                                <option value="">Select Department</option>
+                                @foreach($departments as $department)
+                                <option value="{{ $department->department_id }}"
+                                        {{ old('department_id') == $department->department_id ? 'selected' : '' }}>
+                                {{ $department->department_name }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope"></i> Email
+                            </label>
+                            <input type="email" id="email" name="email" class="form-input"
+                                   value="{{ old('email') }}" placeholder="Enter email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Contact Number -->
+                        <div class="form-group">
+                            <label for="contact_no" class="form-label">
+                                <i class="fas fa-phone"></i> Contact Number
+                            </label>
+                            <input type="tel" id="contact_no" name="contact_no" class="form-input"
+                                   value="{{ old('contact_no') }}" placeholder="Enter contact number" required>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-group">
+                            <label for="status" class="form-label">
+                                <i class="fas fa-toggle-on"></i> Status
+                            </label>
+                            <select id="status" name="status" class="form-select" required>
+                                <option value="">Select status</option>
+                                <option value="Active" {{ old('status') == 'Active' ? 'selected' : '' }}>Active</option>
+                                <option value="Inactive" {{ old('status') == 'Inactive' ? 'selected' : '' }}>Inactive</option>
+                                <option value="On Leave" {{ old('status') == 'On Leave' ? 'selected' : '' }}>On Leave</option>
+                                <option value="Terminated" {{ old('status') == 'Terminated' ? 'selected' : '' }}>Terminated</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddAdminModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Administrator
+                        </button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="newAdminName">Admin Name</label>
-                    <input type="text" id="newAdminName" name="admin_name" class="form-input" placeholder="Enter admin name" required>
-                </div>
-                <div class="form-group">
-                    <label for="newAdminEmail">Email (Optional)</label>
-                    <input type="email" id="newAdminEmail" name="email" class="form-input" placeholder="Enter email address">
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeAddAdminModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Administrator
-                    </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- Edit Admin Modal -->
+<div id="editAdminModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-edit"></i> Edit Admin</h3>
+            <button class="modal-close" onclick="closeEditAdminModal()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <form id="editAdminForm" action="" method="POST">
+                @csrf
+                @method('PUT')
+
+                <div class="form-container">
+                    <div class="form-row">
+                        <!-- Admin Name -->
+                        <div class="form-group">
+                            <label for="edit_admin_name" class="form-label">
+                                <i class="fas fa-user"></i> Admin Name
+                            </label>
+                            <input type="text" id="edit_admin_name" name="admin_name" class="form-input" placeholder="Enter admin name" required>
+                        </div>
+
+                        <!-- Role as Input Field -->
+                        <div class="form-group">
+                            <label for="edit_role" class="form-label">
+                                <i class="fas fa-user-shield"></i> Role
+                            </label>
+                            <input type="text" id="edit_role" name="role" class="form-input" placeholder="Enter role" required>
+                        </div>
+
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label for="edit_email" class="form-label">
+                                <i class="fas fa-envelope"></i> Email
+                            </label>
+                            <input type="email" id="edit_email" name="email" class="form-input" placeholder="Enter email" required>
+                        </div>
+
+                        <!-- Contact -->
+                        <div class="form-group">
+                            <label for="edit_contact_no" class="form-label">
+                                <i class="fas fa-phone"></i> Contact
+                            </label>
+                            <input type="tel" id="edit_contact_no" name="contact_no" class="form-input" placeholder="Enter contact number" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Department -->
+                        <div class="form-group">
+                            <label for="edit_department_id" class="form-label">
+                                <i class="fas fa-building"></i> Department
+                            </label>
+                            <select id="edit_department_id" name="department_id" class="form-select" required>
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-group">
+                            <label for="edit_status" class="form-label">
+                                <i class="fas fa-toggle-on"></i> Status
+                            </label>
+                            <select id="edit_status" name="status" class="form-select" required>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="On Leave">On Leave</option>
+                                <option value="Terminated">Terminated</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeEditAdminModal()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-save" style="color: white; margin-right:5px;"></i>Update Admin
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
+<!-- View Admin Modal -->
+<div id="viewAdminModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-eye"></i> View Admin Details</h3>
+            <button class="modal-close" onclick="closeViewAdminModal()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="profile-card">
+                <!-- Profile Section -->
+                <div class="profile-section">
+                    <div class="avatar" id="view_admin_initials"></div>
+                    <div class="profile-info">
+                        <h2 id="view_admin_name"></h2>
+                        <p class="admin-id" id="view_admin_id"></p>
+                        <p class="role-text" id="view_admin_role"></p>
+                    </div>
+                </div>
+
+                <!-- Details -->
+                <div class="details-container">
+                    <div class="details-grid">
+
+                    <div class="detail-item">
+                        <div class="detail-header">
+                            <i class="fas fa-envelope detail-icon"></i>
+                            <span class="detail-label">Email</span>
+                        </div>
+                        <div class="detail-value" id="view_admin_email"></div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-header">
+                            <i class="fas fa-phone detail-icon"></i>
+                            <span class="detail-label">Contact</span>
+                        </div>
+                        <div class="detail-value" id="view_admin_contact"></div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-header">
+                            <i class="fas fa-building detail-icon"></i>
+                            <span class="detail-label">Department</span>
+                        </div>
+                        <div class="detail-value" id="view_admin_department"></div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-header">
+                            <i class="fas fa-clock detail-icon"></i>
+                            <span class="detail-label">Last Login</span>
+                        </div>
+                        <div class="detail-value" id="view_admin_last_login">1 day ago</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-header">
+                            <i class="fas fa-toggle-on detail-icon"></i>
+                            <span class="detail-label">Status</span>
+                        </div>
+                        <div class="detail-value status-active" id="view_admin_status"></div>
+                    </div>
+
+                        <div class="detail-item">
+                            <div class="detail-header">
+                                <i class="fas fa-calendar-plus detail-icon"></i>
+                                <span class="detail-label">Created</span>
+                            </div>
+                            <div class="detail-value" id="view_admin_created">
+                                <div class="created-date">
+                                    <div class="date-primary" id="view_admin_created_date"></div>
+                                    <div class="date-secondary" id="view_admin_created_time"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <style>
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #f8fafc;
+        padding: 20px;
+        line-height: 1.5;
+    }
+
+    .modal{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: none; /* hidden by default */
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    /* Modal content */
+    .modal-content {
+        background: #fff;
+        border-radius: 10px;
+        padding: 2rem;
+        width: 100%;
+        max-width: 1000px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+        padding: 24px 24px 0;
+    }
+
+    .header-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #dc2626;
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 32px;
+    }
+
+    .header-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #dc2626;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+    }
+
+    .profile-section {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 40px;
+        padding: 0 24px;
+    }
+
+    .avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #dc2626 0%, #7c2d12 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: 700;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .profile-info h2 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 4px;
+    }
+
+    .admin-id {
+        font-size: 14px;
+        color: #9ca3af;
+        margin-bottom: 8px;
+    }
+
+    .role-text {
+        font-size: 16px;
+        font-weight: 500;
+        color: #1f2937;
+    }
+
+    .details-container {
+        padding: 0 5px 32px;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+
+    .detail-item {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 15px;
+        transition: all 0.2s ease;
+
+    }
+
+    .detail-item:hover {
+        border-color: #d1d5db;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .detail-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .detail-icon {
+        color: #dc2626;
+        font-size: 16px;
+        width: 16px;
+    }
+
+    .detail-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .detail-value {
+        font-size: 16px;
+        font-weight: 500;
+        color: #1f2937;
+        word-break: break-word;
+        border-radius: 12px;
+        display: inline-block;
+
+    }
+    /* Tailwind-like colors (if you are not using Tailwind, replace with your colors) */
+    .text-green-600 { color: #16a34a; background-color: #d1fae5; }
+    .text-gray-500 { color: #6b7280; background-color: #f3f4f6; }
+    .text-yellow-600 { color: #ca8a04; background-color: #fef3c7; }
+    .text-red-600 { color: #dc2626; background-color: #fee2e2; }
+
+
+    .status-active {
+        color: #059669;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: #6b7280;
+        font-size: 24px;
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .close-btn:hover {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    @media (max-width: 640px) {
+        .modal-content {
+            margin: 20px;
+            max-width: calc(100vw - 40px);
+        }
+
+        .profile-section {
+            flex-direction: column;
+            text-align: center;
+            gap: 16px;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .permissions-list {
+            justify-content: center;
+        }
+    }
+
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #fff;
+    }
+
+    .status-active { color: #16a34a; background-color: #d1fae5; }      /* green */
+    .status-inactive { color: #6b7280; background-color: #f3f4f6; }    /* gray */
+    .status-on-leave { color: #ca8a04; background-color: #fef3c7;}    /* yellow */
+    .status-terminated {color: #dc2626; background-color: #fee2e2; }  /* red */
+    .status-default { background-color: #17a2b8; }     /* blue for unknown */
+
+
+    .form-label i {
+        color: red;
+        margin-right: 5px;
+    }
+
+
+    button.btn-danger {
+        background-color: var(--redcode-primary);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    /* Optional: hover effect */
+    button.btn-danger:hover {
+        background-color: darkred;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top:0; left:0;
+        width:100%;
+        height:100%;
+        /*background: rgba(0,0,0,0.5);*/
+        color: red;
+    }
+
+    .modal.active {
+        display: block;
+    }
+
+    .modal-content {
+        background: #fff;
+        margin: 5% auto;
+        padding: 20px;
+        border-radius: 8px;
+        width: 600px;
+        position: relative;
+    }
+    .modal-close { position: absolute; top: 10px; right: 10px; border: none; background: transparent; font-size: 24px; cursor: pointer; }
+
     .admin-management-container {
         padding: 2rem;
         background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
         min-height: 100vh;
     }
+    .form-container {
+        display: grid;
+        gap: 1.5rem;
+        width: 100%;
+        max-width: 900px;
+        margin: auto;
 
+
+    }
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        letter-spacing: 0.025em;
+    }
+
+    .form-input, .form-select {
+        width: 100%;
+        padding: 12px 16px 12px 48px;
+        border: 2px solid var(--border-light);
+        border-radius: 0.75rem;
+        font-size: 0.9rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(248, 250, 252, 0.5);
+        backdrop-filter: blur(10px);
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    .form-input:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--redcode-primary);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow:
+            0 0 0 4px rgba(220,38,38,0.08),
+            0 8px 25px rgba(220,38,38,0.12);
+        transform: translateY(-2px);
+    }
+
+    .form-input:focus + .input-icon,
+    .form-select:focus + .input-icon {
+        color: var(--redcode-primary);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 12px center;
+        background-repeat: no-repeat;
+        background-size: 16px;
+    }
+
+    .form-select[multiple] {
+        background-image: none;
+        min-height: 120px;
+        padding: 12px 16px;
+    }
+
+    .form-select[multiple] option {
+        padding: 8px;
+        border-radius: 4px;
+        margin: 2px 0;
+    }
     /* Header Section */
     .admin-management-header {
         display: flex;
@@ -885,6 +1520,147 @@
 </style>
 
 <script>
+    function viewAdmin(adminId) {
+        const modal = document.getElementById('viewAdminModal');
+        modal.classList.add('active');
+
+        // Fetch admin data from backend
+        fetch(`/super-admin/${adminId}/show`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const admin = data.admin;
+
+                    // Basic Information
+                    document.getElementById('view_admin_name').textContent = admin.admin_name || 'N/A';
+                    document.getElementById('view_admin_id').textContent = admin.admin_id || 'N/A';
+                    document.getElementById('view_admin_role').textContent = admin.role || 'N/A';
+
+                    // Initials for avatar
+                    const initials = admin.admin_name
+                        ? admin.admin_name.split(" ").map(n => n[0]).join("").toUpperCase()
+                        : "NA";
+                    document.getElementById('view_admin_initials').textContent = initials;
+
+                    // Contact & Email
+                    document.getElementById('view_admin_email').textContent = admin.email || 'N/A';
+                    document.getElementById('view_admin_contact').textContent = admin.contact_no || 'N/A';
+
+                    // Department
+                    document.getElementById('view_admin_department').textContent =
+                        admin.department?.department_name || 'Not Assigned';
+
+                    // Status
+                    const statusField = document.getElementById('view_admin_status');
+                    statusField.textContent = admin.status || 'N/A';
+                    statusField.className = 'detail-value font-medium'; // reset any previous classes
+
+                    if (admin.status) {
+                        const status = admin.status.toLowerCase();
+
+                        if (status === 'active') {
+                            statusField.classList.add('text-green-600'); // green
+                        } else if (status === 'inactive') {
+                            statusField.classList.add('text-gray-500'); // gray
+                        } else if (status.includes('leave')) {
+                            statusField.classList.add('text-yellow-600'); // yellow
+                        } else if (status.includes('terminated')) {
+                            statusField.classList.add('text-red-600'); // red
+                        }
+                    }
+
+                    if(admin.created_at) {
+                        const created = new Date(admin.created_at);
+                        document.getElementById('view_admin_created_date').textContent =
+                            created.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                        document.getElementById('view_admin_created_time').textContent =
+                            created.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+                    } else {
+                        document.getElementById('view_admin_created_date').textContent = 'N/A';
+                        document.getElementById('view_admin_created_time').textContent = '';
+                    }
+
+
+                } else {
+                    throw new Error(data.message || 'Failed to fetch admin data');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading admin data: ' + error.message);
+                closeViewAdminModal();
+            });
+    }
+
+    function closeViewAdminModal() {
+        document.getElementById('viewAdminModal').classList.remove('active');
+    }
+
+
+
+    const modal = document.getElementById('editAdminModal');
+    const form = document.getElementById('editAdminForm');
+
+
+    function openEditAdminModal(adminId) {
+        if (!adminId) return alert('Admin ID missing!');
+
+        const modal = document.getElementById('editAdminModal');
+        const form = document.getElementById('editAdminForm');
+
+        // Reset form and set action
+        form.reset();
+        form.action = `/super-admin/admins/${adminId}`; // PUT route
+
+        // Show modal
+        modal.classList.add('active');
+
+        // Fetch admin data
+        fetch(`/super-admin/admins/${adminId}/edit`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) throw new Error('Failed to fetch admin data');
+
+                const admin = data.admin;
+                const departments = data.departments;
+
+                // Populate form fields
+                document.getElementById('edit_admin_name').value = admin.admin_name;
+                document.getElementById('edit_role').value = admin.role;
+                document.getElementById('edit_email').value = admin.email;
+                document.getElementById('edit_contact_no').value = admin.contact_no;
+                document.getElementById('edit_status').value = admin.status;
+
+                // Populate department select
+                const deptSelect = document.getElementById('edit_department_id');
+                deptSelect.innerHTML = '<option value="">Select Department</option>';
+                departments.forEach(dep => {
+                    const option = document.createElement('option');
+                    option.value = dep.department_id;
+                    option.textContent = dep.department_name;
+                    if (dep.department_id === admin.department_id) option.selected = true;
+                    deptSelect.appendChild(option);
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error loading admin data');
+                modal.classList.remove('active');
+            });
+    }
+
+    function closeEditAdminModal() {
+        const modal = document.getElementById('editAdminModal');
+        modal.classList.remove('active');
+    }
+
     // Search functionality
     function initializeSearch() {
         const searchInput = document.getElementById('adminSearch');
@@ -895,14 +1671,14 @@
             const searchTerm = searchInput.value.toLowerCase();
             const statusValue = statusFilter.value.toLowerCase();
             const roleValue = roleFilter.value.toLowerCase();
-            
+
             const rows = document.querySelectorAll('.admin-row');
-            
+
             rows.forEach(row => {
                 const adminName = row.querySelector('.name-primary').textContent.toLowerCase();
                 const adminId = row.querySelector('.id-text').textContent.toLowerCase();
                 const visible = adminName.includes(searchTerm) || adminId.includes(searchTerm);
-                
+
                 row.style.display = visible ? 'table-row' : 'none';
             });
         }
@@ -916,7 +1692,7 @@
     function toggleSelectAll() {
         const selectAll = document.getElementById('selectAll');
         const checkboxes = document.querySelectorAll('.admin-checkbox');
-        
+
         checkboxes.forEach(checkbox => {
             checkbox.checked = selectAll.checked;
         });
@@ -936,29 +1712,29 @@
 
     function submitAddAdminForm(event) {
         event.preventDefault();
-        
+
         // Get form data
         const formData = new FormData(event.target);
         const adminData = Object.fromEntries(formData);
-        
+
         // Here you would normally send the data to your backend
         console.log('Adding admin:', adminData);
-        
+
         // Show success message
         showNotification('Admin added successfully!', 'success');
-        
+
         // Close modal
         closeAddAdminModal();
-        
+
         // Refresh table (in a real app, you'd reload data from server)
         // refreshAdminData();
     }
 
     // Action functions
-    function viewAdmin(adminId) {
-        showNotification(`Viewing admin: ${adminId}`, 'info');
-        // Implement view functionality
-    }
+    // function viewAdmin(adminId) {
+    //     showNotification(`Viewing admin: ${adminId}`, 'info');
+    //     // Implement view functionality
+    // }
 
     function editAdmin(adminId) {
         showNotification(`Editing admin: ${adminId}`, 'info');
@@ -999,9 +1775,9 @@
             border-left: 4px solid ${type === 'success' ? '#10B981' : type === 'error' ? '#DC2626' : '#2563EB'};
             font-weight: 500;
         `;
-        
+
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             notification.remove();
         }, 3000);
@@ -1010,7 +1786,7 @@
     // Initialize when page loads
     document.addEventListener('DOMContentLoaded', function() {
         initializeSearch();
-        
+
         // Close modal when clicking outside
         document.getElementById('addAdminModal').addEventListener('click', function(e) {
             if (e.target === this) {

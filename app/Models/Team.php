@@ -36,6 +36,6 @@ class Team extends Model
 
     public function teamLead()
     {
-        return $this->belongsTo(Employee::class, 'team_lead', 'employee_id');
+        return $this->belongsTo(Employee::class, 'team_lead');
     }
 }

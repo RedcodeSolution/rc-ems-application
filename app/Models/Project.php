@@ -11,14 +11,22 @@ class Project extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'project_id', 'description', 'client', 'status',
-        'team_id', 'project_name', 'start_date', 'end_date', 'milestone_info'
+        'project_id',
+        'project_name',
+        'description',
+        'client',
+        'team_id',
+        'status',
+        'start_date',
+        'end_date',
+        'milestone_info',
     ];
 
     public function team()
     {
-        return $this->belongsTo(Team::class, 'team_id');
+        return $this->belongsTo(Team::class, 'team_id', 'team_id');
     }
+
 
     public function documents()
     {
@@ -28,8 +36,8 @@ class Project extends Model
     public function employees()
     {
         return $this->belongsToMany(Employee::class, 'employee_project', 'project_id', 'employee_id')
-                    ->withPivot('role_in_project', 'assigned_date')
-                    ->withTimestamps();
+            ->withPivot('role_in_project', 'assigned_date')
+            ->withTimestamps();
     }
 }
 

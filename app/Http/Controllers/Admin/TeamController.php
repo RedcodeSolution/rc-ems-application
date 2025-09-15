@@ -83,7 +83,7 @@ class TeamController extends Controller
     public function edit($id)
     {
         $team = Team::findOrFail($id);
-        $employees = \App\Models\Employee::all();
+        $employees = Employee::all();
         return view('teams.edit', compact('team', 'employees'));
     }
 

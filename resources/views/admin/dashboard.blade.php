@@ -1289,7 +1289,7 @@
                         <div class="quick-action-description">Create new employee profile</div>
                     </a>
 
-                    <a href="{{ route('projects.create') }}" class="quick-action">
+                    <a href="{{ route('admin.projects.create') }}" class="quick-action">
                         <div class="quick-action-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
                             <i class="fas fa-project-diagram"></i>
                         </div>
