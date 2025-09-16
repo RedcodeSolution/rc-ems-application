@@ -8,6 +8,7 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\Employee\EmployeeLeaveController;
 use App\Http\Controllers\Employee\EmployeeProfileController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\MeetingController;
@@ -113,13 +114,20 @@ Route::middleware('auth')->group(function () {
     // Route::get('/employees/{employee}', [EmployeeController::class, 'show'])->name('employees.profile');
 
     //employee profile managment
-    Route::get('/employees/profile/{userid}', [EmployeeController::class, 'show'])->name('employees.profile');
-    Route::put('/employees/profile/{userid}', [EmployeeController::class, 'update'])->name('employees.profile.update');
+    Route::get('/employees/profile', [EmployeeProfileController::class, 'show'])->name('employees.profile');
+    Route::put('/employees/profile', [EmployeeProfileController::class, 'update'])->name('employees.profile.update');
 
     //employee profile skills managment
-    Route::post('/employees/profile/skills/{userid}', [EmployeeController::class, 'createSkills'])->name('employees.skills.create');
-    Route::put('/employees/profile/skills/{userid}/{skillId}', [EmployeeController::class, 'updateSkill'])->name('employees.skills.update');
-    Route::delete('/employees/profile/skills/{userid}/{skillId}', [EmployeeController::class, 'deleteSkill'])->name('employees.skills.delete');
+    Route::get('/employees/profile/skills', [EmployeeProfileController::class, 'getSkills'])->name('employees.skills.index');
+    Route::post('/employees/profile/skills', [EmployeeProfileController::class, 'createSkills'])->name('employees.skills.create');
+    Route::put('/employees/profile/skills/{skillId}', [EmployeeProfileController::class, 'updateSkill'])->name('employees.skills.update');
+    Route::delete('/employees/profile/skills/{skillId}', [EmployeeProfileController::class, 'deleteSkill'])->name('employees.skills.delete');
+
+    //employee leaves managment
+    Route::get('/employee/leaves', [EmployeeLeaveController::class, 'index'])->name('employee.leaves.index');
+    Route::get('/employee/leaves/{leave}', [EmployeeLeaveController::class, 'show'])->name('employee.leaves.show');
+    Route::put('/employee/leaves/{leave}', [EmployeeLeaveController::class, 'update'])->name('employee.leaves.update');
+    Route::delete('/employee/leaves/{leave}', [EmployeeLeaveController::class, 'destroy'])->name('employee.leaves.destroy');
 
     Route::get('/employees/documents', function () {
         return view('employees.documents.index');

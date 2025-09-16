@@ -1,43 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RedCode Solutions - Employee Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             /* RedCode Solutions Color Palette */
             /* Primary Red Colors - Core Brand */
-            --redcode-primary: #DC2626; /* RedCode Brand Red */
-            --redcode-primary-dark: #991B1B; /* Deep Red */
-            --redcode-primary-light: #FEE2E2; /* Light Red Background */
-            --redcode-accent: #B91C1C; /* Accent Red */
+            --redcode-primary: #DC2626;
+            /* RedCode Brand Red */
+            --redcode-primary-dark: #991B1B;
+            /* Deep Red */
+            --redcode-primary-light: #FEE2E2;
+            /* Light Red Background */
+            --redcode-accent: #B91C1C;
+            /* Accent Red */
 
             /* Secondary Colors - Professional Palette */
-            --redcode-dark: #1F2937; /* Charcoal for headers/nav */
-            --redcode-gray: #6B7280; /* Medium Gray for text */
-            --redcode-light: #F9FAFB; /* Light Background */
-            --redcode-white: #FFFFFF; /* Pure White */
+            --redcode-dark: #1F2937;
+            /* Charcoal for headers/nav */
+            --redcode-gray: #6B7280;
+            /* Medium Gray for text */
+            --redcode-light: #F9FAFB;
+            /* Light Background */
+            --redcode-white: #FFFFFF;
+            /* Pure White */
 
             /* Status Colors */
-            --redcode-blue: #2563EB; /* Links, buttons */
-            --redcode-green: #059669; /* Success states */
-            --redcode-orange: #D97706; /* Warnings */
-            --redcode-yellow: #F59E0B; /* Alerts */
+            --redcode-blue: #2563EB;
+            /* Links, buttons */
+            --redcode-green: #059669;
+            /* Success states */
+            --redcode-orange: #D97706;
+            /* Warnings */
+            --redcode-yellow: #F59E0B;
+            /* Alerts */
 
             /* Text Colors */
-            --text-primary: #111827; /* Almost Black */
-            --text-secondary: #6B7280; /* Medium Gray */
-            --text-light: #9CA3AF; /* Light Gray */
-            --text-white: #FFFFFF; /* White Text */
+            --text-primary: #111827;
+            /* Almost Black */
+            --text-secondary: #6B7280;
+            /* Medium Gray */
+            --text-light: #9CA3AF;
+            /* Light Gray */
+            --text-white: #FFFFFF;
+            /* White Text */
 
             /* Background Colors */
-            --bg-primary: #FFFFFF; /* White Background */
-            --bg-secondary: #F9FAFB; /* Light Gray Background */
-            --bg-dark: #1F2937; /* Dark Background */
+            --bg-primary: #FFFFFF;
+            /* White Background */
+            --bg-secondary: #F9FAFB;
+            /* Light Gray Background */
+            --bg-dark: #1F2937;
+            /* Dark Background */
 
             /* Border Colors */
             --border-light: #E5E7EB;
@@ -61,15 +82,15 @@
             --gradient-secondary: linear-gradient(135deg, #1F2937 0%, #374151 100%);
             --gradient-accent: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
             --gradient-hero: linear-gradient(135deg, #DC2626 0%, #1F2937 50%, #991B1B 100%);
-            --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
 
             /* RedCode Shadows */
-            --shadow-xs: 0 1px 2px 0 rgba(220,38,38,0.05);
-            --shadow-sm: 0 1px 3px 0 rgba(220,38,38,0.1), 0 1px 2px 0 rgba(220,38,38,0.06);
-            --shadow-md: 0 4px 6px -1px rgba(220,38,38,0.1), 0 2px 4px -1px rgba(220,38,38,0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(220,38,38,0.1), 0 4px 6px -2px rgba(220,38,38,0.05);
-            --shadow-xl: 0 20px 25px -5px rgba(220,38,38,0.1), 0 10px 10px -5px rgba(220,38,38,0.04);
-            --shadow-2xl: 0 25px 50px -12px rgba(220,38,38,0.25);
+            --shadow-xs: 0 1px 2px 0 rgba(220, 38, 38, 0.05);
+            --shadow-sm: 0 1px 3px 0 rgba(220, 38, 38, 0.1), 0 1px 2px 0 rgba(220, 38, 38, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(220, 38, 38, 0.1), 0 2px 4px -1px rgba(220, 38, 38, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(220, 38, 38, 0.1), 0 4px 6px -2px rgba(220, 38, 38, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(220, 38, 38, 0.1), 0 10px 10px -5px rgba(220, 38, 38, 0.04);
+            --shadow-2xl: 0 25px 50px -12px rgba(220, 38, 38, 0.25);
         }
 
         * {
@@ -89,11 +110,25 @@
         }
 
         @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            25% { background-position: 100% 50%; }
-            50% { background-position: 100% 100%; }
-            75% { background-position: 0% 100%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            25% {
+                background-position: 100% 50%;
+            }
+
+            50% {
+                background-position: 100% 100%;
+            }
+
+            75% {
+                background-position: 0% 100%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         .login-container::before {
@@ -111,9 +146,19 @@
         }
 
         @keyframes floatBackground {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-20px) rotate(120deg); }
-            66% { transform: translateY(10px) rotate(240deg); }
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            33% {
+                transform: translateY(-20px) rotate(120deg);
+            }
+
+            66% {
+                transform: translateY(10px) rotate(240deg);
+            }
         }
 
         .login-split {
@@ -142,12 +187,12 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
             pointer-events: none;
         }
 
         .login-illustration {
-            background: linear-gradient(135deg, rgba(220,38,38,0.1) 0%, rgba(153,27,27,0.1) 100%);
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(153, 27, 27, 0.1) 100%);
             backdrop-filter: blur(20px);
             display: flex;
             align-items: center;
@@ -165,9 +210,9 @@
             max-width: 480px;
             font-size: 0.85rem;
             box-shadow:
-                0 32px 64px rgba(220,38,38,0.12),
-                0 0 0 1px rgba(255,255,255,0.05),
-                inset 0 1px 0 rgba(255,255,255,0.1);
+                0 32px 64px rgba(220, 38, 38, 0.12),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
             position: relative;
             z-index: 10;
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -180,7 +225,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
             border-radius: 1.5rem;
             pointer-events: none;
         }
@@ -199,7 +244,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             letter-spacing: 0.1em;
-            text-shadow: 0 4px 20px rgba(220,38,38,0.3);
+            text-shadow: 0 4px 20px rgba(220, 38, 38, 0.3);
             position: relative;
         }
 
@@ -225,16 +270,23 @@
             justify-content: center;
             margin: 0 auto 2rem;
             box-shadow:
-                0 20px 40px rgba(220,38,38,0.2),
-                0 0 0 4px rgba(255,255,255,0.1),
-                inset 0 2px 0 rgba(255,255,255,0.2);
+                0 20px 40px rgba(220, 38, 38, 0.2),
+                0 0 0 4px rgba(255, 255, 255, 0.1),
+                inset 0 2px 0 rgba(255, 255, 255, 0.2);
             position: relative;
             animation: pulse 3s ease-in-out infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
         }
 
         .signin-header {
@@ -264,7 +316,7 @@
             padding: 2px;
             margin-bottom: 1rem;
             border: 1px solid var(--border-color);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
             min-height: 36px;
         }
 
@@ -291,7 +343,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
             transition: left 0.5s;
         }
 
@@ -299,8 +351,8 @@
             background: var(--gradient-primary);
             color: #fff;
             box-shadow:
-                0 8px 25px rgba(220,38,38,0.3),
-                0 3px 10px rgba(220,38,38,0.2);
+                0 8px 25px rgba(220, 38, 38, 0.3),
+                0 3px 10px rgba(220, 38, 38, 0.2);
             transform: translateY(-2px);
         }
 
@@ -343,8 +395,8 @@
             border-color: var(--redcode-primary);
             background: rgba(255, 255, 255, 0.9);
             box-shadow:
-                0 0 0 4px rgba(220,38,38,0.1),
-                0 8px 25px rgba(220,38,38,0.15);
+                0 0 0 4px rgba(220, 38, 38, 0.1),
+                0 8px 25px rgba(220, 38, 38, 0.15);
             transform: translateY(-2px);
         }
 
@@ -363,7 +415,7 @@
             z-index: 2;
         }
 
-        .form-input:focus + .input-icon {
+        .form-input:focus+.input-icon {
             color: var(--redcode-primary);
             transform: translateY(-50%) scale(1.1);
         }
@@ -462,8 +514,8 @@
             overflow: hidden;
             margin-bottom: 2rem;
             box-shadow:
-                0 8px 25px rgba(220,38,38,0.3),
-                0 3px 10px rgba(220,38,38,0.2);
+                0 8px 25px rgba(220, 38, 38, 0.3),
+                0 3px 10px rgba(220, 38, 38, 0.2);
             letter-spacing: 0.025em;
         }
 
@@ -474,7 +526,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.5s;
         }
 
@@ -485,8 +537,8 @@
         .login-button:hover {
             transform: translateY(-3px) scale(1.02);
             box-shadow:
-                0 15px 35px rgba(220,38,38,0.4),
-                0 5px 15px rgba(220,38,38,0.3);
+                0 15px 35px rgba(220, 38, 38, 0.4),
+                0 5px 15px rgba(220, 38, 38, 0.3);
         }
 
         .login-button:active {
@@ -546,6 +598,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -564,9 +617,9 @@
             font-size: 3rem;
             font-weight: 900;
             margin-bottom: 1.5rem;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             letter-spacing: -0.025em;
-            background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -577,7 +630,7 @@
             opacity: 0.9;
             margin-bottom: 3rem;
             font-weight: 500;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         .feature-list {
@@ -604,13 +657,13 @@
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
 
         .feature-card:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
         }
 
         .feature-title {
@@ -674,10 +727,10 @@
 
         .floating-shape {
             position: absolute;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             animation: floatShape 12s ease-in-out infinite;
         }
 
@@ -714,14 +767,18 @@
         }
 
         @keyframes floatShape {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0px) rotate(0deg) scale(1);
                 opacity: 0.7;
             }
+
             33% {
                 transform: translateY(-30px) rotate(120deg) scale(1.1);
                 opacity: 0.9;
             }
+
             66% {
                 transform: translateY(15px) rotate(240deg) scale(0.9);
                 opacity: 0.8;
@@ -732,14 +789,17 @@
             .login-split {
                 grid-template-columns: 1fr;
             }
+
             .login-illustration {
                 display: none;
             }
+
             .login-form-section {
                 background: var(--gradient-hero);
                 background-size: 400% 400%;
                 animation: gradientShift 18s ease infinite;
             }
+
             .login-card {
                 margin: 1rem;
                 max-width: 100%;
@@ -751,16 +811,20 @@
                 padding: 1.2rem 0.8rem;
                 border-radius: 1rem;
             }
+
             .hrms-title {
                 font-size: 2.5rem;
             }
+
             .role-tabs {
                 flex-direction: column;
                 gap: 6px;
             }
+
             .role-tab {
                 padding: 14px 20px;
             }
+
             .feature-grid {
                 grid-template-columns: 1fr;
                 gap: 1rem;
@@ -768,6 +832,7 @@
         }
     </style>
 </head>
+
 <body class="login-container">
     <div class="login-split">
         <!-- Left Side - Login Form -->
@@ -804,27 +869,14 @@
                     <input type="hidden" name="role" id="selectedRole" value="admin">
                     <!-- Email Field -->
                     <div class="form-group">
-                        <input
-                            id="email"
-                            type="email"
-                            name="email"
-                            required
-                            value="{{ old('email') }}"
-                            class="form-input"
-                            placeholder="Enter your email address"
-                        >
+                        <input id="email" type="email" name="email" required value="{{ old('email') }}"
+                            class="form-input" placeholder="Enter your email address">
                         <i class="input-icon fas fa-envelope"></i>
                     </div>
                     <!-- Password Field -->
                     <div class="form-group">
-                        <input
-                            id="password"
-                            type="password"
-                            name="password"
-                            required
-                            class="form-input"
-                            placeholder="Enter your password"
-                        >
+                        <input id="password" type="password" name="password" required class="form-input"
+                            placeholder="Enter your password">
                         <i class="input-icon fas fa-lock"></i>
                     </div>
                     <!-- Login Options -->
@@ -928,7 +980,8 @@
                 // Create custom notification
                 const notification = document.createElement('div');
                 notification.className = 'error-message';
-                notification.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Please fill in all fields';
+                notification.innerHTML =
+                '<i class="fas fa-exclamation-triangle mr-2"></i>Please fill in all fields';
                 // Insert after form
                 this.appendChild(notification);
                 // Remove after 3 seconds
@@ -950,11 +1003,12 @@
         });
     </script>
 </body>
+
 </html>
-            input.addEventListener('blur', function() {
-                this.parentElement.classList.remove('focused');
-            });
-        });
-    </script>
+input.addEventListener('blur', function() {
+this.parentElement.classList.remove('focused');
+});
+</script>
 </body>
+
 </html>
