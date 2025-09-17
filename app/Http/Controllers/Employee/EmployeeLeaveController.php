@@ -10,30 +10,48 @@ use Illuminate\Support\Facades\Auth;
 
 class EmployeeLeaveController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        if ($user) {
-            return response()->json(['leaves' => $user->employee->leaves]);
-        }
+    if (!$user || !$user->employee) {
         return response()->json(['error' => 'Employee leaves data not found for this user.'], 404);
     }
 
-    public function store(Request $request, Leave $leave)
+    // All leaves for stats
+    $allLeaves = $user->employee->leaves;
+
+    // Last 3 recent leaves
+    $recentLeaves = $user->employee->leaves()->latest()->take(3)->get();
+
+    // Stats calculation
+    $annualUsed   = $allLeaves->where('leave_type', 'annual')->where('status', 'approved')->sum('duration');
+    $sickUsed     = $allLeaves->where('leave_type', 'sick')->where('status', 'approved')->sum('duration');
+    $personalUsed = $allLeaves->where('leave_type', 'personal')->where('status', 'approved')->sum('duration');
+    $pendingCount = $allLeaves->where('status', 'pending')->count();
+
+    // Totals (could come from config or DB)
+    $annualTotal   = 21;
+    $sickTotal     = 10;
+    $personalTotal = 5;
+
+    return view('employees.leaves.index', [
+        'leaves'=>$allLeaves,
+        'recentLeaves'  => $recentLeaves,
+        'annualUsed'    => $annualUsed,
+        'sickUsed'      => $sickUsed,
+        'personalUsed'  => $personalUsed,
+        'annualTotal'   => $annualTotal,
+        'sickTotal'     => $sickTotal,
+        'personalTotal' => $personalTotal,
+        'pendingCount'  => $pendingCount,
+    ]);
+}
+
+
+    public function store(Request $request)
     {
         $user = Auth::user();
-
-        // $validated = $request->validate([
-        //     'leave_type' => 'required|string|max:255',
-        //     'start_date' => 'required|date|after_or_equal:today',
-        //     'end_date' => 'required|date|after_or_equal:start_date',
-        //     'reason' => 'required|string',
-        //     'supporting_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        // ]);
         $validated = $request->validate([
             'leave_type' => 'required|string|max:255',
             'start_date' => 'required|date|after_or_equal:today',
@@ -47,9 +65,7 @@ class EmployeeLeaveController extends Controller
         $validated['employee_id'] = $user->employee->employee_id;
 
         Leave::create($validated);
-
-        return response()->json(['message' => 'Leave request submitted successfully.', 'leave' => $leave], 201);
-        // return redirect()->route('employee.leaves.index');
+        return redirect()->route('employee.leaves.index');
     }
 
     /**
@@ -62,7 +78,7 @@ class EmployeeLeaveController extends Controller
             return response()->json(['error' => 'Leave not found for this user.'], 404);
         }
         $leave->load('employee');
-        return response()->json(['leave' => $leave], 200);
+        return view('employees.leaves.index',['leave' => $leave]);
     }
 
     /**
@@ -74,14 +90,17 @@ class EmployeeLeaveController extends Controller
             return response()->json(['error' => 'Cannot update an approved leave request.'], 403);
         }
         $validated = $request->validate([
-            'reason' => 'required|string',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'supporting_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        ]);
+        'leave_type' => 'required|string|in:annual,sick,personal,maternity,paternity,emergency',
+        'reason' => 'required|string',
+        'start_date' => 'required|date',
+        'end_date' => 'required|date|after_or_equal:start_date',
+        'contact_info' => 'nullable|string',
+        'supporting_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+    ]);
+
 
         $leave->update($validated);
-        return response()->json(['message' => 'Leave updated successfully.'], 200);
+        return redirect()->route('employee.leaves.index');
     }
 
     /**
@@ -98,6 +117,6 @@ class EmployeeLeaveController extends Controller
         }
         $leave->delete();
 
-        return response()->json(['message' => 'Leave deleted successfully.'], 200);
+        return redirect()->route('employee.leaves.index');
     }
 }

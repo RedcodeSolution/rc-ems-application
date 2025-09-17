@@ -34,16 +34,16 @@
                     <div class="stat-content">
                         <h3>Annual Leave</h3>
                         <div class="stat-numbers">
-                            <span class="used">12</span>
+                            <span class="used">{{ $annualUsed }}</span>
                             <span class="separator">/</span>
-                            <span class="total">21</span>
+                            <span class="total">{{ $annualTotal }}</span>
                             <span class="unit">days</span>
                         </div>
                         <div class="stat-progress">
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: 57%"></div>
+                                <div class="progress-fill" style="width: {{ ($annualUsed / $annualTotal) * 100 }}%"></div>
                             </div>
-                            <span class="remaining">9 days remaining</span>
+                            <span class="remaining">{{ $annualTotal - $annualUsed }} days remaining</span>
                         </div>
                     </div>
                 </div>
@@ -55,16 +55,16 @@
                     <div class="stat-content">
                         <h3>Sick Leave</h3>
                         <div class="stat-numbers">
-                            <span class="used">3</span>
+                            <span class="used">{{ $sickUsed }}</span>
                             <span class="separator">/</span>
-                            <span class="total">10</span>
+                            <span class="total">{{ $sickTotal }}</span>
                             <span class="unit">days</span>
                         </div>
                         <div class="stat-progress">
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: 30%"></div>
+                                <div class="progress-fill" style="width: {{ ($sickUsed / $sickTotal) * 100 }}%"></div>
                             </div>
-                            <span class="remaining">7 days remaining</span>
+                            <span class="remaining">{{ $sickTotal - $sickUsed }} days remaining</span>
                         </div>
                     </div>
                 </div>
@@ -76,16 +76,17 @@
                     <div class="stat-content">
                         <h3>Personal Leave</h3>
                         <div class="stat-numbers">
-                            <span class="used">2</span>
+                            <span class="used">{{ $personalUsed }}</span>
                             <span class="separator">/</span>
-                            <span class="total">5</span>
+                            <span class="total">{{ $personalTotal }}</span>
                             <span class="unit">days</span>
                         </div>
                         <div class="stat-progress">
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: 40%"></div>
+                                <div class="progress-fill" style="width: {{ ($personalUsed / $personalTotal) * 100 }}%">
+                                </div>
                             </div>
-                            <span class="remaining">3 days remaining</span>
+                            <span class="remaining">{{ $personalTotal - $personalUsed }} days remaining</span>
                         </div>
                     </div>
                 </div>
@@ -97,7 +98,7 @@
                     <div class="stat-content">
                         <h3>Pending Requests</h3>
                         <div class="stat-numbers">
-                            <span class="used">2</span>
+                            <span class="used">{{ $pendingCount }}</span>
                             <span class="unit">requests</span>
                         </div>
                         <div class="stat-progress">
@@ -167,118 +168,86 @@
             </div>
 
             <div class="requests-container">
-                <!-- Pending Request -->
-                <div class="request-card pending">
-                    <div class="request-header">
-                        <div class="request-info">
-                            <h4>Annual Leave</h4>
-                            <span class="request-date">March 15 - March 20, 2025</span>
+                @forelse ($recentLeaves as $leave)
+                    <div class="request-card {{ $leave->status }}">
+                        <div class="request-header">
+                            <div class="request-info">
+                                <h4>{{ $leave->leave_type }}</h4>
+                                <span class="request-date">{{ \Carbon\Carbon::parse($leave->start_date)->format('F d') }}
+                                    -
+                                    {{ \Carbon\Carbon::parse($leave->end_date)->format('F d, Y') }}</span>
+                            </div>
+                            <div class="request-status {{ $leave->status }}">
+                                @if ($leave->status === 'pending')
+                                    <i class="fas fa-clock"></i>
+                                @elseif ($leave->status === 'approved')
+                                    <i class="fas fa-check-circle"></i>
+                                @elseif ($leave->status === 'rejected')
+                                    <i class="fas fa-times-circle"></i>
+                                @endif
+                                <span>{{ ucfirst($leave->status) }}</span>
+                            </div>
                         </div>
-                        <div class="request-status pending">
-                            <i class="fas fa-clock"></i>
-                            <span>Pending</span>
+                        <div class="request-details">
+                            <div class="detail-item">
+                                <span class="label">Duration:</span>
+                                <span class="value">{{ $leave->duration }} days</span>
+                            </div>
+                            @if ($leave->status === 'rejected')
+                                <div class="detail-item">
+                                    <span class="label">Rejected by:</span>
+                                    <span class="value">{{ $leave->approved_by ?? 'N/A' }}</span> {{-- Assuming 'approved_by' column exists --}}
+                                </div>
+                            @elseif ($leave->status === 'approved')
+                                <div class="detail-item">
+                                    <span class="label">Approved by:</span>
+                                    <span class="value">{{ $leave->approved_by ?? 'N/A' }}</span> {{-- Assuming 'approved_by' column exists --}}
+                                </div>
+                            @endif
+                            <div class="detail-item">
+                                <span class="label">Reason:</span>
+                                <span class="value">{{ $leave->reason }} </span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="request-details">
-                        <div class="detail-item">
-                            <span class="label">Duration:</span>
-                            <span class="value">5 days</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Applied:</span>
-                            <span class="value">March 1, 2025</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Reason:</span>
-                            <span class="value">Family vacation</span>
-                        </div>
-                    </div>
-                    <div class="request-actions">
-                        <button class="action-btn view" onclick="viewLeaveRequest('LEV-2025-001')" title="View Details">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="action-btn edit" onclick="editLeaveRequest('LEV-2025-001')" title="Edit Request">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn cancel" onclick="cancelLeaveRequest('LEV-2025-001')"
-                            title="Cancel Request">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
+                        <div class="request-actions">
+                            <button class="action-btn view" onclick="viewLeaveRequest('{{ $leave->leave_id }}')"
+                                title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            @if ($leave->status === 'pending')
+                                <button class="action-btn edit" onclick="editLeaveRequest('{{ $leave->leave_id }}')"
+                                    title="Edit Request">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <!-- Cancel Button -->
+                                <button class="action-btn cancel" onclick="cancelLeaveRequest('{{ $leave->leave_id }}')"
+                                    title="Cancel Request">
+                                    <i class="fas fa-times"></i>
+                                </button>
 
-                <!-- Approved Request -->
-                <div class="request-card approved">
-                    <div class="request-header">
-                        <div class="request-info">
-                            <h4>Sick Leave</h4>
-                            <span class="request-date">February 10 - February 12, 2025</span>
-                        </div>
-                        <div class="request-status approved">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Approved</span>
-                        </div>
-                    </div>
-                    <div class="request-details">
-                        <div class="detail-item">
-                            <span class="label">Duration:</span>
-                            <span class="value">3 days</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Approved by:</span>
-                            <span class="value">Sarah Johnson</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Reason:</span>
-                            <span class="value">Medical treatment</span>
+                                <!-- Hidden Form -->
+                                <form id="cancel-form-{{ $leave->leave_id }}"
+                                    action="{{ route('employee.leaves.destroy', $leave->leave_id) }}" method="POST"
+                                    style="display: none;">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
+                            @elseif ($leave->status === 'approved')
+                                <button class="action-btn download"
+                                    onclick="downloadCertificate('{{ $leave->leave_id }}')" title="Download Certificate">
+                                    <i class="fas fa-certificate"></i>
+                                </button>
+                            @elseif ($leave->status === 'rejected')
+                                <button class="action-btn reapply" onclick="reapplyLeave('{{ $leave->leave_id }}')"
+                                    title="Reapply Leave">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                            @endif
                         </div>
                     </div>
-                    <div class="request-actions">
-                        <button class="action-btn view" onclick="viewLeaveRequest('LEV-2025-002')" title="View Details">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="action-btn download" onclick="downloadCertificate('LEV-2025-002')"
-                            title="Download Certificate">
-                            <i class="fas fa-certificate"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Rejected Request -->
-                <div class="request-card rejected">
-                    <div class="request-header">
-                        <div class="request-info">
-                            <h4>Personal Leave</h4>
-                            <span class="request-date">January 25 - January 26, 2025</span>
-                        </div>
-                        <div class="request-status rejected">
-                            <i class="fas fa-times-circle"></i>
-                            <span>Rejected</span>
-                        </div>
-                    </div>
-                    <div class="request-details">
-                        <div class="detail-item">
-                            <span class="label">Duration:</span>
-                            <span class="value">2 days</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Rejected by:</span>
-                            <span class="value">Mike Davis</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Reason:</span>
-                            <span class="value">Project deadline conflict</span>
-                        </div>
-                    </div>
-                    <div class="request-actions">
-                        <button class="action-btn view" onclick="viewLeaveRequest('LEV-2025-003')" title="View Details">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="action-btn reapply" onclick="reapplyLeave('LEV-2025-003')" title="Reapply Leave">
-                            <i class="fas fa-redo"></i>
-                        </button>
-                    </div>
-                </div>
+                @empty
+                    <p>No recent leave requests found.</p>
+                @endforelse
             </div>
         </div>
 
@@ -315,7 +284,9 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <form id="editLeaveForm">
+                <form id="editLeaveForm" method="POST" action="{{ route('employee.leaves.update', $leave) }}">
+                    @csrf
+                    @method('PUT')
                     <div class="modal-body">
                         <div class="form-section">
                             <h4>Leave Information</h4>
@@ -1714,66 +1685,36 @@
 
         // Sample leave requests data
         const leaveRequests = {
-            'LEV-2025-001': {
-                id: 'LEV-2025-001',
-                type: 'annual',
-                typeDisplay: 'Annual Leave',
-                startDate: '2025-03-15',
-                endDate: '2025-03-20',
-                startDateDisplay: 'March 15, 2025',
-                endDateDisplay: 'March 20, 2025',
-                duration: 5,
-                reason: 'Family vacation',
-                status: 'pending',
-                statusDisplay: 'Pending',
-                appliedDate: '2025-03-01',
-                appliedDateDisplay: 'March 1, 2025',
-                contactInfo: '+1 (555) 123-4567',
-                approver: 'Sarah Johnson',
-                comments: 'Awaiting manager approval'
-            },
-            'LEV-2025-002': {
-                id: 'LEV-2025-002',
-                type: 'sick',
-                typeDisplay: 'Sick Leave',
-                startDate: '2025-02-10',
-                endDate: '2025-02-12',
-                startDateDisplay: 'February 10, 2025',
-                endDateDisplay: 'February 12, 2025',
-                duration: 3,
-                reason: 'Medical treatment',
-                status: 'approved',
-                statusDisplay: 'Approved',
-                appliedDate: '2025-02-08',
-                appliedDateDisplay: 'February 8, 2025',
-                contactInfo: '+1 (555) 123-4567',
-                approver: 'Sarah Johnson',
-                approvedDate: '2025-02-09',
-                approvedDateDisplay: 'February 9, 2025',
-                comments: 'Approved for medical treatment'
-            },
-            'LEV-2025-003': {
-                id: 'LEV-2025-003',
-                type: 'personal',
-                typeDisplay: 'Personal Leave',
-                startDate: '2025-01-25',
-                endDate: '2025-01-26',
-                startDateDisplay: 'January 25, 2025',
-                endDateDisplay: 'January 26, 2025',
-                duration: 2,
-                reason: 'Personal matters',
-                status: 'rejected',
-                statusDisplay: 'Rejected',
-                appliedDate: '2025-01-20',
-                appliedDateDisplay: 'January 20, 2025',
-                contactInfo: '+1 (555) 123-4567',
-                approver: 'Mike Davis',
-                rejectedDate: '2025-01-22',
-                rejectedDateDisplay: 'January 22, 2025',
-                comments: 'Project deadline conflict - please reschedule'
-            }
-        };
+            @foreach ($leaves as $leave)
+                '{{ $leave->leave_id }}': {
+                    id: '{{ $leave->leave_id }}',
 
+                    // For display in view modal
+                    typeDisplay: '{{ ucfirst(str_replace('_', ' ', $leave->leave_type)) }}',
+                    status: '{{ strtolower($leave->status) }}',
+                    statusDisplay: '{{ ucfirst($leave->status) }}',
+                    startDateDisplay: '{{ \Carbon\Carbon::parse($leave->start_date)->format('M d, Y') }}',
+                    endDateDisplay: '{{ \Carbon\Carbon::parse($leave->end_date)->format('M d, Y') }}',
+                    duration: {{ \Carbon\Carbon::parse($leave->start_date)->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1 }},
+                    appliedDateDisplay: '{{ \Carbon\Carbon::parse($leave->created_at)->format('M d, Y') }}',
+                    contactInfo: '{{ $leave->contact_info ?? 'N/A' }}',
+                    approver: '{{ $leave->approver ?? 'Pending' }}',
+                    approvedDate: '{{ $leave->approved_at }}',
+                    approvedDateDisplay: '{{ $leave->approved_at ? \Carbon\Carbon::parse($leave->approved_at)->format('M d, Y') : '' }}',
+                    rejectedDate: '{{ $leave->rejected_at }}',
+                    rejectedDateDisplay: '{{ $leave->rejected_at ? \Carbon\Carbon::parse($leave->rejected_at)->format('M d, Y') : '' }}',
+                    reason: '{{ addslashes($leave->reason) }}',
+                    comments: '{{ addslashes($leave->comments ?? '') }}',
+
+                    // For form inputs in edit modal (raw values)
+                    leaveType: '{{ $leave->leave_type }}',
+                    type: '{{ $leave->leave_type }}',
+                    startDate: '{{ \Carbon\Carbon::parse($leave->start_date)->format('Y-m-d') }}', // Ensure Y-m-d format
+                    endDate: '{{ \Carbon\Carbon::parse($leave->end_date)->format('Y-m-d') }}', // Ensure Y-m-d format
+
+                },
+            @endforeach
+        };
         // Action functions
         function viewLeaveRequest(id) {
             const request = leaveRequests[id];
@@ -1839,17 +1780,17 @@
                             <span class="value">${request.approver}</span>
                         </div>
                         ${request.approvedDate ? `
-                                                                                                                                                                                                            <div class="detail-row">
-                                                                                                                                                                                                                <span class="label">Approved Date:</span>
-                                                                                                                                                                                                                <span class="value">${request.approvedDateDisplay}</span>
-                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                            ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                        <div class="detail-row">
+                                                                                                                                                                                                                                                                                                                                                                                                            <span class="label">Approved Date:</span>
+                                                                                                                                                                                                                                                                                                                                                                                                            <span class="value">${request.approvedDateDisplay}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                                                                        ` : ''}
                         ${request.rejectedDate ? `
-                                                                                                                                                                                                            <div class="detail-row">
-                                                                                                                                                                                                                <span class="label">Rejected Date:</span>
-                                                                                                                                                                                                                <span class="value">${request.rejectedDateDisplay}</span>
-                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                            ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                        <div class="detail-row">
+                                                                                                                                                                                                                                                                                                                                                                                                            <span class="label">Rejected Date:</span>
+                                                                                                                                                                                                                                                                                                                                                                                                            <span class="value">${request.rejectedDateDisplay}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                                                                        ` : ''}
                     </div>
                 </div>
                 
@@ -1859,11 +1800,11 @@
                 </div>
                 
                 ${request.comments ? `
-                                                                                                                                                                                                    <div class="detail-section full-width">
-                                                                                                                                                                                                        <h4><i class="fas fa-comments"></i> Comments</h4>
-                                                                                                                                                                                                        <div class="comments-text">${request.comments}</div>
-                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                    ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                <div class="detail-section full-width">
+                                                                                                                                                                                                                                                                                                                                                                                                    <h4><i class="fas fa-comments"></i> Comments</h4>
+                                                                                                                                                                                                                                                                                                                                                                                                    <div class="comments-text">${request.comments}</div>
+                                                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                ` : ''}
             </div>
         `;
 
@@ -1871,34 +1812,6 @@
             document.body.style.overflow = 'hidden';
         }
 
-        function editLeaveRequest(id) {
-            const request = leaveRequests[id];
-            if (!request) {
-                showMessage('Leave request not found', 'error');
-                return;
-            }
-
-            if (request.status !== 'pending') {
-                showMessage('Only pending leave requests can be edited', 'error');
-                return;
-            }
-
-            const modal = document.getElementById('editLeaveModal');
-            const form = document.getElementById('editLeaveForm');
-
-            // Populate form with existing data
-            document.getElementById('editLeaveType').value = request.type;
-            document.getElementById('editStartDate').value = request.startDate;
-            document.getElementById('editEndDate').value = request.endDate;
-            document.getElementById('editReason').value = request.reason;
-            document.getElementById('editContactInfo').value = request.contactInfo;
-
-            // Store request ID for form submission
-            form.dataset.requestId = id;
-
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
 
         function closeViewLeaveModal() {
             const modal = document.getElementById('viewLeaveModal');
@@ -1922,50 +1835,6 @@
                 editLeaveRequest(requestId);
             }
         }
-
-        // Handle edit form submission
-        document.getElementById('editLeaveForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const requestId = this.dataset.requestId;
-            const formData = new FormData(this);
-
-            // Update the request data (in a real app, this would be sent to the server)
-            if (leaveRequests[requestId]) {
-                leaveRequests[requestId].type = formData.get('leave_type');
-                leaveRequests[requestId].typeDisplay = document.getElementById('editLeaveType').selectedOptions[0]
-                    .text;
-                leaveRequests[requestId].startDate = formData.get('start_date');
-                leaveRequests[requestId].endDate = formData.get('end_date');
-                leaveRequests[requestId].reason = formData.get('reason');
-                leaveRequests[requestId].contactInfo = formData.get('contact_info');
-
-                // Update display dates
-                const startDate = new Date(formData.get('start_date'));
-                const endDate = new Date(formData.get('end_date'));
-                leaveRequests[requestId].startDateDisplay = startDate.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-                leaveRequests[requestId].endDateDisplay = endDate.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-
-                // Calculate duration
-                const diffTime = Math.abs(endDate - startDate);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                leaveRequests[requestId].duration = diffDays;
-            }
-
-            closeEditLeaveModal();
-            showMessage(`Leave request ${requestId} updated successfully`, 'success');
-
-            // Update the UI card (in a real app, you might refresh the data from server)
-            updateLeaveCard(requestId);
-        });
 
         function updateLeaveCard(requestId) {
             // This function would update the visual card on the page
@@ -2038,17 +1907,17 @@
                             <span class="value">${request.approver}</span>
                         </div>
                         ${request.approvedDate ? `
-                                                                                                                                                                                                            <div class="detail-row">
-                                                                                                                                                                                                                <span class="label">Approved Date:</span>
-                                                                                                                                                                                                                <span class="value">${request.approvedDateDisplay}</span>
-                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                            ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                        <div class="detail-row">
+                                                                                                                                                                                                                                                                                                                                                                                                            <span class="label">Approved Date:</span>
+                                                                                                                                                                                                                                                                                                                                                                                                            <span class="value">${request.approvedDateDisplay}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                                                                        ` : ''}
                         ${request.rejectedDate ? `
-                                                                                                                                                                                                            <div class="detail-row">
-                                                                                                                                                                                                                <span class="label">Rejected Date:</span>
-                                                                                                                                                                                                                <span class="value">${request.rejectedDateDisplay}</span>
-                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                            ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                        <div class="detail-row">
+                                                                                                                                                                                                                                                                                                                                                                                                            <span class="label">Rejected Date:</span>
+                                                                                                                                                                                                                                                                                                                                                                                                            <span class="value">${request.rejectedDateDisplay}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                                                                        ` : ''}
                     </div>
                 </div>
                 
@@ -2058,11 +1927,11 @@
                 </div>
                 
                 ${request.comments ? `
-                                                                                                                                                                                                    <div class="detail-section full-width">
-                                                                                                                                                                                                        <h4><i class="fas fa-comments"></i> Comments</h4>
-                                                                                                                                                                                                        <div class="comments-text">${request.comments}</div>
-                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                    ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                <div class="detail-section full-width">
+                                                                                                                                                                                                                                                                                                                                                                                                    <h4><i class="fas fa-comments"></i> Comments</h4>
+                                                                                                                                                                                                                                                                                                                                                                                                    <div class="comments-text">${request.comments}</div>
+                                                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                ` : ''}
             </div>
         `;
 
@@ -2102,6 +1971,7 @@
         function cancelLeaveRequest(id) {
             if (confirm('Are you sure you want to cancel this leave request?')) {
                 showMessage(`Leave request ${id} cancelled`, 'success');
+                document.getElementById(`cancel-form-${id}`).submit();
             }
         }
 

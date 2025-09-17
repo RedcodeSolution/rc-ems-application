@@ -114,21 +114,22 @@ Route::middleware('auth')->group(function () {
     // Route::get('/employees/{employee}', [EmployeeController::class, 'show'])->name('employees.profile');
 
     //employee profile managment
-    Route::get('/employee/profile', [EmployeeProfileController::class, 'show'])->name('employee.profile');
-    Route::put('/employee/profile', [EmployeeProfileController::class, 'update'])->name('employee.profile.update');
+    Route::get('/employees/profile', [EmployeeProfileController::class, 'show'])->name('employee.profile');
+    Route::put('/employees/profile', [EmployeeProfileController::class, 'update'])->name('employee.profile.update');
 
     //employee profile skills managment
-    Route::get('/employee/profile/skills', [EmployeeProfileController::class, 'getSkills'])->name('employee.skills.index');
-    Route::post('/employee/profile/skills', [EmployeeProfileController::class, 'createSkills'])->name('employee.skills.create');
-    Route::put('/employee/profile/skills/{skillId}', [EmployeeProfileController::class, 'updateSkill'])->name('employee.skills.update');
-    Route::delete('/employee/profile/skills/{skillId}', [EmployeeProfileController::class, 'deleteSkill'])->name('employee.skills.delete');
+    Route::get('/employees/profile/skills', [EmployeeProfileController::class, 'getSkills'])->name('employee.skills.index');
+    Route::post('/employees/profile/skills', [EmployeeProfileController::class, 'createSkills'])->name('employee.skills.create');
+    Route::put('/employees/profile/skills/{skillId}', [EmployeeProfileController::class, 'updateSkill'])->name('employee.skills.update');
+    Route::delete('/employees/profile/skills/{skillId}', [EmployeeProfileController::class, 'deleteSkill'])->name('employee.skills.delete');
 
     //employee leaves managment
-    Route::get('/employee/leaves', [EmployeeLeaveController::class, 'index'])->name('employee.leaves.index');
-    Route::post('/employee/leaves', [EmployeeLeaveController::class, 'store'])->name('employee.leaves.create');
-    Route::get('/employee/leaves/{leave}', [EmployeeLeaveController::class, 'show'])->name('employee.leaves.show');
-    Route::put('/employee/leaves/{leave}', [EmployeeLeaveController::class, 'update'])->name('employee.leaves.update');
-    Route::delete('/employee/leaves/{leave}', [EmployeeLeaveController::class, 'destroy'])->name('employee.leaves.destroy');
+    Route::get('/employees/leaves', [EmployeeLeaveController::class, 'index'])->name('employee.leaves.index');
+    // Route::get('/employees/leaves', [EmployeeLeaveController::class, 'showRecent'])->name('employee.leaves.recent');
+    Route::post('/employees/leaves', [EmployeeLeaveController::class, 'store'])->name('employee.leaves.create');
+    Route::get('/employees/leaves/{leave}', [EmployeeLeaveController::class, 'show'])->name('employee.leaves.show');
+    Route::put('/employees/leaves/{leave}', [EmployeeLeaveController::class, 'update'])->name('employee.leaves.update');
+    Route::delete('/employees/leaves/{leave}', [EmployeeLeaveController::class, 'destroy'])->name('employee.leaves.destroy');
 
     Route::get('/employees/documents', function () {
         return view('employees.documents.index');
@@ -331,9 +332,9 @@ Route::middleware('auth')->group(function () {
 // Employee-specific routes
 Route::middleware('auth')->prefix('employee')->name('employee.')->group(function () {
     // Leave Management
-    Route::get('/leaves', function () {
-        return view('employees.leaves.index');
-    })->name('leaves.index');
+    // Route::get('/leaves', function () {
+    //     return view('employees.leaves.index');
+    // })->name('leaves.index');
 
     // Announcements
     Route::get('/announcements', function () {
