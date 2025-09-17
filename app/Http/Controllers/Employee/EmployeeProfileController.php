@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
-use App\Models\Employee;
-use App\Models\User;
+use App\Models\EmployeeSkill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,8 +13,9 @@ class EmployeeProfileController extends Controller
     {
 
         $user = Auth::user();
+        $skills = $user->employee->employeeSkills;
         if ($user) {
-            return view('employees.profile.index', ['employee' => $user->employee]);
+            return view('employees.profile.index', ['employee' => $user->employee, 'skills' => $skills]);
         }
         return response()->json(['error' => 'Employee data not found for this user.'], 404);
     }
@@ -31,7 +31,9 @@ class EmployeeProfileController extends Controller
 
         if ($user->employee) {
             $user->employee->update($validated);
-            return response()->json(['message' => 'Employee profile updated successfully.'], 200);
+            // return ['employee' => $user->employee];
+            return redirect()->route('employee.profile');
+            // return response()->json(['message' => 'Employee profile updated successfully.'], 200);
         }
 
         return response()->json(['error' => 'Employee record not found.'], 404);
@@ -43,59 +45,85 @@ class EmployeeProfileController extends Controller
         if (!$user->employee) {
             return response()->json(['error' => 'Employee record not found.'], 404);
         }
-        $skills = $user->employee->employeeSkills;
+        $skills = $user->employee->skills;
         return response()->json(['skills' => $skills], 200);
     }
 
     public function createSkills(Request $request)
-    {
-        $user = Auth::user();
-        $request->validate([
-            'skills' => 'required|array',
-            'skills.*.skill_name' => 'required|string|max:255',
-            'skills.*.proficiency_level' => 'nullable|string|max:50',
-            'skills.*.category' => 'nullable|string|max:50',
-        ]);
+{
+    $user = Auth::user();
 
-        if (!$user->employee) {
-            return response()->json(['error' => 'Employee record not found.'], 404);
-        }
-
-        $skills = $request->input('skills');
-        foreach ($skills as $skill) {
-            $user->employee->employeeSkills()->create($skill);
-        }
-
-        return response()->json(['message' => 'Skills added successfully.'], 201);
+    if (!$user->employee) {
+        return response()->json(['error' => 'Employee record not found.'], 404);
     }
+
+    $validated = $request->validate([
+        'skill_name' => 'required|string|max:255',
+        'proficiency_level' => 'nullable|string|max:50',
+        'category' => 'nullable|string|max:50',
+    ]);
+
+    $employeeId = $user->employee->employee_id;
+
+    $exists = EmployeeSkill::where('employee_id', $employeeId)
+                ->where('skill_name', $validated['skill_name'])
+                ->exists();
+
+    if ($exists) {
+        return response()->json(['error' => 'This skill already exists for the employee.'], 409);
+    }
+
+    $validated['employee_id'] = $employeeId;
+
+    EmployeeSkill::create($validated);
+
+    return response()->json(['message' => 'Skill added successfully.'], 201);
+}
 
     public function updateSkill(Request $request, string $skillId)
-    {
-        $user = Auth::user();
-        $request->validate([
-            'skill_name' => 'required|string|max:255',
-            'proficiency_level' => 'nullable|string|max:50',
-            'category' => 'nullable|string|max:50',
-        ]);
+{
+    $user = Auth::user();
 
-        if (!$user->employee) {
-            return response()->json(['error' => 'Employee record not found.'], 404);
-        }
-
-        $skill = $user->employee->employeeSkills()->findOrFail($skillId);
-        $skill->update($request->only(['skill_name', 'proficiency_level', 'category']));
-
-        return response()->json(['message' => 'Skill updated successfully.'], 200);
+    if (!$user->employee) {
+        return response()->json(['error' => 'Employee record not found.'], 404);
     }
+
+    $validated = $request->validate([
+        'skill_name' => 'required|string|max:255',
+        'proficiency_level' => 'nullable|string|max:50',
+        'category' => 'nullable|string|max:50',
+    ]);
+
+    $skill = $user->employee->skills()->findOrFail($skillId);
+    $exists = $user->employee->skills()
+        ->where('skill_name', $validated['skill_name'])
+        ->where('id', '!=', $skill->id) 
+        ->exists();
+
+    if ($exists) {
+        return response()->json(['error' => 'This skill already exists for the employee.'], 409);
+    }
+
+    $skill->update($validated);
+
+    return response()->json(['message' => 'Skill updated successfully.'], 200);
+}
+
 
     public function deleteSkill(string $skillId)
     {
         $user = Auth::user();
+
         if (!$user->employee) {
             return response()->json(['error' => 'Employee record not found.'], 404);
         }
 
-        $skill = $user->employee->employeeSkills()->findOrFail($skillId);
+        $skill = $user->employee->skills()->find($skillId);
+
+        if (!$skill) {
+            return response()->json(['error' => 'Skill not found for this employee.'], 404);
+        }
+
         $skill->delete();
 
         return response()->json(['message' => 'Skill deleted successfully.'], 200);

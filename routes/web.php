@@ -114,17 +114,18 @@ Route::middleware('auth')->group(function () {
     // Route::get('/employees/{employee}', [EmployeeController::class, 'show'])->name('employees.profile');
 
     //employee profile managment
-    Route::get('/employees/profile', [EmployeeProfileController::class, 'show'])->name('employees.profile');
-    Route::put('/employees/profile', [EmployeeProfileController::class, 'update'])->name('employees.profile.update');
+    Route::get('/employee/profile', [EmployeeProfileController::class, 'show'])->name('employee.profile');
+    Route::put('/employee/profile', [EmployeeProfileController::class, 'update'])->name('employee.profile.update');
 
     //employee profile skills managment
-    Route::get('/employees/profile/skills', [EmployeeProfileController::class, 'getSkills'])->name('employees.skills.index');
-    Route::post('/employees/profile/skills', [EmployeeProfileController::class, 'createSkills'])->name('employees.skills.create');
-    Route::put('/employees/profile/skills/{skillId}', [EmployeeProfileController::class, 'updateSkill'])->name('employees.skills.update');
-    Route::delete('/employees/profile/skills/{skillId}', [EmployeeProfileController::class, 'deleteSkill'])->name('employees.skills.delete');
+    Route::get('/employee/profile/skills', [EmployeeProfileController::class, 'getSkills'])->name('employee.skills.index');
+    Route::post('/employee/profile/skills', [EmployeeProfileController::class, 'createSkills'])->name('employee.skills.create');
+    Route::put('/employee/profile/skills/{skillId}', [EmployeeProfileController::class, 'updateSkill'])->name('employee.skills.update');
+    Route::delete('/employee/profile/skills/{skillId}', [EmployeeProfileController::class, 'deleteSkill'])->name('employee.skills.delete');
 
     //employee leaves managment
     Route::get('/employee/leaves', [EmployeeLeaveController::class, 'index'])->name('employee.leaves.index');
+    Route::post('/employee/leaves', [EmployeeLeaveController::class, 'store'])->name('employee.leaves.create');
     Route::get('/employee/leaves/{leave}', [EmployeeLeaveController::class, 'show'])->name('employee.leaves.show');
     Route::put('/employee/leaves/{leave}', [EmployeeLeaveController::class, 'update'])->name('employee.leaves.update');
     Route::delete('/employee/leaves/{leave}', [EmployeeLeaveController::class, 'destroy'])->name('employee.leaves.destroy');

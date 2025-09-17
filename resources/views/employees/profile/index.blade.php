@@ -36,36 +36,38 @@
                     </h3>
                 </div>
                 <div class="profile-card-body">
-                    <form id="profileForm">
+                    <form id="profileForm" method="POST" action="{{ route('employee.profile.update') }}">
+                        @csrf
+                        @method('PUT')
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="employee_name">Full Name</label>
-                                <input type="text" id="employee_name" name="employee_name" value="John Doe"
-                                    class="form-control" readonly>
+                                <input type="text" id="employee_name" name="employee_name"
+                                    value="{{ $employee->employee_name }}" class="form-control" readonly>
                             </div>
 
                             <div class="form-group">
                                 <label for="email">Email Address</label>
-                                <input type="email" id="email" name="email" value="john.doe@redcodesolutions.com"
+                                <input type="email" id="email" name="email" value="{{ $employee->email }}"
                                     class="form-control" readonly>
                             </div>
 
                             <div class="form-group">
                                 <label for="contact_no">Contact Number</label>
-                                <input type="text" id="contact_no" name="contact_no" value="+1 (555) 123-4567"
+                                <input type="text" id="contact_no" name="contact_no" value="{{ $employee->contact_no }}"
                                     class="form-control" readonly>
                             </div>
 
                             <div class="form-group">
                                 <label for="employee_id">Employee ID</label>
-                                <input type="text" id="employee_id" value="EMP001" class="form-control" readonly
-                                    disabled>
+                                <input type="text" id="employee_id" value="{{ $employee->employee_id }}"
+                                    class="form-control" readonly disabled>
                             </div>
 
                             <div class="form-group">
                                 <label for="employee_type">Employee Type</label>
-                                <input type="text" id="employee_type" value="Full Time" class="form-control" readonly
-                                    disabled>
+                                <input type="text" id="employee_type" value="{{ $employee->employee_type }}"
+                                    class="form-control" readonly disabled>
                             </div>
 
                             <div class="form-group">
@@ -77,14 +79,14 @@
 
                             <div class="form-group">
                                 <label for="joining_date">Joining Date</label>
-                                <input type="text" id="joining_date" value="January 15, 2024" class="form-control"
-                                    readonly disabled>
+                                <input type="text" id="joining_date" value="{{ $employee->created_at->format('Y-m-d') }}"
+                                    class="form-control" readonly disabled>
                             </div>
 
                             <div class="form-group">
                                 <label for="date_of_birth">Date of Birth</label>
-                                <input type="date" id="date_of_birth" name="date_of_birth" value="1990-05-15"
-                                    class="form-control" readonly>
+                                <input type="date" id="date_of_birth" name="date_of_birth"
+                                    value="{{ $employee->created_at }}" class="form-control" readonly>
                             </div>
                         </div>
 
@@ -115,7 +117,7 @@
                         <div class="info-item">
                             <label>Department</label>
                             <div class="info-value">
-                                <span class="department-badge">Engineering</span>
+                                <span class="department-badge">{{ $employee->department->department_name }}</span>
                             </div>
                         </div>
 
@@ -144,7 +146,7 @@
                             <label>Office Location</label>
                             <div class="info-value">
                                 <i class="fas fa-map-marker-alt"></i>
-                                New York Office, Floor 12
+                                {{ $employee->department->location }}
                             </div>
                         </div>
 
@@ -170,6 +172,7 @@
             </div>
 
             <!-- Skills & Expertise Card -->
+
             <div class="profile-card">
                 <div class="profile-card-header">
                     <h3>
@@ -183,87 +186,40 @@
                 </div>
                 <div class="profile-card-body">
                     <div class="skills-section" id="skillsSection">
-                        <div class="skill-category">
-                            <h4>Programming Languages</h4>
-                            <div class="skill-tags" data-category="programming">
-                                <span class="skill-tag expert" data-skill="JavaScript">
-                                    JavaScript
-                                    <button class="skill-remove-btn" onclick="removeSkill(this)" style="display: none;">
-                                        <i class="fas fa-times"></i>
+
+                        {{-- Group skills by category --}}
+                        @php
+                            $skillsByCategory = $employee->skills->groupBy('category');
+                        @endphp
+
+                        @foreach ($skillsByCategory as $category => $skills)
+                            <div class="skill-category">
+                                <h4>{{ $category ?? 'Other Skills' }}</h4>
+                                <div class="skill-tags" data-category="{{ Str::slug($category ?? 'other') }}">
+
+                                    @foreach ($skills as $skill)
+                                        <span class="skill-tag {{ strtolower($skill->proficiency_level) }}"
+                                            data-skill="{{ $skill->skill_name }}">
+                                            {{ $skill->skill_name }}
+                                            <button class="skill-remove-btn"
+                                                onclick="removeSkill(this, '{{ $skill->id }}')"
+                                                style="display: none;">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </span>
+                                    @endforeach
+
+                                    <button class="add-skill-btn" onclick="openAddSkillModal('{{ $category }}')"
+                                        style="display: none;">
+                                        <i class="fas fa-plus"></i>
+                                        Add Skill
                                     </button>
-                                </span>
-                                <span class="skill-tag expert" data-skill="Python">
-                                    Python
-                                    <button class="skill-remove-btn" onclick="removeSkill(this)" style="display: none;">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </span>
-                                <span class="skill-tag intermediate" data-skill="Java">
-                                    Java
-                                    <button class="skill-remove-btn" onclick="removeSkill(this)" style="display: none;">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </span>
-                                <span class="skill-tag intermediate" data-skill="PHP">
-                                    PHP
-                                    <button class="skill-remove-btn" onclick="removeSkill(this)" style="display: none;">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </span>
-                                <span class="skill-tag beginner" data-skill="Go">
-                                    Go
-                                    <button class="skill-remove-btn" onclick="removeSkill(this)" style="display: none;">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </span>
-                                <button class="add-skill-btn" onclick="openAddSkillModal('programming')"
-                                    style="display: none;">
-                                    <i class="fas fa-plus"></i>
-                                    Add Skill
-                                </button>
+                                </div>
                             </div>
-                        </div>
-                        <div class="skill-category">
-                            <h4>Frameworks & Technologies</h4>
-                            <div class="skill-tags" data-category="frameworks">
-                                <span class="skill-tag expert" data-skill="React">
-                                    React
-                                    <button class="skill-remove-btn" onclick="removeSkill(this)" style="display: none;">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </span>
-                                <span class="skill-tag expert" data-skill="Node.js">
-                                    Node.js
-                                    <button class="skill-remove-btn" onclick="removeSkill(this)" style="display: none;">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </span>
-                                <span class="skill-tag intermediate" data-skill="Laravel">
-                                    Laravel
-                                    <button class="skill-remove-btn" onclick="removeSkill(this)" style="display: none;">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </span>
-                                <span class="skill-tag intermediate" data-skill="Docker">
-                                    Docker
-                                    <button class="skill-remove-btn" onclick="removeSkill(this)" style="display: none;">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </span>
-                                <span class="skill-tag beginner" data-skill="Kubernetes">
-                                    Kubernetes
-                                    <button class="skill-remove-btn" onclick="removeSkill(this)" style="display: none;">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </span>
-                                <button class="add-skill-btn" onclick="openAddSkillModal('frameworks')"
-                                    style="display: none;">
-                                    <i class="fas fa-plus"></i>
-                                    Add Skill
-                                </button>
-                            </div>
-                        </div>
+                        @endforeach
+
                     </div>
+
                     <div class="skills-edit-actions" id="skillsEditActions" style="display: none;">
                         <button class="btn btn-secondary" onclick="cancelSkillsEdit()">
                             <i class="fas fa-times"></i>
@@ -333,7 +289,8 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="addSkillForm">
+                <form id="addSkillForm" method="POST" action="{{ route('employee.skills.create') }}">
+                    @csrf
                     <div class="form-group">
                         <label for="skillName">Skill Name <span class="required">*</span></label>
                         <input type="text" id="skillName" name="skill_name" class="form-control"
@@ -1376,6 +1333,7 @@
             skillContainer.insertBefore(newSkillTag, addButton);
 
             closeAddSkillModal();
+            form.submit();
             showMessage('Skill added successfully!', 'success');
         }
 
@@ -1534,14 +1492,15 @@
             form.reset();
 
             // Restore original values
-            document.getElementById('employee_name').value = 'John Doe';
-            document.getElementById('email').value = 'john.doe@redcodesolutions.com';
-            document.getElementById('contact_no').value = '+1 (555) 123-4567';
-            document.getElementById('date_of_birth').value = '1990-05-15';
+            document.getElementById('employee_name').value = '{{ $employee->employee_name }}';
+            document.getElementById('email').value = '{{ $employee->email }}';
+            document.getElementById('contact_no').value = '{{ $employee->contact_no }}';
+            document.getElementById('date_of_birth').value = '{{ $employee->date_of_birth }}';
         }
 
         function saveProfile() {
             // Show success message
+            const form = document.getElementById('profileForm');
             const successMessage = document.createElement('div');
             successMessage.className = 'success-message';
             successMessage.innerHTML = `
@@ -1565,14 +1524,14 @@
         `;
 
             document.body.appendChild(successMessage);
-
             // Auto remove after 3 seconds
+
             setTimeout(() => {
+                form.submit();
                 successMessage.remove();
             }, 3000);
 
             // Exit edit mode
-            cancelEdit();
         }
 
         // Add keyframe animation for success message

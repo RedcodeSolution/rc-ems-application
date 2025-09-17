@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,7 +9,8 @@
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,7 +21,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Fallback for when Vite is not running -->
-    @if(!app()->environment('local'))
+    @if (!app()->environment('local'))
         <link rel="stylesheet" href="{{ asset('build/assets/app-CObZ5BOq.css') }}">
         <script type="module" src="{{ asset('build/assets/app-l0sNRNKZ.js') }}"></script>
     @endif
@@ -31,34 +33,54 @@
         :root {
             /* RedCode Solutions Color Palette - Matching Admin Dashboard */
             /* Primary Red Colors - Core Brand */
-            --redcode-primary: #DC2626; /* RedCode Brand Red */
-            --redcode-primary-dark: #991B1B; /* Deep Red */
-            --redcode-primary-light: #FEE2E2; /* Light Red Background */
-            --redcode-accent: #B91C1C; /* Accent Red */
+            --redcode-primary: #DC2626;
+            /* RedCode Brand Red */
+            --redcode-primary-dark: #991B1B;
+            /* Deep Red */
+            --redcode-primary-light: #FEE2E2;
+            /* Light Red Background */
+            --redcode-accent: #B91C1C;
+            /* Accent Red */
 
             /* Secondary Colors - Professional Palette */
-            --redcode-dark: #1F2937; /* Charcoal for headers/nav */
-            --redcode-gray: #6B7280; /* Medium Gray for text */
-            --redcode-light: #F9FAFB; /* Light Background */
-            --redcode-white: #FFFFFF; /* Pure White */
+            --redcode-dark: #1F2937;
+            /* Charcoal for headers/nav */
+            --redcode-gray: #6B7280;
+            /* Medium Gray for text */
+            --redcode-light: #F9FAFB;
+            /* Light Background */
+            --redcode-white: #FFFFFF;
+            /* Pure White */
 
             /* Status Colors */
-            --redcode-blue: #2563EB; /* Links, buttons */
-            --redcode-green: #059669; /* Success states */
-            --redcode-orange: #D97706; /* Warnings */
-            --redcode-yellow: #F59E0B; /* Alerts */
+            --redcode-blue: #2563EB;
+            /* Links, buttons */
+            --redcode-green: #059669;
+            /* Success states */
+            --redcode-orange: #D97706;
+            /* Warnings */
+            --redcode-yellow: #F59E0B;
+            /* Alerts */
 
             /* Text Colors */
-            --text-primary: #111827; /* Almost Black */
-            --text-secondary: #6B7280; /* Medium Gray */
-            --text-light: #9CA3AF; /* Light Gray */
-            --text-white: #FFFFFF; /* White Text */
-            --text-disabled: #9CA3AF; /* Light Gray */
+            --text-primary: #111827;
+            /* Almost Black */
+            --text-secondary: #6B7280;
+            /* Medium Gray */
+            --text-light: #9CA3AF;
+            /* Light Gray */
+            --text-white: #FFFFFF;
+            /* White Text */
+            --text-disabled: #9CA3AF;
+            /* Light Gray */
 
             /* Background Colors */
-            --bg-primary: #FFFFFF; /* White Background */
-            --bg-secondary: #F9FAFB; /* Light Gray Background */
-            --bg-dark: #1F2937; /* Dark Background */
+            --bg-primary: #FFFFFF;
+            /* White Background */
+            --bg-secondary: #F9FAFB;
+            /* Light Gray Background */
+            --bg-dark: #1F2937;
+            /* Dark Background */
 
             /* Border Colors */
             --border-light: #E5E7EB;
@@ -82,7 +104,7 @@
             --gradient-secondary: linear-gradient(135deg, #1F2937 0%, #374151 100%);
             --gradient-accent: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
             --gradient-hero: linear-gradient(135deg, #DC2626 0%, #1F2937 50%, #991B1B 100%);
-            --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
 
             /* Legacy compatibility aliases */
             --primary: var(--redcode-primary);
@@ -133,11 +155,25 @@
         }
 
         @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            25% { background-position: 100% 50%; }
-            50% { background-position: 100% 100%; }
-            75% { background-position: 0% 100%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            25% {
+                background-position: 100% 50%;
+            }
+
+            50% {
+                background-position: 100% 100%;
+            }
+
+            75% {
+                background-position: 0% 100%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         .sidebar::-webkit-scrollbar {
@@ -312,7 +348,7 @@
         .nav-bell:hover .nav-bell-icon {
             background: var(--gradient-primary);
             color: #fff;
-            box-shadow: 0 2px 8px 0 rgba(59,130,246,0.10);
+            box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.10);
         }
 
         .nav-bell-icon {
@@ -343,8 +379,17 @@
         }
 
         @keyframes bell-pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.3); opacity: 0.7; }
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
         }
 
         .user-menu {
@@ -467,6 +512,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
@@ -478,7 +524,8 @@
         <div class="sidebar-menu">
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Dashboard</div>
-                <a href="{{ route('employee.dashboard') }}" class="sidebar-menu-item {{ request()->routeIs('employee.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('employee.dashboard') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('employee.dashboard') ? 'active' : '' }}">
                     <i class="fas fa-chart-pie"></i>
                     <span>Overview</span>
                 </a>
@@ -486,11 +533,12 @@
 
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Personal</div>
-                <a href="{{ url('/employees/profile') }}" class="sidebar-menu-item">
+                <a href="{{ url('/employee/profile') }}" class="sidebar-menu-item">
                     <i class="fas fa-user"></i>
                     <span>My Profile</span>
                 </a>
-                <a href="{{ route('employee.documents') }}" class="sidebar-menu-item {{ request()->routeIs('employee.documents') ? 'active' : '' }}">
+                <a href="{{ route('employee.documents') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('employee.documents') ? 'active' : '' }}">
                     <i class="fas fa-file-alt"></i>
                     <span>My Documents</span>
                 </a>
@@ -498,11 +546,13 @@
 
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Work</div>
-                <a href="{{ route('employee.projects') }}" class="sidebar-menu-item {{ request()->routeIs('employee.projects') ? 'active' : '' }}">
+                <a href="{{ route('employee.projects') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('employee.projects') ? 'active' : '' }}">
                     <i class="fas fa-project-diagram"></i>
                     <span>My Projects</span>
                 </a>
-                <a href="{{ route('employee.tasks') }}" class="sidebar-menu-item {{ request()->routeIs('employee.tasks') ? 'active' : '' }}">
+                <a href="{{ route('employee.tasks') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('employee.tasks') ? 'active' : '' }}">
                     <i class="fas fa-tasks"></i>
                     <span>My Tasks</span>
                 </a>
@@ -510,11 +560,13 @@
 
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Attendance</div>
-                <a href="{{ route('employee.attendance') }}" class="sidebar-menu-item {{ request()->routeIs('employee.attendance') ? 'active' : '' }}">
+                <a href="{{ route('employee.attendance') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('employee.attendance') ? 'active' : '' }}">
                     <i class="fas fa-calendar-check"></i>
                     <span>Attendance</span>
                 </a>
-                <a href="{{ route('employee.leaves.index') }}" class="sidebar-menu-item {{ request()->routeIs('employee.leaves.*') ? 'active' : '' }}">
+                <a href="{{ route('employee.leaves.index') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('employee.leaves.*') ? 'active' : '' }}">
                     <i class="fas fa-calendar-times"></i>
                     <span>Leave Management</span>
                 </a>
@@ -522,7 +574,8 @@
 
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Communication</div>
-                <a href="{{ route('employee.announcements') }}" class="sidebar-menu-item {{ request()->routeIs('employee.announcements') ? 'active' : '' }}">
+                <a href="{{ route('employee.announcements') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('employee.announcements') ? 'active' : '' }}">
                     <i class="fas fa-bullhorn"></i>
                     <span>Announcements</span>
                 </a>
@@ -530,7 +583,8 @@
 
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Performance</div>
-                <a href="{{ route('employee.ratings.index') }}" class="sidebar-menu-item {{ request()->routeIs('employee.ratings.*') ? 'active' : '' }}">
+                <a href="{{ route('employee.ratings.index') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('employee.ratings.*') ? 'active' : '' }}">
                     <i class="fas fa-star"></i>
                     <span>All Employee Ratings</span>
                 </a>
@@ -601,4 +655,5 @@
         });
     </script>
 </body>
+
 </html>

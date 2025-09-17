@@ -72,8 +72,8 @@ class Employee extends Model
         return $this->hasMany(EmployeeRating::class, 'employee_id', 'employee_id');
     }
 
-    public function employeeSkills()
+    public function skills()
     {
-        return $this->hasMany(EmployeeSkill::class, 'employee_id', 'employee_id');
+        return $this->hasMany(\App\Models\EmployeeSkill::class, 'employee_id', 'employee_id');
     }
 }

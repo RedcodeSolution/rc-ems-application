@@ -12,12 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('employee_skill', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('employee_id')->constrained('employees', 'employee_id')->onDelete('cascade');
+            $table->id(); // Auto-incrementing primary key
+            // Use foreignIdFor for cleaner syntax with foreign keys
+            $table->foreignIdFor(\App\Models\Employee::class)->constrained('employee_id')->onDelete('cascade');
             $table->string('skill_name');
+            $table->string('proficiency_level')->nullable(); // New field for proficiency
+            $table->string('category')->nullable(); // New field for category
             $table->timestamps();
         });
     }
+
 
     /**
      * Reverse the migrations.

@@ -27,11 +27,18 @@ class EmployeeLeaveController extends Controller
     {
         $user = Auth::user();
 
+        // $validated = $request->validate([
+        //     'leave_type' => 'required|string|max:255',
+        //     'start_date' => 'required|date|after_or_equal:today',
+        //     'end_date' => 'required|date|after_or_equal:start_date',
+        //     'reason' => 'required|string',
+        //     'supporting_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        // ]);
         $validated = $request->validate([
-            'employee_id' => 'required|exists:employees,employee_id',
             'leave_type' => 'required|string|max:255',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'duration' => 'required|integer|min:1',
             'reason' => 'required|string',
             'contact_number' => 'nullable|string|max:20',
             'supporting_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -39,9 +46,10 @@ class EmployeeLeaveController extends Controller
 
         $validated['employee_id'] = $user->employee->employee_id;
 
-        $leave = Leave::create($validated);
+        Leave::create($validated);
 
         return response()->json(['message' => 'Leave request submitted successfully.', 'leave' => $leave], 201);
+        // return redirect()->route('employee.leaves.index');
     }
 
     /**
