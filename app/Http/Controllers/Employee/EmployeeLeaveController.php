@@ -26,14 +26,6 @@ class EmployeeLeaveController extends Controller
     public function store(Request $request, Leave $leave)
     {
         $user = Auth::user();
-
-        // $validated = $request->validate([
-        //     'leave_type' => 'required|string|max:255',
-        //     'start_date' => 'required|date|after_or_equal:today',
-        //     'end_date' => 'required|date|after_or_equal:start_date',
-        //     'reason' => 'required|string',
-        //     'supporting_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        // ]);
         $validated = $request->validate([
             'leave_type' => 'required|string|max:255',
             'start_date' => 'required|date|after_or_equal:today',
