@@ -940,7 +940,6 @@ function closeModal() {
     document.getElementById('eventDetailsModal').style.display = 'none';
 }
 
-// Calendar functionality
 let currentDate = new Date();
 
 function initializeCalendar() {
@@ -989,8 +988,6 @@ function renderCalendar() {
 }
 
 function getEventsForDate(date) {
-    // This would normally fetch events from the server
-    // For now, we'll show sample events
     const events = @json($events);
     const dateString = date.toISOString().split('T')[0];
 
