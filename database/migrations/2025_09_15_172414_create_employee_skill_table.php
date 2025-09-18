@@ -16,8 +16,8 @@ return new class extends Migration
             // Use foreignIdFor for cleaner syntax with foreign keys
             $table->foreignIdFor(\App\Models\Employee::class)->constrained('employee_id')->onDelete('cascade');
             $table->string('skill_name');
-            $table->string('proficiency_level')->nullable(); // New field for proficiency
-            $table->string('category')->nullable(); // New field for category
+            $table->string('skill_level')->nullable(); // New field for proficiency
+            $table->string('skill_category')->nullable(); // New field for category
             $table->timestamps();
         });
     }

@@ -8,7 +8,7 @@ class EmployeeSkill extends Model
 {
     protected $table = 'employee_skill';
 
-    protected $fillable = ['employee_id', 'skill_name', 'proficiency_level', 'category'];
+    protected $fillable = ['employee_id', 'skill_name', 'skill_level', 'skill_category'];
 
     public function employee()
     {

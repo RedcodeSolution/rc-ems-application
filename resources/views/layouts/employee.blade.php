@@ -533,7 +533,7 @@
 
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Personal</div>
-                <a href="{{ url('/employee/profile') }}" class="sidebar-menu-item">
+                <a href="{{ url('/employees/profile') }}" class="sidebar-menu-item">
                     <i class="fas fa-user"></i>
                     <span>My Profile</span>
                 </a>
@@ -565,7 +565,7 @@
                     <i class="fas fa-calendar-check"></i>
                     <span>Attendance</span>
                 </a>
-                <a href="{{ route('employee.leaves.index') }}"
+                <a href="{{ url('/employees/leaves') }}"
                     class="sidebar-menu-item {{ request()->routeIs('employee.leaves.*') ? 'active' : '' }}">
                     <i class="fas fa-calendar-times"></i>
                     <span>Leave Management</span>

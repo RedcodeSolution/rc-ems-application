@@ -189,16 +189,16 @@
 
                         {{-- Group skills by category --}}
                         @php
-                            $skillsByCategory = $employee->skills->groupBy('category');
+                            $skillsByCategory = $employee->skills->groupBy('skill_category');
                         @endphp
 
-                        @foreach ($skillsByCategory as $category => $skills)
+                        @foreach ($skillsByCategory as $skill_category => $skills)
                             <div class="skill-category">
-                                <h4>{{ $category ?? 'Other Skills' }}</h4>
-                                <div class="skill-tags" data-category="{{ Str::slug($category ?? 'other') }}">
+                                <h4>{{ $skill_category ?? 'Other Skills' }}</h4>
+                                <div class="skill-tags" data-category="{{ $skill_category ?? 'other' }}">
 
                                     @foreach ($skills as $skill)
-                                        <span class="skill-tag {{ strtolower($skill->proficiency_level) }}"
+                                        <span class="skill-tag {{ strtolower($skill->skill_level) }}"
                                             data-skill="{{ $skill->skill_name }}">
                                             {{ $skill->skill_name }}
                                             <button class="skill-remove-btn"
@@ -209,7 +209,7 @@
                                         </span>
                                     @endforeach
 
-                                    <button class="add-skill-btn" onclick="openAddSkillModal('{{ $category }}')"
+                                    <button class="add-skill-btn" onclick="openAddSkillModal('{{ $skill_category }}')"
                                         style="display: none;">
                                         <i class="fas fa-plus"></i>
                                         Add Skill
@@ -309,8 +309,8 @@
                         <label for="skillCategory">Category <span class="required">*</span></label>
                         <select id="skillCategory" name="skill_category" class="form-control" required>
                             <option value="">Select Category</option>
-                            <option value="programming">Programming Languages</option>
-                            <option value="frameworks">Frameworks & Technologies</option>
+                            <option value="Programming Languages">Programming Languages</option>
+                            <option value="Frameworks & Technologies">Frameworks & Technologies</option>
                         </select>
                     </div>
                 </form>
@@ -1202,6 +1202,7 @@
         // Skills editing functionality
         let isSkillsEditMode = false;
         let currentEditingSkill = null;
+        let deletedSkills = [];
 
         function toggleSkillsEditMode() {
             const editBtn = document.getElementById('skillsEditBtn');
@@ -1312,6 +1313,13 @@
 
             // Create new skill tag
             const skillContainer = document.querySelector(`[data-category="${skillCategory}"]`);
+            if (!skillContainer) {
+                console.error(`Skill container not found for category: ${skillCategory}`);
+                showMessage(
+                    `Could not find the section for category "${skillCategory}". Please ensure it exists in the HTML.`,
+                    'error');
+                return; // Stop execution if the container is not found
+            }
             const addButton = skillContainer.querySelector('.add-skill-btn');
 
             const newSkillTag = document.createElement('span');
@@ -1323,7 +1331,6 @@
                 <i class="fas fa-times"></i>
             </button>
         `;
-
             // Add click handler if in edit mode
             if (isSkillsEditMode) {
                 newSkillTag.style.cursor = 'pointer';
@@ -1333,7 +1340,7 @@
             skillContainer.insertBefore(newSkillTag, addButton);
 
             closeAddSkillModal();
-            form.submit();
+
             showMessage('Skill added successfully!', 'success');
         }
 
@@ -1383,6 +1390,7 @@
 
         function saveSkills() {
             // In a real app, you'd send the data to the server
+
             const skills = [];
             document.querySelectorAll('.skill-tag').forEach(tag => {
                 const skillName = tag.dataset.skill;

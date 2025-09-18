@@ -50,35 +50,35 @@ class EmployeeProfileController extends Controller
     }
 
     public function createSkills(Request $request)
-{
-    $user = Auth::user();
+        {
+            $user = Auth::user();
 
-    if (!$user->employee) {
-        return response()->json(['error' => 'Employee record not found.'], 404);
-    }
+            if (!$user->employee) {
+                return response()->json(['error' => 'Employee record not found.'], 404);
+            }
 
-    $validated = $request->validate([
-        'skill_name' => 'required|string|max:255',
-        'proficiency_level' => 'nullable|string|max:50',
-        'category' => 'nullable|string|max:50',
-    ]);
+            $validated = $request->validate([
+                'skill_name' => 'required|string|max:255',
+                'skill_level' => 'nullable|string|max:50',
+                'skill_category' => 'nullable|string|max:50',
+            ]);
 
-    $employeeId = $user->employee->employee_id;
+            $employeeId = $user->employee->employee_id;
 
-    $exists = EmployeeSkill::where('employee_id', $employeeId)
-                ->where('skill_name', $validated['skill_name'])
-                ->exists();
+            $exists = EmployeeSkill::where('employee_id', $employeeId)
+                        ->where('skill_name', $validated['skill_name'])
+                        ->exists();
 
-    if ($exists) {
-        return response()->json(['error' => 'This skill already exists for the employee.'], 409);
-    }
+            if ($exists) {
+                return response()->json(['error' => 'This skill already exists for the employee.'], 409);
+            }
 
-    $validated['employee_id'] = $employeeId;
+            $validated['employee_id'] = $employeeId;
 
-    EmployeeSkill::create($validated);
+            EmployeeSkill::create($validated);
 
-    return response()->json(['message' => 'Skill added successfully.'], 201);
-}
+            return redirect()->route('employee.profile');
+        }
 
     public function updateSkill(Request $request, string $skillId)
 {
