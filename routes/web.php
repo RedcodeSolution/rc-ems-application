@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminsLeaveController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ProjectController;
@@ -232,9 +233,18 @@ Route::middleware('auth')->group(function () {
         })->name('projects');
 
         // Leave Management
-        Route::get('/leaves', function () {
-            return view('admin.leaves.index');
-        })->name('leaves');
+        // Route::get('/leaves', function () {
+        //     return view('admin.leaves.index');
+        // })->name('leaves');
+
+        Route::put('/leaves/{leave}', [AdminsLeaveController::class, 'update'])->name('leaves.update');
+        Route::get('/leaves', [AdminsLeaveController::class, 'index'])->name('leaves.index');
+        Route::post('/leaves', [AdminsLeaveController::class, 'store'])->name('leaves.create');
+        Route::get('/leaves/{leave}', [AdminsLeaveController::class, 'show'])->name('leaves.show');
+        Route::delete('/leaves/{leave}', [AdminsLeaveController::class, 'destroy'])->name('leaves.destroy');
+
+        Route::put('/leaves/{leave}/status', [AdminsLeaveController::class, 'updateLeaveStatus'])->name('leaves.updateLeaveStatus');
+
 
         // Reports & Analytics with enhanced data
         Route::get('/reports', function () {
