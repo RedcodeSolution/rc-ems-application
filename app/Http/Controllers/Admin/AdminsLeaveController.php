@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
+use App\Models\Department;
+use App\Models\Employee;
 use App\Models\Leave;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AdminsLeaveController extends Controller
 {
@@ -20,19 +24,8 @@ class AdminsLeaveController extends Controller
         $allLeaves = $user->employee->leaves;
         $recentLeaves = $user->employee->leaves()->latest()->take(3)->get();
 
-        // Stats calculation for admin
-        $annualUsed   = $allLeaves->where('leave_type', 'annual')->where('status', 'approved')->sum('duration');
-        $sickUsed     = $allLeaves->where('leave_type', 'sick')->where('status', 'approved')->sum('duration');
-        $personalUsed = $allLeaves->where('leave_type', 'personal')->where('status', 'approved')->sum('duration');
-        $pendingCount = $allLeaves->where('status', 'pending')->count();
-
-        // Totals (could come from config/DB)
-        $annualTotal   = 21;
-        $sickTotal     = 10;
-        $personalTotal = 5;
-
-        // Get all employee leaves (excluding admins/superadmins)
-        $employeeLeaves = Leave::with('employee')
+        // Get all employee leaves with proper relationships
+        $employeeLeaves = Leave::with(['employee', 'employee.department'])
             ->whereHas('employee', function ($query) {
                 $query->whereNotIn('role', ['admin', 'superadmin']);
             })
@@ -40,10 +33,32 @@ class AdminsLeaveController extends Controller
 
         // Current month/year and today
         $currentMonth = now()->month;
-        $currentYear  = now()->year;
-        $today        = now()->toDateString();
+        $currentYear = now()->year;
+        $today = now()->toDateString();
 
-        // Count of all employee requests this month
+        // Stats calculation for admin - use DURATION not COUNT
+        $annualUsed = Leave::whereHas('employee', function ($q) {
+            $q->whereNotIn('role', ['admin', 'superadmin']);
+        })
+            ->where('leave_type', 'annual')
+            ->where('status', 'approved')
+            ->sum('duration'); // Use duration, not count
+
+        $sickUsed = Leave::whereHas('employee', function ($q) {
+            $q->whereNotIn('role', ['admin', 'superadmin']);
+        })
+            ->where('leave_type', 'sick')
+            ->where('status', 'approved')
+            ->sum('duration');
+
+        $personalUsed = Leave::whereHas('employee', function ($q) {
+            $q->whereNotIn('role', ['admin', 'superadmin']);
+        })
+            ->where('leave_type', 'personal')
+            ->where('status', 'approved')
+            ->sum('duration');
+
+        // Count statistics for current month
         $employeeMonthlyCount = Leave::whereHas('employee', function ($query) {
             $query->whereNotIn('role', ['admin', 'superadmin']);
         })
@@ -51,7 +66,6 @@ class AdminsLeaveController extends Controller
             ->whereYear('created_at', $currentYear)
             ->count();
 
-        // Count of pending employee requests this month
         $employeePendingMonthlyCount = Leave::whereHas('employee', function ($query) {
             $query->whereNotIn('role', ['admin', 'superadmin']);
         })
@@ -60,7 +74,6 @@ class AdminsLeaveController extends Controller
             ->where('status', 'pending')
             ->count();
 
-        // Count of rejected employee requests this month
         $employeeRejectedMonthlyCount = Leave::whereHas('employee', function ($query) {
             $query->whereNotIn('role', ['admin', 'superadmin']);
         })
@@ -69,56 +82,175 @@ class AdminsLeaveController extends Controller
             ->where('status', 'rejected')
             ->count();
 
-        // Count of approved employee requests today
-        $employeeApprovedTodayCount = Leave::whereHas('employee', function ($query) {
-            $query->whereNotIn('role', ['admin', 'superadmin']);
-        })
-            ->whereDate('created_at', $today)
-            ->where('status', 'approved')
-            ->count();
+        $employeeApprovedMonthlyCount = $employeeMonthlyCount - $employeePendingMonthlyCount - $employeeRejectedMonthlyCount;
 
-        // Get leaves by status
-        $pendingLeaves = Leave::with('employee')
+        // Get leaves by status with proper relationships
+        $pendingLeaves = Leave::with(['employee', 'employee.department'])
             ->whereHas('employee', function ($query) {
                 $query->whereNotIn('role', ['admin', 'superadmin']);
             })
             ->where('status', 'pending')
             ->get();
 
-        $approvedLeaves = Leave::with('employee')
+        $approvedLeaves = Leave::with(['employee', 'employee.department'])
             ->whereHas('employee', function ($query) {
                 $query->whereNotIn('role', ['admin', 'superadmin']);
             })
             ->where('status', 'approved')
             ->get();
 
-        $rejectedLeaves = Leave::with('employee')
+        $rejectedLeaves = Leave::with(['employee', 'employee.department'])
             ->whereHas('employee', function ($query) {
                 $query->whereNotIn('role', ['admin', 'superadmin']);
             })
             ->where('status', 'rejected')
             ->get();
 
+        // Calculate department stats properly
+        $departmentStats = Department::with(['employees.leaves' => function ($query) {
+            $query->where('status', 'approved');
+        }])
+            ->get()
+            ->map(function ($dept) {
+                $totalUsed = $dept->employees->flatMap->leaves->sum('duration');
+                $total = 60; // or fetch from config/database
+                $percentage = $total > 0 ? round(($totalUsed / $total) * 100, 2) : 0;
+
+                return [
+                    'name' => $dept->department_name,
+                    'used' => $totalUsed,
+                    'total' => $total,
+                    'percentage' => $percentage,
+                ];
+            });
+
+        // Totals (should come from config or database)
+        $annualTotal = 21;
+        $sickTotal = 10;
+        $personalTotal = 5;
+
+        $pendingCount = $allLeaves->where('status', 'pending')->count();
+
+        // Calculate percentages
+        $annualPercent = $annualTotal > 0 ? round(($annualUsed / $annualTotal) * 100) : 0;
+        $sickPercent = $sickTotal > 0 ? round(($sickUsed / $sickTotal) * 100) : 0;
+        $personalPercent = $personalTotal > 0 ? round(($personalUsed / $personalTotal) * 100) : 0;
+
+        // Trend analysis
+        $yesterday = now()->subDay()->toDateString();
+        $employeeApprovedYesterdayCount = Leave::whereHas('employee', function ($query) {
+            $query->whereNotIn('role', ['admin', 'superadmin']);
+        })
+            ->whereDate('approved_date', $yesterday)
+            ->where('status', 'approved')
+            ->count();
+
+        $employeeApprovedTodayCount = Leave::whereHas('employee', function ($query) {
+            $query->whereNotIn('role', ['admin', 'superadmin']);
+        })
+            ->whereDate('approved_date', $today)
+            ->where('status', 'approved')
+            ->count();
+
+        $approvedTrendDiff = $employeeApprovedTodayCount - $employeeApprovedYesterdayCount;
+
+        // Last month comparison
+        $lastMonth = now()->subMonth()->month;
+        $lastMonthYear = now()->subMonth()->year;
+        $employeeLastMonthCount = Leave::whereHas('employee', function ($query) {
+            $query->whereNotIn('role', ['admin', 'superadmin']);
+        })
+            ->whereMonth('created_at', $lastMonth)
+            ->whereYear('created_at', $lastMonthYear)
+            ->count();
+
+        $monthlyTrendPercent = $employeeLastMonthCount > 0
+            ? round((($employeeMonthlyCount - $employeeLastMonthCount) / $employeeLastMonthCount) * 100)
+            : 0;
+
+        // Rejection status
+        $rejectedStatus = 'Normal range';
+        if ($employeeRejectedMonthlyCount > 10) {
+            $rejectedStatus = 'High';
+        } elseif ($employeeRejectedMonthlyCount < 3) {
+            $rejectedStatus = 'Low';
+        }
+
+        // Quick stats
+        $avgProcessingTime = Leave::whereHas('employee', function ($q) {
+            $q->whereNotIn('role', ['admin', 'superadmin']);
+        })
+            ->whereNotNull('approved_date')
+            ->select(DB::raw('AVG(TIMESTAMPDIFF(HOUR, created_at, approved_date)) as avg_time'))
+            ->value('avg_time') ?? 0;
+
+        $totalLeaveRequests = Leave::whereHas('employee', function ($q) {
+            $q->whereNotIn('role', ['admin', 'superadmin']);
+        })->count();
+
+        $approvalRate = $totalLeaveRequests > 0
+            ? round((Leave::whereHas('employee', function ($q) {
+                $q->whereNotIn('role', ['admin', 'superadmin']);
+            })->where('status', 'approved')->count() / $totalLeaveRequests) * 100)
+            : 0;
+
+        $employeesOnLeaveToday = Leave::whereHas('employee', function ($q) {
+            $q->whereNotIn('role', ['admin', 'superadmin']);
+        })
+            ->where('status', 'approved')
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->count();
+
+        $overdueRequests = Leave::whereHas('employee', function ($q) {
+            $q->whereNotIn('role', ['admin', 'superadmin']);
+        })
+            ->where('status', 'pending')
+            ->whereDate('start_date', '<', $today)
+            ->count();
+
         return view('admin.leaves.index', [
-            'leaves'                       => $allLeaves,
-            'recentLeaves'                 => $recentLeaves,
-            'annualUsed'                   => $annualUsed,
-            'sickUsed'                     => $sickUsed,
-            'personalUsed'                 => $personalUsed,
-            'annualTotal'                  => $annualTotal,
-            'sickTotal'                    => $sickTotal,
-            'personalTotal'                => $personalTotal,
-            'pendingCount'                 => $pendingCount,
-            'employeeLeaves'               => $employeeLeaves,
-            'pendingLeaves'                => $pendingLeaves,
-            'approvedLeaves'               => $approvedLeaves,
-            'rejectedLeaves'               => $rejectedLeaves,
-            'employeeMonthlyCount'         => $employeeMonthlyCount,
-            'employeePendingMonthlyCount'  => $employeePendingMonthlyCount,
+            'leaves' => $allLeaves,
+            'recentLeaves' => $recentLeaves,
+            'annualUsed' => $annualUsed,
+            'sickUsed' => $sickUsed,
+            'personalUsed' => $personalUsed,
+            'annualTotal' => $annualTotal,
+            'sickTotal' => $sickTotal,
+            'personalTotal' => $personalTotal,
+            'pendingCount' => $pendingCount,
+            'employeeLeaves' => $employeeLeaves,
+            'pendingLeaves' => $pendingLeaves,
+            'approvedLeaves' => $approvedLeaves,
+            'rejectedLeaves' => $rejectedLeaves,
+            'employeeMonthlyCount' => $employeeMonthlyCount,
+            'employeePendingMonthlyCount' => $employeePendingMonthlyCount,
             'employeeRejectedMonthlyCount' => $employeeRejectedMonthlyCount,
-            'employeeApprovedTodayCount'   => $employeeApprovedTodayCount,
+            'employeeApprovedTodayCount' => $employeeApprovedTodayCount,
+            // Chart data - make sure these match what JavaScript expects
+            'leaveLabels' => ['Annual Leave', 'Sick Leave', 'Personal Leave'],
+            'leaveData' => [$annualUsed, $sickUsed, $personalUsed],
+            'trendLabels' => ['Approved', 'Rejected', 'Pending'],
+            'trendData' => [
+                'approved' => $employeeApprovedMonthlyCount,
+                'rejected' => $employeeRejectedMonthlyCount,
+                'pending' => $employeePendingMonthlyCount,
+            ],
+
+            'approvedTrendDiff' => $approvedTrendDiff,
+            'monthlyTrendPercent' => $monthlyTrendPercent,
+            'rejectedStatus' => $rejectedStatus,
+            'annualPercent' => $annualPercent,
+            'sickPercent' => $sickPercent,
+            'personalPercent' => $personalPercent,
+            'departmentStats' => $departmentStats,
+            'avgProcessingTime' => round($avgProcessingTime, 1),
+            'approvalRate' => $approvalRate,
+            'employeesOnLeaveToday' => $employeesOnLeaveToday,
+            'overdueRequests' => $overdueRequests,
         ]);
     }
+
 
 
 
@@ -203,11 +335,17 @@ class AdminsLeaveController extends Controller
             'rejection_reason' => 'nullable|string|required_if:status,rejected',
         ]);
 
+        // Get the linked Admin record
+        $admin = Admin::where('email', $user->email)->first();
+        if (!$admin) {
+            return response()->json(['error' => 'Admin record not found for this user'], 404);
+        }
+
         $leave = Leave::findOrFail($leaveId);
 
         if ($validated['status'] === 'approved') {
             $leave->status        = 'approved';
-            $leave->approved_by   = $user->id;
+            $leave->approved_by   = $admin->admin_id; // ✅ use Admin primary key
             $leave->approved_date = now();
             $leave->comments      = $validated['comments'] ?? null;
 
@@ -216,23 +354,20 @@ class AdminsLeaveController extends Controller
             $leave->rejection_reason = null;
         } elseif ($validated['status'] === 'rejected') {
             $leave->status          = 'rejected';
-            $leave->rejected_by     = $user->id;
+            $leave->rejected_by     = $admin->admin_id; // ✅ use Admin primary key
             $leave->rejected_date   = now();
             $leave->rejection_reason = $validated['rejection_reason'] ?? null;
             $leave->comments        = $validated['comments'] ?? null;
-
 
             $leave->approved_by   = null;
             $leave->approved_date = null;
         }
 
         $leave->save();
-
-        return response()->json([
-            'message' => "Leave {$validated['status']} successfully.",
-            'leave'   => $leave
-        ], 200);
+        return redirect()->route('admin.leaves.index');
     }
+
+
 
     /**
      * Remove the specified resource from storage.

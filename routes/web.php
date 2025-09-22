@@ -246,6 +246,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/leaves/{leave}/status', [AdminsLeaveController::class, 'updateLeaveStatus'])->name('leaves.updateLeaveStatus');
 
 
+
+
         // Reports & Analytics with enhanced data
         Route::get('/reports', function () {
             $reportData = [

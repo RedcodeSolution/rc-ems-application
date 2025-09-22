@@ -50,11 +50,13 @@
                 <div class="stat-content">
                     <h3>Approved Today</h3>
                     <div class="stat-number" data-count="{{ $employeeApprovedTodayCount }}">
-                        {{ $employeeApprovedTodayCount }}</div>
+                        {{ $employeeApprovedTodayCount }}
+                    </div>
                     <p>Processed successfully</p>
                 </div>
-                <div class="stat-trend positive">
-                    <i class="fas fa-arrow-up"></i> +3 from yesterday
+                <div class="stat-trend {{ $approvedTrendDiff >= 0 ? 'positive' : 'negative' }}">
+                    <i class="fas {{ $approvedTrendDiff >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
+                    {{ $approvedTrendDiff >= 0 ? '+' : '' }}{{ $approvedTrendDiff }} from yesterday
                 </div>
             </div>
 
@@ -65,11 +67,12 @@
                 <div class="stat-content">
                     <h3>Rejected</h3>
                     <div class="stat-number" data-count="{{ $employeeRejectedMonthlyCount }}">
-                        {{ $employeeRejectedMonthlyCount }}</div>
+                        {{ $employeeRejectedMonthlyCount }}
+                    </div>
                     <p>This month</p>
                 </div>
                 <div class="stat-trend neutral">
-                    <i class="fas fa-minus"></i> Normal range
+                    <i class="fas fa-minus"></i> {{ $rejectedStatus }}
                 </div>
             </div>
 
@@ -80,13 +83,17 @@
                 <div class="stat-content">
                     <h3>Total Requests</h3>
                     <div class="stat-number" data-count="{{ $employeeMonthlyCount }}">
-                        {{ $employeeMonthlyCount }}</div>
+                        {{ $employeeMonthlyCount }}
+                    </div>
                     <p>This month</p>
                 </div>
-                <div class="stat-trend positive">
-                    <i class="fas fa-chart-line"></i> +15% from last month
+                <div class="stat-trend {{ $monthlyTrendPercent >= 0 ? 'positive' : 'negative' }}">
+                    <i
+                        class="fas {{ $monthlyTrendPercent >= 0 ? 'fa-chart-line' : 'fa-chart-line fa-flip-horizontal' }}"></i>
+                    {{ $monthlyTrendPercent >= 0 ? '+' : '' }}{{ $monthlyTrendPercent }}% from last month
                 </div>
             </div>
+
         </div>
 
         <!-- Leave Management Tabs -->
@@ -191,38 +198,52 @@
                         <h3><i class="fas fa-calendar-check"></i> Leave Balance Overview</h3>
                     </div>
                     <div class="balance-grid">
+
                         <div class="balance-item">
                             <div class="balance-type">Annual Leave</div>
                             <div class="balance-info">
-                                <span class="used">{{ $annualUsed }}</span> / <span
-                                    class="total">{{ $annualTotal }}</span> days
+                                <span class="used">{{ $annualUsed }}</span> /
+                                <span class="total">{{ $annualTotal }}</span> days
                                 <div class="balance-bar">
-                                    <div class="balance-fill" style="width: 32%"></div>
+                                    <div class="balance-fill 
+    {{ $annualPercent < 50 ? 'low' : ($annualPercent < 80 ? 'medium' : 'high') }}"
+                                        style="width: {{ $annualPercent }}%">
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                         <div class="balance-item">
                             <div class="balance-type">Sick Leave</div>
                             <div class="balance-info">
-                                <span class="used">{{ $sickUsed }}</span> / <span
-                                    class="total">{{ $sickTotal }}</span> days
+                                <span class="used">{{ $sickUsed }}</span> /
+                                <span class="total">{{ $sickTotal }}</span> days
                                 <div class="balance-bar">
-                                    <div class="balance-fill" style="width: 17%"></div>
+                                    <div class="balance-fill 
+    {{ $annualPercent < 50 ? 'low' : ($annualPercent < 80 ? 'medium' : 'high') }}"
+                                        style="width: {{ $annualPercent }}%">
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                         <div class="balance-item">
                             <div class="balance-type">Personal Leave</div>
                             <div class="balance-info">
-                                <span class="used">{{ $personalUsed }}</span> / <span
-                                    class="total">{{ $personalTotal }}</span> days
+                                <span class="used">{{ $personalUsed }}</span> /
+                                <span class="total">{{ $personalTotal }}</span> days
                                 <div class="balance-bar">
-                                    <div class="balance-fill" style="width: 20%"></div>
+                                    <div class="balance-fill 
+    {{ $annualPercent < 50 ? 'low' : ($annualPercent < 80 ? 'medium' : 'high') }}"
+                                        style="width: {{ $annualPercent }}%">
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
+
 
                 <!-- Admin's Leave Requests Table -->
                 <div class="my-leave-table-container">
@@ -241,16 +262,14 @@
                         <tbody>
 
                             @foreach ($leaves as $leave)
-                                <tr class="leave-row" data-id="{{ $leave['id'] }}"
-                                    data-type="{{ $leave['leave_type'] }}" data-status="{{ $leave['status'] }}"
-                                    data-start="{{ \Carbon\Carbon::parse($leave['start_date'])->format('M d, Y') }}"
-                                    data-end="{{ \Carbon\Carbon::parse($leave['end_date'])->format('M d, Y') }}"
-                                    data-reason="{{ $leave['reason'] }}"
-                                    data-applied="{{ \Carbon\Carbon::parse($leave['applied_date'])->format('M d, Y') }}"
-                                    data-approvedby="{{ $leave['approved_by'] ?? 'N/A' }}">
+                                <tr class="leave-row" data-id="{{ $leave->id }}"
+                                    data-type="{{ strtolower($leave->leave_type) }}"
+                                    data-status="{{ strtolower($leave->status) }}"
+                                    data-start="{{ \Carbon\Carbon::parse($leave->start_date)->toDateString() }}"
+                                    data-end="{{ \Carbon\Carbon::parse($leave->end_date)->toDateString() }}"
+                                    data-department="{{ strtolower($leave->employee->department ?? '') }}">
                                     <td>
-                                        <span
-                                            class="leave-type-badge type-{{ strtolower(str_replace(' ', '-', $leave['leave_type'])) }}">
+                                        <span class="leave-type-badge type-{{ strtolower($leave->leave_type) }}">
                                             {{ ucfirst($leave->leave_type) }}
                                         </span>
                                     </td>
@@ -362,7 +381,13 @@
                         </thead>
                         <tbody>
                             @foreach ($pendingLeaves as $leave)
-                                <tr class="leave-row" data-id="{{ $leave->leave_id }}">
+                                <tr class="leave-row" data-id="{{ $leave->leave_id }}"
+                                    data-type="{{ strtolower($leave->leave_type) }}"
+                                    data-department="{{ strtolower($leave->employee->department->department_name ?? '') }}"
+                                    data-name="{{ strtolower($leave->employee->employee_name) }}"
+                                    data-start="{{ \Carbon\Carbon::parse($leave->start_date)->toDateString() }}"
+                                    data-end="{{ \Carbon\Carbon::parse($leave->end_date)->toDateString() }}"
+                                    data-status="pending">
                                     <td>
                                         <input type="checkbox" class="leave-checkbox" value="{{ $leave->leave_id }}">
                                     </td>
@@ -374,7 +399,8 @@
                                             <div class="employee-info">
                                                 <h4>{{ $leave->employee->employee_name }}</h4>
                                                 <p>{{ $leave->employee->employee_id }} •
-                                                    {{ $leave->employee->department->department_name }}</p>
+                                                    {{ $leave->employee->department->department_name }}
+                                                </p>
                                             </div>
                                         </div>
                                     </td>
@@ -415,18 +441,23 @@
                                     </td>
                                     <td>
                                         <div class="applied-cell">
-                                            <span
-                                                class="applied-date">{{ \Carbon\Carbon::parse($leave->created_at)->format('M d, Y') }}</span>
-                                            <span
-                                                class="applied-time">{{ \Carbon\Carbon::parse($leave->created_at)->diffForHumans() }}</span>
+                                            <span class="applied-date">
+                                                {{ \Carbon\Carbon::parse($leave->created_at)->format('M d, Y') }}
+                                            </span>
+                                            <span class="applied-time">
+                                                {{ \Carbon\Carbon::parse($leave->created_at)->diffForHumans() }}
+                                            </span>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button class="btn-action btn-view"
-                                                onclick="viewLeaveDetails({{ $leave->leave_id }})" title="View Details">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
+                                            <div class="action-buttons">
+                                                <button class="btn-action btn-view"
+                                                    onclick="viewLeaveDetails('{{ $leave->leave_id }}')"
+                                                    title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
                                             <form action="{{ route('admin.leaves.updateLeaveStatus', $leave->leave_id) }}"
                                                 method="POST" style="display:inline;">
                                                 @csrf
@@ -444,6 +475,7 @@
                                     </td>
                                 </tr>
                             @endforeach
+
 
                         </tbody>
                     </table>
@@ -485,7 +517,12 @@
                             </thead>
                             <tbody>
                                 @foreach ($approvedLeaves as $leave)
-                                    <tr class="leave-row" data-id="{{ $leave->leave_id }}">
+                                    <tr class="leave-row" data-id="{{ $leave->leave_id }}"
+                                        data-name="{{ strtolower($leave->employee->employee_name) }}"
+                                        data-department="{{ strtolower($leave->employee->department->department_name ?? '') }}"
+                                        data-type="{{ strtolower($leave->leave_type) }}" data-status="approved"
+                                        data-start="{{ \Carbon\Carbon::parse($leave->start_date)->toDateString() }}"
+                                        data-end="{{ \Carbon\Carbon::parse($leave->end_date)->toDateString() }}">
                                         <td>
                                             <div class="employee-cell">
                                                 <div class="employee-avatar">
@@ -546,7 +583,7 @@
                                         <td>
                                             <div class="action-buttons">
                                                 <button class="btn-action btn-view"
-                                                    onclick="viewLeaveDetails({{ $leave->leave_id }})"
+                                                    onclick="viewLeaveDetails('{{ $leave->leave_id }}')"
                                                     title="View Details">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
@@ -595,7 +632,12 @@
                             </thead>
                             <tbody>
                                 @foreach ($rejectedLeaves as $leave)
-                                    <tr class="leave-row" data-id="{{ $leave->leave_id }}">
+                                    <tr class="leave-row" data-id="{{ $leave->leave_id }}"
+                                        data-name="{{ strtolower($leave->employee->employee_name) }}"
+                                        data-department="{{ strtolower($leave->employee->department->department_name ?? '') }}"
+                                        data-type="{{ strtolower($leave->leave_type) }}" data-status="rejected"
+                                        data-start="{{ \Carbon\Carbon::parse($leave->start_date)->toDateString() }}"
+                                        data-end="{{ \Carbon\Carbon::parse($leave->end_date)->toDateString() }}">
                                         <td>
                                             <div class="employee-cell">
                                                 <div class="employee-avatar">
@@ -656,7 +698,7 @@
                                         <td>
                                             <div class="action-buttons">
                                                 <button class="btn-action btn-view"
-                                                    onclick="viewLeaveDetails({{ $leave->leave_id }})"
+                                                    onclick="viewLeaveDetails('{{ $leave->leave_id }}')"
                                                     title="View Details">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
@@ -698,7 +740,15 @@
                         <tbody>
 
                             @foreach ($employeeLeaves as $leave)
-                                <tr class="leave-row">
+                                <tr class="leave-row" data-id="{{ $leave->leave_id }}"
+                                    data-name="{{ $leave->employee->employee_name }}"
+                                    data-empid="{{ $leave->employee->employee_id }}"
+                                    data-department="{{ $leave->employee->department->department_name ?? '' }}"
+                                    data-type="{{ $leave->leave_type }}" data-status="{{ $leave->status }}"
+                                    data-start="{{ \Carbon\Carbon::parse($leave->start_date)->format('M d, Y') }}"
+                                    data-end="{{ \Carbon\Carbon::parse($leave->end_date)->format('M d, Y') }}"
+                                    data-duration="{{ $leave->duration }}" data-reason="{{ $leave->reason }}"
+                                    data-contact="{{ $leave->emergency_contact }}">
                                     <td>
                                         <div class="employee-cell">
                                             <div class="employee-avatar">
@@ -730,7 +780,8 @@
                                                 {{ \Carbon\Carbon::parse($leave['start_date'])->format('M d, Y') }}</div>
                                             @if ($leave['start_date'] !== $leave['end_date'])
                                                 <div class="date-to">to
-                                                    {{ \Carbon\Carbon::parse($leave['end_date'])->format('M d, Y') }}</div>
+                                                    {{ \Carbon\Carbon::parse($leave['end_date'])->format('M d, Y') }}
+                                                </div>
                                             @endif
                                         </div>
                                     </td>
@@ -756,7 +807,7 @@
                                     <td>
                                         <div class="action-buttons">
                                             <button class="btn-action btn-view"
-                                                onclick="viewLeaveDetails({{ $leave['leave_id'] }})"
+                                                onclick="viewLeaveDetails('{{ $leave->leave_id }}')"
                                                 title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </button>
@@ -776,8 +827,8 @@
                         <div class="card-header">
                             <h3><i class="fas fa-chart-pie"></i> Leave Distribution</h3>
                         </div>
-                        <div class="card-content">
-                            <canvas id="leaveDistributionChart" width="400" height="300"></canvas>
+                        <div class="card-content" style="height:300px;"> <!-- add fixed height -->
+                            <canvas id="leaveDistributionChart"></canvas>
                         </div>
                     </div>
 
@@ -796,16 +847,6 @@
                         </div>
                         <div class="card-content">
                             <div class="department-stats">
-                                @php
-                                    $departmentStats = [
-                                        ['name' => 'Engineering', 'used' => 45, 'total' => 60, 'percentage' => 75],
-                                        ['name' => 'Marketing', 'used' => 32, 'total' => 45, 'percentage' => 71],
-                                        ['name' => 'Sales', 'used' => 28, 'total' => 40, 'percentage' => 70],
-                                        ['name' => 'HR', 'used' => 15, 'total' => 25, 'percentage' => 60],
-                                        ['name' => 'Finance', 'used' => 18, 'total' => 30, 'percentage' => 60],
-                                    ];
-                                @endphp
-
                                 @foreach ($departmentStats as $dept)
                                     <div class="dept-stat-item">
                                         <div class="dept-info">
@@ -833,41 +874,33 @@
                         <div class="card-content">
                             <div class="quick-stats">
                                 <div class="quick-stat">
-                                    <div class="stat-icon">
-                                        <i class="fas fa-calendar-day"></i>
-                                    </div>
+                                    <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
                                     <div class="stat-info">
-                                        <span class="stat-value">2.3</span>
+                                        <span class="stat-value">{{ $avgProcessingTime }}</span>
                                         <span class="stat-label">Avg Processing Time (hours)</span>
                                     </div>
                                 </div>
 
                                 <div class="quick-stat">
-                                    <div class="stat-icon">
-                                        <i class="fas fa-percentage"></i>
-                                    </div>
+                                    <div class="stat-icon"><i class="fas fa-percentage"></i></div>
                                     <div class="stat-info">
-                                        <span class="stat-value">94%</span>
+                                        <span class="stat-value">{{ $approvalRate }}%</span>
                                         <span class="stat-label">Approval Rate</span>
                                     </div>
                                 </div>
 
                                 <div class="quick-stat">
-                                    <div class="stat-icon">
-                                        <i class="fas fa-users"></i>
-                                    </div>
+                                    <div class="stat-icon"><i class="fas fa-users"></i></div>
                                     <div class="stat-info">
-                                        <span class="stat-value">87</span>
+                                        <span class="stat-value">{{ $employeesOnLeaveToday }}</span>
                                         <span class="stat-label">Employees on Leave Today</span>
                                     </div>
                                 </div>
 
                                 <div class="quick-stat">
-                                    <div class="stat-icon">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                    </div>
+                                    <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
                                     <div class="stat-info">
-                                        <span class="stat-value">3</span>
+                                        <span class="stat-value">{{ $overdueRequests }}</span>
                                         <span class="stat-label">Overdue Requests</span>
                                     </div>
                                 </div>
@@ -2470,6 +2503,22 @@
             line-height: 1.7;
         }
 
+        .balance-fill.low {
+            background: #16a34a;
+        }
+
+        /* green */
+        .balance-fill.medium {
+            background: #facc15;
+        }
+
+        /* yellow */
+        .balance-fill.high {
+            background: #dc2626;
+        }
+
+        /* red */
+
         @media (max-width: 900px) {
 
             .card-body,
@@ -3046,6 +3095,12 @@
         }
         }
     </style>
+    <script>
+        window.leaveLabels = @json($leaveLabels);
+        window.leaveData = @json($leaveData);
+        window.trendLabels = @json($trendLabels);
+        window.trendData = @json($trendData);
+    </script>
 
     <script>
         // Initialize leave management
@@ -3123,25 +3178,151 @@
 
         function applyFilters() {
             const dateFilter = document.getElementById('date-filter')?.value || '';
-            const departmentFilter = document.getElementById('department-filter')?.value || '';
-            const leaveTypeFilter = document.getElementById('leave-type-filter')?.value || '';
+            const departmentFilter = document.getElementById('department-filter')?.value.toLowerCase() || '';
+            const leaveTypeFilter = document.getElementById('leave-type-filter')?.value.toLowerCase() || '';
             const search = document.getElementById('search-input')?.value.toLowerCase() || '';
 
-            const rows = document.querySelectorAll('.leave-row');
-
-            rows.forEach(row => {
-                const employeeName = row.querySelector('.employee-info h4').textContent.toLowerCase();
-                const department = row.querySelector('.employee-info p').textContent.toLowerCase();
-                const leaveType = row.querySelector('.leave-type-badge').textContent.toLowerCase();
-
-                const nameMatch = !search || employeeName.includes(search);
-                const deptMatch = !departmentFilter || department.includes(departmentFilter);
-                const typeMatch = !leaveTypeFilter || leaveType.includes(leaveTypeFilter.replace('-', ' '));
-
-                row.style.display = nameMatch && deptMatch && typeMatch ? '' : 'none';
+            console.log('Applying filters:', {
+                dateFilter,
+                departmentFilter,
+                leaveTypeFilter,
+                search
             });
 
-            showNotification('Filters applied successfully!', 'success');
+            const today = new Date();
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            endOfWeek.setHours(23, 59, 59, 999);
+
+            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            endOfMonth.setHours(23, 59, 59, 999);
+
+            const startOfQuarter = new Date(today.getFullYear(), Math.floor(today.getMonth() / 3) * 3, 1);
+            const endOfQuarter = new Date(startOfQuarter.getFullYear(), startOfQuarter.getMonth() + 3, 0);
+            endOfQuarter.setHours(23, 59, 59, 999);
+
+            const rows = document.querySelectorAll('.leave-row');
+            let filteredData = [];
+            let visibleCount = 0;
+            const processedLeaveIds = new Set(); // Track by actual leave ID from database
+
+            rows.forEach(row => {
+                // Get the unique leave ID from the database (most important!)
+                const leaveId = row.dataset.leaveId || row.dataset.id || row.id;
+
+                // Skip if we've already processed this leave ID
+                if (leaveId && processedLeaveIds.has(leaveId)) {
+                    console.warn('Duplicate leave ID found, skipping:', leaveId);
+                    row.style.display = 'none'; // Hide duplicate rows
+                    return;
+                }
+
+                // Get data from row attributes and elements
+                const employeeNameElement = row.querySelector('.employee-info h4') ||
+                    row.querySelector('.employee-name') ||
+                    row.querySelector('[data-employee]');
+                const employeeName = employeeNameElement?.textContent.trim() ||
+                    row.dataset.employee?.trim() || '';
+
+                // Get department - handle JSON format if present
+                let department = row.dataset.department?.trim() || '';
+                if (department.startsWith('{')) {
+                    try {
+                        const parsed = JSON.parse(row.dataset.department);
+                        department = parsed.department_name?.trim() || '';
+                    } catch (e) {
+                        console.warn('Invalid department JSON:', row.dataset.department);
+                    }
+                }
+
+                const leaveType = row.dataset.type?.toLowerCase().trim() || '';
+                const status = row.dataset.status?.toLowerCase().trim() || '';
+
+                // Parse dates safely
+                let leaveStart, leaveEnd;
+                try {
+                    leaveStart = row.dataset.start ? new Date(row.dataset.start + 'T00:00:00') : new Date();
+                    leaveEnd = row.dataset.end ? new Date(row.dataset.end + 'T23:59:59') : new Date();
+
+                    if (isNaN(leaveStart.getTime()) || isNaN(leaveEnd.getTime())) {
+                        throw new Error('Invalid date');
+                    }
+                } catch (e) {
+                    console.warn('Invalid date format in row:', row.dataset);
+                    leaveStart = new Date();
+                    leaveEnd = new Date();
+                }
+
+                // Apply filters
+                const nameMatch = !search || employeeName.toLowerCase().includes(search);
+                const deptMatch = !departmentFilter || department.toLowerCase().includes(departmentFilter);
+                const typeMatch = !leaveTypeFilter || leaveType.includes(leaveTypeFilter);
+
+                let dateMatch = true;
+                if (dateFilter === 'today') {
+                    dateMatch = leaveStart <= today && leaveEnd >= today;
+                } else if (dateFilter === 'week') {
+                    dateMatch = leaveStart <= endOfWeek && leaveEnd >= startOfWeek;
+                } else if (dateFilter === 'month') {
+                    dateMatch = leaveStart <= endOfMonth && leaveEnd >= startOfMonth;
+                } else if (dateFilter === 'quarter') {
+                    dateMatch = leaveStart <= endOfQuarter && leaveEnd >= startOfQuarter;
+                }
+
+                const visible = nameMatch && deptMatch && typeMatch && dateMatch;
+                row.style.display = visible ? '' : 'none';
+
+                if (visible) {
+                    // Mark this leave ID as processed
+                    if (leaveId) {
+                        processedLeaveIds.add(leaveId);
+                    }
+
+                    visibleCount++;
+
+                    // Get duration from dataset first, then calculate if needed
+                    let finalDuration;
+                    if (row.dataset.duration && !isNaN(parseInt(row.dataset.duration))) {
+                        finalDuration = parseInt(row.dataset.duration);
+                    } else {
+                        // Calculate duration
+                        const diffTime = Math.abs(leaveEnd - leaveStart);
+                        finalDuration = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    }
+
+                    console.log(
+                        `Processing leave ID ${leaveId}: ${employeeName} - ${department} - ${finalDuration} days`
+                    );
+
+                    filteredData.push({
+                        leaveId: leaveId, // Include leave ID for tracking
+                        employee: employeeName,
+                        department: department,
+                        type: leaveType,
+                        status: status,
+                        start: leaveStart,
+                        end: leaveEnd,
+                        duration: finalDuration
+                    });
+                }
+            });
+
+            console.log(`Filter results: ${visibleCount} rows visible, ${filteredData.length} unique data points`);
+            console.log('Processed leave IDs:', Array.from(processedLeaveIds));
+
+            // Update charts with filtered data
+            updateCharts(filteredData);
+
+            // Show notification
+            if (typeof showNotification === 'function') {
+                showNotification(`Filters applied! Showing ${visibleCount} results.`, 'success');
+            } else {
+                console.log(`Filters applied! Showing ${visibleCount} results.`);
+            }
         }
 
         function clearFilters() {
@@ -3165,66 +3346,74 @@
                 const modal = document.getElementById('leaveDetailsModal');
                 modal.dataset.currentId = id;
 
+                // get the row using the id
+                const row = document.querySelector(`tr[data-id="${id}"]`);
+                if (!row) return;
+
                 const content = document.getElementById('leaveDetailsContent');
+
                 content.innerHTML = `
-                <div class="leave-details">
-                    <div class="form-container">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-user"></i> Employee Name</label>
-                                <div class="view-field">John Smith</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-id-card"></i> Employee ID</label>
-                                <div class="view-field">EMP001</div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-calendar-alt"></i> Leave Type</label>
-                                <div class="view-field">Annual Leave</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-building"></i> Department</label>
-                                <div class="view-field">Engineering</div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-calendar"></i> Start Date</label>
-                                <div class="view-field">July 28, 2025</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-calendar"></i> End Date</label>
-                                <div class="view-field">August 2, 2025</div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-clock"></i> Duration</label>
-                                <div class="view-field">5 days</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-info-circle"></i> Status</label>
-                                <div class="view-field status-badge pending">Pending Review</div>
-                            </div>
+            <div class="leave-details">
+                <div class="form-container">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-user"></i> Employee Name</label>
+                            <div class="view-field">${row.dataset.name}</div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label"><i class="fas fa-comment"></i> Reason</label>
-                            <div class="view-field view-textarea">Family vacation to Europe</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label"><i class="fas fa-phone"></i> Emergency Contact</label>
-                            <div class="view-field">+1234567890</div>
+                            <label class="form-label"><i class="fas fa-id-card"></i> Employee ID</label>
+                            <div class="view-field">${row.dataset.empid}</div>
                         </div>
                     </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-calendar-alt"></i> Leave Type</label>
+                            <div class="view-field">${row.dataset.type}</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-building"></i> Department</label>
+                            <div class="view-field">${row.dataset.department}</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-calendar"></i> Start Date</label>
+                            <div class="view-field">${row.dataset.start}</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-calendar"></i> End Date</label>
+                            <div class="view-field">${row.dataset.end}</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-clock"></i> Duration</label>
+                            <div class="view-field">${row.dataset.duration} days</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-info-circle"></i> Status</label>
+                            <div class="view-field status-badge ${row.dataset.status}">
+                                ${row.dataset.status.charAt(0).toUpperCase() + row.dataset.status.slice(1)}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-comment"></i> Reason</label>
+                        <div class="view-field view-textarea">${row.dataset.reason ?? '-'}</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-phone"></i> Emergency Contact</label>
+                        <div class="view-field">${row.dataset.contact ?? '-'}</div>
+                    </div>
                 </div>
-            `;
+            </div>
+        `;
 
                 modal.style.display = 'block';
                 showNotification('Leave details loaded!', 'success');
             }, 800);
         }
+
 
         function approveLeave(id) {
             showNotification(`Approving leave request ${id}...`, 'info');
@@ -3366,27 +3555,46 @@
             }
         }
 
-        // Charts
+        let distChart, trendsChart;
+
         function initializeCharts() {
-            // Leave Distribution Chart
-            const distCtx = document.getElementById('leaveDistributionChart');
-            if (distCtx) {
-                new Chart(distCtx, {
+            // Get PHP variables safely
+            const leaveLabels = typeof window.leaveLabels !== 'undefined' ? window.leaveLabels : [];
+            const leaveData = typeof window.leaveData !== 'undefined' ? window.leaveData : [];
+            const trendLabels = typeof window.trendLabels !== 'undefined' ? window.trendLabels : [];
+            const trendData = typeof window.trendData !== 'undefined' ? window.trendData : {};
+
+            console.log('Initializing charts with data:', {
+                leaveLabels,
+                leaveData,
+                trendLabels,
+                trendData
+            });
+
+            // --- Leave Distribution Chart (Doughnut) ---
+            const distCanvas = document.getElementById('leaveDistributionChart');
+            if (distCanvas) {
+                // Destroy existing chart if it exists
+                if (typeof distChart !== 'undefined' && distChart) {
+                    distChart.destroy();
+                }
+
+                const distCtx = distCanvas.getContext('2d');
+                const hasData = leaveData && leaveData.some(value => value > 0);
+
+                window.distChart = new Chart(distCtx, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Annual Leave', 'Sick Leave', 'Personal Leave', 'Maternity Leave',
-                            'Emergency Leave'
-                        ],
+                        labels: hasData ? leaveLabels : ['No Data'],
                         datasets: [{
-                            data: [45, 25, 15, 10, 5],
-                            backgroundColor: [
-                                '#DC2626',
-                                '#2563EB',
-                                '#059669',
-                                '#D97706',
-                                '#7C3AED'
-                            ],
-                            borderWidth: 0
+                            data: hasData ? leaveData : [1],
+                            backgroundColor: hasData ? [
+                                '#DC2626', // Annual - Red
+                                '#2563EB', // Sick - Blue  
+                                '#059669' // Personal - Green
+                            ] : ['#E5E7EB'], // Gray for no data
+                            borderWidth: 2,
+                            borderColor: '#FFFFFF'
                         }]
                     },
                     options: {
@@ -3394,32 +3602,58 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                position: 'bottom'
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        if (!hasData) return 'No leave data available';
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                        return `${label}: ${value} days (${percentage}%)`;
+                                    }
+                                }
                             }
                         }
                     }
                 });
             }
 
-            // Leave Trends Chart
-            const trendsCtx = document.getElementById('leaveTrendsChart');
-            if (trendsCtx) {
-                new Chart(trendsCtx, {
+            // --- Leave Trends Chart (Line) ---
+            const trendsCanvas = document.getElementById('leaveTrendsChart');
+            if (trendsCanvas) {
+                // Destroy existing chart if it exists
+                if (typeof trendsChart !== 'undefined' && trendsChart) {
+                    trendsChart.destroy();
+                }
+
+                const trendsCtx = trendsCanvas.getContext('2d');
+
+                window.trendsChart = new Chart(trendsCtx, {
                     type: 'line',
                     data: {
-                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        labels: trendLabels || ['Approved', 'Rejected', 'Pending'],
                         datasets: [{
-                            label: 'Approved',
-                            data: [12, 19, 15, 25, 22, 30],
-                            borderColor: '#059669',
-                            backgroundColor: 'rgba(5, 150, 105, 0.1)',
-                            tension: 0.4
-                        }, {
-                            label: 'Rejected',
-                            data: [2, 3, 2, 5, 2, 3],
-                            borderColor: '#DC2626',
-                            backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                            tension: 0.4
+                            label: 'Current Period',
+                            data: [
+                                trendData?.approved || 0,
+                                trendData?.rejected || 0,
+                                trendData?.pending || 0
+                            ],
+                            borderColor: '#2563EB',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#2563EB',
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2,
+                            pointRadius: 6
                         }]
                     },
                     options: {
@@ -3427,13 +3661,181 @@
                         maintainAspectRatio: false,
                         scales: {
                             y: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top'
                             }
                         }
                     }
                 });
             }
         }
+
+        function updateCharts(filteredData) {
+            console.log('Updating charts with filtered data:', filteredData);
+
+            // === Leave Distribution Chart Update ===
+            const typeCounts = {
+                'annual': 0,
+                'sick': 0,
+                'personal': 0
+            };
+
+            // Count leave DURATION (days) for approved leaves only
+            filteredData.forEach(item => {
+                if (item.status !== "approved") return; // Only approved leaves
+
+                const type = item.type.toLowerCase();
+                if (typeCounts.hasOwnProperty(type)) {
+                    // Use duration instead of count for more accurate representation
+                    typeCounts[type] += item.duration || 1;
+                }
+            });
+
+            const distCanvas = document.getElementById('leaveDistributionChart');
+            if (distCanvas && distChart) {
+                const hasData = Object.values(typeCounts).some(value => value > 0);
+
+                distChart.data.labels = hasData ? ['Annual Leave', 'Sick Leave', 'Personal Leave'] : ['No Data'];
+                distChart.data.datasets[0].data = hasData ? Object.values(typeCounts) : [1];
+                distChart.data.datasets[0].backgroundColor = hasData ? [
+                    '#DC2626', // Annual - Red
+                    '#2563EB', // Sick - Blue
+                    '#059669' // Personal - Green
+                ] : ['#E5E7EB']; // Gray for no data
+
+                distChart.update();
+            }
+
+            // === Monthly Trends Chart Update ===
+            const statusCounts = {
+                'approved': 0,
+                'rejected': 0,
+                'pending': 0
+            };
+
+            // Count statuses from all filtered data
+            filteredData.forEach(item => {
+                const status = item.status.toLowerCase();
+                if (statusCounts.hasOwnProperty(status)) {
+                    statusCounts[status]++;
+                }
+            });
+
+            if (trendsChart) {
+                trendsChart.data.datasets[0].data = Object.values(statusCounts);
+                trendsChart.update();
+            }
+
+            // Update department stats
+            updateDepartmentStats(filteredData);
+        }
+
+        function updateDepartmentStats(filteredData) {
+            console.log('Raw filtered data for department stats:', filteredData);
+
+            const deptMap = {};
+            const processedLeaveIds = new Set(); // Track by leave ID, not constructed identifier
+
+            filteredData.forEach((item, index) => {
+                // Use actual leave ID if available
+                const leaveId = item.leaveId;
+
+                // Skip if we've already processed this leave ID
+                if (leaveId && processedLeaveIds.has(leaveId)) {
+                    console.warn('Duplicate leave ID in filtered data, skipping:', leaveId);
+                    return;
+                }
+
+                // Only count approved leaves
+                if (item.status !== "approved") return;
+
+                if (leaveId) {
+                    processedLeaveIds.add(leaveId);
+                }
+
+                let deptKey = item.department || "Unknown";
+
+                // Handle JSON department values
+                if (typeof deptKey === "string" && deptKey.trim().startsWith("{")) {
+                    try {
+                        const parsed = JSON.parse(deptKey);
+                        if (parsed.department_name) {
+                            deptKey = parsed.department_name;
+                        }
+                    } catch (e) {
+                        console.warn("Invalid department JSON:", deptKey);
+                        deptKey = "Unknown";
+                    }
+                }
+
+                // Clean and normalize the department name
+                deptKey = deptKey.toString().trim();
+                const normalizedKey = deptKey.toLowerCase();
+
+                if (!deptMap[normalizedKey]) {
+                    deptMap[normalizedKey] = {
+                        name: deptKey.charAt(0).toUpperCase() + deptKey.slice(1).toLowerCase(),
+                        used: 0,
+                        total: 60,
+                        leaves: [] // Track individual leaves for debugging
+                    };
+                }
+
+                console.log(`Processing leave ID ${leaveId} for ${deptKey}: ${item.duration} days`);
+
+                deptMap[normalizedKey].used += item.duration - 1;
+                deptMap[normalizedKey].leaves.push({
+                    leaveId: leaveId,
+                    employee: item.employee,
+                    days: item.duration,
+                    dates: `${item.start.toDateString()} to ${item.end.toDateString()}`
+                });
+            });
+
+            console.log('Final department map:', deptMap);
+            console.log('Processed leave IDs in department stats:', Array.from(processedLeaveIds));
+
+            const container = document.querySelector('.department-stats');
+            if (container) {
+                container.innerHTML = '';
+
+                if (Object.keys(deptMap).length === 0) {
+                    container.innerHTML = '<div class="no-data">No department data available for current filters</div>';
+                    return;
+                }
+
+                Object.values(deptMap).forEach(stats => {
+                    const percent = Math.min(100, Math.round((stats.used / stats.total) * 100));
+
+                    console.log(`Department ${stats.name}: ${stats.used}/${stats.total} days (${percent}%)`);
+                    console.log('Individual leaves:', stats.leaves);
+
+                    container.innerHTML += `
+                <div class="dept-stat-item">
+                    <div class="dept-info">
+                        <span class="dept-name">${stats.name}</span>
+                        <span class="dept-usage">${stats.used}/${stats.total} days used</span>
+                    </div>
+                    <div class="dept-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${percent}%"></div>
+                        </div>
+                        <span class="progress-percent">${percent}%</span>
+                    </div>
+                </div>
+            `;
+                });
+            }
+        }
+
+
 
         // Utility functions
         function debounce(func, wait) {
@@ -3620,7 +4022,8 @@
 
                 // Modal footer
                 const modalFooter = modal.querySelector('.modal-footer');
-                modalFooter.innerHTML = `<button class="btn btn-secondary" onclick="closeModal()">Close</button>`;
+                modalFooter.innerHTML =
+                    `<button class="btn btn-secondary" onclick="closeModal()">Close</button>`;
 
                 modal.style.display = 'block';
                 showNotification('Leave details loaded!', 'success');
@@ -3758,4 +4161,5 @@
             }
         }
     </script>
+
 @endsection
