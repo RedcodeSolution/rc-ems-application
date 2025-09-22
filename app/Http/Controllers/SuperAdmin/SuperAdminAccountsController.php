@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SuperAdmin;
 use App\Models\SuperAdminActivity;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -76,6 +77,18 @@ class SuperAdminAccountsController extends Controller
             'details' => "Super admin account created: {$superAdmin->super_admin_name}"
         ]);
 
+        // Create notification for super admin account creation
+        Notification::create([
+            'title' => 'Super Admin Account Created',
+            'message' => 'A new super admin account has been created: ' . $validated['name'],
+            'type' => 'super_admin',
+            'priority' => 'high',
+            'read' => false,
+            'from' => auth()->user()->name ?? 'System',
+            'icon' => 'fas fa-user-shield',
+            'color' => 'indigo',
+        ]);
+
         return response()->json(['success' => true, 'super_admin' => $superAdmin]);
     }
 
@@ -139,6 +152,18 @@ class SuperAdminAccountsController extends Controller
             'icon' => 'fas fa-edit',
             'action' => 'Account Updated',
             'details' => "Account updated: {$user->super_admin_name}"
+        ]);
+
+        // Create notification for super admin account update
+        Notification::create([
+            'title' => 'Super Admin Account Updated',
+            'message' => 'Super admin account updated: ' . $validated['name'],
+            'type' => 'super_admin',
+            'priority' => 'medium',
+            'read' => false,
+            'from' => auth()->user()->name ?? 'System',
+            'icon' => 'fas fa-user-shield',
+            'color' => 'purple',
         ]);
 
         return response()->json(['success' => true, 'super_admin' => $user]);

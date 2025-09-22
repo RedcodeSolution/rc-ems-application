@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Leave;
 use App\Models\Admin;
 use App\Models\Employee;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +16,7 @@ class AdminLeaveController extends Controller
     {
 
         $adminEmployees = Employee::whereHas('admin')->with(['admin', 'leaves' => function($query) {
-            $query->orderBy('applied_date', 'desc');
+            $query->orderBy('created_at', 'desc');
         }])->get();
 
 
@@ -31,7 +32,7 @@ class AdminLeaveController extends Controller
         $rejectedLeaves = $adminLeaves->where('status', 'rejected')->count();
 
         // Get recent admin leave requests (last 30 days)
-        $recentLeaves = $adminLeaves->where('applied_date', '>=', now()->subDays(30));
+        $recentLeaves = $adminLeaves->where('created_at', '>=', now()->subDays(30));
 
         // Group leaves by status for tabs
         $pendingLeavesList = $adminLeaves->where('status', 'pending');
@@ -50,6 +51,20 @@ class AdminLeaveController extends Controller
             'recentLeaves' => $recentLeaves,
             'adminEmployees' => $adminEmployees
         ];
+
+        // Notify if there are pending leaves
+        if ($pendingLeaves > 0) {
+            Notification::create([
+                'title' => 'Pending Leave Requests',
+                'message' => "There are {$pendingLeaves} pending leave requests for admins.",
+                'type' => 'leave',
+                'priority' => 'critical',
+                'read' => false,
+                'from' => 'Leave System',
+                'icon' => 'fas fa-calendar-times',
+                'color' => 'red',
+            ]);
+        }
 
         return view('super_admin.admin_leaves.index', $data);
     }
