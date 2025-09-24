@@ -13,7 +13,7 @@ class AdminController
 
         $departments = Department::all();
         $admins = Admin::with('department')->get();
-        return view('super_admin.admins', compact('admins','departments', ));
+        return view('super_admin.admins', compact('admins', 'departments',));
     }
 
     public function store(Request $request)
@@ -88,5 +88,4 @@ class AdminController
 
         return redirect()->route('super_admin.admins')->with('success', 'Admin deleted successfully!');
     }
-
 }

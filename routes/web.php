@@ -16,14 +16,13 @@ use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SuperAdmin\AdminController;
-use App\Http\Controllers\SuperAdminController;
+use App\Http\Controllers\SuperAdmin\SuperAdminController;
 
 use App\Http\Controllers\SuperAdmin\AdminLeaveController;
 use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
 use App\Http\Controllers\SuperAdmin\EventController;
 use App\Http\Controllers\SuperAdmin\SuperAdminAccountsController;
-
-
+// use App\Http\Controllers\SuperAdmin\SuperAdminController as SuperAdminSuperAdminController;
 use App\Models\Admin;
 use App\Models\Department;
 use App\Models\Employee;
@@ -175,11 +174,11 @@ Route::middleware('auth')->group(function () {
     // Super Admin Admin Leave Management Routes
     Route::prefix('super_admin/admin-leaves')->name('super_admin.admin_leaves.')->group(function () {
         Route::get('/', [AdminLeaveController::class, 'index'])->name('index');
-        Route::get('/{id}', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'show'])->name('show');
-        Route::post('/{id}/approve', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'approve'])->name('approve');
-        Route::post('/{id}/reject', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'reject'])->name('reject');
-        Route::post('/bulk-approve', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'bulkApprove'])->name('bulk_approve');
-        Route::post('/bulk-reject', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'bulkReject'])->name('bulk_reject');
+        Route::get('/{id}', [AdminLeaveController::class, 'show'])->name('show');
+        Route::put('/{id}/approve', [AdminLeaveController::class, 'approve'])->name('approve');
+        Route::put('/{id}/reject', [AdminLeaveController::class, 'reject'])->name('reject');
+        Route::put('/bulk-approve', [AdminLeaveController::class, 'bulkApprove'])->name('bulk_approve');
+        Route::put('/bulk-reject', [AdminLeaveController::class, 'bulkReject'])->name('bulk_reject');
     });
 
     // Super Admin Events Management Routes

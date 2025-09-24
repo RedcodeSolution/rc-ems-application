@@ -28,8 +28,13 @@ class SuperAdminController extends Controller
                 'permissions' => json_encode(['user_management', 'system_settings', 'security', 'reports']),
             ]);
         }
+        $chartData = [
+            'monthly_registrations' => [10, 20, 15, 30], // replace with real query
+            'leave_requests' => [5, 8, 3, 12],
+            'project_completion' => [2, 4, 1, 6],
+        ];
 
         // ...existing code for dashboard view...
-        return view('super_admin.dashboard');
+        return view('super_admin.dashboard', compact('chartData'));
     }
 }
