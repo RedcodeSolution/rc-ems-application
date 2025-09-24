@@ -1,743 +1,6 @@
 @extends('layouts.admin')
 
-<style>
-    :root {
-        --redcode-primary: #DC2626; /* RedCode Brand Red */
-        --redcode-primary-dark: #991B1B; /* Deep Red */
-        --redcode-primary-light: #FEE2E2; /* Light Red Background */
-        --redcode-accent: #B91C1C; /* Accent Red */
-        --redcode-dark: #1F2937; /* Charcoal for headers/nav */
-        --redcode-gray: #6B7280; /* Medium Gray for text */
-        --redcode-light: #F9FAFB; /* Light Background */
-        --redcode-white: #FFFFFF; /* Pure White */
-        --redcode-blue: #2563EB; /* Links, buttons */
-        --redcode-green: #059669; /* Success states */
-        --redcode-orange: #D97706; /* Warnings */
-        --redcode-yellow: #F59E0B; /* Alerts */
-        --text-primary: #111827; /* Almost Black */
-        --text-secondary: #6B7280; /* Medium Gray */
-        --text-light: #9CA3AF; /* Light Gray */
-        --text-white: #FFFFFF; /* White Text */
-        --border-light: #E5E7EB;
-        --border-medium: #D1D5DB;
-        --border-dark: #6B7280;
-        --gradient-primary: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
-        --gradient-hero: linear-gradient(135deg, #DC2626 0%, #1F2937 50%, #991B1B 100%);
-        --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-
-        /* Legacy compatibility aliases */
-        --primary: var(--redcode-primary);
-        --accent: var(--redcode-dark);
-        --primary-light: var(--redcode-light);
-        --secondary: var(--redcode-blue);
-        --success: var(--redcode-green);
-        --warning: var(--redcode-orange);
-        --danger: var(--redcode-primary);
-        --error: var(--redcode-primary);
-        --info: var(--redcode-blue);
-        --text-disabled: var(--text-light);
-        --divider: var(--border-light);
-    }
-
-    /* Modal Styles */
-    .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(8px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .modal-overlay.active {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .modal-container {
-        background: rgba(255, 255, 255, 0.98);
-        backdrop-filter: blur(20px);
-        border-radius: 2rem;
-        width: 90%;
-        max-width: 800px;
-        max-height: 90vh;
-        overflow-y: auto;
-        box-shadow:
-            0 32px 64px rgba(220,38,38,0.15),
-            0 0 0 1px rgba(255,255,255,0.05),
-            inset 0 1px 0 rgba(255,255,255,0.1);
-        border: 1px solid var(--border-light);
-        position: relative;
-        transform: scale(0.9) translateY(20px);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .modal-overlay.active .modal-container {
-        transform: scale(1) translateY(0);
-    }
-
-    .modal-header {
-        padding: 2rem 2rem 0 2rem;
-        border-bottom: 1px solid var(--border-light);
-        margin-bottom: 2rem;
-        position: relative;
-    }
-
-    .modal-title {
-        font-size: 2rem;
-        font-weight: 800;
-        background: var(--gradient-primary);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .modal-subtitle {
-        color: var(--text-secondary);
-        font-size: 1rem;
-        font-weight: 500;
-        margin-bottom: 1.5rem;
-    }
-
-    .modal-close {
-        position: absolute;
-        top: 1rem;
-        right: 1.5rem;
-        background: rgba(220, 38, 38, 0.1);
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        color: var(--redcode-primary);
-    }
-
-    .modal-close:hover {
-        background: rgba(220, 38, 38, 0.2);
-        transform: scale(1.1);
-    }
-
-    .modal-body {
-        padding: 0 2rem 2rem 2rem;
-    }
-
-    /* Enhanced Form Styles */
-    .form-container {
-        display: grid;
-        gap: 1.5rem;
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-    }
-
-    .form-group {
-        position: relative;
-    }
-
-    .form-label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        font-size: 0.875rem;
-        letter-spacing: 0.025em;
-    }
-
-    .form-label i {
-        margin-right: 0.5rem;
-        color: var(--redcode-primary);
-    }
-
-    .form-input, .form-select {
-        width: 100%;
-        padding: 12px 16px 12px 48px;
-        border: 2px solid var(--border-light);
-        border-radius: 0.75rem;
-        font-size: 0.9rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        background: rgba(248, 250, 252, 0.5);
-        backdrop-filter: blur(10px);
-        color: var(--text-primary);
-        font-weight: 500;
-    }
-
-    .form-input:focus, .form-select:focus {
-        outline: none;
-        border-color: var(--redcode-primary);
-        background: rgba(255, 255, 255, 0.9);
-        box-shadow:
-            0 0 0 4px rgba(220,38,38,0.08),
-            0 8px 25px rgba(220,38,38,0.12);
-        transform: translateY(-2px);
-    }
-
-    .input-icon {
-        position: absolute;
-        left: 18px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-light);
-        transition: all 0.3s;
-        z-index: 2;
-    }
-
-    .form-input:focus + .input-icon,
-    .form-select:focus + .input-icon {
-        color: var(--redcode-primary);
-        transform: translateY(-50%) scale(1.1);
-    }
-
-    .form-select {
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-        background-position: right 12px center;
-        background-repeat: no-repeat;
-        background-size: 16px;
-    }
-
-    .form-select[multiple] {
-        background-image: none;
-        min-height: 120px;
-        padding: 12px 16px;
-    }
-
-    .form-select[multiple] option {
-        padding: 8px;
-        border-radius: 4px;
-        margin: 2px 0;
-    }
-
-    .form-actions {
-        display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
-        margin-top: 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--border-light);
-    }
-
-    /* Profile Photo Upload Styles */
-    .profile-photo-upload {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .photo-preview {
-        width: 120px;
-        height: 120px;
-        border: 3px dashed var(--border-light);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        overflow: hidden;
-        position: relative;
-        background: rgba(248, 250, 252, 0.8);
-    }
-
-    .photo-preview:hover {
-        border-color: var(--redcode-primary);
-        background: rgba(220, 38, 38, 0.05);
-        transform: scale(1.02);
-    }
-
-    .photo-placeholder {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        color: var(--text-light);
-        font-size: 0.875rem;
-    }
-
-    .photo-placeholder i {
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-        color: var(--redcode-primary);
-    }
-
-    .photo-preview img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 50%;
-    }
-
-    .photo-input {
-        position: absolute;
-        opacity: 0;
-        width: 1px;
-        height: 1px;
-        cursor: pointer;
-    }
-
-    .photo-upload-info {
-        text-align: center;
-        max-width: 250px;
-    }
-
-    .photo-upload-info small {
-        color: var(--text-light);
-        font-size: 0.75rem;
-    }
-
-    .profile-photo-upload {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .photo-preview {
-        width: 120px;
-        height: 120px;
-        border: 3px dashed var(--border-light);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        overflow: hidden;
-        position: relative;
-        background: rgba(248, 250, 252, 0.8);
-    }
-
-    .photo-preview:hover {
-        border-color: var(--redcode-primary);
-        background: rgba(220, 38, 38, 0.05);
-        transform: scale(1.02);
-    }
-
-    .photo-placeholder {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        color: var(--text-light);
-        font-size: 0.875rem;
-    }
-
-    .photo-placeholder i {
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-        color: var(--redcode-primary);
-    }
-
-    .photo-preview img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 50%;
-    }
-
-    .photo-input {
-        position: absolute;
-        opacity: 0;
-        width: 1px;
-        height: 1px;
-        cursor: pointer;
-    }
-
-    .photo-upload-info {
-        text-align: center;
-        max-width: 250px;
-    }
-
-    .photo-upload-info small {
-        color: var(--text-light);
-        font-size: 0.75rem;
-    }
-
-
-    .card {
-        border-radius: 1rem;
-        box-shadow: 0 2px 16px 0 rgba(220,38,38,0.07);
-        border: none;
-        background: #fff;
-    }
-    .card-header {
-        border-bottom: 1px solid var(--divider);
-        background: linear-gradient(90deg, var(--primary-light) 60%, #fff 100%);
-        border-radius: 1rem 1rem 0 0;
-        padding: 1.5rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .card-body {
-        padding: 2rem;
-    }
-    .btn {
-        border-radius: 0.75rem;
-        font-weight: 600;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: none;
-        position: relative;
-        overflow: hidden;
-        letter-spacing: 0.025em;
-        padding: 12px 24px;
-        box-shadow: 0 1px 4px 0 rgba(220,38,38,0.04);
-    }
-    .btn-primary {
-        background: var(--gradient-primary);
-        color: #fff;
-        box-shadow:
-            0 8px 25px rgba(220,38,38,0.18),
-            0 3px 10px rgba(153,27,27,0.12);
-    }
-
-    .btn-primary::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s;
-    }
-
-    .btn-primary:hover::before {
-        left: 100%;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px) scale(1.02);
-        box-shadow:
-            0 15px 35px rgba(220,38,38,0.22),
-            0 5px 15px rgba(153,27,27,0.18);
-    }
-    .btn-secondary {
-        background: var(--primary-light);
-        color: var(--text-secondary);
-        border: 1px solid var(--border-medium);
-    }
-    .btn-secondary:hover {
-        background: var(--divider);
-        transform: translateY(-2px);
-    }
-    .btn-warning {
-        background: var(--warning);
-        color: #fff;
-        border: none;
-    }
-    .btn-warning:hover {
-        background: #ffb300;
-        transform: translateY(-2px);
-    }
-    .btn-danger {
-        background: var(--danger);
-        color: #fff;
-        border: none;
-    }
-    .btn-danger:hover {
-        background: #d84315;
-        transform: translateY(-2px);
-    }
-    .badge {
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        display: inline-block;
-    }
-    /* ...existing form styles... */
-    .flex {
-        display: flex;
-    }
-    .gap-1 { gap: 0.25rem; }
-    .gap-2 { gap: 0.75rem; }
-    .gap-3 { gap: 1.25rem; }
-    .justify-between { justify-content: space-between; }
-    .items-center { align-items: center; }
-    .text-center { text-align: center; }
-    .mt-4 { margin-top: 1.5rem; }
-    .mb-4 { margin-bottom: 1.5rem; }
-    .table-container {
-        overflow-x: auto;
-        border-radius: 0.75rem;
-        box-shadow: 0 1px 8px 0 rgba(220,38,38,0.03);
-        background: #fff;
-    }
-    .table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        font-size: 0.97rem;
-    }
-    .table th, .table td {
-        padding: 1rem 1.25rem;
-        text-align: left;
-        vertical-align: middle;
-    }
-    .table th {
-        background: var(--primary-light);
-        color: var(--text-primary);
-        font-weight: 700;
-        border-bottom: 2px solid var(--divider);
-    }
-    .table tr {
-        transition: background 0.15s;
-    }
-    .table tbody tr:hover {
-        background: var(--divider);
-    }
-    .user-avatar {
-        background: var(--gradient-primary);
-        color: #fff;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        box-shadow: 0 2px 8px 0 rgba(220,38,38,0.08);
-    }
-    .card-body > div[style*="display: grid"] > .card {
-        border: 1px solid var(--divider);
-        box-shadow: 0 1px 8px 0 rgba(220,38,38,0.03);
-        transition: box-shadow 0.2s;
-    }
-    .card-body > div[style*="display: grid"] > .card:hover {
-        box-shadow: 0 4px 24px 0 rgba(220,38,38,0.08);
-    }
-    .card-body h4, .card-body h2 {
-        color: var(--text-primary);
-        margin: 0;
-        font-weight: 700;
-    }
-    .card-body p {
-        color: var(--text-secondary);
-        margin-bottom: 1rem;
-        line-height: 1.7;
-    }
-
-    /* Custom Scrollbar */
-    .modal-container::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .modal-container::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.05);
-        border-radius: 4px;
-    }
-
-    .modal-container::-webkit-scrollbar-thumb {
-        background: rgba(220,38,38,0.2);
-        border-radius: 4px;
-    }
-
-    .modal-container::-webkit-scrollbar-thumb:hover {
-        background: rgba(220,38,38,0.4);
-    }
-
-    .error-message {
-        background: rgba(217, 119, 6, 0.1);
-        border: 1px solid rgba(217, 119, 6, 0.2);
-        color: var(--redcode-orange);
-        padding: 12px 16px;
-        border-radius: 0.75rem;
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
-    }
-
-    .view-section {
-        margin-bottom: 2rem;
-        padding: 1.5rem;
-        background: rgba(255, 255, 255, 0.5);
-        border-radius: 1rem;
-        border: 1px solid var(--border-light);
-    }
-
-    .view-section-title {
-        margin: 0 0 1.5rem 0;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 2px solid var(--border-light);
-    }
-
-    .view-section-title i {
-        color: var(--redcode-primary);
-        font-size: 1rem;
-    }
-
-    .view-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-    }
-
-    .view-field {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .view-label {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-secondary);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        text-transform: uppercase;
-        letter-spacing: 0.025em;
-    }
-
-    .view-label i {
-        color: var(--redcode-primary);
-        font-size: 0.875rem;
-        width: 16px;
-        text-align: center;
-    }
-
-    .view-value {
-        font-size: 1rem;
-        font-weight: 500;
-        color: var(--text-primary);
-        padding: 0.75rem 1rem;
-        background: rgba(255, 255, 255, 0.8);
-        border-radius: 0.5rem;
-        border: 1px solid var(--border-light);
-        min-height: 1.5rem;
-        display: flex;
-        align-items: center;
-    }
-
-    .view-value:empty::before {
-        content: "Not specified";
-        color: var(--text-light);
-        font-style: italic;
-    }
-
-    .view-value .status-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.025em;
-    }
-
-    .view-value .status-badge.active {
-        background: rgba(5, 150, 105, 0.1);
-        color: var(--redcode-green);
-    }
-
-    .view-value .status-badge.inactive {
-        background: rgba(107, 114, 128, 0.1);
-        color: var(--text-secondary);
-    }
-
-    .view-value .status-badge.on-leave {
-        background: rgba(245, 158, 11, 0.1);
-        color: var(--redcode-orange);
-    }
-
-    .view-value .status-badge.terminated {
-        background: rgba(220, 38, 38, 0.1);
-        color: var(--redcode-primary);
-    }
-
-    .view-value .status-badge.paid {
-        background: rgba(5, 150, 105, 0.1);
-        color: var(--redcode-green);
-    }
-
-    .view-value .status-badge.pending {
-        background: rgba(245, 158, 11, 0.1);
-        color: var(--redcode-orange);
-    }
-
-    .view-value .status-badge.overdue {
-        background: rgba(220, 38, 38, 0.1);
-        color: var(--redcode-primary);
-    }
-
-    .view-value .status-badge.not-applicable {
-        background: rgba(107, 114, 128, 0.1);
-        color: var(--text-secondary);
-    }
-
-    @media (max-width: 768px) {
-        .modal-container {
-            width: 95%;
-            margin: 1rem;
-            border-radius: 1.5rem;
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-
-        .modal-header, .modal-body {
-            padding: 1.5rem;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-        }
-
-        .form-actions {
-            flex-direction: column;
-        }
-
-        .view-grid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-
-        .view-section {
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .view-section-title {
-            font-size: 1rem;
-            margin-bottom: 1rem;
-        }
-    }
-
-    @media (max-width: 900px) {
-        .card-body, .card-header { padding: 1rem; }
-        .table th, .table td { padding: 0.75rem 0.5rem; }
-    }
-    ::-webkit-scrollbar {
-        height: 8px;
-        background: #f3f4f6;
-        border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: #e5e7eb;
-        border-radius: 4px;
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('css/admin/employee.css') }}">
 
 @section('title', 'Employees Management')
 
@@ -765,17 +28,17 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="flex justify-between items-center mb-4">
-            <div class="flex gap-2">
-                <input type="text" id="searchInput" placeholder="Search employees..." class="form-input" style="width: 300px;" onkeyup="searchEmployees()">
-                <select class="form-select" id="departmentFilter" style="width: 200px;" onchange="filterEmployees()">
+        <div class="flex justify-between items-center mb-4 gap-2" style="flex-wrap: wrap;">
+            <div class="flex gap-2" style="flex-wrap: wrap; width: 100%;">
+                <input type="text" id="searchInput" placeholder="Search employees..." class="form-input" onkeyup="searchEmployees()">
+                <select class="form-select" id="departmentFilter" onchange="filterEmployees()">
                     <option value="">All Departments</option>
                     @foreach($departments as $department)
                     <option value="{{ $department->department_name }}">{{ $department->department_name }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2" style="flex-wrap: wrap;">
                 <button class="btn btn-secondary" onclick="resetFilters()">
                     <i class="fas fa-refresh"></i>
                     Reset
@@ -1023,7 +286,7 @@
                 <tbody>
                 @forelse($employees as $employee)
                 <tr>
-                    <td>
+                    <td data-label="Employee">
                         <div class="flex items-center gap-3">
                             <div class="user-avatar" style="width: 2rem; height: 2rem; font-size: 0.875rem;">
                                 {{ strtoupper(substr($employee->employee_name, 0, 1)) }}{{ strtoupper(substr(str_replace(' ', '', $employee->employee_name), 1, 1)) }}
@@ -1033,17 +296,17 @@
                             </div>
                         </div>
                     </td>
-                    <td>{{ $employee->department->department_name ?? 'Not Assigned' }}</td>
-                    <td>{{ $employee->role ?? 'Not Specified' }}</td>
-                    <td>
+                    <td data-label="Department">{{ $employee->department->department_name ?? 'Not Assigned' }}</td>
+                    <td data-label="Position">{{ $employee->role ?? 'Not Specified' }}</td>
+                    <td data-label="Email">
                         @if($employee->email)
                         {{ $employee->email }}
                         @else
                         <span style="color: var(--text-secondary); font-style: italic;">No email provided</span>
                         @endif
                     </td>
-                    <td>{{ $employee->contact_no ?? 'Not Provided' }}</td>
-                    <td>
+                    <td data-label="Phone">{{ $employee->contact_no ?? 'Not Provided' }}</td>
+                    <td data-label="Status">
                         @if($employee->employee_status == 'Active')
                         <span class="badge" style="background: rgba(5, 150, 105, 0.1); color: var(--success); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Active</span>
                         @elseif($employee->employee_status == 'On Leave')
@@ -1056,7 +319,7 @@
                         <span class="badge" style="background: rgba(107, 114, 128, 0.1); color: var(--text-secondary); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">{{ $employee->employee_status }}</span>
                         @endif
                     </td>
-                    <td>
+                    <td data-label="Leave Count">
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <span class="badge" style="background: rgba(37, 99, 235, 0.1); color: var(--info); padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;">
                                     {{ $employee->leaves->count() }}
@@ -1080,7 +343,7 @@
                             @endif
                         </div>
                     </td>
-                    <td>
+                    <td data-label="Actions">
                         <div class="flex gap-1">
                             <button class="btn btn-secondary" style="padding: 0.5rem;" title="View Employee"
                                 onclick="openViewModal(
@@ -1151,7 +414,6 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-
         <div class="modal-body">
             <form action="{{ route('employees.store') }}" method="POST" id="employeeForm" enctype="multipart/form-data">
                 @csrf
@@ -1166,7 +428,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="form-row">
                         <div class="form-group">
                             <label for="email" class="form-label">
@@ -1176,7 +437,6 @@
                                 <input type="email" id="email" name="email" class="form-input" placeholder="Enter email address" value="{{ old('email') }}" required>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label for="contact_no" class="form-label">
                                 <i class="fas fa-phone"></i>Contact Number
@@ -1186,8 +446,6 @@
                             </div>
                         </div>
                     </div>
-
-
                     <div class="form-row">
                         <div class="form-group">
                             <label for="employee_type" class="form-label">
@@ -1203,7 +461,6 @@
                                 </select>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label for="role" class="form-label">
                                 <i class="fas fa-user-tag"></i>Role/Position
@@ -1213,7 +470,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="department_id" class="form-label">
                             <i class="fas fa-building"></i>Department
@@ -1227,7 +483,6 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="team_ids" class="form-label">
                             <i class="fas fa-users"></i>Teams (Hold Ctrl/Cmd to select multiple)
@@ -1240,7 +495,6 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="form-row">
                         <div class="form-group">
                             <label for="employee_status" class="form-label">
@@ -1256,7 +510,6 @@
                                 </select>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label for="admin_id" class="form-label">
                                 <i class="fas fa-user-shield"></i>Reporting Manager
@@ -1271,7 +524,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="paid_status" class="form-label">
                             <i class="fas fa-credit-card"></i>Payment Status
@@ -1286,7 +538,6 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="profile_photo" class="form-label">
                             <i class="fas fa-camera"></i>Profile Photo
@@ -1304,8 +555,6 @@
                             </div>
                         </div>
                     </div>
-
-
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeEmployeeModal()">
                             <i class="fas fa-times"></i> Cancel
@@ -1332,15 +581,12 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-
         <div class="modal-body">
             <form id="editEmployeeForm" method="POST" action="" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="form-container">
-
-
-                <div class="form-row">
+                    <div class="form-row">
                         <div class="form-group">
                             <label for="edit_employee_id" class="form-label">
                                 <i class="fas fa-id-badge"></i>Employee ID
@@ -1349,7 +595,6 @@
                                 <input type="text" id="edit_employee_id" name="employee_id" class="form-input" placeholder="Employee ID" readonly style="background: #f3f4f6; cursor: not-allowed;">
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label for="edit_employee_name" class="form-label">
                                 <i class="fas fa-user"></i>Full Name
@@ -1359,8 +604,6 @@
                             </div>
                         </div>
                     </div>
-
-
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit_email" class="form-label">
@@ -1370,7 +613,6 @@
                                 <input type="email" id="edit_email" name="email" class="form-input" placeholder="Enter email address" required>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label for="edit_contact_no" class="form-label">
                                 <i class="fas fa-phone"></i>Contact Number
@@ -1380,7 +622,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit_employee_type" class="form-label">
@@ -1396,7 +637,6 @@
                                 </select>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label for="edit_role" class="form-label">
                                 <i class="fas fa-user-tag"></i>Role/Position
@@ -1406,8 +646,6 @@
                             </div>
                         </div>
                     </div>
-
-
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit_department_id" class="form-label">
@@ -1422,7 +660,6 @@
                                 </select>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label for="edit_admin_id" class="form-label">
                                 <i class="fas fa-user-shield"></i>Reporting Manager
@@ -1464,7 +701,6 @@
                                 </select>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label for="edit_paid_status" class="form-label">
                                 <i class="fas fa-credit-card"></i>Payment Status
@@ -1480,7 +716,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="edit_profile_photo" class="form-label">
                             <i class="fas fa-image"></i> Profile Photo
@@ -2373,253 +1608,6 @@
     }
 
 
-    function searchEmployees() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const rows = document.querySelectorAll('tbody tr');
-
-        rows.forEach(row => {
-            if (row.cells.length < 8) return;
-
-            const employeeName = row.cells[0].textContent.toLowerCase();
-            const department = row.cells[1].textContent.toLowerCase();
-            const position = row.cells[2].textContent.toLowerCase();
-            const email = row.cells[3].textContent.toLowerCase();
-
-            const matchesSearch = employeeName.includes(searchTerm) ||
-                department.includes(searchTerm) ||
-                position.includes(searchTerm) ||
-                email.includes(searchTerm);
-
-
-            const currentDisplay = row.style.display;
-            if (currentDisplay === 'none') {
-
-                row.style.display = 'none';
-            } else {
-                row.style.display = matchesSearch ? '' : 'none';
-            }
-        });
-    }
-
-    function filterEmployees() {
-        const departmentFilter = document.getElementById('departmentFilter').value;
-        const rows = document.querySelectorAll('tbody tr');
-
-        rows.forEach(row => {
-            if (row.cells.length < 8) return;
-
-            const department = row.cells[1].textContent.trim();
-            const matchesDepartment = !departmentFilter || department === departmentFilter;
-
-            const currentDisplay = row.style.display;
-            if (currentDisplay === 'none') {
-                row.style.display = 'none';
-            } else {
-                row.style.display = matchesDepartment ? '' : 'none';
-            }
-        });
-    }
-
-    function resetFilters() {
-
-        document.getElementById('searchInput').value = '';
-        document.getElementById('departmentFilter').value = '';
-        document.getElementById('leaveStatusFilter').value = '';
-        document.getElementById('leaveTypeFilter').value = '';
-        document.getElementById('leaveCountFilter').value = '';
-        document.getElementById('leaveDateFilter').value = '';
-
-
-        document.querySelectorAll('[onclick^="filterByLeaveStatus"]').forEach(btn => {
-            btn.classList.remove('btn-primary', 'btn-warning', 'btn-info', 'btn-success', 'btn-danger', 'btn-secondary');
-            btn.classList.add('btn-secondary');
-        });
-
-
-        const rows = document.querySelectorAll('tbody tr');
-        rows.forEach(row => {
-            row.style.display = '';
-        });
-
-        currentLeaveFilter = 'all';
-        updateFilterResults();
-    }
-
-    let currentSearchedEmployee = null;
-
-    function showEmployeeLeaveInfo(employeeId, employeeName, department, position) {
-        currentSearchedEmployee = employeeId;
-        document.getElementById('searchedEmployeeName').textContent = `${employeeName} - Leave Information`;
-        document.getElementById('employeeLeaveInfo').style.display = 'block';
-
-
-        document.getElementById('employeeName').textContent = employeeName;
-        document.getElementById('employeeDepartment').textContent = department;
-        document.getElementById('employeePosition').textContent = position;
-
-
-        loadEmployeeLeaveInfo(employeeId);
-
-        document.getElementById('employeeLeaveInfo').scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-    }
-
-    function hideEmployeeLeaveInfo() {
-        document.getElementById('employeeLeaveInfo').style.display = 'none';
-        currentSearchedEmployee = null;
-    }
-
-    function loadEmployeeLeaveInfo(employeeId) {
-        const mockLeaveInfo = {
-            totalLeaves: 8,
-            pendingLeaves: 2,
-            approvedLeaves: 5,
-            rejectedLeaves: 1,
-            totalDays: 45,
-            remainingBalance: 15,
-            recentLeaves: [
-                {
-                    leave_type: 'Annual Leave',
-                    start_date: '2024-06-15',
-                    end_date: '2024-06-20',
-                    duration: 5,
-                    status: 'approved',
-                    applied_date: '2024-06-01'
-                },
-                {
-                    leave_type: 'Sick Leave',
-                    start_date: '2024-05-10',
-                    end_date: '2024-05-12',
-                    duration: 3,
-                    status: 'approved',
-                    applied_date: '2024-05-08'
-                },
-                {
-                    leave_type: 'Personal Leave',
-                    start_date: '2024-07-01',
-                    end_date: '2024-07-03',
-                    duration: 3,
-                    status: 'pending',
-                    applied_date: '2024-06-25'
-                },
-                {
-                    leave_type: 'Medical Leave',
-                    start_date: '2024-04-15',
-                    end_date: '2024-04-22',
-                    duration: 8,
-                    status: 'approved',
-                    applied_date: '2024-04-10'
-                }
-            ]
-        };
-
-        // Update leave statistics
-        document.getElementById('totalLeaveCount').textContent = mockLeaveInfo.totalLeaves;
-        document.getElementById('pendingLeaveCount').textContent = mockLeaveInfo.pendingLeaves;
-        document.getElementById('pendingLeaveCount2').textContent = mockLeaveInfo.pendingLeaves;
-        document.getElementById('approvedLeaveCount').textContent = mockLeaveInfo.approvedLeaves;
-        document.getElementById('rejectedLeaveCount').textContent = mockLeaveInfo.rejectedLeaves;
-        document.getElementById('totalLeaveDays').textContent = mockLeaveInfo.totalDays;
-        document.getElementById('remainingLeaveBalance').textContent = mockLeaveInfo.remainingBalance;
-
-        // Display recent leave history
-        displayRecentLeaveHistory(mockLeaveInfo.recentLeaves);
-    }
-
-    function displayRecentLeaveHistory(leaves) {
-        const tbody = document.getElementById('recentLeaveHistoryTableBody');
-        const noHistoryDiv = document.getElementById('noLeaveHistory');
-
-        if (leaves.length === 0) {
-            tbody.innerHTML = '';
-            noHistoryDiv.style.display = 'block';
-            return;
-        }
-
-        noHistoryDiv.style.display = 'none';
-
-        tbody.innerHTML = leaves.map(leave => `
-        <tr>
-            <td>
-                <div style="font-weight: 600; color: var(--text-primary);">${leave.leave_type}</div>
-            </td>
-            <td>
-                <div style="font-weight: 600;">${formatDate(leave.start_date)}</div>
-            </td>
-            <td>
-                <div style="font-weight: 600;">${formatDate(leave.end_date)}</div>
-            </td>
-            <td>
-                <span class="badge" style="background: rgba(37, 99, 235, 0.1); color: var(--info); padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem;">
-                    ${leave.duration} day${leave.duration > 1 ? 's' : ''}
-                </span>
-            </td>
-            <td>
-                ${getLeaveStatusBadge(leave.status)}
-            </td>
-            <td>
-                <div style="font-size: 0.875rem; color: var(--text-secondary);">
-                    ${formatDate(leave.applied_date)}
-                </div>
-            </td>
-        </tr>
-    `).join('');
-    }
-
-    function getLeaveStatusBadge(status) {
-        const statusColors = {
-            'pending': 'warning',
-            'approved': 'success',
-            'rejected': 'danger',
-            'cancelled': 'secondary'
-        };
-
-        const color = statusColors[status] || 'secondary';
-        return `<span class="badge" style="background: rgba(${getStatusColor(status)}, 0.1); color: var(--${color}); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; text-transform: capitalize;">${status}</span>`;
-    }
-
-    function getStatusColor(status) {
-        const colors = {
-            'pending': '245, 158, 11',
-            'approved': '16, 185, 129',
-            'rejected': '220, 38, 38',
-            'cancelled': '107, 114, 128'
-        };
-        return colors[status] || '107, 114, 128';
-    }
-
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    }
-
-    function refreshEmployeeLeaveInfo() {
-        if (currentSearchedEmployee) {
-            loadEmployeeLeaveInfo(currentSearchedEmployee);
-        }
-    }
-
-    function viewFullLeaveHistory() {
-        alert('Viewing full leave history');
-    }
-
-    function exportEmployeeLeaveReport() {
-        alert('Exporting employee leave report');
-    }
-
-    function addLeaveRecord() {
-        alert('Adding new leave record');
-    }
-
-    function viewLeaveCalendar() {
-        alert('Viewing leave calendar');
-    }
 
     function searchEmployees() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -2638,6 +1626,7 @@
                 department.includes(searchTerm) ||
                 position.includes(searchTerm) ||
                 email.includes(searchTerm);
+
 
             const currentDisplay = row.style.display;
             if (currentDisplay === 'none') {
