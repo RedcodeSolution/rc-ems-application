@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Console\View\Components\Task;
 use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
@@ -39,5 +40,9 @@ class Project extends Model
             ->withPivot('role_in_project', 'assigned_date')
             ->withTimestamps();
     }
-}
 
+    public function tasks()
+    {
+        return $this->hasMany(Tasks::class, 'project_id', 'project_id');
+    }
+}

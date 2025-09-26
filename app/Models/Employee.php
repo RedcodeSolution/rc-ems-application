@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Console\View\Components\Task;
 use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
@@ -74,6 +75,12 @@ class Employee extends Model
 
     public function skills()
     {
-        return $this->hasMany(\App\Models\EmployeeSkill::class, 'employee_id', 'employee_id');
+        return $this->hasMany(EmployeeSkill::class, 'employee_id', 'employee_id');
+    }
+
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'employee_task', 'employee_id', 'task_id')
+            ->withTimestamps();
     }
 }

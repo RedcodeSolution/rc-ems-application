@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\Employee\EmployeeLeaveController;
 use App\Http\Controllers\Employee\EmployeeProfileController;
+use App\Http\Controllers\Employee\EmployeeTaskController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NotificationController;
@@ -141,9 +142,19 @@ Route::middleware('auth')->group(function () {
     })->name('employee.projects');
 
     // Employee tasks route (frontend only)
-    Route::get('/employees/tasks', function () {
-        return view('employees.tasks.index');
-    })->name('employee.tasks');
+    // Route::get('/employees/tasks', function () {
+    //     return view('employees.tasks.index');
+    // })->name('employee.tasks');
+    Route::put('/employees/tasks/{id}', [EmployeeTaskController::class, 'update'])->name('employee.update');
+
+    Route::get('/employees/tasks/{id}', [EmployeeTaskController::class, 'show'])->name('employee.tasks');
+    Route::get('/employees/tasks', [EmployeeTaskController::class, 'index'])->name('employee.tasks');
+
+    Route::post('/employees/tasks', [EmployeeTaskController::class, 'store'])->name('tasks.store');
+    Route::patch('/employees/tasks/{id}/status', [EmployeeTaskController::class, 'updateStatus'])
+        ->name('employee.tasks.updateStatus');
+    Route::post('/employees/tasks/{id}/comments', [EmployeeTaskController::class, 'addComment'])
+        ->name('employee.tasks.addComment');
 
     // Employee attendance route (frontend only)
     Route::get('/employees/attendance', function () {
