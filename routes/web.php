@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminAnnouncementsController;
 use App\Http\Controllers\Admin\AdminsLeaveController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\EmployeeController;
@@ -270,9 +271,10 @@ Route::middleware('auth')->group(function () {
         })->name('reports');
 
         // Announcements
-        Route::get('/announcements', function () {
-            return view('admin.announcements.index');
-        })->name('announcements');
+        Route::post('/announcements', [AdminAnnouncementsController::class, 'store'])->name('announcements.store');
+        Route::put('/announcements/{id}', [AdminAnnouncementsController::class, 'update'])->name('announcements.update');
+        Route::delete('/announcements/{id}', [AdminAnnouncementsController::class, 'destroy'])->name('announcements.destroy');
+        Route::get('/announcements', [AdminAnnouncementsController::class, 'index'])->name('announcements');
 
         // Administration (alias for management)
         Route::get('/administration', function () {

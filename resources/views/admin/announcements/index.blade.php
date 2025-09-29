@@ -1,1473 +1,1593 @@
 @extends('layouts.admin')
 
 <style>
-:root {
-    /* RedCode Solutions Color Palette - Matching Project Modal */
-    --redcode-primary: #DC2626; /* RedCode Brand Red */
-    --redcode-primary-dark: #991B1B; /* Deep Red */
-    --redcode-primary-light: #FEE2E2; /* Light Red Background */
-    --redcode-accent: #B91C1C; /* Accent Red */
-    --redcode-dark: #1F2937; /* Charcoal for headers/nav */
-    --redcode-gray: #6B7280; /* Medium Gray for text */
-    --redcode-light: #F9FAFB; /* Light Background */
-    --redcode-white: #FFFFFF; /* Pure White */
-    --redcode-blue: #2563EB; /* Links, buttons */
-    --redcode-green: #059669; /* Success states */
-    --redcode-orange: #D97706; /* Warnings */
-    --redcode-yellow: #F59E0B; /* Alerts */
-    --text-primary: #111827; /* Almost Black */
-    --text-secondary: #6B7280; /* Medium Gray */
-    --text-light: #9CA3AF; /* Light Gray */
-    --text-white: #FFFFFF; /* White Text */
-    --border-light: #E5E7EB;
-    --border-medium: #D1D5DB;
-    --border-dark: #6B7280;
-    --gradient-primary: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
-    --gradient-hero: linear-gradient(135deg, #DC2626 0%, #1F2937 50%, #991B1B 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-    
-    /* Legacy variables for backward compatibility */
-    --primary: #DC2626;
-    --accent: #212121;
-    --primary-light: #F5F5F5;
-    --secondary: #3F51B5;
-    --success: #43A047;
-    --warning: #FFA000;
-    --danger: #E64A19;
-    --error: #E64A19;
-    --info: #0097A7;
-    --text-disabled: #BDBDBD;
-    --divider: #E0E0E0;
-}
-/* Modern Announcements Styles */
-.card {
-    border-radius: 1rem;
-    box-shadow: 0 2px 16px 0 rgba(0,0,0,0.07);
-    border: none;
-    background: #fff;
-}
-.card-header {
-    border-bottom: 1px solid var(--divider);
-    background: linear-gradient(90deg, var(--primary-light) 60%, #fff 100%);
-    border-radius: 1rem 1rem 0 0;
-    padding: 1.5rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.card-body {
-    padding: 2rem;
-}
-.btn {
-    border-radius: 0.75rem;
-    font-weight: 500;
-    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-    box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
-}
-.btn-primary {
-    background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%);
-    color: #fff;
-    border: none;
-}
-.btn-primary:hover {
-    background: linear-gradient(90deg, var(--secondary) 60%, var(--primary) 100%);
-}
-.btn-secondary {
-    background: var(--primary-light);
-    color: var(--text-secondary);
-    border: none;
-}
-.btn-secondary:hover {
-    background: var(--divider);
-}
-.btn-warning {
-    background: var(--warning);
-    color: #fff;
-    border: none;
-}
-.btn-warning:hover {
-    background: #ffb300;
-}
-.btn-danger {
-    background: var(--danger);
-    color: #fff;
-    border: none;
-}
-.btn-danger:hover {
-    background: #d84315;
-}
-.btn-success {
-    background: var(--success);
-    color: #fff;
-    border: none;
-}
-.btn-success:hover {
-    background: #388e3c;
-}
-.btn-info {
-    background: var(--info);
-    color: #fff;
-    border: none;
-}
-.btn-info:hover {
-    background: #007c91;
-}
-.badge {
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    display: inline-block;
-}
-.form-input, .form-select {
-    border-radius: 0.5rem;
-    border: 1px solid var(--divider);
-    background: var(--primary-light);
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    transition: border 0.2s, box-shadow 0.2s;
-}
-.form-input:focus, .form-select:focus {
-    border-color: var(--primary);
-    outline: none;
-    box-shadow: 0 0 0 2px #d32f2f22;
-}
-.flex {
-    display: flex;
-}
-.gap-1 { gap: 0.25rem; }
-.gap-2 { gap: 0.75rem; }
-.gap-3 { gap: 1.25rem; }
-.justify-between { justify-content: space-between; }
-.items-center { align-items: center; }
-.text-center { text-align: center; }
-.mt-4 { margin-top: 1.5rem; }
-.mb-4 { margin-bottom: 1.5rem; }
-.card-body > div[style*="display: flex; flex-direction: column"] > .card {
-    border: 1px solid var(--divider);
-    box-shadow: 0 1px 8px 0 rgba(0,0,0,0.03);
-    transition: box-shadow 0.2s;
-}
-.card-body > div[style*="display: flex; flex-direction: column"] > .card:hover {
-    box-shadow: 0 4px 24px 0 rgba(37,99,235,0.08);
-}
-.card-body h3 {
-    color: var(--text-primary);
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 700;
-}
-.card-body p {
-    color: var(--text-secondary);
-    margin-bottom: 1rem;
-    line-height: 1.7;
-}
-@media (max-width: 900px) {
-    .card-body, .card-header { padding: 1rem; }
-    .card-body h3 { font-size: 1.1rem; }
-}
-::-webkit-scrollbar {
-    height: 8px;
-    background: #f3f4f6;
-    border-radius: 4px;
-}
-::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
-    border-radius: 4px;
-}
+    :root {
+        /* RedCode Solutions Color Palette - Matching Project Modal */
+        --redcode-primary: #DC2626;
+        /* RedCode Brand Red */
+        --redcode-primary-dark: #991B1B;
+        /* Deep Red */
+        --redcode-primary-light: #FEE2E2;
+        /* Light Red Background */
+        --redcode-accent: #B91C1C;
+        /* Accent Red */
+        --redcode-dark: #1F2937;
+        /* Charcoal for headers/nav */
+        --redcode-gray: #6B7280;
+        /* Medium Gray for text */
+        --redcode-light: #F9FAFB;
+        /* Light Background */
+        --redcode-white: #FFFFFF;
+        /* Pure White */
+        --redcode-blue: #2563EB;
+        /* Links, buttons */
+        --redcode-green: #059669;
+        /* Success states */
+        --redcode-orange: #D97706;
+        /* Warnings */
+        --redcode-yellow: #F59E0B;
+        /* Alerts */
+        --text-primary: #111827;
+        /* Almost Black */
+        --text-secondary: #6B7280;
+        /* Medium Gray */
+        --text-light: #9CA3AF;
+        /* Light Gray */
+        --text-white: #FFFFFF;
+        /* White Text */
+        --border-light: #E5E7EB;
+        --border-medium: #D1D5DB;
+        --border-dark: #6B7280;
+        --gradient-primary: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+        --gradient-hero: linear-gradient(135deg, #DC2626 0%, #1F2937 50%, #991B1B 100%);
+        --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
 
-/* Modal Styles - Matching Project Modal */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+        /* Legacy variables for backward compatibility */
+        --primary: #DC2626;
+        --accent: #212121;
+        --primary-light: #F5F5F5;
+        --secondary: #3F51B5;
+        --success: #43A047;
+        --warning: #FFA000;
+        --danger: #E64A19;
+        --error: #E64A19;
+        --info: #0097A7;
+        --text-disabled: #BDBDBD;
+        --divider: #E0E0E0;
+    }
 
-.modal-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
+    /* Modern Announcements Styles */
+    .card {
+        border-radius: 1rem;
+        box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.07);
+        border: none;
+        background: #fff;
+    }
 
-.modal-container {
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(20px);
-    border-radius: 2rem;
-    width: 90%;
-    max-width: 800px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow:
-        0 32px 64px rgba(220,38,38,0.15),
-        0 0 0 1px rgba(255,255,255,0.05),
-        inset 0 1px 0 rgba(255,255,255,0.1);
-    border: 1px solid var(--border-light);
-    position: relative;
-    transform: scale(0.9) translateY(20px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+    .card-header {
+        border-bottom: 1px solid var(--divider);
+        background: linear-gradient(90deg, var(--primary-light) 60%, #fff 100%);
+        border-radius: 1rem 1rem 0 0;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-.modal-overlay.active .modal-container {
-    transform: scale(1) translateY(0);
-}
+    .card-body {
+        padding: 2rem;
+    }
 
-.modal-header {
-    padding: 2rem 2rem 0 2rem;
-    border-bottom: 1px solid var(--border-light);
-    margin-bottom: 2rem;
-    position: relative;
-}
+    .btn {
+        border-radius: 0.75rem;
+        font-weight: 500;
+        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.04);
+    }
 
-.modal-title {
-    font-size: 2rem;
-    font-weight: 800;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
+    .btn-primary {
+        background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%);
+        color: #fff;
+        border: none;
+    }
 
-.modal-subtitle {
-    color: var(--text-secondary);
-    font-size: 1rem;
-    font-weight: 500;
-    margin-bottom: 1.5rem;
-}
+    .btn-primary:hover {
+        background: linear-gradient(90deg, var(--secondary) 60%, var(--primary) 100%);
+    }
 
-.modal-close {
-    position: absolute;
-    top: 1rem;
-    right: 1.5rem;
-    background: rgba(220, 38, 38, 0.1);
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: var(--redcode-primary);
-}
+    .btn-secondary {
+        background: var(--primary-light);
+        color: var(--text-secondary);
+        border: none;
+    }
 
-.modal-close:hover {
-    background: rgba(220, 38, 38, 0.2);
-    transform: scale(1.1);
-}
+    .btn-secondary:hover {
+        background: var(--divider);
+    }
 
-.modal-body {
-    padding: 0 2rem 2rem 2rem;
-}
+    .btn-warning {
+        background: var(--warning);
+        color: #fff;
+        border: none;
+    }
 
-/* Enhanced Form Styles - Matching Project Modal */
-.form-container {
-    display: grid;
-    gap: 1.5rem;
-}
+    .btn-warning:hover {
+        background: #ffb300;
+    }
 
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-}
+    .btn-danger {
+        background: var(--danger);
+        color: #fff;
+        border: none;
+    }
 
-.form-group {
-    position: relative;
-}
+    .btn-danger:hover {
+        background: #d84315;
+    }
 
-.form-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    letter-spacing: 0.025em;
-}
+    .btn-success {
+        background: var(--success);
+        color: #fff;
+        border: none;
+    }
 
-.form-label i {
-    margin-right: 0.5rem;
-    color: var(--redcode-primary);
-}
+    .btn-success:hover {
+        background: #388e3c;
+    }
 
-.form-input, .form-select, .form-textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid var(--border-light);
-    border-radius: 0.75rem;
-    font-size: 0.9rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(248, 250, 252, 0.5);
-    backdrop-filter: blur(10px);
-    color: var(--text-primary);
-    font-weight: 500;
-    box-sizing: border-box;
-    min-height: 48px;
-    display: flex;
-    align-items: center;
-}
+    .btn-info {
+        background: var(--info);
+        color: #fff;
+        border: none;
+    }
 
-.form-textarea {
-    min-height: 100px;
-    resize: vertical;
-    font-family: inherit;
-    padding: 16px;
-    align-items: flex-start;
-    line-height: 1.5;
-}
+    .btn-info:hover {
+        background: #007c91;
+    }
 
-.form-input:focus, .form-select:focus, .form-textarea:focus {
-    outline: none;
-    border-color: var(--redcode-primary);
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow:
-        0 0 0 4px rgba(220,38,38,0.08),
-        0 8px 25px rgba(220,38,38,0.12);
-    transform: translateY(-2px);
-}
+    .badge {
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        display: inline-block;
+    }
 
-.form-select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    background-size: 16px;
-}
+    .form-input,
+    .form-select {
+        border-radius: 0.5rem;
+        border: 1px solid var(--divider);
+        background: var(--primary-light);
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        transition: border 0.2s, box-shadow 0.2s;
+    }
 
-.form-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-light);
-}
+    .form-input:focus,
+    .form-select:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 2px #d32f2f22;
+    }
 
-.form-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-}
+    .flex {
+        display: flex;
+    }
 
-.form-checkbox input {
-    width: auto;
-    margin: 0;
-    margin-right: 0.5rem;
-}
+    .gap-1 {
+        gap: 0.25rem;
+    }
 
-/* Enhanced Button Styles - Matching Project Modal */
-.btn {
-    padding: 12px 24px;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: none;
-    position: relative;
-    overflow: hidden;
-    letter-spacing: 0.025em;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
+    .gap-2 {
+        gap: 0.75rem;
+    }
 
-.btn-primary {
-    background: var(--gradient-primary);
-    color: white;
-    box-shadow:
-        0 8px 25px rgba(220,38,38,0.18),
-        0 3px 10px rgba(153,27,27,0.12);
-}
+    .gap-3 {
+        gap: 1.25rem;
+    }
 
-.btn-primary::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s;
-}
+    .justify-between {
+        justify-content: space-between;
+    }
 
-.btn-primary:hover::before {
-    left: 100%;
-}
+    .items-center {
+        align-items: center;
+    }
 
-.btn-primary:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow:
-        0 15px 35px rgba(220,38,38,0.22),
-        0 5px 15px rgba(153,27,27,0.18);
-}
+    .text-center {
+        text-align: center;
+    }
 
-.btn-secondary {
-    background: var(--redcode-light);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-light);
-}
+    .mt-4 {
+        margin-top: 1.5rem;
+    }
 
-.btn-secondary:hover {
-    background: var(--border-light);
-    transform: translateY(-2px);
-}
+    .mb-4 {
+        margin-bottom: 1.5rem;
+    }
 
-/* Responsive */
-@media (max-width: 768px) {
+    .card-body>div[style*="display: flex; flex-direction: column"]>.card {
+        border: 1px solid var(--divider);
+        box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.03);
+        transition: box-shadow 0.2s;
+    }
+
+    .card-body>div[style*="display: flex; flex-direction: column"]>.card:hover {
+        box-shadow: 0 4px 24px 0 rgba(37, 99, 235, 0.08);
+    }
+
+    .card-body h3 {
+        color: var(--text-primary);
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    .card-body p {
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+        line-height: 1.7;
+    }
+
+    @media (max-width: 900px) {
+
+        .card-body,
+        .card-header {
+            padding: 1rem;
+        }
+
+        .card-body h3 {
+            font-size: 1.1rem;
+        }
+    }
+
+    ::-webkit-scrollbar {
+        height: 8px;
+        background: #f3f4f6;
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #e5e7eb;
+        border-radius: 4px;
+    }
+
+    /* Modal Styles - Matching Project Modal */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
     .modal-container {
-        width: 95%;
-        margin: 1rem;
-        border-radius: 1.5rem;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        border-radius: 2rem;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow:
+            0 32px 64px rgba(220, 38, 38, 0.15),
+            0 0 0 1px rgba(255, 255, 255, 0.05),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-light);
+        position: relative;
+        transform: scale(0.9) translateY(20px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    
-    .form-row {
-        grid-template-columns: 1fr;
+
+    .modal-overlay.active .modal-container {
+        transform: scale(1) translateY(0);
     }
-    
-    .modal-header, .modal-body {
-        padding: 1.5rem;
+
+    .modal-header {
+        padding: 2rem 2rem 0 2rem;
+        border-bottom: 1px solid var(--border-light);
+        margin-bottom: 2rem;
+        position: relative;
     }
-    
+
     .modal-title {
-        font-size: 1.5rem;
+        font-size: 2rem;
+        font-weight: 800;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
-    
+
+    .modal-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 1rem;
+        right: 1.5rem;
+        background: rgba(220, 38, 38, 0.1);
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: var(--redcode-primary);
+    }
+
+    .modal-close:hover {
+        background: rgba(220, 38, 38, 0.2);
+        transform: scale(1.1);
+    }
+
+    .modal-body {
+        padding: 0 2rem 2rem 2rem;
+    }
+
+    /* Enhanced Form Styles - Matching Project Modal */
+    .form-container {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        letter-spacing: 0.025em;
+    }
+
+    .form-label i {
+        margin-right: 0.5rem;
+        color: var(--redcode-primary);
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid var(--border-light);
+        border-radius: 0.75rem;
+        font-size: 0.9rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(248, 250, 252, 0.5);
+        backdrop-filter: blur(10px);
+        color: var(--text-primary);
+        font-weight: 500;
+        box-sizing: border-box;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+    }
+
+    .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+        font-family: inherit;
+        padding: 16px;
+        align-items: flex-start;
+        line-height: 1.5;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--redcode-primary);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow:
+            0 0 0 4px rgba(220, 38, 38, 0.08),
+            0 8px 25px rgba(220, 38, 38, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 12px center;
+        background-repeat: no-repeat;
+        background-size: 16px;
+    }
+
     .form-actions {
-        flex-direction: column;
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-light);
     }
-}
+
+    .form-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-checkbox input {
+        width: auto;
+        margin: 0;
+        margin-right: 0.5rem;
+    }
+
+    /* Enhanced Button Styles - Matching Project Modal */
+    .btn {
+        padding: 12px 24px;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        position: relative;
+        overflow: hidden;
+        letter-spacing: 0.025em;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: var(--gradient-primary);
+        color: white;
+        box-shadow:
+            0 8px 25px rgba(220, 38, 38, 0.18),
+            0 3px 10px rgba(153, 27, 27, 0.12);
+    }
+
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow:
+            0 15px 35px rgba(220, 38, 38, 0.22),
+            0 5px 15px rgba(153, 27, 27, 0.18);
+    }
+
+    .btn-secondary {
+        background: var(--redcode-light);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-light);
+    }
+
+    .btn-secondary:hover {
+        background: var(--border-light);
+        transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .modal-container {
+            width: 95%;
+            margin: 1rem;
+            border-radius: 1.5rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .modal-header,
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+    }
 </style>
 
 @section('title', 'Announcements')
 
 @section('content')
-<div class="card">
-    <div class="card-header">
-        <h2><i class="fas fa-bullhorn"></i> Announcements</h2>
-        <div class="flex gap-2">
-            <button onclick="openAnnouncementModal()" class="btn btn-primary">
-                <i class="fas fa-plus"></i>
-                New Announcement
-            </button>
-            <button class="btn btn-secondary">
-                <i class="fas fa-download"></i>
-                Export
-            </button>
-        </div>
-    </div>
-    <div class="card-body">
-        <!-- Search and Filter Section -->
-        <div class="flex justify-between items-center mb-4">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="fas fa-bullhorn"></i> Announcements</h2>
             <div class="flex gap-2">
-                <input type="text" placeholder="Search announcements..." class="form-input" style="width: 300px;">
-                <select class="form-select" style="width: 200px;">
-                    <option>All Categories</option>
-                    <option>General</option>
-                    <option>HR Updates</option>
-                    <option>Policy Changes</option>
-                    <option>Events</option>
-                    <option>System Updates</option>
-                </select>
-            </div>
-            <button class="btn btn-secondary">
-                <i class="fas fa-filter"></i>
-                Filter
-            </button>
-        </div>
-
-        <!-- Announcements List -->
-        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-            <div class="card">
-                <div class="card-body">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                        <div style="flex: 1;">
-                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
-                                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--gray-800); margin: 0;">Holiday Schedule Update</h3>
-                                <span class="badge" style="background: rgba(59, 130, 246, 0.1); color: var(--primary); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">General</span>
-                                <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Active</span>
-                            </div>
-                            <p style="color: var(--gray-600); margin-bottom: 1rem; line-height: 1.6;">
-                                Please note the updated holiday schedule for December 2024. The office will be closed from December 24th to January 2nd. All employees are requested to plan their work accordingly and complete pending tasks before the holiday period.
-                            </p>
-                            <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.875rem; color: var(--gray-500);">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-user"></i>
-                                    <span>Posted by HR Team</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-calendar"></i>
-                                    <span>Nov 15, 2024</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-eye"></i>
-                                    <span>156 views</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex gap-1">
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="openViewAnnouncementModal(1, 'Holiday Schedule Update', 'medium', 'general', 'Please note the updated holiday schedule for December 2024. The office will be closed from December 24th to January 2nd. All employees are requested to plan their work accordingly and complete pending tasks before the holiday period.', '2024-12-24T00:00', ['all'])">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-warning" style="padding: 0.5rem;" onclick="openEditAnnouncementModal(1, 'Holiday Schedule Update', 'medium', 'general', 'Please note the updated holiday schedule for December 2024. The office will be closed from December 24th to January 2nd. All employees are requested to plan their work accordingly and complete pending tasks before the holiday period.', '', ['all'])">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-danger" style="padding: 0.5rem;">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-body">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                        <div style="flex: 1;">
-                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
-                                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--gray-800); margin: 0;">New Employee Onboarding Process</h3>
-                                <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--secondary); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">HR Updates</span>
-                                <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Active</span>
-                            </div>
-                            <p style="color: var(--gray-600); margin-bottom: 1rem; line-height: 1.6;">
-                                We have updated our employee onboarding process to make it more streamlined and efficient. New employees will now receive a comprehensive welcome package and will be assigned a buddy for their first month. Please review the updated guidelines in the HR portal.
-                            </p>
-                            <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.875rem; color: var(--gray-500);">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-user"></i>
-                                    <span>Posted by Lisa Anderson</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-calendar"></i>
-                                    <span>Nov 10, 2024</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-eye"></i>
-                                    <span>89 views</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex gap-1">
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="openViewAnnouncementModal(2, 'New Employee Onboarding Process', 'high', 'hr', 'We have updated our employee onboarding process to make it more streamlined and efficient. New employees will now receive a comprehensive welcome package and will be assigned a buddy for their first month. Please review the updated guidelines in the HR portal.', '2024-11-10T00:00', ['all'])">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-warning" style="padding: 0.5rem;" onclick="openEditAnnouncementModal(2, 'New Employee Onboarding Process', 'high', 'hr', 'We have updated our employee onboarding process to make it more streamlined and efficient. New employees will now receive a comprehensive welcome package and will be assigned a buddy for their first month. Please review the updated guidelines in the HR portal.', '', ['all'])">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-danger" style="padding: 0.5rem;">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-body">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                        <div style="flex: 1;">
-                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
-                                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--gray-800); margin: 0;">Annual Company Retreat 2025</h3>
-                                <span class="badge" style="background: rgba(245, 158, 11, 0.1); color: var(--warning); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Events</span>
-                                <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Active</span>
-                            </div>
-                            <p style="color: var(--gray-600); margin-bottom: 1rem; line-height: 1.6;">
-                                Save the date! Our annual company retreat is scheduled for March 15-17, 2025, at Mountain View Resort. This year's theme is "Innovation and Growth." Registration will open next month. More details to follow soon.
-                            </p>
-                            <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.875rem; color: var(--gray-500);">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-user"></i>
-                                    <span>Posted by Admin Team</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-calendar"></i>
-                                    <span>Nov 5, 2024</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-eye"></i>
-                                    <span>234 views</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex gap-1">
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="openViewAnnouncementModal(3, 'Annual Company Retreat 2025', 'low', 'events', 'Save the date! Our annual company retreat is scheduled for March 15-17, 2025, at Mountain View Resort. This year\\'s theme is \\\"Innovation and Growth.\\\" Registration will open next month. More details to follow soon.', '2025-03-15T00:00', ['all'])">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-warning" style="padding: 0.5rem;" onclick="openEditAnnouncementModal(3, 'Annual Company Retreat 2025', 'low', 'events', 'Save the date! Our annual company retreat is scheduled for March 15-17, 2025, at Mountain View Resort. This year\\'s theme is \\\"Innovation and Growth.\\\" Registration will open next month. More details to follow soon.', '', ['all'])">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-danger" style="padding: 0.5rem;">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-body">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                        <div style="flex: 1;">
-                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
-                                <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--gray-800); margin: 0;">System Maintenance Scheduled</h3>
-                                <span class="badge" style="background: rgba(6, 182, 212, 0.1); color: var(--info); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">System Updates</span>
-                                <span class="badge" style="background: rgba(245, 158, 11, 0.1); color: var(--warning); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Scheduled</span>
-                            </div>
-                            <p style="color: var(--gray-600); margin-bottom: 1rem; line-height: 1.6;">
-                                Scheduled system maintenance will take place on Sunday, December 1st, from 2:00 AM to 4:00 AM. During this time, the HRMS system will be temporarily unavailable. Please plan accordingly and complete any urgent tasks beforehand.
-                            </p>
-                            <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.875rem; color: var(--gray-500);">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-user"></i>
-                                    <span>Posted by IT Team</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-calendar"></i>
-                                    <span>Oct 28, 2024</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-eye"></i>
-                                    <span>67 views</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex gap-1">
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="openViewAnnouncementModal(4, 'System Maintenance Scheduled', 'urgent', 'system', 'Scheduled system maintenance will take place on Sunday, December 1st, from 2:00 AM to 4:00 AM. During this time, the HRMS system will be temporarily unavailable. Please plan accordingly and complete any urgent tasks beforehand.', '2024-12-01T04:00', ['all'])">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-warning" style="padding: 0.5rem;" onclick="openEditAnnouncementModal(4, 'System Maintenance Scheduled', 'urgent', 'system', 'Scheduled system maintenance will take place on Sunday, December 1st, from 2:00 AM to 4:00 AM. During this time, the HRMS system will be temporarily unavailable. Please plan accordingly and complete any urgent tasks beforehand.', '', ['all'])">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-danger" style="padding: 0.5rem;">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pagination -->
-        <div class="flex justify-between items-center mt-4">
-            <div style="color: var(--gray-600); font-size: 0.875rem;">
-                Showing 1 to 4 of 12 announcements
-            </div>
-            <div class="flex gap-1">
-                <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
-                    <i class="fas fa-chevron-left"></i>
+                <button onclick="openAnnouncementModal()" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    New Announcement
                 </button>
-                <button class="btn btn-primary" style="padding: 0.5rem 0.75rem;">1</button>
-                <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">2</button>
-                <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">3</button>
-                <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
-                    <i class="fas fa-chevron-right"></i>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-download"></i>
+                    Export
                 </button>
             </div>
         </div>
-    </div>
-</div>
+        <div class="card-body">
+            <!-- Search and Filter Section -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex gap-2">
+                    <input type="text" id="searchInput" placeholder="Search announcements..." class="form-input"
+                        style="width: 300px;">
+                    <select id="categoryFilter" class="form-select" style="width: 200px;">
+                        <option value="all">All Categories</option>
+                        <option value="general">General</option>
+                        <option value="hr updates">HR Updates</option>
+                        <option value="policy changes">Policy Changes</option>
+                        <option value="events">Events</option>
+                        <option value="system updates">System Updates</option>
+                    </select>
+                </div>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-filter"></i>
+                    Filter
+                </button>
+            </div>
 
-<!-- Announcement Statistics -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
-    <div class="card">
-        <div class="card-body text-center">
-            <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">12</div>
-            <div style="color: var(--gray-600); font-weight: 500;">Total Announcements</div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-body text-center">
-            <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">8</div>
-            <div style="color: var(--gray-600); font-weight: 500;">Active</div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-body text-center">
-            <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">2</div>
-            <div style="color: var(--gray-600); font-weight: 500;">Scheduled</div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-body text-center">
-            <div style="font-size: 2rem; font-weight: 700; color: var(--info); margin-bottom: 0.5rem;">546</div>
-            <div style="color: var(--gray-600); font-weight: 500;">Total Views</div>
-        </div>
-    </div>
-</div>
+            <!-- Announcements List -->
+            <div id="announcementsList" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                @forelse($announcements as $announcement)
+                    <div class="card announcement-item" data-category="{{ strtolower($announcement->category) }}">
+                        <div class="card-body">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                <div style="flex: 1;">
+                                    <!-- Title + Badges -->
+                                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                                        <h3 class="announcement-title"
+                                            style="font-size: 1.25rem; font-weight: 700; color: var(--gray-800); margin: 0;">
+                                            {{ $announcement->title }}
+                                        </h3>
 
-<!-- Announcement Creation Modal -->
-<div id="announcementModal" class="modal-overlay">
-    <div class="modal-container">
-        <div class="modal-header">
-            <h3 class="modal-title">
-                <i class="fas fa-bullhorn"></i>
-                Create New Announcement
-            </h3>
-            <p class="modal-subtitle">Share important updates with your team</p>
-            <button class="modal-close" onclick="closeAnnouncementModal()" type="button">
-                <i class="fas fa-times"></i>
-            </button>
+                                        <!-- Category Badge -->
+                                        <span class="badge"
+                                            style="background: rgba(59, 130, 246, 0.1); color: var(--primary);
+                                         padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">
+                                            {{ ucfirst($announcement->category) }}
+                                        </span>
+
+                                        <!-- Status Badge -->
+                                        <span class="badge"
+                                            style="background: {{ $announcement->status === 'active' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)' }};
+                                         color: {{ $announcement->status === 'active' ? 'var(--success)' : 'var(--warning)' }};
+                                         padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">
+                                            {{ ucfirst($announcement->status) }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <p class="announcement-content"
+                                        style="color: var(--gray-600); margin-bottom: 1rem; line-height: 1.6;">
+                                        {{ $announcement->content }}
+                                    </p>
+
+                                    <!-- Meta Info -->
+                                    <div
+                                        style="display: flex; align-items: center; gap: 1rem; font-size: 0.875rem; color: var(--gray-500);">
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="fas fa-user"></i>
+                                            <span>Posted by {{ $announcement->posted_by ?? 'Admin' }}</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="fas fa-calendar"></i>
+                                            <span>{{ \Carbon\Carbon::parse($announcement->created_at)->format('M d, Y') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="flex gap-1">
+                                    <button class="btn btn-secondary" style="padding: 0.5rem;"
+                                        onclick="openViewAnnouncementModal(
+                                    {{ $announcement->announcement_id }},
+                                    '{{ addslashes($announcement->title) }}',
+                                    '{{ $announcement->priority }}',
+                                    '{{ $announcement->category }}',
+                                    '{{ addslashes($announcement->content) }}',
+                                    '{{ $announcement->expires_at }}',
+                                    {{ json_encode($announcement->audience ?? ['all']) }}
+                                )">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+
+                                    <button class="btn btn-warning" style="padding: 0.5rem;"
+                                        onclick="openEditAnnouncementModal(
+                                    {{ $announcement->announcement_id }},
+                                    '{{ addslashes($announcement->title) }}',
+                                    '{{ $announcement->priority }}',
+                                    '{{ $announcement->category }}',
+                                    '{{ addslashes($announcement->content) }}',
+                                    '{{ $announcement->expires_at }}',
+                                    {{ json_encode($announcement->audience ?? ['all']) }}
+                                )">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+
+                                    <form method="POST"
+                                        action="{{ route('admin.announcements.destroy', $announcement->announcement_id) }}"
+                                        onsubmit="return confirm('Delete this announcement?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger" style="padding: 0.5rem;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <p style="color: var(--gray-500);">No announcements available.</p>
+                @endforelse
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-between items-center mt-4">
+                <div style="color: var(--gray-600); font-size: 0.875rem;">
+                    Showing {{ $announcements->firstItem() }} to {{ $announcements->lastItem() }}
+                    of {{ $announcements->total() }} announcements
+                </div>
+
+                <div class="flex gap-1">
+                    {{-- Previous Page --}}
+                    @if ($announcements->onFirstPage())
+                        <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    @else
+                        <a href="{{ $announcements->previousPageUrl() }}" class="btn btn-secondary"
+                            style="padding: 0.5rem 0.75rem;">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    @endif
+
+                    {{-- Page Numbers --}}
+                    @foreach ($announcements->getUrlRange(1, $announcements->lastPage()) as $page => $url)
+                        @if ($page == $announcements->currentPage())
+                            <button class="btn btn-primary" style="padding: 0.5rem 0.75rem;">{{ $page }}</button>
+                        @else
+                            <a href="{{ $url }}" class="btn btn-secondary"
+                                style="padding: 0.5rem 0.75rem;">{{ $page }}</a>
+                        @endif
+                    @endforeach
+
+                    {{-- Next Page --}}
+                    @if ($announcements->hasMorePages())
+                        <a href="{{ $announcements->nextPageUrl() }}" class="btn btn-secondary"
+                            style="padding: 0.5rem 0.75rem;">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    @else
+                        <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    @endif
+                </div>
+            </div>
         </div>
-        <div class="modal-body">
-            <form id="announcementForm" action="{{ route('announcements.store') }}" method="POST">
-                @csrf
+    </div>
+
+    <!-- Announcement Statistics -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+        <div class="card">
+            <div class="card-body text-center">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
+                    {{ $totalAnnouncements }}
+                </div>
+                <div style="color: var(--gray-600); font-weight: 500;">Total Announcements</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">
+                    {{ $publishedCount }}
+                </div>
+                <div style="color: var(--gray-600); font-weight: 500;">Published</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">
+                    {{ $scheduledCount }}
+                </div>
+                <div style="color: var(--gray-600); font-weight: 500;">Scheduled</div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Announcement Creation Modal -->
+    <div id="announcementModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-bullhorn"></i>
+                    Create New Announcement
+                </h3>
+                <p class="modal-subtitle">Share important updates with your team</p>
+                <button class="modal-close" onclick="closeAnnouncementModal()" type="button">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="announcementForm" action="{{ route('admin.announcements.store') }}" method="POST">
+                    @csrf
+                    <div class="form-container">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="title" class="form-label">
+                                    <i class="fas fa-heading"></i>
+                                    Title
+                                </label>
+                                <input type="text" id="title" name="title" class="form-input"
+                                    placeholder="Enter announcement title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="priority" class="form-label">
+                                    <i class="fas fa-flag"></i>
+                                    Priority Level
+                                </label>
+                                <select id="priority" name="priority" class="form-select" required>
+                                    <option value="">Select Priority</option>
+                                    <option value="low">🟢 Low</option>
+                                    <option value="medium">🟡 Medium</option>
+                                    <option value="high">🔴 High</option>
+                                    <option value="urgent">⚠️ Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="category" class="form-label">
+                                    <i class="fas fa-tag"></i>
+                                    Category
+                                </label>
+                                <select id="category" name="category" class="form-select" required>
+                                    <option value="">Select Category</option>
+                                    <option value="general">📢 General</option>
+                                    <option value="hr">👥 HR Updates</option>
+                                    <option value="policy">📋 Policy Changes</option>
+                                    <option value="events">🎉 Events</option>
+                                    <option value="system">💻 System Updates</option>
+                                    <option value="finance">💰 Finance</option>
+                                    <option value="operations">⚙️ Operations</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="expires_at" class="form-label">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Expires At (Optional)
+                                </label>
+                                <input type="datetime-local" id="expires_at" name="expires_at" class="form-input">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="content" class="form-label">
+                                <i class="fas fa-file-text"></i>
+                                Content
+                            </label>
+                            <textarea id="content" name="content" class="form-textarea" rows="6"
+                                placeholder="Enter announcement content..." required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-users"></i>
+                                Target Audience
+                            </label>
+                            <div class="form-checkbox">
+                                <input type="checkbox" id="all_employees" name="target_audience[]" value="all"
+                                    checked>
+                                <label for="all_employees">All Employees</label>
+                            </div>
+                            <div class="form-checkbox">
+                                <input type="checkbox" id="managers" name="target_audience[]" value="managers">
+                                <label for="managers">Managers Only</label>
+                            </div>
+                            <div class="form-checkbox">
+                                <input type="checkbox" id="department_heads" name="target_audience[]"
+                                    value="department_heads">
+                                <label for="department_heads">Department Heads</label>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="closeAnnouncementModal()">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                                Create Announcement
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Announcement Edit Modal -->
+    <div id="editAnnouncementModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-edit"></i>
+                    Edit Announcement
+                </h3>
+                <p class="modal-subtitle">Update the announcement details below</p>
+                <button class="modal-close" onclick="closeEditAnnouncementModal()" type="button">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editAnnouncementForm"
+                    action="{{ route('admin.announcements.update', $announcement->announcement_id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="form-container">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="edit_title" class="form-label">
+                                    <i class="fas fa-heading"></i>
+                                    Title
+                                </label>
+                                <input type="text" id="edit_title" name="title" class="form-input"
+                                    placeholder="Enter announcement title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_priority" class="form-label">
+                                    <i class="fas fa-flag"></i>
+                                    Priority Level
+                                </label>
+                                <select id="edit_priority" name="priority" class="form-select" required>
+                                    <option value="">Select Priority</option>
+                                    <option value="low">🟢 Low</option>
+                                    <option value="medium">🟡 Medium</option>
+                                    <option value="high">🔴 High</option>
+                                    <option value="urgent">⚠️ Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="edit_category" class="form-label">
+                                    <i class="fas fa-tag"></i>
+                                    Category
+                                </label>
+                                <select id="edit_category" name="category" class="form-select" required>
+                                    <option value="">Select Category</option>
+                                    <option value="general">📢 General</option>
+                                    <option value="hr">👥 HR Updates</option>
+                                    <option value="policy">📋 Policy Changes</option>
+                                    <option value="events">🎉 Events</option>
+                                    <option value="system">💻 System Updates</option>
+                                    <option value="finance">💰 Finance</option>
+                                    <option value="operations">⚙️ Operations</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_expires_at" class="form-label">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Expires At (Optional)
+                                </label>
+                                <input type="datetime-local" id="edit_expires_at" name="expires_at" class="form-input">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit_content" class="form-label">
+                                <i class="fas fa-file-text"></i>
+                                Content
+                            </label>
+                            <textarea id="edit_content" name="content" class="form-textarea" rows="6"
+                                placeholder="Enter announcement content..." required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-users"></i>
+                                Target Audience
+                            </label>
+                            <div class="form-checkbox">
+                                <input type="checkbox" id="edit_all_employees" name="target_audience[]" value="all"
+                                    checked>
+                                <label for="edit_all_employees">All Employees</label>
+                            </div>
+                            <div class="form-checkbox">
+                                <input type="checkbox" id="edit_managers" name="target_audience[]" value="managers">
+                                <label for="edit_managers">Managers Only</label>
+                            </div>
+                            <div class="form-checkbox">
+                                <input type="checkbox" id="edit_department_heads" name="target_audience[]"
+                                    value="department_heads">
+                                <label for="edit_department_heads">Department Heads</label>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="closeEditAnnouncementModal()">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                Update Announcement
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Announcement View Modal -->
+    <div id="viewAnnouncementModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-eye"></i>
+                    Announcement Details
+                </h3>
+                <p class="modal-subtitle">View complete announcement information</p>
+                <button class="modal-close" onclick="closeViewAnnouncementModal()" type="button">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
                 <div class="form-container">
+                    <!-- Basic Information Row -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="title" class="form-label">
+                            <label class="form-label">
                                 <i class="fas fa-heading"></i>
                                 Title
                             </label>
-                            <input type="text" id="title" name="title" class="form-input" 
-                                   placeholder="Enter announcement title" required>
+                            <div style="position: relative;">
+                                <i class="input-icon fas fa-heading"></i>
+                                <div class="view-field" id="view_title"></div>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="priority" class="form-label">
+                            <label class="form-label">
                                 <i class="fas fa-flag"></i>
                                 Priority Level
                             </label>
-                            <select id="priority" name="priority" class="form-select" required>
-                                <option value="">Select Priority</option>
-                                <option value="low">🟢 Low</option>
-                                <option value="medium">🟡 Medium</option>
-                                <option value="high">🔴 High</option>
-                                <option value="urgent">⚠️ Urgent</option>
-                            </select>
+                            <div style="position: relative;">
+                                <i class="input-icon fas fa-flag"></i>
+                                <div class="view-field" id="view_priority"></div>
+                            </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Category and Expiry Row -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="category" class="form-label">
+                            <label class="form-label">
                                 <i class="fas fa-tag"></i>
                                 Category
                             </label>
-                            <select id="category" name="category" class="form-select" required>
-                                <option value="">Select Category</option>
-                                <option value="general">📢 General</option>
-                                <option value="hr">👥 HR Updates</option>
-                                <option value="policy">📋 Policy Changes</option>
-                                <option value="events">🎉 Events</option>
-                                <option value="system">💻 System Updates</option>
-                                <option value="finance">💰 Finance</option>
-                                <option value="operations">⚙️ Operations</option>
-                            </select>
+                            <div style="position: relative;">
+                                <i class="input-icon fas fa-tag"></i>
+                                <div class="view-field" id="view_category"></div>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="expires_at" class="form-label">
+                            <label class="form-label">
                                 <i class="fas fa-calendar-alt"></i>
-                                Expires At (Optional)
+                                Expires At
                             </label>
-                            <input type="datetime-local" id="expires_at" name="expires_at" class="form-input">
+                            <div style="position: relative;">
+                                <i class="input-icon fas fa-calendar-alt"></i>
+                                <div class="view-field" id="view_expires_at"></div>
+                            </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Content -->
                     <div class="form-group">
-                        <label for="content" class="form-label">
+                        <label class="form-label">
                             <i class="fas fa-file-text"></i>
                             Content
                         </label>
-                        <textarea id="content" name="content" class="form-textarea" rows="6" 
-                                  placeholder="Enter announcement content..." required></textarea>
+                        <div style="position: relative;">
+                            <i class="input-icon fas fa-file-text"></i>
+                            <div class="view-field view-textarea" id="view_content"></div>
+                        </div>
                     </div>
-                    
+
+                    <!-- Target Audience -->
                     <div class="form-group">
                         <label class="form-label">
                             <i class="fas fa-users"></i>
                             Target Audience
                         </label>
-                        <div class="form-checkbox">
-                            <input type="checkbox" id="all_employees" name="target_audience[]" value="all" checked>
-                            <label for="all_employees">All Employees</label>
-                        </div>
-                        <div class="form-checkbox">
-                            <input type="checkbox" id="managers" name="target_audience[]" value="managers">
-                            <label for="managers">Managers Only</label>
-                        </div>
-                        <div class="form-checkbox">
-                            <input type="checkbox" id="department_heads" name="target_audience[]" value="department_heads">
-                            <label for="department_heads">Department Heads</label>
+                        <div style="position: relative;">
+                            <i class="input-icon fas fa-users"></i>
+                            <div class="view-field" id="view_target_audience"></div>
                         </div>
                     </div>
-                    
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeAnnouncementModal()">
-                            <i class="fas fa-times"></i>
-                            Cancel
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane"></i>
-                            Create Announcement
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
-<!-- Announcement Edit Modal -->
-<div id="editAnnouncementModal" class="modal-overlay">
-    <div class="modal-container">
-        <div class="modal-header">
-            <h3 class="modal-title">
-                <i class="fas fa-edit"></i>
-                Edit Announcement
-            </h3>
-            <p class="modal-subtitle">Update the announcement details below</p>
-            <button class="modal-close" onclick="closeEditAnnouncementModal()" type="button">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <form id="editAnnouncementForm" action="{{ route('announcements.update', ':id') }}" method="POST">
-                @csrf
-                @method('PUT')
-                <div class="form-container">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="edit_title" class="form-label">
-                                <i class="fas fa-heading"></i>
-                                Title
-                            </label>
-                            <input type="text" id="edit_title" name="title" class="form-input" 
-                                   placeholder="Enter announcement title" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="edit_priority" class="form-label">
-                                <i class="fas fa-flag"></i>
-                                Priority Level
-                            </label>
-                            <select id="edit_priority" name="priority" class="form-select" required>
-                                <option value="">Select Priority</option>
-                                <option value="low">🟢 Low</option>
-                                <option value="medium">🟡 Medium</option>
-                                <option value="high">🔴 High</option>
-                                <option value="urgent">⚠️ Urgent</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="edit_category" class="form-label">
-                                <i class="fas fa-tag"></i>
-                                Category
-                            </label>
-                            <select id="edit_category" name="category" class="form-select" required>
-                                <option value="">Select Category</option>
-                                <option value="general">📢 General</option>
-                                <option value="hr">👥 HR Updates</option>
-                                <option value="policy">📋 Policy Changes</option>
-                                <option value="events">🎉 Events</option>
-                                <option value="system">💻 System Updates</option>
-                                <option value="finance">💰 Finance</option>
-                                <option value="operations">⚙️ Operations</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="edit_expires_at" class="form-label">
-                                <i class="fas fa-calendar-alt"></i>
-                                Expires At (Optional)
-                            </label>
-                            <input type="datetime-local" id="edit_expires_at" name="expires_at" class="form-input">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit_content" class="form-label">
-                            <i class="fas fa-file-text"></i>
-                            Content
-                        </label>
-                        <textarea id="edit_content" name="content" class="form-textarea" rows="6" 
-                                  placeholder="Enter announcement content..." required></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-users"></i>
-                            Target Audience
-                        </label>
-                        <div class="form-checkbox">
-                            <input type="checkbox" id="edit_all_employees" name="target_audience[]" value="all" checked>
-                            <label for="edit_all_employees">All Employees</label>
-                        </div>
-                        <div class="form-checkbox">
-                            <input type="checkbox" id="edit_managers" name="target_audience[]" value="managers">
-                            <label for="edit_managers">Managers Only</label>
-                        </div>
-                        <div class="form-checkbox">
-                            <input type="checkbox" id="edit_department_heads" name="target_audience[]" value="department_heads">
-                            <label for="edit_department_heads">Department Heads</label>
-                        </div>
-                    </div>
-                    
+                    <!-- Modal Actions -->
                     <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeEditAnnouncementModal()">
-                            <i class="fas fa-times"></i>
-                            Cancel
+                        <button type="button" class="btn btn-secondary" onclick="closeViewAnnouncementModal()">
+                            <i class="fas fa-times"></i> Close
                         </button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i>
-                            Update Announcement
+                        <button type="button" class="btn btn-primary" onclick="openEditAnnouncementModalFromView()">
+                            <i class="fas fa-edit"></i> Edit Announcement
                         </button>
                     </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Announcement View Modal -->
-<div id="viewAnnouncementModal" class="modal-overlay">
-    <div class="modal-container">
-        <div class="modal-header">
-            <h3 class="modal-title">
-                <i class="fas fa-eye"></i>
-                Announcement Details
-            </h3>
-            <p class="modal-subtitle">View complete announcement information</p>
-            <button class="modal-close" onclick="closeViewAnnouncementModal()" type="button">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <div class="form-container">
-                <!-- Basic Information Row -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-heading"></i>
-                            Title
-                        </label>
-                        <div style="position: relative;">
-                            <i class="input-icon fas fa-heading"></i>
-                            <div class="view-field" id="view_title"></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-flag"></i>
-                            Priority Level
-                        </label>
-                        <div style="position: relative;">
-                            <i class="input-icon fas fa-flag"></i>
-                            <div class="view-field" id="view_priority"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Category and Expiry Row -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-tag"></i>
-                            Category
-                        </label>
-                        <div style="position: relative;">
-                            <i class="input-icon fas fa-tag"></i>
-                            <div class="view-field" id="view_category"></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-calendar-alt"></i>
-                            Expires At
-                        </label>
-                        <div style="position: relative;">
-                            <i class="input-icon fas fa-calendar-alt"></i>
-                            <div class="view-field" id="view_expires_at"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Content -->
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-file-text"></i>
-                        Content
-                    </label>
-                    <div style="position: relative;">
-                        <i class="input-icon fas fa-file-text"></i>
-                        <div class="view-field view-textarea" id="view_content"></div>
-                    </div>
-                </div>
-                
-                <!-- Target Audience -->
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-users"></i>
-                        Target Audience
-                    </label>
-                    <div style="position: relative;">
-                        <i class="input-icon fas fa-users"></i>
-                        <div class="view-field" id="view_target_audience"></div>
-                    </div>
-                </div>
-                
-                <!-- Modal Actions -->
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeViewAnnouncementModal()">
-                        <i class="fas fa-times"></i> Close
-                    </button>
-                    <button type="button" class="btn btn-primary" onclick="openEditAnnouncementModalFromView()">
-                        <i class="fas fa-edit"></i> Edit Announcement
-                    </button>
                 </div>
             </div>
         </div>
     </div>
-</div>
 @endsection
 
 @push('scripts')
-<script>
-// Modal Functions
-function openAnnouncementModal() {
-    const modal = document.getElementById('announcementModal');
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    
-    // Focus on first input
-    setTimeout(() => {
-        document.getElementById('title').focus();
-    }, 300);
-}
+    <script>
+        // Modal Functions
+        function openAnnouncementModal() {
+            const modal = document.getElementById('announcementModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
 
-function closeAnnouncementModal() {
-    const modal = document.getElementById('announcementModal');
-    modal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-    
-    // Reset form
-    document.getElementById('announcementForm').reset();
-    
-    // Reset checkboxes to default
-    document.getElementById('all_employees').checked = true;
-    document.getElementById('managers').checked = false;
-    document.getElementById('department_heads').checked = false;
-}
-
-// Edit Modal Functions
-function openEditAnnouncementModal(id, title, priority, category, content, expiresAt, targetAudience) {
-    console.log('Opening edit modal with data:', { id, title, priority, category, content, expiresAt, targetAudience });
-    
-    const modal = document.getElementById('editAnnouncementModal');
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    
-    // Update form action with the announcement ID
-    const form = document.getElementById('editAnnouncementForm');
-    form.action = form.action.replace(':id', id);
-    
-    // Populate form fields
-    document.getElementById('edit_title').value = title || '';
-    document.getElementById('edit_priority').value = priority || '';
-    document.getElementById('edit_category').value = category || '';
-    document.getElementById('edit_content').value = content || '';
-    document.getElementById('edit_expires_at').value = expiresAt || '';
-    
-    // Handle target audience checkboxes
-    const allEmployees = document.getElementById('edit_all_employees');
-    const managers = document.getElementById('edit_managers');
-    const departmentHeads = document.getElementById('edit_department_heads');
-    
-    // Reset all checkboxes first
-    allEmployees.checked = false;
-    managers.checked = false;
-    departmentHeads.checked = false;
-    
-    // Set checkboxes based on target audience
-    if (targetAudience) {
-        const audiences = Array.isArray(targetAudience) ? targetAudience : targetAudience.split(',');
-        audiences.forEach(audience => {
-            switch(audience.trim()) {
-                case 'all':
-                    allEmployees.checked = true;
-                    break;
-                case 'managers':
-                    managers.checked = true;
-                    break;
-                case 'department_heads':
-                    departmentHeads.checked = true;
-                    break;
-            }
-        });
-    }
-    
-    // Focus on first input
-    setTimeout(() => {
-        document.getElementById('edit_title').focus();
-    }, 300);
-}
-
-function closeEditAnnouncementModal() {
-    const modal = document.getElementById('editAnnouncementModal');
-    modal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-    
-    // Reset form
-    document.getElementById('editAnnouncementForm').reset();
-    
-    // Reset checkboxes to default
-    document.getElementById('edit_all_employees').checked = true;
-    document.getElementById('edit_managers').checked = false;
-    document.getElementById('edit_department_heads').checked = false;
-}
-
-// View Modal Functions
-function openViewAnnouncementModal(id, title, priority, category, content, expiresAt, targetAudience) {
-    console.log('Opening view modal with data:', { id, title, priority, category, content, expiresAt, targetAudience });
-    
-    const modal = document.getElementById('viewAnnouncementModal');
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    
-    // Populate view fields
-    document.getElementById('view_title').textContent = title || 'N/A';
-    
-    // Format priority display
-    let priorityDisplay = priority || 'N/A';
-    switch(priority) {
-        case 'low':
-            priorityDisplay = '🟢 Low';
-            break;
-        case 'medium':
-            priorityDisplay = '🟡 Medium';
-            break;
-        case 'high':
-            priorityDisplay = '🔴 High';
-            break;
-        case 'urgent':
-            priorityDisplay = '⚠️ Urgent';
-            break;
-    }
-    document.getElementById('view_priority').textContent = priorityDisplay;
-    
-    // Format category display
-    let categoryDisplay = category || 'N/A';
-    switch(category) {
-        case 'general':
-            categoryDisplay = '📢 General';
-            break;
-        case 'hr':
-            categoryDisplay = '👥 HR Updates';
-            break;
-        case 'policy':
-            categoryDisplay = '📋 Policy Changes';
-            break;
-        case 'events':
-            categoryDisplay = '🎉 Events';
-            break;
-        case 'system':
-            categoryDisplay = '💻 System Updates';
-            break;
-        case 'finance':
-            categoryDisplay = '💰 Finance';
-            break;
-        case 'operations':
-            categoryDisplay = '⚙️ Operations';
-            break;
-    }
-    document.getElementById('view_category').textContent = categoryDisplay;
-    
-    document.getElementById('view_content').textContent = content || 'N/A';
-    
-    // Format expiry date
-    document.getElementById('view_expires_at').textContent = expiresAt ? new Date(expiresAt).toLocaleDateString('en-US', {
-        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    }) : 'No expiry date';
-    
-    // Format target audience
-    let audienceDisplay = 'N/A';
-    if (targetAudience) {
-        const audiences = Array.isArray(targetAudience) ? targetAudience : targetAudience.split(',');
-        const audienceLabels = audiences.map(audience => {
-            switch(audience.trim()) {
-                case 'all':
-                    return 'All Employees';
-                case 'managers':
-                    return 'Managers Only';
-                case 'department_heads':
-                    return 'Department Heads';
-                default:
-                    return audience.trim();
-            }
-        });
-        audienceDisplay = audienceLabels.join(', ');
-    }
-    document.getElementById('view_target_audience').textContent = audienceDisplay;
-    
-    // Store data for potential edit modal opening
-    window.currentAnnouncementData = {
-        id, title, priority, category, content, expiresAt, targetAudience
-    };
-}
-
-function closeViewAnnouncementModal() {
-    const modal = document.getElementById('viewAnnouncementModal');
-    modal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-}
-
-// View Modal Functions
-function openViewAnnouncementModal(id, title, priority, category, content, expiresAt, targetAudience) {
-    console.log('Opening view modal with data:', { id, title, priority, category, content, expiresAt, targetAudience });
-    
-    const modal = document.getElementById('viewAnnouncementModal');
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    
-    // Populate view fields
-    document.getElementById('view_title').textContent = title || 'N/A';
-    
-    // Format priority display
-    let priorityDisplay = priority || 'N/A';
-    switch(priority) {
-        case 'low':
-            priorityDisplay = '🟢 Low';
-            break;
-        case 'medium':
-            priorityDisplay = '🟡 Medium';
-            break;
-        case 'high':
-            priorityDisplay = '🔴 High';
-            break;
-        case 'urgent':
-            priorityDisplay = '⚠️ Urgent';
-            break;
-    }
-    document.getElementById('view_priority').textContent = priorityDisplay;
-    
-    // Format category display
-    let categoryDisplay = category || 'N/A';
-    switch(category) {
-        case 'general':
-            categoryDisplay = '📢 General';
-            break;
-        case 'hr':
-            categoryDisplay = '👥 HR Updates';
-            break;
-        case 'policy':
-            categoryDisplay = '📋 Policy Changes';
-            break;
-        case 'events':
-            categoryDisplay = '🎉 Events';
-            break;
-        case 'system':
-            categoryDisplay = '💻 System Updates';
-            break;
-        case 'finance':
-            categoryDisplay = '💰 Finance';
-            break;
-        case 'operations':
-            categoryDisplay = '⚙️ Operations';
-            break;
-    }
-    document.getElementById('view_category').textContent = categoryDisplay;
-    
-    document.getElementById('view_content').textContent = content || 'N/A';
-    
-    // Format expiry date
-    document.getElementById('view_expires_at').textContent = expiresAt ? new Date(expiresAt).toLocaleDateString('en-US', {
-        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    }) : 'No expiry date';
-    
-    // Format target audience
-    let audienceDisplay = 'N/A';
-    if (targetAudience) {
-        const audiences = Array.isArray(targetAudience) ? targetAudience : targetAudience.split(',');
-        const audienceLabels = audiences.map(audience => {
-            switch(audience.trim()) {
-                case 'all':
-                    return 'All Employees';
-                case 'managers':
-                    return 'Managers Only';
-                case 'department_heads':
-                    return 'Department Heads';
-                default:
-                    return audience.trim();
-            }
-        });
-        audienceDisplay = audienceLabels.join(', ');
-    }
-    document.getElementById('view_target_audience').textContent = audienceDisplay;
-    
-    // Store data for potential edit modal opening
-    window.currentAnnouncementData = {
-        id, title, priority, category, content, expiresAt, targetAudience
-    };
-}
-
-function closeViewAnnouncementModal() {
-    const modal = document.getElementById('viewAnnouncementModal');
-    modal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-}
-
-function openEditAnnouncementModalFromView() {
-    // Close view modal first
-    closeViewAnnouncementModal();
-    
-    // Open edit modal with stored data
-    const data = window.currentAnnouncementData;
-    if (data) {
-        setTimeout(() => {
-            openEditAnnouncementModal(data.id, data.title, data.priority, data.category, 
-                                    data.content, data.expiresAt, data.targetAudience);
-        }, 300); // Small delay to allow view modal to close
-    }
-}
-
-// Close modal when clicking outside
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('announcementModal');
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeAnnouncementModal();
-            }
-        });
-    }
-    
-    // Edit modal close on outside click
-    const editModal = document.getElementById('editAnnouncementModal');
-    if (editModal) {
-        editModal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeEditAnnouncementModal();
-            }
-        });
-    }
-    
-    // View modal close on outside click
-    const viewModal = document.getElementById('viewAnnouncementModal');
-    if (viewModal) {
-        viewModal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeViewAnnouncementModal();
-            }
-        });
-    }
-});
-
-// Close modal with Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        const modal = document.getElementById('announcementModal');
-        const editModal = document.getElementById('editAnnouncementModal');
-        const viewModal = document.getElementById('viewAnnouncementModal');
-        
-        if (modal && modal.classList.contains('active')) {
-            closeAnnouncementModal();
+            // Focus on first input
+            setTimeout(() => {
+                document.getElementById('title').focus();
+            }, 300);
         }
-        if (editModal && editModal.classList.contains('active')) {
-            closeEditAnnouncementModal();
+
+        function closeAnnouncementModal() {
+            const modal = document.getElementById('announcementModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+
+            // Reset form
+            document.getElementById('announcementForm').reset();
+
+            // Reset checkboxes to default
+            document.getElementById('all_employees').checked = true;
+            document.getElementById('managers').checked = false;
+            document.getElementById('department_heads').checked = false;
         }
-        if (viewModal && viewModal.classList.contains('active')) {
+
+        // Edit Modal Functions
+        function openEditAnnouncementModal(id, title, priority, category, content, expiresAt, targetAudience) {
+            console.log('Opening edit modal with data:', {
+                id,
+                title,
+                priority,
+                category,
+                content,
+                expiresAt,
+                targetAudience
+            });
+
+            const modal = document.getElementById('editAnnouncementModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Update form action with the announcement ID
+            const form = document.getElementById('editAnnouncementForm');
+            form.action = form.action.replace(':id', id);
+
+            // Populate form fields
+            document.getElementById('edit_title').value = title || '';
+            document.getElementById('edit_priority').value = priority || '';
+            document.getElementById('edit_category').value = category || '';
+            document.getElementById('edit_content').value = content || '';
+            document.getElementById('edit_expires_at').value = expiresAt || '';
+
+            // Handle target audience checkboxes
+            const allEmployees = document.getElementById('edit_all_employees');
+            const managers = document.getElementById('edit_managers');
+            const departmentHeads = document.getElementById('edit_department_heads');
+
+            // Reset all checkboxes first
+            allEmployees.checked = false;
+            managers.checked = false;
+            departmentHeads.checked = false;
+
+            // Set checkboxes based on target audience
+            if (targetAudience) {
+                const audiences = Array.isArray(targetAudience) ? targetAudience : targetAudience.split(',');
+                audiences.forEach(audience => {
+                    switch (audience.trim()) {
+                        case 'all':
+                            allEmployees.checked = true;
+                            break;
+                        case 'managers':
+                            managers.checked = true;
+                            break;
+                        case 'department_heads':
+                            departmentHeads.checked = true;
+                            break;
+                    }
+                });
+            }
+            // Focus on first input
+            setTimeout(() => {
+                document.getElementById('edit_title').focus();
+            }, 300);
+        }
+
+        function closeEditAnnouncementModal() {
+            const modal = document.getElementById('editAnnouncementModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+
+            // Reset form
+            document.getElementById('editAnnouncementForm').reset();
+
+            // Reset checkboxes to default
+            document.getElementById('edit_all_employees').checked = true;
+            document.getElementById('edit_managers').checked = false;
+            document.getElementById('edit_department_heads').checked = false;
+        }
+
+        // View Modal Functions
+        function openViewAnnouncementModal(id, title, priority, category, content, expiresAt, targetAudience) {
+            console.log('Opening view modal with data:', {
+                id,
+                title,
+                priority,
+                category,
+                content,
+                expiresAt,
+                targetAudience
+            });
+
+            const modal = document.getElementById('viewAnnouncementModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Populate view fields
+            document.getElementById('view_title').textContent = title || 'N/A';
+
+            // Format priority display
+            let priorityDisplay = priority || 'N/A';
+            switch (priority) {
+                case 'low':
+                    priorityDisplay = '🟢 Low';
+                    break;
+                case 'medium':
+                    priorityDisplay = '🟡 Medium';
+                    break;
+                case 'high':
+                    priorityDisplay = '🔴 High';
+                    break;
+                case 'urgent':
+                    priorityDisplay = '⚠️ Urgent';
+                    break;
+            }
+            document.getElementById('view_priority').textContent = priorityDisplay;
+
+            // Format category display
+            let categoryDisplay = category || 'N/A';
+            switch (category) {
+                case 'general':
+                    categoryDisplay = '📢 General';
+                    break;
+                case 'hr':
+                    categoryDisplay = '👥 HR Updates';
+                    break;
+                case 'policy':
+                    categoryDisplay = '📋 Policy Changes';
+                    break;
+                case 'events':
+                    categoryDisplay = '🎉 Events';
+                    break;
+                case 'system':
+                    categoryDisplay = '💻 System Updates';
+                    break;
+                case 'finance':
+                    categoryDisplay = '💰 Finance';
+                    break;
+                case 'operations':
+                    categoryDisplay = '⚙️ Operations';
+                    break;
+            }
+            document.getElementById('view_category').textContent = categoryDisplay;
+
+            document.getElementById('view_content').textContent = content || 'N/A';
+
+            // Format expiry date
+            document.getElementById('view_expires_at').textContent = expiresAt ? new Date(expiresAt).toLocaleDateString(
+                'en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : 'No expiry date';
+
+            // Format target audience
+            let audienceDisplay = 'N/A';
+            if (targetAudience) {
+                const audiences = Array.isArray(targetAudience) ? targetAudience : targetAudience.split(',');
+                const audienceLabels = audiences.map(audience => {
+                    switch (audience.trim()) {
+                        case 'all':
+                            return 'All Employees';
+                        case 'managers':
+                            return 'Managers Only';
+                        case 'department_heads':
+                            return 'Department Heads';
+                        default:
+                            return audience.trim();
+                    }
+                });
+                audienceDisplay = audienceLabels.join(', ');
+            }
+            document.getElementById('view_target_audience').textContent = audienceDisplay;
+
+            // Store data for potential edit modal opening
+            window.currentAnnouncementData = {
+                id,
+                title,
+                priority,
+                category,
+                content,
+                expiresAt,
+                targetAudience
+            };
+        }
+
+        function closeViewAnnouncementModal() {
+            const modal = document.getElementById('viewAnnouncementModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // View Modal Functions
+        function openViewAnnouncementModal(id, title, priority, category, content, expiresAt, targetAudience) {
+            console.log('Opening view modal with data:', {
+                id,
+                title,
+                priority,
+                category,
+                content,
+                expiresAt,
+                targetAudience
+            });
+
+            const modal = document.getElementById('viewAnnouncementModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Populate view fields
+            document.getElementById('view_title').textContent = title || 'N/A';
+
+            // Format priority display
+            let priorityDisplay = priority || 'N/A';
+            switch (priority) {
+                case 'low':
+                    priorityDisplay = '🟢 Low';
+                    break;
+                case 'medium':
+                    priorityDisplay = '🟡 Medium';
+                    break;
+                case 'high':
+                    priorityDisplay = '🔴 High';
+                    break;
+                case 'urgent':
+                    priorityDisplay = '⚠️ Urgent';
+                    break;
+            }
+            document.getElementById('view_priority').textContent = priorityDisplay;
+
+            // Format category display
+            let categoryDisplay = category || 'N/A';
+            switch (category) {
+                case 'general':
+                    categoryDisplay = '📢 General';
+                    break;
+                case 'hr':
+                    categoryDisplay = '👥 HR Updates';
+                    break;
+                case 'policy':
+                    categoryDisplay = '📋 Policy Changes';
+                    break;
+                case 'events':
+                    categoryDisplay = '🎉 Events';
+                    break;
+                case 'system':
+                    categoryDisplay = '💻 System Updates';
+                    break;
+                case 'finance':
+                    categoryDisplay = '💰 Finance';
+                    break;
+                case 'operations':
+                    categoryDisplay = '⚙️ Operations';
+                    break;
+            }
+            document.getElementById('view_category').textContent = categoryDisplay;
+
+            document.getElementById('view_content').textContent = content || 'N/A';
+
+            // Format expiry date
+            document.getElementById('view_expires_at').textContent = expiresAt ? new Date(expiresAt).toLocaleDateString(
+                'en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : 'No expiry date';
+
+            // Format target audience
+            let audienceDisplay = 'N/A';
+            if (targetAudience) {
+                const audiences = Array.isArray(targetAudience) ? targetAudience : targetAudience.split(',');
+                const audienceLabels = audiences.map(audience => {
+                    switch (audience.trim()) {
+                        case 'all':
+                            return 'All Employees';
+                        case 'managers':
+                            return 'Managers Only';
+                        case 'department_heads':
+                            return 'Department Heads';
+                        default:
+                            return audience.trim();
+                    }
+                });
+                audienceDisplay = audienceLabels.join(', ');
+            }
+            document.getElementById('view_target_audience').textContent = audienceDisplay;
+
+            // Store data for potential edit modal opening
+            window.currentAnnouncementData = {
+                id,
+                title,
+                priority,
+                category,
+                content,
+                expiresAt,
+                targetAudience
+            };
+        }
+
+        function closeViewAnnouncementModal() {
+            const modal = document.getElementById('viewAnnouncementModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function openEditAnnouncementModalFromView() {
+            // Close view modal first
             closeViewAnnouncementModal();
+
+            // Open edit modal with stored data
+            const data = window.currentAnnouncementData;
+            if (data) {
+                setTimeout(() => {
+                    openEditAnnouncementModal(data.id, data.title, data.priority, data.category,
+                        data.content, data.expiresAt, data.targetAudience);
+                }, 300); // Small delay to allow view modal to close
+            }
         }
-    }
-});
 
-// Handle form submission
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('announcementForm');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            
-            // Show loading state
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
-            
-            // Simulate form submission (replace with actual endpoint)
-            setTimeout(() => {
-                // Show success message
-                showNotification('Announcement created successfully!', 'success');
-                
-                // Close modal and reset form
-                closeAnnouncementModal();
-                
-                // Reset button state
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-                
-                // Optional: Reload page to show new announcement
-                // setTimeout(() => location.reload(), 1000);
-            }, 2000);
-        });
-    }
-    
-    // Handle edit form submission
-    const editForm = document.getElementById('editAnnouncementForm');
-    if (editForm) {
-        editForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            
-            // Show loading state
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-            
-            // Simulate form submission (replace with actual endpoint)
-            setTimeout(() => {
-                // Show success message
-                showNotification('Announcement updated successfully!', 'success');
-                
-                // Close modal and reset form
-                closeEditAnnouncementModal();
-                
-                // Reset button state
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-                
-                // Optional: Reload page to show updated announcement
-                // setTimeout(() => location.reload(), 1000);
-            }, 2000);
-        });
-    }
-});
+        // Close modal when clicking outside
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('announcementModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeAnnouncementModal();
+                    }
+                });
+            }
 
-// Notification function
-function showNotification(message, type = 'info') {
-    // Remove existing notifications
-    const existingNotifications = document.querySelectorAll('.notification');
-    existingNotifications.forEach(notif => notif.remove());
-    
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
+            // Edit modal close on outside click
+            const editModal = document.getElementById('editAnnouncementModal');
+            if (editModal) {
+                editModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeEditAnnouncementModal();
+                    }
+                });
+            }
+
+            // View modal close on outside click
+            const viewModal = document.getElementById('viewAnnouncementModal');
+            if (viewModal) {
+                viewModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeViewAnnouncementModal();
+                    }
+                });
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('announcementModal');
+                const editModal = document.getElementById('editAnnouncementModal');
+                const viewModal = document.getElementById('viewAnnouncementModal');
+
+                if (modal && modal.classList.contains('active')) {
+                    closeAnnouncementModal();
+                }
+                if (editModal && editModal.classList.contains('active')) {
+                    closeEditAnnouncementModal();
+                }
+                if (viewModal && viewModal.classList.contains('active')) {
+                    closeViewAnnouncementModal();
+                }
+            }
+        });
+
+        // Handle form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('announcementForm');
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+
+                    // Show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+
+                    try {
+                        const response = await fetch(this.action, {
+                            method: this.method,
+                            body: formData,
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest",
+                                "X-CSRF-TOKEN": form.querySelector('input[name="_token"]').value
+                            }
+                        });
+
+                        if (!response.ok) throw new Error("Failed to create announcement");
+
+                        const data = await response.json();
+
+                        // ✅ Show success message
+                        showNotification('Announcement created successfully!', 'success');
+
+                        // ✅ Close modal + reset form
+                        form.reset();
+                        closeAnnouncementModal();
+
+                        // ✅ Optionally reload page or update list dynamically
+                        setTimeout(() => location.reload(), 1000);
+
+                    } catch (error) {
+                        console.error(error);
+                        showNotification('Error creating announcement!', 'error');
+                    } finally {
+                        // Reset button state
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                });
+            }
+
+            // Handle edit form submission
+            const editForm = document.getElementById('editAnnouncementForm');
+            if (editForm) {
+                editForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+
+                    // Show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+
+                    try {
+                        const response = await fetch(this.action, {
+                            method: "POST", // Laravel requires POST with _method=PUT for updates
+                            body: formData,
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest",
+                                "X-CSRF-TOKEN": this.querySelector('input[name="_token"]').value
+                            }
+                        });
+
+                        if (!response.ok) throw new Error("Failed to update announcement");
+
+                        const data = await response.json();
+
+                        // ✅ Show success message
+                        showNotification('Announcement updated successfully!', 'success');
+
+                        // ✅ Close modal
+                        closeEditAnnouncementModal();
+
+                        // ✅ Optionally reload or dynamically update DOM
+                        setTimeout(() => location.reload(), 1000);
+
+                    } catch (error) {
+                        console.error(error);
+                        showNotification('Error updating announcement!', 'error');
+                    } finally {
+                        // Reset button state
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                });
+            }
+
+
+        });
+
+        // Notification function
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notif => notif.remove());
+
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
         <div class="notification-content">
             <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
             <span>${message}</span>
         </div>
     `;
-    
-    // Add notification styles
-    notification.style.cssText = `
+
+            // Add notification styles
+            notification.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
@@ -1482,241 +1602,275 @@ function showNotification(message, type = 'info') {
         font-weight: 500;
         font-size: 14px;
     `;
-    
-    document.body.appendChild(notification);
-    
-    // Animate in
-    setTimeout(() => {
-        notification.style.transform = 'translateX(0)';
-    }, 100);
-    
-    // Remove after 3 seconds
-    setTimeout(() => {
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }, 3000);
-}
 
-// Enhanced form interactions
-document.addEventListener('DOMContentLoaded', function() {
-    // Auto-expand textarea
-    const textarea = document.getElementById('content');
-    if (textarea) {
-        textarea.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = this.scrollHeight + 'px';
-        });
-    }
-    
-    // Handle "All Employees" checkbox logic
-    const allEmployeesCheckbox = document.getElementById('all_employees');
-    const managersCheckbox = document.getElementById('managers');
-    const departmentHeadsCheckbox = document.getElementById('department_heads');
-    
-    if (allEmployeesCheckbox && managersCheckbox && departmentHeadsCheckbox) {
-        allEmployeesCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                managersCheckbox.checked = false;
-                departmentHeadsCheckbox.checked = false;
+            document.body.appendChild(notification);
+
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Enhanced form interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-expand textarea
+            const textarea = document.getElementById('content');
+            if (textarea) {
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = this.scrollHeight + 'px';
+                });
+            }
+
+            // Handle "All Employees" checkbox logic
+            const allEmployeesCheckbox = document.getElementById('all_employees');
+            const managersCheckbox = document.getElementById('managers');
+            const departmentHeadsCheckbox = document.getElementById('department_heads');
+
+            if (allEmployeesCheckbox && managersCheckbox && departmentHeadsCheckbox) {
+                allEmployeesCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        managersCheckbox.checked = false;
+                        departmentHeadsCheckbox.checked = false;
+                    }
+                });
+
+                managersCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        allEmployeesCheckbox.checked = false;
+                    }
+                });
+
+                departmentHeadsCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        allEmployeesCheckbox.checked = false;
+                    }
+                });
+            }
+
+            // Handle "All Employees" checkbox logic for edit modal
+            const editAllEmployeesCheckbox = document.getElementById('edit_all_employees');
+            const editManagersCheckbox = document.getElementById('edit_managers');
+            const editDepartmentHeadsCheckbox = document.getElementById('edit_department_heads');
+
+            if (editAllEmployeesCheckbox && editManagersCheckbox && editDepartmentHeadsCheckbox) {
+                editAllEmployeesCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        editManagersCheckbox.checked = false;
+                        editDepartmentHeadsCheckbox.checked = false;
+                    }
+                });
+
+                editManagersCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        editAllEmployeesCheckbox.checked = false;
+                    }
+                });
+
+                editDepartmentHeadsCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        editAllEmployeesCheckbox.checked = false;
+                    }
+                });
+            }
+
+            // Set minimum datetime to current time
+            const expiresInput = document.getElementById('expires_at');
+            if (expiresInput) {
+                const now = new Date();
+                const offset = now.getTimezoneOffset();
+                const localTime = new Date(now.getTime() - (offset * 60000));
+                expiresInput.min = localTime.toISOString().slice(0, 16);
+            }
+
+            // Form validation
+            const form = document.getElementById('announcementForm');
+            if (form) {
+                const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+                inputs.forEach(input => {
+                    input.addEventListener('blur', function() {
+                        if (this.value.trim() === '') {
+                            this.style.borderColor = '#ef4444';
+                        } else {
+                            this.style.borderColor = '#10b981';
+                        }
+                    });
+
+                    input.addEventListener('input', function() {
+                        if (this.value.trim() !== '') {
+                            this.style.borderColor = '#10b981';
+                        }
+                    });
+                });
             }
         });
-        
-        managersCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                allEmployeesCheckbox.checked = false;
-            }
-        });
-        
-        departmentHeadsCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                allEmployeesCheckbox.checked = false;
-            }
-        });
-    }
-    
-    // Handle "All Employees" checkbox logic for edit modal
-    const editAllEmployeesCheckbox = document.getElementById('edit_all_employees');
-    const editManagersCheckbox = document.getElementById('edit_managers');
-    const editDepartmentHeadsCheckbox = document.getElementById('edit_department_heads');
-    
-    if (editAllEmployeesCheckbox && editManagersCheckbox && editDepartmentHeadsCheckbox) {
-        editAllEmployeesCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                editManagersCheckbox.checked = false;
-                editDepartmentHeadsCheckbox.checked = false;
-            }
-        });
-        
-        editManagersCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                editAllEmployeesCheckbox.checked = false;
-            }
-        });
-        
-        editDepartmentHeadsCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                editAllEmployeesCheckbox.checked = false;
-            }
-        });
-    }
-    
-    // Set minimum datetime to current time
-    const expiresInput = document.getElementById('expires_at');
-    if (expiresInput) {
-        const now = new Date();
-        const offset = now.getTimezoneOffset();
-        const localTime = new Date(now.getTime() - (offset * 60000));
-        expiresInput.min = localTime.toISOString().slice(0, 16);
-    }
-    
-    // Form validation
-    const form = document.getElementById('announcementForm');
-    if (form) {
-        const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
-        inputs.forEach(input => {
-            input.addEventListener('blur', function() {
-                if (this.value.trim() === '') {
-                    this.style.borderColor = '#ef4444';
+
+        function filterAnnouncements() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value.toLowerCase();
+            const items = document.querySelectorAll('#announcementsList .announcement-item');
+            const noResults = document.getElementById('noResults');
+            let visibleCount = 0;
+
+            items.forEach(item => {
+                const title = item.querySelector('.announcement-title').innerText.toLowerCase();
+                const content = item.querySelector('.announcement-content').innerText.toLowerCase();
+                const itemCategory = item.getAttribute('data-category');
+
+                // check search + category
+                const matchesSearch = title.includes(query) || content.includes(query);
+                const matchesCategory = (category === 'all' || itemCategory === category);
+
+                if (matchesSearch && matchesCategory) {
+                    item.style.display = 'block';
+                    visibleCount++;
                 } else {
-                    this.style.borderColor = '#10b981';
+                    item.style.display = 'none';
                 }
             });
-            
-            input.addEventListener('input', function() {
-                if (this.value.trim() !== '') {
-                    this.style.borderColor = '#10b981';
-                }
-            });
-        });
-    }
-});
-</script>
 
-<style>
-.notification-content {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
+            // toggle "No results"
+            if (noResults) {
+                noResults.style.display = (visibleCount === 0 ? 'block' : 'none');
+            }
+        }
 
-.notification-content i {
-    font-size: 16px;
-}
+        // Bind events
+        document.getElementById('searchInput').addEventListener('keyup', filterAnnouncements);
+        document.getElementById('categoryFilter').addEventListener('change', filterAnnouncements);
+    </script>
 
-/* Additional modal enhancements */
-.modal-container::-webkit-scrollbar {
-    width: 8px;
-}
+    <style>
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-.modal-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
+        .notification-content i {
+            font-size: 16px;
+        }
 
-.modal-container::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 4px;
-}
+        /* Additional modal enhancements */
+        .modal-container::-webkit-scrollbar {
+            width: 8px;
+        }
 
-.modal-container::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-}
+        .modal-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
 
-/* View Modal Styles */
-.input-icon {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--redcode-green);
-    font-size: 16px;
-    z-index: 1;
-    pointer-events: none;
-    transition: all 0.3s ease;
-}
+        .modal-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
 
-/* Special positioning for view modal textarea icons */
-.form-group:has(.view-textarea) .input-icon {
-    top: 24px;
-    transform: translateY(0);
-}
+        .modal-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
 
-.view-field {
-    width: 100%;
-    padding: 12px 16px 12px 48px;
-    border: 2px solid var(--border-light);
-    border-radius: 0.75rem;
-    font-size: 0.9rem;
-    background: rgba(248, 250, 252, 0.8);
-    backdrop-filter: blur(10px);
-    color: var(--text-primary);
-    font-weight: 500;
-    box-sizing: border-box;
-    min-height: 48px;
-    display: flex;
-    align-items: center;
-    border-color: rgba(16, 185, 129, 0.3);
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.08);
-}
+        /* View Modal Styles */
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--redcode-green);
+            font-size: 16px;
+            z-index: 1;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
 
-.view-textarea {
-    min-height: 100px;
-    align-items: flex-start;
-    padding-top: 16px;
-    padding-bottom: 16px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    line-height: 1.5;
-}
+        /* Special positioning for view modal textarea icons */
+        .form-group:has(.view-textarea) .input-icon {
+            top: 24px;
+            transform: translateY(0);
+        }
 
-.view-field:empty::before {
-    content: 'No data available';
-    color: var(--text-light);
-    font-style: italic;
-}
+        .view-field {
+            width: 100%;
+            padding: 12px 16px 12px 48px;
+            border: 2px solid var(--border-light);
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            background: rgba(248, 250, 252, 0.8);
+            backdrop-filter: blur(10px);
+            color: var(--text-primary);
+            font-weight: 500;
+            box-sizing: border-box;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.08);
+        }
 
-/* Status badge styling in view modal */
-.view-field.status-badge {
-    background: rgba(16, 185, 129, 0.1);
-    border-color: rgba(16, 185, 129, 0.3);
-    color: var(--redcode-green);
-    font-weight: 600;
-}
+        .view-textarea {
+            min-height: 100px;
+            align-items: flex-start;
+            padding-top: 16px;
+            padding-bottom: 16px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
 
-.view-field.status-badge.in-progress {
-    background: rgba(59, 130, 246, 0.1);
-    border-color: rgba(59, 130, 246, 0.3);
-    color: #3b82f6;
-}
+        .view-field:empty::before {
+            content: 'No data available';
+            color: var(--text-light);
+            font-style: italic;
+        }
 
-.view-field.status-badge.completed {
-    background: rgba(16, 185, 129, 0.1);
-    border-color: rgba(16, 185, 129, 0.3);
-    color: var(--redcode-green);
-}
+        /* Status badge styling in view modal */
+        .view-field.status-badge {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--redcode-green);
+            font-weight: 600;
+        }
 
-.view-field.status-badge.on-hold {
-    background: rgba(245, 158, 11, 0.1);
-    border-color: rgba(245, 158, 11, 0.3);
-    color: #f59e0b;
-}
+        .view-field.status-badge.in-progress {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
 
-.view-field.status-badge.cancelled {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.3);
-    color: #ef4444;
-}
+        .view-field.status-badge.completed {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--redcode-green);
+        }
 
-/* CSS Variables for consistent theming */
-:root {
-    --redcode-green: #10b981;
-    --border-light: #e5e7eb;
-    --text-primary: #374151;
-    --text-light: #9ca3af;
-}
-</style>
+        .view-field.status-badge.on-hold {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+
+        .view-field.status-badge.cancelled {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        /* CSS Variables for consistent theming */
+        :root {
+            --redcode-green: #10b981;
+            --border-light: #e5e7eb;
+            --text-primary: #374151;
+            --text-light: #9ca3af;
+        }
+    </style>
 @endpush
