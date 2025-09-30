@@ -119,7 +119,7 @@
             </h2>
             <p class="meeting-section-subtitle">Morning and Evening meetings for all team members</p>
         </div>
-        
+
         <div class="meetings-grid">
             @foreach($todayMeetings as $meeting)
             <div class="meeting-card">
@@ -147,14 +147,14 @@
                     </div>
                     <div class="meeting-link-section">
                         <div class="meeting-link-display">
-                            <input type="text" value="{{ $meeting->meeting_link }}" 
+                            <input type="text" value="{{ $meeting->meeting_link }}"
                                    class="meeting-link-input" readonly>
-                            <button onclick="copyToClipboard('{{ $meeting->meeting_link }}')" 
+                            <button onclick="copyToClipboard('{{ $meeting->meeting_link }}')"
                                     class="copy-btn">
                                 <i class="fas fa-copy"></i> Copy
                             </button>
                         </div>
-                        <a href="{{ route('meetings.join', $meeting) }}" 
+                        <a href="{{ route('meetings.join', $meeting) }}"
                            class="join-meeting-btn">
                             <i class="fas fa-external-link-alt"></i>
                             Join Meeting
@@ -187,7 +187,7 @@
                                 <p>Start your day</p>
                             </div>
                         </a>
-                        
+
                         <a href="#" class="action-card">
                             <div class="action-icon">
                                 <i class="fas fa-calendar-plus"></i>
@@ -197,7 +197,7 @@
                                 <p>Apply for time off</p>
                             </div>
                         </a>
-                        
+
                         <a href="#" class="action-card">
                             <div class="action-icon">
                                 <i class="fas fa-file-upload"></i>
@@ -207,7 +207,7 @@
                                 <p>Submit files</p>
                             </div>
                         </a>
-                        
+
                         <a href="#" class="action-card">
                             <div class="action-icon">
                                 <i class="fas fa-user-edit"></i>
@@ -239,7 +239,7 @@
                                 <span class="activity-time">2 hours ago</span>
                             </div>
                         </div>
-                        
+
                         <div class="activity-item">
                             <div class="activity-icon">
                                 <i class="fas fa-check-circle"></i>
@@ -250,7 +250,7 @@
                                 <span class="activity-time">4 hours ago</span>
                             </div>
                         </div>
-                        
+
                         <div class="activity-item">
                             <div class="activity-icon">
                                 <i class="fas fa-file-alt"></i>
@@ -261,7 +261,7 @@
                                 <span class="activity-time">1 day ago</span>
                             </div>
                         </div>
-                        
+
                         <div class="activity-item">
                             <div class="activity-icon">
                                 <i class="fas fa-calendar-check"></i>
@@ -298,7 +298,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="task-item">
                             <div class="task-priority medium"></div>
                             <div class="task-content">
@@ -310,7 +310,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="task-item">
                             <div class="task-priority low"></div>
                             <div class="task-content">
@@ -344,7 +344,7 @@
                                 <span class="announcement-time">2 days ago</span>
                             </div>
                         </div>
-                        
+
                         <div class="announcement-item">
                             <div class="announcement-icon">
                                 <i class="fas fa-exclamation-triangle"></i>
@@ -355,7 +355,7 @@
                                 <span class="announcement-time">1 week ago</span>
                             </div>
                         </div>
-                        
+
                         <div class="announcement-item">
                             <div class="announcement-icon">
                                 <i class="fas fa-users"></i>
@@ -768,7 +768,7 @@
         .main-grid {
             grid-template-columns: 1fr;
         }
-        
+
         .stats-grid {
             grid-template-columns: repeat(2, 1fr);
         }
@@ -780,13 +780,53 @@
             text-align: center;
             gap: 1rem;
         }
-        
+
         .stats-grid {
             grid-template-columns: 1fr;
         }
-        
+
         .action-grid {
             grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 395px) {
+        .meetings-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+        .meeting-card {
+            padding: 0.75rem !important;
+            font-size: 0.85rem !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+        .meeting-header {
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        .meeting-title {
+            font-size: 1rem !important;
+        }
+        .meeting-section-title {
+            font-size: 1.1rem !important;
+        }
+        .meeting-section-subtitle {
+            font-size: 0.85rem !important;
+        }
+        .meeting-content {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+        }
+        .meeting-link-input,
+        .copy-btn,
+        .join-meeting-btn {
+            font-size: 0.85rem !important;
+            padding: 0.5rem 0.7rem !important;
         }
     }
 
@@ -974,7 +1014,7 @@
             grid-template-columns: 1fr;
             gap: 1rem;
         }
-        
+
         .meeting-link-display {
             flex-direction: column;
         }
