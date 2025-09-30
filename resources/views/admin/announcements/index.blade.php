@@ -1,457 +1,5 @@
 @extends('layouts.admin')
-
-<style>
-:root {
-    /* RedCode Solutions Color Palette - Matching Project Modal */
-    --redcode-primary: #DC2626; /* RedCode Brand Red */
-    --redcode-primary-dark: #991B1B; /* Deep Red */
-    --redcode-primary-light: #FEE2E2; /* Light Red Background */
-    --redcode-accent: #B91C1C; /* Accent Red */
-    --redcode-dark: #1F2937; /* Charcoal for headers/nav */
-    --redcode-gray: #6B7280; /* Medium Gray for text */
-    --redcode-light: #F9FAFB; /* Light Background */
-    --redcode-white: #FFFFFF; /* Pure White */
-    --redcode-blue: #2563EB; /* Links, buttons */
-    --redcode-green: #059669; /* Success states */
-    --redcode-orange: #D97706; /* Warnings */
-    --redcode-yellow: #F59E0B; /* Alerts */
-    --text-primary: #111827; /* Almost Black */
-    --text-secondary: #6B7280; /* Medium Gray */
-    --text-light: #9CA3AF; /* Light Gray */
-    --text-white: #FFFFFF; /* White Text */
-    --border-light: #E5E7EB;
-    --border-medium: #D1D5DB;
-    --border-dark: #6B7280;
-    --gradient-primary: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
-    --gradient-hero: linear-gradient(135deg, #DC2626 0%, #1F2937 50%, #991B1B 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-    
-    /* Legacy variables for backward compatibility */
-    --primary: #DC2626;
-    --accent: #212121;
-    --primary-light: #F5F5F5;
-    --secondary: #3F51B5;
-    --success: #43A047;
-    --warning: #FFA000;
-    --danger: #E64A19;
-    --error: #E64A19;
-    --info: #0097A7;
-    --text-disabled: #BDBDBD;
-    --divider: #E0E0E0;
-}
-/* Modern Announcements Styles */
-.card {
-    border-radius: 1rem;
-    box-shadow: 0 2px 16px 0 rgba(0,0,0,0.07);
-    border: none;
-    background: #fff;
-}
-.card-header {
-    border-bottom: 1px solid var(--divider);
-    background: linear-gradient(90deg, var(--primary-light) 60%, #fff 100%);
-    border-radius: 1rem 1rem 0 0;
-    padding: 1.5rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.card-body {
-    padding: 2rem;
-}
-.btn {
-    border-radius: 0.75rem;
-    font-weight: 500;
-    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-    box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
-}
-.btn-primary {
-    background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%);
-    color: #fff;
-    border: none;
-}
-.btn-primary:hover {
-    background: linear-gradient(90deg, var(--secondary) 60%, var(--primary) 100%);
-}
-.btn-secondary {
-    background: var(--primary-light);
-    color: var(--text-secondary);
-    border: none;
-}
-.btn-secondary:hover {
-    background: var(--divider);
-}
-.btn-warning {
-    background: var(--warning);
-    color: #fff;
-    border: none;
-}
-.btn-warning:hover {
-    background: #ffb300;
-}
-.btn-danger {
-    background: var(--danger);
-    color: #fff;
-    border: none;
-}
-.btn-danger:hover {
-    background: #d84315;
-}
-.btn-success {
-    background: var(--success);
-    color: #fff;
-    border: none;
-}
-.btn-success:hover {
-    background: #388e3c;
-}
-.btn-info {
-    background: var(--info);
-    color: #fff;
-    border: none;
-}
-.btn-info:hover {
-    background: #007c91;
-}
-.badge {
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    display: inline-block;
-}
-.form-input, .form-select {
-    border-radius: 0.5rem;
-    border: 1px solid var(--divider);
-    background: var(--primary-light);
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    transition: border 0.2s, box-shadow 0.2s;
-}
-.form-input:focus, .form-select:focus {
-    border-color: var(--primary);
-    outline: none;
-    box-shadow: 0 0 0 2px #d32f2f22;
-}
-.flex {
-    display: flex;
-}
-.gap-1 { gap: 0.25rem; }
-.gap-2 { gap: 0.75rem; }
-.gap-3 { gap: 1.25rem; }
-.justify-between { justify-content: space-between; }
-.items-center { align-items: center; }
-.text-center { text-align: center; }
-.mt-4 { margin-top: 1.5rem; }
-.mb-4 { margin-bottom: 1.5rem; }
-.card-body > div[style*="display: flex; flex-direction: column"] > .card {
-    border: 1px solid var(--divider);
-    box-shadow: 0 1px 8px 0 rgba(0,0,0,0.03);
-    transition: box-shadow 0.2s;
-}
-.card-body > div[style*="display: flex; flex-direction: column"] > .card:hover {
-    box-shadow: 0 4px 24px 0 rgba(37,99,235,0.08);
-}
-.card-body h3 {
-    color: var(--text-primary);
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 700;
-}
-.card-body p {
-    color: var(--text-secondary);
-    margin-bottom: 1rem;
-    line-height: 1.7;
-}
-@media (max-width: 900px) {
-    .card-body, .card-header { padding: 1rem; }
-    .card-body h3 { font-size: 1.1rem; }
-}
-::-webkit-scrollbar {
-    height: 8px;
-    background: #f3f4f6;
-    border-radius: 4px;
-}
-::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
-    border-radius: 4px;
-}
-
-/* Modal Styles - Matching Project Modal */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.modal-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.modal-container {
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(20px);
-    border-radius: 2rem;
-    width: 90%;
-    max-width: 800px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow:
-        0 32px 64px rgba(220,38,38,0.15),
-        0 0 0 1px rgba(255,255,255,0.05),
-        inset 0 1px 0 rgba(255,255,255,0.1);
-    border: 1px solid var(--border-light);
-    position: relative;
-    transform: scale(0.9) translateY(20px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.modal-overlay.active .modal-container {
-    transform: scale(1) translateY(0);
-}
-
-.modal-header {
-    padding: 2rem 2rem 0 2rem;
-    border-bottom: 1px solid var(--border-light);
-    margin-bottom: 2rem;
-    position: relative;
-}
-
-.modal-title {
-    font-size: 2rem;
-    font-weight: 800;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.modal-subtitle {
-    color: var(--text-secondary);
-    font-size: 1rem;
-    font-weight: 500;
-    margin-bottom: 1.5rem;
-}
-
-.modal-close {
-    position: absolute;
-    top: 1rem;
-    right: 1.5rem;
-    background: rgba(220, 38, 38, 0.1);
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: var(--redcode-primary);
-}
-
-.modal-close:hover {
-    background: rgba(220, 38, 38, 0.2);
-    transform: scale(1.1);
-}
-
-.modal-body {
-    padding: 0 2rem 2rem 2rem;
-}
-
-/* Enhanced Form Styles - Matching Project Modal */
-.form-container {
-    display: grid;
-    gap: 1.5rem;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-}
-
-.form-group {
-    position: relative;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    letter-spacing: 0.025em;
-}
-
-.form-label i {
-    margin-right: 0.5rem;
-    color: var(--redcode-primary);
-}
-
-.form-input, .form-select, .form-textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid var(--border-light);
-    border-radius: 0.75rem;
-    font-size: 0.9rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(248, 250, 252, 0.5);
-    backdrop-filter: blur(10px);
-    color: var(--text-primary);
-    font-weight: 500;
-    box-sizing: border-box;
-    min-height: 48px;
-    display: flex;
-    align-items: center;
-}
-
-.form-textarea {
-    min-height: 100px;
-    resize: vertical;
-    font-family: inherit;
-    padding: 16px;
-    align-items: flex-start;
-    line-height: 1.5;
-}
-
-.form-input:focus, .form-select:focus, .form-textarea:focus {
-    outline: none;
-    border-color: var(--redcode-primary);
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow:
-        0 0 0 4px rgba(220,38,38,0.08),
-        0 8px 25px rgba(220,38,38,0.12);
-    transform: translateY(-2px);
-}
-
-.form-select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 12px center;
-    background-repeat: no-repeat;
-    background-size: 16px;
-}
-
-.form-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-light);
-}
-
-.form-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.form-checkbox input {
-    width: auto;
-    margin: 0;
-    margin-right: 0.5rem;
-}
-
-/* Enhanced Button Styles - Matching Project Modal */
-.btn {
-    padding: 12px 24px;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: none;
-    position: relative;
-    overflow: hidden;
-    letter-spacing: 0.025em;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.btn-primary {
-    background: var(--gradient-primary);
-    color: white;
-    box-shadow:
-        0 8px 25px rgba(220,38,38,0.18),
-        0 3px 10px rgba(153,27,27,0.12);
-}
-
-.btn-primary::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s;
-}
-
-.btn-primary:hover::before {
-    left: 100%;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow:
-        0 15px 35px rgba(220,38,38,0.22),
-        0 5px 15px rgba(153,27,27,0.18);
-}
-
-.btn-secondary {
-    background: var(--redcode-light);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-light);
-}
-
-.btn-secondary:hover {
-    background: var(--border-light);
-    transform: translateY(-2px);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .modal-container {
-        width: 95%;
-        margin: 1rem;
-        border-radius: 1.5rem;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .modal-header, .modal-body {
-        padding: 1.5rem;
-    }
-    
-    .modal-title {
-        font-size: 1.5rem;
-    }
-    
-    .form-actions {
-        flex-direction: column;
-    }
-}
-</style>
+<link rel="stylesheet" href="{{ asset('css/admin/announcements.css') }}">
 
 @section('title', 'Announcements')
 
@@ -472,10 +20,10 @@
     </div>
     <div class="card-body">
         <!-- Search and Filter Section -->
-        <div class="flex justify-between items-center mb-4">
-            <div class="flex gap-2">
-                <input type="text" placeholder="Search announcements..." class="form-input" style="width: 300px;">
-                <select class="form-select" style="width: 200px;">
+        <div class="ann-toolbar mb-4">
+            <div class="ann-filters">
+                <input type="text" placeholder="Search announcements..." class="form-input ann-search-input">
+                <select class="form-select ann-category-select">
                     <option>All Categories</option>
                     <option>General</option>
                     <option>HR Updates</option>
@@ -484,14 +32,14 @@
                     <option>System Updates</option>
                 </select>
             </div>
-            <button class="btn btn-secondary">
+            <button class="btn btn-secondary ann-filter-btn">
                 <i class="fas fa-filter"></i>
                 Filter
             </button>
         </div>
 
         <!-- Announcements List -->
-        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div class="ann-list">
             <div class="card">
                 <div class="card-body">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
@@ -682,7 +230,7 @@
 </div>
 
 <!-- Announcement Statistics -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+<div class="ann-stats-grid">
     <div class="card">
         <div class="card-body text-center">
             <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">12</div>
@@ -732,7 +280,7 @@
                                 <i class="fas fa-heading"></i>
                                 Title
                             </label>
-                            <input type="text" id="title" name="title" class="form-input" 
+                            <input type="text" id="title" name="title" class="form-input"
                                    placeholder="Enter announcement title" required>
                         </div>
                         <div class="form-group">
@@ -749,7 +297,7 @@
                             </select>
                         </div>
                     </div>
-                    
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="category" class="form-label">
@@ -775,16 +323,16 @@
                             <input type="datetime-local" id="expires_at" name="expires_at" class="form-input">
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="content" class="form-label">
                             <i class="fas fa-file-text"></i>
                             Content
                         </label>
-                        <textarea id="content" name="content" class="form-textarea" rows="6" 
+                        <textarea id="content" name="content" class="form-textarea" rows="6"
                                   placeholder="Enter announcement content..." required></textarea>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label">
                             <i class="fas fa-users"></i>
@@ -803,7 +351,7 @@
                             <label for="department_heads">Department Heads</label>
                         </div>
                     </div>
-                    
+
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeAnnouncementModal()">
                             <i class="fas fa-times"></i>
@@ -844,7 +392,7 @@
                                 <i class="fas fa-heading"></i>
                                 Title
                             </label>
-                            <input type="text" id="edit_title" name="title" class="form-input" 
+                            <input type="text" id="edit_title" name="title" class="form-input"
                                    placeholder="Enter announcement title" required>
                         </div>
                         <div class="form-group">
@@ -861,7 +409,7 @@
                             </select>
                         </div>
                     </div>
-                    
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="edit_category" class="form-label">
@@ -887,16 +435,16 @@
                             <input type="datetime-local" id="edit_expires_at" name="expires_at" class="form-input">
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="edit_content" class="form-label">
                             <i class="fas fa-file-text"></i>
                             Content
                         </label>
-                        <textarea id="edit_content" name="content" class="form-textarea" rows="6" 
+                        <textarea id="edit_content" name="content" class="form-textarea" rows="6"
                                   placeholder="Enter announcement content..." required></textarea>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label">
                             <i class="fas fa-users"></i>
@@ -915,7 +463,7 @@
                             <label for="edit_department_heads">Department Heads</label>
                         </div>
                     </div>
-                    
+
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeEditAnnouncementModal()">
                             <i class="fas fa-times"></i>
@@ -970,7 +518,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Category and Expiry Row -->
                 <div class="form-row">
                     <div class="form-group">
@@ -994,7 +542,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Content -->
                 <div class="form-group">
                     <label class="form-label">
@@ -1006,7 +554,7 @@
                         <div class="view-field view-textarea" id="view_content"></div>
                     </div>
                 </div>
-                
+
                 <!-- Target Audience -->
                 <div class="form-group">
                     <label class="form-label">
@@ -1018,7 +566,7 @@
                         <div class="view-field" id="view_target_audience"></div>
                     </div>
                 </div>
-                
+
                 <!-- Modal Actions -->
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeViewAnnouncementModal()">
@@ -1036,13 +584,13 @@
 
 @push('scripts')
 <script>
-// Modal Functions
+
 function openAnnouncementModal() {
     const modal = document.getElementById('announcementModal');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
-    // Focus on first input
+
+
     setTimeout(() => {
         document.getElementById('title').focus();
     }, 300);
@@ -1052,11 +600,11 @@ function closeAnnouncementModal() {
     const modal = document.getElementById('announcementModal');
     modal.classList.remove('active');
     document.body.style.overflow = 'auto';
-    
-    // Reset form
+
+
     document.getElementById('announcementForm').reset();
-    
-    // Reset checkboxes to default
+
+
     document.getElementById('all_employees').checked = true;
     document.getElementById('managers').checked = false;
     document.getElementById('department_heads').checked = false;
@@ -1065,32 +613,32 @@ function closeAnnouncementModal() {
 // Edit Modal Functions
 function openEditAnnouncementModal(id, title, priority, category, content, expiresAt, targetAudience) {
     console.log('Opening edit modal with data:', { id, title, priority, category, content, expiresAt, targetAudience });
-    
+
     const modal = document.getElementById('editAnnouncementModal');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
+
     // Update form action with the announcement ID
     const form = document.getElementById('editAnnouncementForm');
     form.action = form.action.replace(':id', id);
-    
+
     // Populate form fields
     document.getElementById('edit_title').value = title || '';
     document.getElementById('edit_priority').value = priority || '';
     document.getElementById('edit_category').value = category || '';
     document.getElementById('edit_content').value = content || '';
     document.getElementById('edit_expires_at').value = expiresAt || '';
-    
+
     // Handle target audience checkboxes
     const allEmployees = document.getElementById('edit_all_employees');
     const managers = document.getElementById('edit_managers');
     const departmentHeads = document.getElementById('edit_department_heads');
-    
+
     // Reset all checkboxes first
     allEmployees.checked = false;
     managers.checked = false;
     departmentHeads.checked = false;
-    
+
     // Set checkboxes based on target audience
     if (targetAudience) {
         const audiences = Array.isArray(targetAudience) ? targetAudience : targetAudience.split(',');
@@ -1108,7 +656,7 @@ function openEditAnnouncementModal(id, title, priority, category, content, expir
             }
         });
     }
-    
+
     // Focus on first input
     setTimeout(() => {
         document.getElementById('edit_title').focus();
@@ -1119,10 +667,10 @@ function closeEditAnnouncementModal() {
     const modal = document.getElementById('editAnnouncementModal');
     modal.classList.remove('active');
     document.body.style.overflow = 'auto';
-    
+
     // Reset form
     document.getElementById('editAnnouncementForm').reset();
-    
+
     // Reset checkboxes to default
     document.getElementById('edit_all_employees').checked = true;
     document.getElementById('edit_managers').checked = false;
@@ -1132,14 +680,14 @@ function closeEditAnnouncementModal() {
 // View Modal Functions
 function openViewAnnouncementModal(id, title, priority, category, content, expiresAt, targetAudience) {
     console.log('Opening view modal with data:', { id, title, priority, category, content, expiresAt, targetAudience });
-    
+
     const modal = document.getElementById('viewAnnouncementModal');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
+
     // Populate view fields
     document.getElementById('view_title').textContent = title || 'N/A';
-    
+
     // Format priority display
     let priorityDisplay = priority || 'N/A';
     switch(priority) {
@@ -1157,7 +705,7 @@ function openViewAnnouncementModal(id, title, priority, category, content, expir
             break;
     }
     document.getElementById('view_priority').textContent = priorityDisplay;
-    
+
     // Format category display
     let categoryDisplay = category || 'N/A';
     switch(category) {
@@ -1184,14 +732,14 @@ function openViewAnnouncementModal(id, title, priority, category, content, expir
             break;
     }
     document.getElementById('view_category').textContent = categoryDisplay;
-    
+
     document.getElementById('view_content').textContent = content || 'N/A';
-    
+
     // Format expiry date
     document.getElementById('view_expires_at').textContent = expiresAt ? new Date(expiresAt).toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
     }) : 'No expiry date';
-    
+
     // Format target audience
     let audienceDisplay = 'N/A';
     if (targetAudience) {
@@ -1211,7 +759,7 @@ function openViewAnnouncementModal(id, title, priority, category, content, expir
         audienceDisplay = audienceLabels.join(', ');
     }
     document.getElementById('view_target_audience').textContent = audienceDisplay;
-    
+
     // Store data for potential edit modal opening
     window.currentAnnouncementData = {
         id, title, priority, category, content, expiresAt, targetAudience
@@ -1227,14 +775,14 @@ function closeViewAnnouncementModal() {
 // View Modal Functions
 function openViewAnnouncementModal(id, title, priority, category, content, expiresAt, targetAudience) {
     console.log('Opening view modal with data:', { id, title, priority, category, content, expiresAt, targetAudience });
-    
+
     const modal = document.getElementById('viewAnnouncementModal');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
+
     // Populate view fields
     document.getElementById('view_title').textContent = title || 'N/A';
-    
+
     // Format priority display
     let priorityDisplay = priority || 'N/A';
     switch(priority) {
@@ -1252,7 +800,7 @@ function openViewAnnouncementModal(id, title, priority, category, content, expir
             break;
     }
     document.getElementById('view_priority').textContent = priorityDisplay;
-    
+
     // Format category display
     let categoryDisplay = category || 'N/A';
     switch(category) {
@@ -1279,14 +827,14 @@ function openViewAnnouncementModal(id, title, priority, category, content, expir
             break;
     }
     document.getElementById('view_category').textContent = categoryDisplay;
-    
+
     document.getElementById('view_content').textContent = content || 'N/A';
-    
+
     // Format expiry date
     document.getElementById('view_expires_at').textContent = expiresAt ? new Date(expiresAt).toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
     }) : 'No expiry date';
-    
+
     // Format target audience
     let audienceDisplay = 'N/A';
     if (targetAudience) {
@@ -1306,7 +854,7 @@ function openViewAnnouncementModal(id, title, priority, category, content, expir
         audienceDisplay = audienceLabels.join(', ');
     }
     document.getElementById('view_target_audience').textContent = audienceDisplay;
-    
+
     // Store data for potential edit modal opening
     window.currentAnnouncementData = {
         id, title, priority, category, content, expiresAt, targetAudience
@@ -1322,12 +870,12 @@ function closeViewAnnouncementModal() {
 function openEditAnnouncementModalFromView() {
     // Close view modal first
     closeViewAnnouncementModal();
-    
+
     // Open edit modal with stored data
     const data = window.currentAnnouncementData;
     if (data) {
         setTimeout(() => {
-            openEditAnnouncementModal(data.id, data.title, data.priority, data.category, 
+            openEditAnnouncementModal(data.id, data.title, data.priority, data.category,
                                     data.content, data.expiresAt, data.targetAudience);
         }, 300); // Small delay to allow view modal to close
     }
@@ -1343,7 +891,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // Edit modal close on outside click
     const editModal = document.getElementById('editAnnouncementModal');
     if (editModal) {
@@ -1353,7 +901,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // View modal close on outside click
     const viewModal = document.getElementById('viewAnnouncementModal');
     if (viewModal) {
@@ -1371,7 +919,7 @@ document.addEventListener('keydown', function(e) {
         const modal = document.getElementById('announcementModal');
         const editModal = document.getElementById('editAnnouncementModal');
         const viewModal = document.getElementById('viewAnnouncementModal');
-        
+
         if (modal && modal.classList.contains('active')) {
             closeAnnouncementModal();
         }
@@ -1390,59 +938,59 @@ document.addEventListener('DOMContentLoaded', function() {
     if (form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const formData = new FormData(this);
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
-            
+
             // Show loading state
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
-            
+
             // Simulate form submission (replace with actual endpoint)
             setTimeout(() => {
                 // Show success message
                 showNotification('Announcement created successfully!', 'success');
-                
+
                 // Close modal and reset form
                 closeAnnouncementModal();
-                
+
                 // Reset button state
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
-                
+
                 // Optional: Reload page to show new announcement
                 // setTimeout(() => location.reload(), 1000);
             }, 2000);
         });
     }
-    
+
     // Handle edit form submission
     const editForm = document.getElementById('editAnnouncementForm');
     if (editForm) {
         editForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const formData = new FormData(this);
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
-            
+
             // Show loading state
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-            
+
             // Simulate form submission (replace with actual endpoint)
             setTimeout(() => {
                 // Show success message
                 showNotification('Announcement updated successfully!', 'success');
-                
+
                 // Close modal and reset form
                 closeEditAnnouncementModal();
-                
+
                 // Reset button state
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
-                
+
                 // Optional: Reload page to show updated announcement
                 // setTimeout(() => location.reload(), 1000);
             }, 2000);
@@ -1455,7 +1003,7 @@ function showNotification(message, type = 'info') {
     // Remove existing notifications
     const existingNotifications = document.querySelectorAll('.notification');
     existingNotifications.forEach(notif => notif.remove());
-    
+
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
@@ -1465,7 +1013,7 @@ function showNotification(message, type = 'info') {
             <span>${message}</span>
         </div>
     `;
-    
+
     // Add notification styles
     notification.style.cssText = `
         position: fixed;
@@ -1482,14 +1030,14 @@ function showNotification(message, type = 'info') {
         font-weight: 500;
         font-size: 14px;
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Animate in
     setTimeout(() => {
         notification.style.transform = 'translateX(0)';
     }, 100);
-    
+
     // Remove after 3 seconds
     setTimeout(() => {
         notification.style.transform = 'translateX(100%)';
@@ -1511,12 +1059,12 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.height = this.scrollHeight + 'px';
         });
     }
-    
+
     // Handle "All Employees" checkbox logic
     const allEmployeesCheckbox = document.getElementById('all_employees');
     const managersCheckbox = document.getElementById('managers');
     const departmentHeadsCheckbox = document.getElementById('department_heads');
-    
+
     if (allEmployeesCheckbox && managersCheckbox && departmentHeadsCheckbox) {
         allEmployeesCheckbox.addEventListener('change', function() {
             if (this.checked) {
@@ -1524,25 +1072,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 departmentHeadsCheckbox.checked = false;
             }
         });
-        
+
         managersCheckbox.addEventListener('change', function() {
             if (this.checked) {
                 allEmployeesCheckbox.checked = false;
             }
         });
-        
+
         departmentHeadsCheckbox.addEventListener('change', function() {
             if (this.checked) {
                 allEmployeesCheckbox.checked = false;
             }
         });
     }
-    
+
     // Handle "All Employees" checkbox logic for edit modal
     const editAllEmployeesCheckbox = document.getElementById('edit_all_employees');
     const editManagersCheckbox = document.getElementById('edit_managers');
     const editDepartmentHeadsCheckbox = document.getElementById('edit_department_heads');
-    
+
     if (editAllEmployeesCheckbox && editManagersCheckbox && editDepartmentHeadsCheckbox) {
         editAllEmployeesCheckbox.addEventListener('change', function() {
             if (this.checked) {
@@ -1550,20 +1098,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 editDepartmentHeadsCheckbox.checked = false;
             }
         });
-        
+
         editManagersCheckbox.addEventListener('change', function() {
             if (this.checked) {
                 editAllEmployeesCheckbox.checked = false;
             }
         });
-        
+
         editDepartmentHeadsCheckbox.addEventListener('change', function() {
             if (this.checked) {
                 editAllEmployeesCheckbox.checked = false;
             }
         });
     }
-    
+
     // Set minimum datetime to current time
     const expiresInput = document.getElementById('expires_at');
     if (expiresInput) {
@@ -1572,7 +1120,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const localTime = new Date(now.getTime() - (offset * 60000));
         expiresInput.min = localTime.toISOString().slice(0, 16);
     }
-    
+
     // Form validation
     const form = document.getElementById('announcementForm');
     if (form) {
@@ -1585,7 +1133,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.style.borderColor = '#10b981';
                 }
             });
-            
+
             input.addEventListener('input', function() {
                 if (this.value.trim() !== '') {
                     this.style.borderColor = '#10b981';

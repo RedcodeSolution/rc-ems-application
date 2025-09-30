@@ -1,10 +1,9 @@
 @extends('layouts.employee')
 
 @section('title', 'My Projects')
-
+<link rel="stylesheet" href="{{ asset('css/Employee/myProjects.css') }}">
 @section('content')
 <div class="projects-container">
-    <!-- Projects Header -->
     <div class="projects-header">
         <div class="header-content">
             <div class="header-info">
@@ -24,7 +23,6 @@
         </div>
     </div>
 
-    <!-- Projects Statistics -->
     <div class="projects-stats">
         <div class="stat-card">
             <div class="stat-icon">
@@ -64,7 +62,6 @@
         </div>
     </div>
 
-    <!-- Project Status Filter -->
     <div class="project-status-filter">
         <h2>Project Status</h2>
         <div class="status-grid">
@@ -107,7 +104,6 @@
         </div>
     </div>
 
-    <!-- Search and Filter -->
     <div class="projects-controls">
         <div class="search-section">
             <div class="search-box">
@@ -139,10 +135,9 @@
         </div>
     </div>
 
-    <!-- Projects Grid -->
+
     <div class="projects-content">
         <div class="projects-grid" id="projectsGrid">
-            <!-- Active Projects -->
             <div class="project-card" data-status="active" data-priority="high" data-team="development">
                 <div class="project-header">
                     <div class="project-title">
@@ -223,7 +218,6 @@
                 </div>
             </div>
 
-            <!-- Completed Projects -->
             <div class="project-card" data-status="completed" data-priority="high" data-team="development">
                 <div class="project-header">
                     <div class="project-title">
@@ -264,7 +258,6 @@
                 </div>
             </div>
 
-            <!-- Pending Projects -->
             <div class="project-card" data-status="pending" data-priority="low" data-team="marketing">
                 <div class="project-header">
                     <div class="project-title">
@@ -305,7 +298,6 @@
                 </div>
             </div>
 
-            <!-- Overdue Projects -->
             <div class="project-card" data-status="overdue" data-priority="high" data-team="qa">
                 <div class="project-header">
                     <div class="project-title">
@@ -388,7 +380,6 @@
         </div>
     </div>
 
-    <!-- Create Project Modal -->
     <div id="createProjectModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -441,681 +432,6 @@
     </div>
 </div>
 
-<style>
-    .projects-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0;
-    }
-
-    .projects-header {
-        background: var(--gradient-hero);
-        background-size: 400% 400%;
-        animation: gradientShift 18s ease infinite;
-        color: white;
-        padding: 2rem;
-        border-radius: 1rem;
-        margin-bottom: 2rem;
-        box-shadow: var(--shadow-xl);
-        position: relative;
-        overflow: hidden;
-    }
-
-    @keyframes gradientShift {
-        0% { background-position: 0% 50%; }
-        25% { background-position: 100% 50%; }
-        50% { background-position: 100% 100%; }
-        75% { background-position: 0% 100%; }
-        100% { background-position: 0% 50%; }
-    }
-
-    .projects-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-    }
-
-    .header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: relative;
-        z-index: 1;
-    }
-
-    .header-info h1 {
-        margin: 0;
-        font-size: 2rem;
-        font-weight: 700;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .header-info p {
-        margin: 0.5rem 0 0 0;
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1.1rem;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .header-actions .btn {
-        background: rgba(255, 255, 255, 0.2);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
-    }
-
-    .header-actions .btn:hover {
-        background: rgba(255, 255, 255, 0.3);
-        transform: translateY(-2px);
-    }
-
-    .projects-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 1rem;
-        box-shadow: var(--shadow-lg);
-        border: 1px solid var(--border-light);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-xl);
-        border-color: var(--redcode-primary);
-    }
-
-    .stat-icon {
-        width: 60px;
-        height: 60px;
-        background: var(--gradient-hero);
-        background-size: 400% 400%;
-        animation: gradientShift 18s ease infinite;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-        box-shadow: var(--shadow-sm);
-    }
-
-    .stat-info h3 {
-        margin: 0;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .stat-info p {
-        margin: 0.25rem 0 0 0;
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-    }
-
-    .project-status-filter {
-        margin-bottom: 2rem;
-    }
-
-    .project-status-filter h2 {
-        color: var(--text-primary);
-        margin-bottom: 1rem;
-        font-size: 1.5rem;
-        font-weight: 600;
-    }
-
-    .status-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-    }
-
-    .status-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 1rem;
-        box-shadow: var(--shadow-lg);
-        border: 1px solid var(--border-light);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        cursor: pointer;
-    }
-
-    .status-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-xl);
-        border-color: var(--redcode-primary);
-    }
-
-    .status-card.active {
-        border-color: var(--redcode-primary);
-        background: var(--redcode-primary-light);
-    }
-
-    .status-icon {
-        width: 50px;
-        height: 50px;
-        background: var(--gradient-hero);
-        background-size: 400% 400%;
-        animation: gradientShift 18s ease infinite;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.25rem;
-        box-shadow: var(--shadow-sm);
-    }
-
-    .status-info h3 {
-        margin: 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .status-info p {
-        margin: 0.25rem 0 0 0;
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-    }
-
-    .projects-controls {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 1rem;
-        box-shadow: var(--shadow-lg);
-        border: 1px solid var(--border-light);
-        margin-bottom: 2rem;
-    }
-
-    .search-section {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-    }
-
-    .search-box {
-        flex: 1;
-        position: relative;
-    }
-
-    .search-box i {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-secondary);
-    }
-
-    .search-box input {
-        width: 100%;
-        padding: 0.875rem 1rem 0.875rem 2.5rem;
-        border: 2px solid var(--border-light);
-        border-radius: 0.75rem;
-        font-size: 1rem;
-        background: var(--bg-primary);
-        transition: all 0.3s ease;
-    }
-
-    .search-box input:focus {
-        outline: none;
-        border-color: var(--redcode-primary);
-        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
-    }
-
-    .filter-section {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .filter-select {
-        padding: 0.875rem 1rem;
-        border: 2px solid var(--border-light);
-        border-radius: 0.75rem;
-        font-size: 1rem;
-        background: var(--bg-primary);
-        transition: all 0.3s ease;
-        min-width: 150px;
-    }
-
-    .filter-select:focus {
-        outline: none;
-        border-color: var(--redcode-primary);
-        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
-    }
-
-    .projects-content {
-        background: white;
-        padding: 2rem;
-        border-radius: 1rem;
-        box-shadow: var(--shadow-lg);
-        border: 1px solid var(--border-light);
-    }
-
-    .projects-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 1.5rem;
-    }
-
-    .project-card {
-        background: var(--bg-primary);
-        border: 2px solid var(--border-light);
-        border-radius: 1rem;
-        padding: 1.5rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-        box-shadow: var(--shadow-sm);
-    }
-
-    .project-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 4px;
-        height: 100%;
-        background: var(--redcode-primary);
-        transform: scaleY(0);
-        transition: transform 0.3s ease;
-    }
-
-    .project-card:hover::before {
-        transform: scaleY(1);
-    }
-
-    .project-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg);
-        border-color: var(--redcode-primary);
-    }
-
-    .project-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1rem;
-    }
-
-    .project-title h4 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .priority-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .priority-badge.high {
-        background: rgba(220, 38, 38, 0.1);
-        color: #DC2626;
-    }
-
-    .priority-badge.medium {
-        background: rgba(245, 158, 11, 0.1);
-        color: #F59E0B;
-    }
-
-    .priority-badge.low {
-        background: rgba(34, 197, 94, 0.1);
-        color: #22C55E;
-    }
-
-    .project-status {
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    .project-status.active {
-        background: rgba(34, 197, 94, 0.1);
-        color: #22C55E;
-    }
-
-    .project-status.completed {
-        background: rgba(59, 130, 246, 0.1);
-        color: #3B82F6;
-    }
-
-    .project-status.pending {
-        background: rgba(245, 158, 11, 0.1);
-        color: #F59E0B;
-    }
-
-    .project-status.overdue {
-        background: rgba(220, 38, 38, 0.1);
-        color: #DC2626;
-    }
-
-    .project-info p {
-        margin: 0 0 1rem 0;
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-        line-height: 1.5;
-    }
-
-    .project-meta {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        margin-bottom: 1rem;
-    }
-
-    .project-meta span {
-        color: var(--text-light);
-        font-size: 0.8rem;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    .project-progress {
-        margin-bottom: 1rem;
-    }
-
-    .progress-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .progress-bar {
-        height: 8px;
-        background: var(--bg-secondary);
-        border-radius: 4px;
-        overflow: hidden;
-    }
-
-    .progress-fill {
-        height: 100%;
-        background: var(--gradient-hero);
-        background-size: 400% 400%;
-        animation: gradientShift 18s ease infinite;
-        transition: width 0.3s ease;
-    }
-
-    .progress-fill.completed {
-        background: linear-gradient(135deg, #22C55E, #16A34A);
-    }
-
-    .progress-fill.pending {
-        background: linear-gradient(135deg, #F59E0B, #D97706);
-    }
-
-    .progress-fill.overdue {
-        background: linear-gradient(135deg, #DC2626, #B91C1C);
-    }
-
-    .project-actions {
-        display: flex;
-        gap: 0.5rem;
-        justify-content: flex-end;
-    }
-
-    .action-btn {
-        width: 35px;
-        height: 35px;
-        border: none;
-        border-radius: 50%;
-        background: var(--redcode-primary-light);
-        color: var(--redcode-primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 0.875rem;
-    }
-
-    .action-btn:hover {
-        background: var(--redcode-primary);
-        color: white;
-        transform: scale(1.1);
-    }
-
-    /* Modal Styles */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        backdrop-filter: blur(5px);
-    }
-
-    .modal.active {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .modal-content {
-        background: white;
-        border-radius: 1rem;
-        width: 90%;
-        max-width: 600px;
-        max-height: 90vh;
-        overflow-y: auto;
-        box-shadow: var(--shadow-xl);
-        animation: modalSlideIn 0.3s ease;
-    }
-
-    @keyframes modalSlideIn {
-        from {
-            transform: translateY(-50px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-
-    .modal-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--border-light);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: var(--gradient-hero);
-        background-size: 400% 400%;
-        animation: gradientShift 18s ease infinite;
-        color: white;
-        border-radius: 1rem 1rem 0 0;
-    }
-
-    .modal-header h3 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .close-btn {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.25rem;
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 50%;
-        transition: all 0.3s ease;
-    }
-
-    .close-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
-    }
-
-    .modal-body {
-        padding: 1.5rem;
-    }
-
-    .form-group {
-        margin-bottom: 1rem;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 0.875rem 1rem;
-        border: 2px solid var(--border-light);
-        border-radius: 0.75rem;
-        font-size: 1rem;
-        background: var(--bg-primary);
-        transition: all 0.3s ease;
-    }
-
-    .form-control:focus {
-        outline: none;
-        border-color: var(--redcode-primary);
-        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-
-    .modal-footer {
-        padding: 1.5rem;
-        border-top: 1px solid var(--border-light);
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-        background: var(--bg-secondary);
-        border-radius: 0 0 1rem 1rem;
-    }
-
-    .btn {
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        text-decoration: none;
-        font-size: 0.875rem;
-    }
-
-    .btn-primary {
-        background: var(--gradient-primary);
-        color: white;
-        box-shadow: var(--shadow-sm);
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-
-    .btn-secondary {
-        background: var(--gradient-secondary);
-        color: white;
-        box-shadow: var(--shadow-sm);
-    }
-
-    .btn-secondary:hover {
-        background: var(--redcode-dark);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-
-    @media (max-width: 768px) {
-        .header-content {
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .projects-stats {
-            grid-template-columns: 1fr;
-        }
-
-        .status-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .search-section {
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .filter-section {
-            width: 100%;
-        }
-
-        .filter-select {
-            flex: 1;
-        }
-
-        .projects-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
 <script>
     let currentViewMode = 'grid';
 
@@ -1123,7 +439,7 @@
         const grid = document.getElementById('projectsGrid');
         const icon = document.getElementById('viewModeIcon');
         const text = document.getElementById('viewModeText');
-        
+
         if (currentViewMode === 'grid') {
             grid.classList.add('list-view');
             icon.className = 'fas fa-th-list';
@@ -1151,17 +467,16 @@
         const priority = document.getElementById('projectPriority').value;
         const team = document.getElementById('projectTeam').value;
         const deadline = document.getElementById('projectDeadline').value;
-        
+
         if (!name || !description || !deadline) {
             alert('Please fill in all required fields.');
             return;
         }
-        
-        // Show success message
+
         showMessage('Project created successfully!', 'success');
         closeCreateProjectModal();
-        
-        // Reset form
+
+
         document.getElementById('projectName').value = '';
         document.getElementById('projectDescription').value = '';
         document.getElementById('projectDeadline').value = '';
@@ -1201,21 +516,19 @@
             align-items: center;
             gap: 0.5rem;
         `;
-        
+
         document.body.appendChild(messageDiv);
-        
+
         setTimeout(() => {
             messageDiv.remove();
         }, 3000);
     }
 
-    // Search functionality
     document.getElementById('searchInput').addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase();
         filterProjects();
     });
 
-    // Filter functionality
     document.getElementById('statusFilter').addEventListener('change', filterProjects);
     document.getElementById('priorityFilter').addEventListener('change', filterProjects);
     document.getElementById('teamFilter').addEventListener('change', filterProjects);
@@ -1226,18 +539,18 @@
         const priorityFilter = document.getElementById('priorityFilter').value;
         const teamFilter = document.getElementById('teamFilter').value;
         const projects = document.querySelectorAll('.project-card');
-        
+
         projects.forEach(project => {
             const title = project.querySelector('h4').textContent.toLowerCase();
             const status = project.dataset.status;
             const priority = project.dataset.priority;
             const team = project.dataset.team;
-            
+
             const matchesSearch = title.includes(searchTerm);
             const matchesStatus = !statusFilter || status === statusFilter;
             const matchesPriority = !priorityFilter || priority === priorityFilter;
             const matchesTeam = !teamFilter || team === teamFilter;
-            
+
             if (matchesSearch && matchesStatus && matchesPriority && matchesTeam) {
                 project.style.display = 'block';
             } else {
@@ -1246,27 +559,24 @@
         });
     }
 
-    // Status card click functionality
     document.querySelectorAll('.status-card').forEach(card => {
         card.addEventListener('click', function() {
             const status = this.dataset.status;
             document.getElementById('statusFilter').value = status;
             filterProjects();
-            
-            // Update active state
+
+
             document.querySelectorAll('.status-card').forEach(c => c.classList.remove('active'));
             this.classList.add('active');
         });
     });
 
-    // Close modal when clicking outside
     document.getElementById('createProjectModal').addEventListener('click', function(e) {
         if (e.target === this) {
             closeCreateProjectModal();
         }
     });
 
-    // Add slide-in animation keyframes
     const style = document.createElement('style');
     style.textContent = `
         @keyframes slideIn {
@@ -1279,30 +589,30 @@
                 opacity: 1;
             }
         }
-        
+
         .projects-grid.list-view {
             grid-template-columns: 1fr;
         }
-        
+
         .projects-grid.list-view .project-card {
             display: flex;
             align-items: center;
             gap: 1rem;
             padding: 1rem;
         }
-        
+
         .projects-grid.list-view .project-header {
             margin-bottom: 0;
         }
-        
+
         .projects-grid.list-view .project-info {
             flex: 1;
         }
-        
+
         .projects-grid.list-view .project-progress {
             margin-bottom: 0;
         }
-        
+
         .projects-grid.list-view .project-actions {
             flex-shrink: 0;
         }

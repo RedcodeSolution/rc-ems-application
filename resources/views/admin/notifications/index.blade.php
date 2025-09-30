@@ -1,468 +1,6 @@
 @extends('layouts.admin')
 
-<style>
-:root {
-    --primary: #D32F2F;
-    --accent: #212121;
-    --primary-light: #F5F5F5;
-    --secondary: #3F51B5;
-    --success: #43A047;
-    --warning: #FFA000;
-    --danger: #E64A19;
-    --error: #E64A19;
-    --info: #0097A7;
-    --text-primary: #212121;
-    --text-secondary: #757575;
-    --text-disabled: #BDBDBD;
-    --divider: #E0E0E0;
-}
-/* Modern Notifications Styles */
-.card {
-    border-radius: 1rem;
-    box-shadow: 0 2px 16px 0 rgba(0,0,0,0.07);
-    border: none;
-    background: #fff;
-}
-.card-header {
-    border-bottom: 1px solid var(--divider);
-    background: linear-gradient(90deg, var(--primary-light) 60%, #fff 100%);
-    border-radius: 1rem 1rem 0 0;
-    padding: 1.5rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.card-body {
-    padding: 2rem;
-}
-.btn {
-    border-radius: 0.75rem;
-    font-weight: 500;
-    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-    box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
-}
-.btn-primary {
-    background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%);
-    color: #fff;
-    border: none;
-}
-.btn-primary:hover {
-    background: linear-gradient(90deg, var(--secondary) 60%, var(--primary) 100%);
-}
-.btn-secondary {
-    background: var(--primary-light);
-    color: var(--text-secondary);
-    border: none;
-}
-.btn-secondary:hover {
-    background: var(--divider);
-}
-.btn-warning {
-    background: var(--warning);
-    color: #fff;
-    border: none;
-}
-.btn-warning:hover {
-    background: #ffb300;
-}
-.btn-danger {
-    background: var(--danger);
-    color: #fff;
-    border: none;
-}
-.btn-danger:hover {
-    background: #d84315;
-}
-.btn-success {
-    background: var(--success);
-    color: #fff;
-    border: none;
-}
-.btn-success:hover {
-    background: #388e3c;
-}
-.btn-info {
-    background: var(--info);
-    color: #fff;
-    border: none;
-}
-.btn-info:hover {
-    background: #007c91;
-}
-.badge {
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    display: inline-block;
-}
-.form-select {
-    border-radius: 0.5rem;
-    border: 1px solid var(--divider);
-    background: var(--primary-light);
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    transition: border 0.2s, box-shadow 0.2s;
-}
-.form-select:focus {
-    border-color: var(--primary);
-    outline: none;
-    box-shadow: 0 0 0 2px #d32f2f22;
-}
-.flex {
-    display: flex;
-}
-.gap-1 { gap: 0.25rem; }
-.gap-2 { gap: 0.75rem; }
-.gap-3 { gap: 1.25rem; }
-.justify-between { justify-content: space-between; }
-.items-center { align-items: center; }
-.text-center { text-align: center; }
-.mt-4 { margin-top: 1.5rem; }
-.mb-4 { margin-bottom: 1.5rem; }
-.card-body h4 {
-    color: var(--text-primary);
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 600;
-}
-.card-body p {
-    color: var(--text-secondary);
-    margin-bottom: 1rem;
-    line-height: 1.7;
-}
-.card[style*="border-left"] {
-    box-shadow: 0 2px 8px 0 rgba(37,99,235,0.04);
-    transition: box-shadow 0.2s;
-}
-.card[style*="border-left"]:hover {
-    box-shadow: 0 4px 24px 0 rgba(37,99,235,0.08);
-}
-.card-body > div[style*="display: flex; flex-direction: column"] > .card {
-    border: 1px solid var(--divider);
-}
-a.btn, button.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1rem;
-}
-@media (max-width: 900px) {
-    .card-body, .card-header { padding: 1rem; }
-    .card-body h4 { font-size: 0.95rem; }
-}
-::-webkit-scrollbar {
-    height: 8px;
-    background: #f3f4f6;
-    border-radius: 4px;
-}
-::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
-    border-radius: 4px;
-}
-
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-}
-
-.modal.show {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-content {
-    background-color: #fff;
-    border-radius: 1rem;
-    width: 90%;
-    max-width: 600px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-    animation: modalSlideIn 0.3s ease-out;
-}
-
-@keyframes modalSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-30px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-.modal-header {
-    padding: 1.5rem 2rem;
-    border-bottom: 1px solid var(--divider);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(90deg, var(--primary-light) 60%, #fff 100%);
-    border-radius: 1rem 1rem 0 0;
-}
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.modal-body {
-    padding: 2rem;
-}
-
-.close {
-    color: var(--text-secondary);
-    font-size: 1.5rem;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-    background: none;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    transition: all 0.2s;
-}
-
-.close:hover {
-    color: var(--primary);
-    background: var(--primary-light);
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--divider);
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    transition: all 0.2s;
-    background: var(--primary-light);
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
-}
-
-.form-group textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
-.input-icon {
-    position: relative;
-}
-
-.input-icon i {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-}
-
-.input-icon input {
-    padding-left: 2.5rem;
-}
-
-.modal-footer {
-    padding: 1.5rem 2rem;
-    border-top: 1px solid var(--divider);
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-}
-
-.btn-cancel {
-    background: var(--primary-light);
-    color: var(--text-secondary);
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-cancel:hover {
-    background: var(--divider);
-}
-
-.btn-submit {
-    background: var(--primary);
-    color: #fff;
-    border: none;
-    padding: 0.75rem 2rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.btn-submit:hover {
-    background: var(--secondary);
-}
-
-.btn-submit:disabled {
-    background: var(--text-disabled);
-    cursor: not-allowed;
-}
-
-/* Notification Animation */
-@keyframes notificationSlideIn {
-    from {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.notification-item {
-    animation: notificationSlideIn 0.3s ease-out;
-}
-
-.notification-item.unread {
-    background: rgba(211, 47, 47, 0.02);
-    border-left-color: var(--primary);
-}
-
-.notification-item.read {
-    opacity: 0.8;
-}
-
-/* Search and Filter Styles */
-.search-input {
-    border-radius: 0.5rem;
-    border: 1px solid var(--divider);
-    background: var(--primary-light);
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    transition: border 0.2s, box-shadow 0.2s;
-    width: 300px;
-}
-
-.search-input:focus {
-    border-color: var(--primary);
-    outline: none;
-    box-shadow: 0 0 0 2px #d32f2f22;
-}
-
-/* Notification Badge */
-.notification-badge {
-    position: relative;
-    display: inline-block;
-}
-
-.notification-badge::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 8px;
-    height: 8px;
-    background: var(--primary);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
-}
-
-/* Toast Notifications */
-.toast {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: var(--success);
-    color: white;
-    padding: 1rem 1.5rem;
-    border-radius: 0.5rem;
-    z-index: 10000;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    animation: slideIn 0.3s ease-out;
-}
-
-.toast.error {
-    background: var(--danger);
-}
-
-.toast.warning {
-    background: var(--warning);
-}
-
-.toast.info {
-    background: var(--info);
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@media (max-width: 600px) {
-    .modal-content {
-        width: 95%;
-        margin: 1rem;
-    }
-    
-    .modal-header,
-    .modal-body,
-    .modal-footer {
-        padding: 1rem;
-    }
-    
-    .modal-footer {
-        flex-direction: column;
-    }
-    
-    .modal-footer button {
-        width: 100%;
-    }
-    
-    .search-input {
-        width: 100%;
-    }
-}
-</style>
-
+<link rel="stylesheet" href="{{ asset('css/admin/notifications.css') }}">
 @section('title', 'Notifications')
 
 @section('content')
@@ -486,18 +24,18 @@ a.btn, button.btn {
     </div>
     <div class="card-body">
         <!-- Filter Section -->
-        <div class="flex justify-between items-center mb-4">
-            <div class="flex gap-2">
+        <div class="noti-toolbar mb-4">
+            <div class="noti-filters">
                 <div class="input-icon">
                     <i class="fas fa-search"></i>
                     <input type="text" class="search-input" placeholder="Search notifications..." id="searchInput" onkeyup="searchNotifications()">
                 </div>
-                <select class="form-select" id="statusFilter" onchange="filterNotifications()" style="width: 200px;">
+                <select class="form-select noti-select" id="statusFilter" onchange="filterNotifications()">
                     <option value="">All Notifications</option>
                     <option value="unread">Unread</option>
                     <option value="read">Read</option>
                 </select>
-                <select class="form-select" id="typeFilter" onchange="filterNotifications()" style="width: 200px;">
+                <select class="form-select noti-select" id="typeFilter" onchange="filterNotifications()">
                     <option value="">All Types</option>
                     <option value="system">System</option>
                     <option value="employee">Employee</option>
@@ -505,7 +43,7 @@ a.btn, button.btn {
                     <option value="project">Project</option>
                 </select>
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 noti-actions">
                 <button class="btn btn-secondary" onclick="clearFilters()">
                     <i class="fas fa-times"></i>
                     Clear
@@ -518,7 +56,7 @@ a.btn, button.btn {
         </div>
 
         <!-- Notifications List -->
-        <div id="notificationsList" style="display: flex; flex-direction: column; gap: 1rem;">
+        <div id="notificationsList" class="noti-list">
             <div class="card notification-item unread" data-type="employee" data-id="1" style="border-left: 4px solid var(--primary); background: rgba(59, 130, 246, 0.02);">
                 <div class="card-body">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -687,7 +225,7 @@ a.btn, button.btn {
 </div>
 
 <!-- Notification Statistics -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+<div class="noti-stats-grid">
     <div class="card" onclick="filterByStatus('')" style="cursor: pointer;">
         <div class="card-body text-center">
             <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;" id="totalNotifications">23</div>
@@ -904,7 +442,7 @@ function viewNotification(id) {
         `;
         document.getElementById('notificationDetails').innerHTML = details;
         openModal('viewModal');
-        
+
         // Mark as read if it's unread
         if (notification.status === 'unread') {
             markAsRead(id);
@@ -977,15 +515,15 @@ function rejectLeave(id) {
 function createNotification() {
     const form = document.getElementById('createNotificationForm');
     const formData = new FormData(form);
-    
+
     if (formData.get('title') && formData.get('message') && formData.get('type')) {
         // Here you would typically send the data to your backend
         console.log('Creating notification:', Object.fromEntries(formData));
-        
+
         closeModal('createModal');
         form.reset();
         showToast('Notification created successfully', 'success');
-        
+
         // Add new notification to the list (mock implementation)
         addNewNotification(formData);
     } else {
@@ -999,21 +537,21 @@ function addNewNotification(formData) {
     newNotification.className = 'card notification-item unread';
     newNotification.setAttribute('data-type', formData.get('type'));
     newNotification.setAttribute('data-id', Date.now());
-    
+
     const typeColors = {
         'system': 'var(--info)',
         'employee': 'var(--primary)',
         'leave': 'var(--warning)',
         'project': 'var(--success)'
     };
-    
+
     const typeIcons = {
         'system': 'fas fa-cogs',
         'employee': 'fas fa-user',
         'leave': 'fas fa-calendar',
         'project': 'fas fa-project-diagram'
     };
-    
+
     newNotification.innerHTML = `
         <div class="card-body">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -1044,7 +582,7 @@ function addNewNotification(formData) {
             </div>
         </div>
     `;
-    
+
     notificationsList.insertBefore(newNotification, notificationsList.firstChild);
     updateStats();
 }
@@ -1060,17 +598,17 @@ function filterNotifications() {
     const notifications = document.querySelectorAll('.notification-item');
     const statusFilter = document.getElementById('statusFilter').value;
     const typeFilter = document.getElementById('typeFilter').value;
-    
+
     notifications.forEach(notification => {
         const title = notification.querySelector('h4').textContent.toLowerCase();
         const message = notification.querySelector('p').textContent.toLowerCase();
         const type = notification.getAttribute('data-type');
         const status = notification.classList.contains('unread') ? 'unread' : 'read';
-        
+
         const matchesSearch = currentSearch === '' || title.includes(currentSearch) || message.includes(currentSearch);
         const matchesStatus = statusFilter === '' || status === statusFilter;
         const matchesType = typeFilter === '' || type === typeFilter;
-        
+
         if (matchesSearch && matchesStatus && matchesType) {
             notification.style.display = 'block';
         } else {
@@ -1099,7 +637,7 @@ function filterByAction() {
     notifications.forEach(notification => {
         const type = notification.getAttribute('data-type');
         const status = notification.classList.contains('unread') ? 'unread' : 'read';
-        
+
         if (status === 'unread' && (type === 'employee' || type === 'leave')) {
             notification.style.display = 'block';
         } else {
@@ -1141,11 +679,11 @@ function goToPage(page) {
 function updatePagination() {
     const start = (currentPage - 1) * notificationsPerPage + 1;
     const end = Math.min(currentPage * notificationsPerPage, totalNotifications);
-    
+
     document.getElementById('showingStart').textContent = start;
     document.getElementById('showingEnd').textContent = end;
     document.getElementById('totalCount').textContent = totalNotifications;
-    
+
     // Update button states
     document.getElementById('prevBtn').disabled = currentPage === 1;
     document.getElementById('nextBtn').disabled = currentPage === Math.ceil(totalNotifications / notificationsPerPage);
@@ -1157,12 +695,12 @@ function updateStats() {
     const unreadCount = document.querySelectorAll('.notification-item.unread').length;
     const readCount = notifications.length - unreadCount;
     const actionCount = document.querySelectorAll('.notification-item.unread[data-type="employee"], .notification-item.unread[data-type="leave"]').length;
-    
+
     document.getElementById('totalNotifications').textContent = notifications.length;
     document.getElementById('unreadCount').textContent = unreadCount;
     document.getElementById('readCount').textContent = readCount;
     document.getElementById('actionCount').textContent = actionCount;
-    
+
     totalNotifications = notifications.length;
     updatePagination();
 }
@@ -1173,7 +711,7 @@ function saveSettings() {
     const autoMarkRead = document.getElementById('autoMarkRead').checked;
     const notificationSound = document.getElementById('notificationSound').value;
     const refreshInterval = document.getElementById('refreshInterval').value;
-    
+
     // Save settings to localStorage or backend
     const settings = {
         emailNotifications,
@@ -1181,11 +719,11 @@ function saveSettings() {
         notificationSound,
         refreshInterval
     };
-    
+
     localStorage.setItem('notificationSettings', JSON.stringify(settings));
     closeModal('settingsModal');
     showToast('Settings saved successfully', 'success');
-    
+
     // Update auto-refresh if needed
     setupAutoRefresh();
 }
@@ -1193,7 +731,7 @@ function saveSettings() {
 function setupAutoRefresh() {
     const settings = JSON.parse(localStorage.getItem('notificationSettings')) || {};
     const interval = settings.refreshInterval || 60;
-    
+
     if (interval > 0) {
         setInterval(() => {
             refreshNotifications();
@@ -1206,9 +744,9 @@ function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.textContent = message;
-    
+
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.remove();
     }, 3000);

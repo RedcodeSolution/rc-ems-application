@@ -35,7 +35,6 @@
     --divider: var(--border-light);
 }
 
-/* Global Body & Container Settings */
 body {
     box-sizing: border-box;
     overflow-x: hidden;
@@ -188,7 +187,6 @@ body {
     }
 }
 
-/* For larger screens, keep modal centered and rounded */
 @media (min-width: 601px) {
     .modal-container {
         width: 95vw;
