@@ -1237,7 +1237,7 @@ function viewDepartmentDetails(departmentId) {
         })
         .catch(error => {
             console.error('Error loading department data:', error);
-            alert('Error loading department data: ' + error.message);
+            // alert('Error loading department data: ' + error.message);
             // closeViewDepartmentModal() -- keep your close function if you have one
             if (typeof closeViewDepartmentModal === 'function') closeViewDepartmentModal();
         });

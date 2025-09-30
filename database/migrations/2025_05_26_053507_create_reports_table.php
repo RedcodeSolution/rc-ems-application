@@ -14,10 +14,21 @@ return new class extends Migration
         Schema::create('reports', function (Blueprint $table) {
             $table->string('report_id')->primary();
             $table->string('report_name');
-            $table->string('super_admin_id');
+            $table->string('report_type');
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->unsignedBigInteger('employee_id')->nullable();
+            $table->unsignedBigInteger('department_id')->nullable();
+            $table->string('report_format')->default('pdf');
+            $table->string('priority')->default('normal');
+            $table->string('email')->nullable();
+            $table->text('description')->nullable();
+            $table->text('special_instructions')->nullable();
             $table->timestamps();
 
-            $table->foreign('super_admin_id')->references('super_admin_id')->on('super_admins')->onDelete('cascade');
+            $table->foreign('department_id')->references('department_id')->on('departments')->onDelete('set null');
+            $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('set null');
+
         });
 
     }
@@ -28,5 +39,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('reports');
+
+
     }
+
+
 };

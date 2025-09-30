@@ -1,25 +1,21 @@
 <?php
 
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-
-use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SuperAdmin\AdminController;
-use App\Http\Controllers\SuperAdminController;
-
 use App\Http\Controllers\SuperAdmin\AdminLeaveController;
 use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
 use App\Http\Controllers\SuperAdmin\SuperAdminAccountsController;
-use App\Http\Controllers\SuperAdmin\SuperAdminController;
-
+use App\Http\Controllers\SuperAdminController;
 use App\Models\Admin;
 use App\Models\Department;
 use App\Models\Employee;
@@ -187,8 +183,6 @@ Route::middleware('auth')->group(function () {
     // Admin section routes (UI pages with enhanced data)
 
 
-
-
     Route::prefix('admin')->name('admin.')->group(function () {
         // Employee Management
         Route::get('/employees', function () {
@@ -279,11 +273,9 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('super_admins', EmployeeRatingController::class);
 
-
     Route::resource('projects', ProjectController::class);
 
     Route::resource('leaves', LeaveController::class);
-
     // Report management
     Route::resource('reports', ReportController::class);
     Route::get('/admin/reports/download/{id}', [ReportController::class, 'download'])->name('reports.download');
@@ -365,7 +357,6 @@ Route::put('/departments/{departmentId}', [DepartmentController::class, 'update'
 Route::get('/departments/{departmentId}/show', [DepartmentController::class, 'show'])->name('admin.departments.show');
 Route::delete('/departments/{departmentId}', [DepartmentController::class, 'destroy'])->name('admin.departments.destroy');
 
-
 //project Management
 Route::get('/admin/project', [ProjectController::class, 'index'])->name('admin.projects.index');
 Route::get('/projects/create', [ProjectController::class, 'create'])->name('admin.projects.create');
@@ -394,6 +385,24 @@ Route::prefix('super-admin')->name('super_admin.')->group(function() {
     Route::get('/{adminId}/show', [AdminController::class, 'show'])->name('show');
     Route::delete('/admins/{adminId}', [AdminController::class, 'destroy'])->name('destroy');
 });
+
+// Report Management
+Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');
+Route::post('/admin/reports', [ReportController::class, 'store'])->name('admin.reports.store');
+Route::get('/admin/reports/download/{report}', [ReportController::class, 'download'])->name('admin.reports.download');
+Route::get('/reports/{reportId}/view', [ReportController::class, 'show'])->name('admin.reports.show');
+
+//document Management
+Route::get('/admin/documents', [DocumentController::class, 'index'])->name('admin.documents.index');
+Route::post('/admin/documents', [DocumentController::class, 'store'])->name('admin.documents.store');
+Route::get('/documents/{document}/edit', [DocumentController::class, 'edit'])->name('admin.documents.edit');
+Route::put('/documents/{document}', [DocumentController::class, 'update'])->name('admin.documents.update');
+Route::get('/admin/documents/{document_id}', [DocumentController::class, 'show'])->name('admin.documents.show');
+Route::get('/admin/documents/download/{document_id}', [DocumentController::class, 'download'])->name('admin.documents.download');
+Route::delete('/admin/documents/{document_id}', [DocumentController::class, 'destroy'])->name('admin.documents.destroy');
+Route::post('/admin/documents/increment-download/{id}', [DocumentController::class, 'incrementDownload'])
+    ->name('documents.increment');
+
 
 
 Route::get('/admin/employeeRatings/employee/{employeeId}', [App\Http\Controllers\Admin\EmployeeRatingsController::class, 'employeeRatingsJson']);
