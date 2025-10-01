@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Department;
-use App\Models\Employee;
 use App\Models\Leave;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +19,6 @@ class AdminsLeaveController extends Controller
             return response()->json(['error' => 'Admin leaves data not found for this user.'], 404);
         }
 
-        // Admin's own leaves (if needed)
         $allLeaves = $user->employee->leaves;
         $recentLeaves = $user->employee->leaves()->latest()->take(3)->get();
 
@@ -36,13 +34,12 @@ class AdminsLeaveController extends Controller
         $currentYear = now()->year;
         $today = now()->toDateString();
 
-        // Stats calculation for admin - use DURATION not COUNT
         $annualUsed = Leave::whereHas('employee', function ($q) {
             $q->whereNotIn('role', ['admin', 'superadmin']);
         })
             ->where('leave_type', 'annual')
             ->where('status', 'approved')
-            ->sum('duration'); // Use duration, not count
+            ->sum('duration');
 
         $sickUsed = Leave::whereHas('employee', function ($q) {
             $q->whereNotIn('role', ['admin', 'superadmin']);
@@ -113,7 +110,7 @@ class AdminsLeaveController extends Controller
             ->get()
             ->map(function ($dept) {
                 $totalUsed = $dept->employees->flatMap->leaves->sum('duration');
-                $total = 60; // or fetch from config/database
+                $total = 60;
                 $percentage = $total > 0 ? round(($totalUsed / $total) * 100, 2) : 0;
 
                 return [
@@ -124,7 +121,6 @@ class AdminsLeaveController extends Controller
                 ];
             });
 
-        // Totals (should come from config or database)
         $annualTotal = 21;
         $sickTotal = 10;
         $personalTotal = 5;
@@ -227,7 +223,7 @@ class AdminsLeaveController extends Controller
             'employeePendingMonthlyCount' => $employeePendingMonthlyCount,
             'employeeRejectedMonthlyCount' => $employeeRejectedMonthlyCount,
             'employeeApprovedTodayCount' => $employeeApprovedTodayCount,
-            // Chart data - make sure these match what JavaScript expects
+
             'leaveLabels' => ['Annual Leave', 'Sick Leave', 'Personal Leave'],
             'leaveData' => [$annualUsed, $sickUsed, $personalUsed],
             'trendLabels' => ['Approved', 'Rejected', 'Pending'],
@@ -250,9 +246,6 @@ class AdminsLeaveController extends Controller
             'overdueRequests' => $overdueRequests,
         ]);
     }
-
-
-
 
     /**
      * Show the form for creating a new resource.
@@ -286,16 +279,7 @@ class AdminsLeaveController extends Controller
             return response()->json(['error' => 'Leave not found for this user.'], 404);
         }
         $leave->load('employee');
-        // return view('admin.leaves.index', ['leave' => $leave]);
         return ['leave' => $leave];
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
     }
 
     /**
@@ -335,7 +319,6 @@ class AdminsLeaveController extends Controller
             'rejection_reason' => 'nullable|string|required_if:status,rejected',
         ]);
 
-        // Get the linked Admin record
         $admin = Admin::where('email', $user->email)->first();
         if (!$admin) {
             return response()->json(['error' => 'Admin record not found for this user'], 404);
@@ -345,7 +328,7 @@ class AdminsLeaveController extends Controller
 
         if ($validated['status'] === 'approved') {
             $leave->status        = 'approved';
-            $leave->approved_by   = $admin->admin_id; // ✅ use Admin primary key
+            $leave->approved_by   = $admin->admin_id;
             $leave->approved_date = now();
             $leave->comments      = $validated['comments'] ?? null;
 
@@ -354,7 +337,7 @@ class AdminsLeaveController extends Controller
             $leave->rejection_reason = null;
         } elseif ($validated['status'] === 'rejected') {
             $leave->status          = 'rejected';
-            $leave->rejected_by     = $admin->admin_id; // ✅ use Admin primary key
+            $leave->rejected_by     = $admin->admin_id;
             $leave->rejected_date   = now();
             $leave->rejection_reason = $validated['rejection_reason'] ?? null;
             $leave->comments        = $validated['comments'] ?? null;
@@ -366,8 +349,6 @@ class AdminsLeaveController extends Controller
         $leave->save();
         return redirect()->route('admin.leaves.index');
     }
-
-
 
     /**
      * Remove the specified resource from storage.

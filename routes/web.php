@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAnnouncementsController;
+use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminsLeaveController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\EmployeeController;
@@ -247,6 +248,7 @@ Route::middleware('auth')->group(function () {
         // Route::get('/leaves', function () {
         //     return view('admin.leaves.index');
         // })->name('leaves');
+        Route::put('/leaves/{leave}/status', [AdminsLeaveController::class, 'updateLeaveStatus'])->name('leaves.updateLeaveStatus');
 
         Route::put('/leaves/{leave}', [AdminsLeaveController::class, 'update'])->name('leaves.update');
         Route::get('/leaves', [AdminsLeaveController::class, 'index'])->name('leaves.index');
@@ -254,7 +256,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/leaves/{leave}', [AdminsLeaveController::class, 'show'])->name('leaves.show');
         Route::delete('/leaves/{leave}', [AdminsLeaveController::class, 'destroy'])->name('leaves.destroy');
 
-        Route::put('/leaves/{leave}/status', [AdminsLeaveController::class, 'updateLeaveStatus'])->name('leaves.updateLeaveStatus');
 
 
 
@@ -293,6 +294,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/notifications', function () {
             return view('admin.notifications.index');
         })->name('notifications');
+
+        Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications');
+        Route::get('/notifications/{notifi_id}', [AdminNotificationController::class, 'show'])
+            ->name('admin.notifications.show');
+
+        Route::post('/notifications/{id}/mark-as-read', [AdminNotificationController::class, 'markAsRead'])
+            ->name('admin.notifications.markAsRead');
+
+        Route::post('/notifications/mark-all-as-read', [AdminNotificationController::class, 'markAllAsRead'])
+            ->name('admin.notifications.markAllAsRead');
+
+        Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy'])
+            ->name('notifications.destroy');
+
+        Route::get('/admin/notifications/latest', [AdminNotificationController::class, 'latest'])
+            ->name('notifications.latest');
 
         // System Settings
         Route::get('/system', function () {

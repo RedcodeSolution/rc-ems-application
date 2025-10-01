@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\Team;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -12,13 +13,13 @@ class ProjectController extends Controller
 
     public function index()
     {
-        $projects = Project::with(['team' => function($q) {
+        $projects = Project::with(['team' => function ($q) {
             $q->withCount('employees');
         }])->get();
 
         $teams = Team::withCount('employees')->get();
 
-        return view('admin.projects.index', compact('projects','teams'));
+        return view('admin.projects.index', compact('projects', 'teams'));
     }
 
 
@@ -110,7 +111,21 @@ class ProjectController extends Controller
             'milestone_info' => 'nullable|string',
         ]);
 
+        $oldStatus = $project->status;
+
         $project->update($validated);
+
+        if ($oldStatus !== 'Completed' && $project->status === 'Completed') {
+            $notify = new NotificationService();
+            $notify->notify(
+                title: 'Project Completed',
+                message: "The project '{$project->project_name}' has been marked as completed.",
+                type: 'project',
+                userId: null,
+                target: 'admin',
+                referenceId: $project->id
+            );
+        }
 
         if ($request->ajax()) {
             return response()->json([
@@ -133,7 +148,6 @@ class ProjectController extends Controller
             'success' => true,
             'project' => $project
         ]);
-
     }
 
 
@@ -144,5 +158,4 @@ class ProjectController extends Controller
 
         return redirect()->route('admin.projects.index')->with('success', 'Department deleted successfully!');
     }
-
 }

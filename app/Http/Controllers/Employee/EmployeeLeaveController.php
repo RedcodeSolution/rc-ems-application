@@ -5,48 +5,49 @@ namespace App\Http\Controllers\Employee;
 use App\Http\Controllers\Controller;
 use App\Models\Leave;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class EmployeeLeaveController extends Controller
 {
     public function index()
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    if (!$user || !$user->employee) {
-        return response()->json(['error' => 'Employee leaves data not found for this user.'], 404);
+        if (!$user || !$user->employee) {
+            return response()->json(['error' => 'Employee leaves data not found for this user.'], 404);
+        }
+
+        // All leaves for stats
+        $allLeaves = $user->employee->leaves;
+
+        // Last 3 recent leaves
+        $recentLeaves = $user->employee->leaves()->latest()->take(3)->get();
+
+        // Stats calculation
+        $annualUsed   = $allLeaves->where('leave_type', 'annual')->where('status', 'approved')->sum('duration');
+        $sickUsed     = $allLeaves->where('leave_type', 'sick')->where('status', 'approved')->sum('duration');
+        $personalUsed = $allLeaves->where('leave_type', 'personal')->where('status', 'approved')->sum('duration');
+        $pendingCount = $allLeaves->where('status', 'pending')->count();
+
+        // Totals (could come from config or DB)
+        $annualTotal   = 21;
+        $sickTotal     = 10;
+        $personalTotal = 5;
+
+        return view('employees.leaves.index', [
+            'leaves' => $allLeaves,
+            'recentLeaves'  => $recentLeaves,
+            'annualUsed'    => $annualUsed,
+            'sickUsed'      => $sickUsed,
+            'personalUsed'  => $personalUsed,
+            'annualTotal'   => $annualTotal,
+            'sickTotal'     => $sickTotal,
+            'personalTotal' => $personalTotal,
+            'pendingCount'  => $pendingCount,
+        ]);
     }
-
-    // All leaves for stats
-    $allLeaves = $user->employee->leaves;
-
-    // Last 3 recent leaves
-    $recentLeaves = $user->employee->leaves()->latest()->take(3)->get();
-
-    // Stats calculation
-    $annualUsed   = $allLeaves->where('leave_type', 'annual')->where('status', 'approved')->sum('duration');
-    $sickUsed     = $allLeaves->where('leave_type', 'sick')->where('status', 'approved')->sum('duration');
-    $personalUsed = $allLeaves->where('leave_type', 'personal')->where('status', 'approved')->sum('duration');
-    $pendingCount = $allLeaves->where('status', 'pending')->count();
-
-    // Totals (could come from config or DB)
-    $annualTotal   = 21;
-    $sickTotal     = 10;
-    $personalTotal = 5;
-
-    return view('employees.leaves.index', [
-        'leaves'=>$allLeaves,
-        'recentLeaves'  => $recentLeaves,
-        'annualUsed'    => $annualUsed,
-        'sickUsed'      => $sickUsed,
-        'personalUsed'  => $personalUsed,
-        'annualTotal'   => $annualTotal,
-        'sickTotal'     => $sickTotal,
-        'personalTotal' => $personalTotal,
-        'pendingCount'  => $pendingCount,
-    ]);
-}
 
 
     public function store(Request $request)
@@ -64,7 +65,18 @@ class EmployeeLeaveController extends Controller
 
         $validated['employee_id'] = $user->employee->employee_id;
 
-        Leave::create($validated);
+        $leave = Leave::create($validated);
+
+        $notify = new NotificationService();
+        $notify->notify(
+            title: 'New Leave Request',
+            message: $leave->employee->name . ' applied for ' . $leave->leave_type . ' leave.',
+            type: 'leave',
+            userId: null,
+            target: 'admin',
+            referenceId: $leave->leave_id
+        );
+
         return redirect()->route('employee.leaves.index');
     }
 
@@ -78,7 +90,7 @@ class EmployeeLeaveController extends Controller
             return response()->json(['error' => 'Leave not found for this user.'], 404);
         }
         $leave->load('employee');
-        return view('employees.leaves.index',['leave' => $leave]);
+        return view('employees.leaves.index', ['leave' => $leave]);
     }
 
     /**
@@ -90,13 +102,13 @@ class EmployeeLeaveController extends Controller
             return response()->json(['error' => 'Cannot update an approved leave request.'], 403);
         }
         $validated = $request->validate([
-        'leave_type' => 'required|string|in:annual,sick,personal,maternity,paternity,emergency',
-        'reason' => 'required|string',
-        'start_date' => 'required|date',
-        'end_date' => 'required|date|after_or_equal:start_date',
-        'contact_info' => 'nullable|string',
-        'supporting_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-    ]);
+            'leave_type' => 'required|string|in:annual,sick,personal,maternity,paternity,emergency',
+            'reason' => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'contact_info' => 'nullable|string',
+            'supporting_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        ]);
 
 
         $leave->update($validated);
