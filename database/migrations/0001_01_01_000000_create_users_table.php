@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('contact_no'); // Added contact number field
             $table->string('role'); // Added role field
             $table->rememberToken();
+            $table->timestamp('last_login_at')->nullable();
             $table->timestamps();
         });
 

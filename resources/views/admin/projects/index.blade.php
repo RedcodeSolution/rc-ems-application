@@ -947,32 +947,6 @@
                     @endif
 
 
-
-
-                    <!--                    {{-- Project Manager --}}-->
-                    <!--                    <div style="margin-bottom: 1rem;">-->
-                    <!--                        <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Project Manager</div>-->
-                    <!---->
-                    <!--                        @if($project->team && $project->team->teamLead)-->
-                    <!--                        @php-->
-                    <!--                        $managerName = $project->team->teamLead->name;-->
-                    <!--                        $managerInitials = collect(explode(' ', $managerName))-->
-                    <!--                        ->map(fn($w) => strtoupper(substr($w, 0, 1)))-->
-                    <!--                        ->implode('');-->
-                    <!--                        @endphp-->
-                    <!--                        <div style="display: flex; align-items: center; gap: 0.5rem;">-->
-                    <!--                            <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700;">-->
-                    <!--                                {{ $managerInitials }}-->
-                    <!--                            </div>-->
-                    <!--                            <div style="font-weight: 600;">{{ $managerName }}</div>-->
-                    <!--                        </div>-->
-                    <!--                        @else-->
-                    <!--                        <div style="font-weight: 600;">N/A</div>-->
-                    <!--                        @endif-->
-                    <!--                    </div>-->
-                    <!---->
-
-
                     @if($project->status)
                     <div style="margin-bottom: 1rem;">
                         <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Progress</div>

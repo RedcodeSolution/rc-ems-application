@@ -408,26 +408,28 @@
         <!-- Search and Filter Section -->
         <div class="flex justify-between items-center mb-4">
             <div class="flex gap-2">
-                <input type="text" id="documentSearch" placeholder="Search documents by title..." class="form-input" style="width: 300px; margin-bottom: 1rem;">
-                <select class="form-select" style="width: 200px;">
-                    <option>All Categories</option>
-                    <option>Policies</option>
-                    <option>Forms</option>
-                    <option>Contracts</option>
-                    <option>Reports</option>
-                    <option>Training</option>
+                <input type="text" id="documentSearch" placeholder="Search documents by title..." class="form-input" style="width: 300px;">
+
+                <select id="categoryFilter" class="form-select" style="width: 200px;">
+                    <option value="">All Categories</option>
+                    <option value="policies">Policies</option>
+                    <option value="forms">Forms</option>
+                    <option value="contracts">Contracts</option>
+                    <option value="reports">Reports</option>
+                    <option value="training">Training</option>
                 </select>
-                <select class="form-select" style="width: 200px;">
-                    <option>All Types</option>
-                    <option>PDF</option>
-                    <option>DOC</option>
-                    <option>XLS</option>
-                    <option>PPT</option>
+
+                <select id="typeFilter" class="form-select" style="width: 200px;">
+                    <option value="">All Types</option>
+                    <option value="pdf">PDF</option>
+                    <option value="doc">DOC</option>
+                    <option value="xls">XLS</option>
+                    <option value="ppt">PPT</option>
                 </select>
             </div>
-            <button class="btn btn-secondary">
-                <i class="fas fa-filter"></i>
-                Filter
+
+            <button id="applyFilter" class="btn btn-secondary">
+                <i class="fas fa-filter"></i> Filter
             </button>
         </div>
 
@@ -475,6 +477,7 @@
                 </div>
 
                 <div class="card-body">
+
                     <h4 style="font-size: 1rem; font-weight: 600; color: var(--gray-800); margin-bottom: 0.5rem;">
                         {{ $document->title }}
                     </h4>
@@ -1014,6 +1017,43 @@
 
 <script>
 
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('documentSearch');
+        const categorySelect = document.getElementById('categoryFilter');
+        const typeSelect = document.getElementById('typeFilter');
+        const filterButton = document.getElementById('applyFilter');
+        const cards = document.querySelectorAll('#documentsGrid .document-card');
+
+        function filterDocuments() {
+            const query = searchInput.value.toLowerCase().trim();
+            const selectedCategory = categorySelect.value.toLowerCase();
+            const selectedType = typeSelect.value.toLowerCase();
+
+            cards.forEach(card => {
+                const title = card.dataset.title;
+                const category = card.dataset.category;
+                const type = card.dataset.type;
+
+                const matchesTitle = title.includes(query);
+                const matchesCategory = !selectedCategory || category === selectedCategory;
+                const matchesType = !selectedType || type === selectedType;
+
+                // Use 'block' for grid cards
+                card.style.display = (matchesTitle && matchesCategory && matchesType) ? 'block' : 'none';
+            });
+        }
+
+        // Filter on button click
+        filterButton.addEventListener('click', filterDocuments);
+
+        // Optional: live filter while typing or selecting dropdowns
+        searchInput.addEventListener('keyup', filterDocuments);
+        categorySelect.addEventListener('change', filterDocuments);
+        typeSelect.addEventListener('change', filterDocuments);
+    });
+
+
+
     document.getElementById('documentSearch').addEventListener('keyup', function() {
         const searchValue = this.value.toLowerCase().trim();
         const cards = document.querySelectorAll('#documentsGrid .document-card');
@@ -1436,33 +1476,33 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Search and Filter Functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.querySelector('input[placeholder="Search documents..."]');
-    const categoryFilter = document.querySelector('select option:first-child').parentNode;
-    const typeFilter = categoryFilter.parentNode.lastElementChild;
-
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            // Implement search functionality
-            console.log('Searching for:', this.value);
-        });
-    }
-
-    if (categoryFilter) {
-        categoryFilter.addEventListener('change', function() {
-            // Implement category filter
-            console.log('Category filter:', this.value);
-        });
-    }
-
-    if (typeFilter) {
-        typeFilter.addEventListener('change', function() {
-            // Implement type filter
-            console.log('Type filter:', this.value);
-        });
-    }
-});
+// // Search and Filter Functionality
+// document.addEventListener('DOMContentLoaded', function() {
+//     const searchInput = document.querySelector('input[placeholder="Search documents..."]');
+//     const categoryFilter = document.querySelector('select option:first-child').parentNode;
+//     const typeFilter = categoryFilter.parentNode.lastElementChild;
+//
+//     if (searchInput) {
+//         searchInput.addEventListener('input', function() {
+//             // Implement search functionality
+//             console.log('Searching for:', this.value);
+//         });
+//     }
+//
+//     if (categoryFilter) {
+//         categoryFilter.addEventListener('change', function() {
+//             // Implement category filter
+//             console.log('Category filter:', this.value);
+//         });
+//     }
+//
+//     if (typeFilter) {
+//         typeFilter.addEventListener('change', function() {
+//             // Implement type filter
+//             console.log('Type filter:', this.value);
+//         });
+//     }
+// });
 
 // Initialize tooltips
 document.addEventListener('DOMContentLoaded', function() {

@@ -83,7 +83,7 @@
 
                 <div class="sidebar-menu-section">
                     <div class="sidebar-menu-title">Administration</div>
-                    <a href="{{ route('admin.profile') }}" class="sidebar-menu-item {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
+                    <a href="{{ route('admin.profile.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
                         <i class="fas fa-user-shield"></i>
                         <span>Admin Profile</span>
                     </a>

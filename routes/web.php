@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\EmployeeController;
@@ -167,21 +168,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', [EventController::class, 'update'])->name('update');
         Route::delete('/{id}', [EventController::class, 'destroy'])->name('destroy');
     });
-
-    // Redirect authenticated users to their respective dashboards
-    Route::get('/dashboard', function () {
-        $user = auth()->check() ? auth()->user() : null;
-        if ($user && $user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
-        } elseif ($user && $user->role === 'super_admin') {
-            return redirect()->route('super_admin.dashboard');
-        }
-        return redirect()->route('employee.dashboard');
-    })->name('dashboard');
-
-    // Profile management
-    Route::get('/admin/profile', [AdminController::class, 'profile'])->name('admin.profile');
-    Route::post('/admin/profile/update', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
 
 
 
@@ -402,9 +388,7 @@ Route::put('/documents/{document}', [DocumentController::class, 'update'])->name
 Route::get('/admin/documents/{document_id}', [DocumentController::class, 'show'])->name('admin.documents.show');
 Route::get('/admin/documents/download/{document_id}', [DocumentController::class, 'download'])->name('admin.documents.download');
 Route::delete('/admin/documents/{document_id}', [DocumentController::class, 'destroy'])->name('admin.documents.destroy');
-Route::post('/admin/documents/increment-download/{id}', [DocumentController::class, 'incrementDownload'])
-    ->name('documents.increment');
-
+Route::post('/admin/documents/increment-download/{id}', [DocumentController::class, 'incrementDownload'])->name('documents.increment');
 
 
 Route::get('/admin/employeeRatings/employee/{employeeId}', [App\Http\Controllers\Admin\EmployeeRatingsController::class, 'employeeRatingsJson']);
@@ -413,4 +397,26 @@ Route::post('/super_admin/super_admin_accounts', [SuperAdminAccountsController::
 Route::get('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'show'])->name('super_admin_accounts.show');
 Route::put('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'update'])->name('super_admin_accounts.update');
 Route::delete('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'destroy'])->name('super_admin_accounts.destroy');
+
+// Redirect authenticated users to their respective dashboards
+Route::get('/dashboard', function () {
+    $user = auth()->user();
+
+    if (!$user) {
+        return redirect()->route('login');
+    }
+
+    $role = strtolower($user->role);
+
+    if ($role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    } elseif ($role === 'super_admin') {
+        return redirect()->route('super_admin.dashboard');
+    } else {
+        return redirect()->route('employee.dashboard');
+    }
+})->name('dashboard');
+Route::get('/admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile.index');
+Route::post('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+
 require __DIR__.'/auth.php';
