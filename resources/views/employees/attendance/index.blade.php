@@ -1325,7 +1325,7 @@
         const now = new Date();
         const timeOptions = { hour: '2-digit', minute: '2-digit' };
         const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        
+
         document.getElementById('currentTime').textContent = now.toLocaleTimeString([], timeOptions);
         document.getElementById('currentDate').textContent = now.toLocaleDateString([], dateOptions);
     }
@@ -1338,7 +1338,7 @@
         const grid = document.getElementById('attendanceGrid');
         const icon = document.getElementById('viewModeIcon');
         const text = document.getElementById('viewModeText');
-        
+
         if (currentViewMode === 'grid') {
             grid.classList.add('list-view');
             icon.className = 'fas fa-columns';
@@ -1374,7 +1374,7 @@
     function confirmClock() {
         const notes = document.getElementById('clockNotes').value;
         const isClockingIn = document.getElementById('clockModalTitle').textContent === 'Clock In';
-        
+
         if (isClockingIn) {
             // Clock in logic
             document.getElementById('clockInBtn').style.display = 'none';
@@ -1388,7 +1388,7 @@
             clockedIn = false;
             showMessage('Successfully clocked out!', 'success');
         }
-        
+
         closeClockModal();
     }
 
@@ -1414,7 +1414,7 @@
         // Reset form
         document.getElementById('emergencyType').value = '';
         document.getElementById('emergencyDescription').value = '';
-        
+
         // Show modal
         document.getElementById('emergencyModal').classList.add('active');
     }
@@ -1425,7 +1425,7 @@
             if (!lastEmergency.endTime) {
                 lastEmergency.endTime = new Date().toISOString();
                 lastEmergency.duration = Math.round((new Date(lastEmergency.endTime) - new Date(lastEmergency.timestamp)) / 1000 / 60); // minutes
-                
+
                 showMessage('Emergency break ended!', 'info');
                 updateEmergencyStatus();
             }
@@ -1436,7 +1436,7 @@
         // Reset form
         document.getElementById('emergencyType').value = '';
         document.getElementById('emergencyDescription').value = '';
-        
+
         // Show modal
         document.getElementById('emergencyModal').classList.add('active');
     }
@@ -1444,7 +1444,7 @@
     function updateEmergencyStatus() {
         const emergencyStatusElement = document.querySelector('.status-card:last-child .status-info p');
         const emergencyActionsElement = document.querySelector('.emergency-actions');
-        
+
         if (window.emergencyBreaks && window.emergencyBreaks.length > 0) {
             const activeEmergency = window.emergencyBreaks.find(eb => !eb.endTime);
             if (activeEmergency) {
@@ -1577,7 +1577,7 @@
                 <span class="summary-value">${summaryData.notes}</span>
             </div>
         `;
-        
+
         document.getElementById('attendanceSummary').innerHTML = summaryHtml;
         document.getElementById('attendanceModal').classList.add('active');
     }
@@ -1655,7 +1655,7 @@
                 notes: 'Overtime approved - Project deadline'
             }
         };
-        
+
         return attendanceData[date] || {
             date: date,
             status: 'Unknown',
@@ -1689,9 +1689,9 @@
             align-items: center;
             gap: 0.5rem;
         `;
-        
+
         document.body.appendChild(messageDiv);
-        
+
         setTimeout(() => {
             messageDiv.remove();
         }, 3000);
@@ -1712,16 +1712,16 @@
         const monthFilter = document.getElementById('monthFilter').value;
         const statusFilter = document.getElementById('statusFilter').value;
         const cards = document.querySelectorAll('.attendance-card');
-        
+
         cards.forEach(card => {
             const date = card.querySelector('h4').textContent.toLowerCase();
             const month = card.dataset.month;
             const status = card.dataset.status;
-            
+
             const matchesSearch = date.includes(searchTerm);
             const matchesMonth = !monthFilter || month === monthFilter;
             const matchesStatus = !statusFilter || status === statusFilter;
-            
+
             if (matchesSearch && matchesMonth && matchesStatus) {
                 card.style.display = 'block';
             } else {

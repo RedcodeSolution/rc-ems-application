@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Models\Admin;
 use App\Models\Department;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 
 class AdminController
@@ -28,6 +29,18 @@ class AdminController
         ]);
 
         Admin::create($validated);
+
+        // Create notification for admin account creation
+        Notification::create([
+            'title' => 'Admin Account Created',
+            'message' => 'A new admin account has been created: ' . $validated['admin_name'],
+            'type' => 'admin',
+            'priority' => 'high',
+            'read' => false,
+            'from' => auth()->user()->name ?? 'System',
+            'icon' => 'fas fa-user-plus',
+            'color' => 'blue',
+        ]);
 
         return redirect()->route('super_admin.admins')
             ->with('success', 'Administrator added successfully!');
@@ -61,6 +74,17 @@ class AdminController
 
         $admin->update($validated);
 
+        Notification::create([
+            'title' => 'Admin Account Updated',
+            'message' => 'Admin account updated: ' . $validated['admin_name'],
+            'type' => 'admin',
+            'priority' => 'medium',
+            'read' => false,
+            'from' => auth()->user()->name ?? 'System',
+            'icon' => 'fas fa-user-edit',
+            'color' => 'orange',
+        ]);
+
         return redirect()->route('super_admin.admins')->with('success', 'Admin updated successfully!');
     }
 
@@ -87,6 +111,11 @@ class AdminController
         $admin->delete();
 
         return redirect()->route('super_admin.admins')->with('success', 'Admin deleted successfully!');
+    }
+
+    public function profile()
+    {
+        return view('admin.profile.index');
     }
 
 }

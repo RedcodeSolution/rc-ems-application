@@ -14,19 +14,19 @@
         <div class="event-meta">
             <div class="meta-item">
                 <i class="fas fa-calendar"></i>
-                <span>{{ $event['date']->format('l, F d, Y') }}</span>
+                <span>{{ $event['date'] ? $event['date']->format('l, F d, Y') : '-' }}</span>
             </div>
             <div class="meta-item">
                 <i class="fas fa-clock"></i>
-                <span>{{ $event['time'] }}</span>
+                <span>{{ $event['time'] ?? '-' }}</span>
             </div>
             <div class="meta-item">
                 <i class="fas fa-map-marker-alt"></i>
-                <span>{{ $event['location'] }}</span>
+                <span>{{ $event['location'] ?? '-' }}</span>
             </div>
             <div class="meta-item">
                 <i class="fas fa-users"></i>
-                <span>{{ $event['attendees'] }} attendees</span>
+                <span>{{ $event['attendees'] ?? 0 }} attendees</span>
             </div>
         </div>
     </div>
@@ -36,7 +36,7 @@
         <p>{{ $event['description'] }}</p>
     </div>
 
-    @if(isset($event['agenda']))
+    @if(!empty($event['agenda']))
     <div class="event-agenda-section">
         <h3>Agenda</h3>
         <ul class="agenda-list">
@@ -50,7 +50,7 @@
     </div>
     @endif
 
-    @if(isset($event['requirements']))
+    @if(!empty($event['requirements']))
     <div class="event-requirements-section">
         <h3>Requirements</h3>
         <ul class="requirements-list">
@@ -71,13 +71,13 @@
                 <i class="fas fa-user-tie"></i>
                 <span><strong>Organizer:</strong> {{ $event['organizer'] }}</span>
             </div>
-            @if(isset($event['contact']))
+            @if(!empty($event['contact']))
             <div class="contact-item">
                 <i class="fas fa-envelope"></i>
                 <span><strong>Email:</strong> {{ $event['contact'] }}</span>
             </div>
             @endif
-            @if(isset($event['phone']))
+            @if(!empty($event['phone']))
             <div class="contact-item">
                 <i class="fas fa-phone"></i>
                 <span><strong>Phone:</strong> {{ $event['phone'] }}</span>
@@ -289,11 +289,11 @@
     .event-meta {
         grid-template-columns: 1fr;
     }
-    
+
     .event-actions-section {
         flex-direction: column;
     }
-    
+
     .event-badges {
         flex-wrap: wrap;
     }
@@ -322,4 +322,4 @@ function publishEvent(eventId) {
         closeModal();
     }
 }
-</script> 
+</script>

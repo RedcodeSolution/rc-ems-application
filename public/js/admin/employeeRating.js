@@ -1,0 +1,278 @@
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function openRateEmployeeModal() {
+    const form = document.getElementById('rateEmployeeForm');
+    form.reset();
+
+
+    const ratingText = document.querySelector('.rating-text');
+    if (ratingText) {
+        ratingText.textContent = 'Select a rating';
+    }
+
+    const starInputs = document.querySelectorAll('.star-rating input[type="radio"]');
+    starInputs.forEach(input => {
+        input.checked = false;
+    });
+
+    // Hide employee rating summary
+    const summaryDiv = document.getElementById('employee-rating-summary');
+    if (summaryDiv) {
+        summaryDiv.style.display = 'none';
+    }
+
+
+    document.getElementById('rateEmployeeModal').style.display = 'block';
+}
+
+function rateEmployee(employeeId) {
+
+    document.getElementById('employee_id').value = employeeId;
+
+    loadEmployeeRatings(employeeId);
+
+    openRateEmployeeModal();
+}
+
+function viewEmployeeRatings(employeeId) {
+
+    const modal = document.getElementById('viewEmployeeRatingsModal');
+    const content = document.getElementById('employee-ratings-content');
+    content.innerHTML = '<p>Loading employee ratings...</p>';
+    modal.style.display = 'block';
+
+    fetch(`/admin/employeeRatings/employee/${employeeId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                content.innerHTML = `
+                    <div class="employee-rating-details">
+                        <h3>${data.employee_name}</h3>
+                        <p>${data.employee_email} - ${data.employee_department}</p>
+                        <div class="rating-summary">
+                            <div class="summary-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Average Rating:</span>
+                                    <span class="stat-value">${data.average_rating}/5</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Total Ratings:</span>
+                                    <span class="stat-value">${data.total_ratings}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ratings-list">
+                            ${data.ratings.map(rating => `
+                                <div class="rating-item">
+                                    <div class="rating-header">
+                                        <div class="rating-stars">
+                                            ${Array.from({length: 5}, (_, i) => {
+                    const isFilled = i < rating.rating;
+                    return `<i class="fas fa-star ${isFilled ? 'filled' : ''}"></i>`;
+                }).join('')}
+                                        </div>
+                                        <div class="rating-meta">
+                                            <span class="rater-name">${rating.rater_name}</span>
+                                            <span class="rating-date">${rating.created_at}</span>
+                                        </div>
+                                    </div>
+                                    ${rating.comment ? `<div class="rating-comment">${rating.comment}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = '<p>Error loading employee ratings.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            content.innerHTML = '<p>Error loading employee ratings.</p>';
+        });
+}
+
+function submitRating() {
+    const form = document.getElementById('rateEmployeeForm');
+    const formData = new FormData(form);
+
+    if (!formData.get('employee_id')) {
+        showNotification('Please select an employee', 'error');
+        return;
+    }
+    if (!formData.get('rating')) {
+        showNotification('Please select a rating', 'error');
+        return;
+    }
+
+    const submitBtn = document.querySelector('#rateEmployeeModal .btn-primary');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeModal('rateEmployeeModal');
+                showNotification(data.message, 'success');
+
+                setTimeout(() => {
+                    location.reload();
+                }, 800);
+            } else {
+                showNotification(data.message || 'Error submitting rating', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error submitting rating. Please try again.', 'error');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        });
+}
+
+
+function exportRatings() {
+    console.log('Exporting ratings data...');
+    showNotification('Export feature coming soon!', 'info');
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const starInputs = document.querySelectorAll('.star-rating input[type="radio"]');
+    const ratingText = document.querySelector('.rating-text');
+
+    starInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const rating = this.value;
+            const ratingLabels = {
+                '1': 'Poor',
+                '2': 'Fair',
+                '3': 'Good',
+                '4': 'Very Good',
+                '5': 'Excellent'
+            };
+            ratingText.textContent = `${ratingLabels[rating]} (${rating}/5)`;
+        });
+    });
+});
+
+
+function loadEmployeeRatings(employeeId) {
+    if (!employeeId) {
+        document.getElementById('employee-rating-summary').style.display = 'none';
+        return;
+    }
+
+    const summaryDiv = document.getElementById('employee-rating-summary');
+    summaryDiv.style.display = 'block';
+    document.getElementById('avg-rating').textContent = 'Loading...';
+    document.getElementById('total-ratings').textContent = 'Loading...';
+    document.getElementById('recent-ratings-list').innerHTML = '<p>Loading recent ratings...</p>';
+
+    fetch(`/admin/employeeRatings/employee/${employeeId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('avg-rating').textContent = data.average_rating + '/5';
+                document.getElementById('total-ratings').textContent = data.total_ratings;
+
+                const recentRatingsList = document.getElementById('recent-ratings-list');
+                if (data.ratings && data.ratings.length > 0) {
+                    recentRatingsList.innerHTML = data.ratings.slice(0, 3).map(rating => `
+                        <div class="recent-rating-item">
+                            <div class="rating-info">
+                                <div class="rating-stars">
+                                    ${Array.from({length: 5}, (_, i) => {
+                        const isFilled = i < rating.rating;
+                        return `<i class="fas fa-star ${isFilled ? 'filled' : ''}"></i>`;
+                    }).join('')}
+                                </div>
+                                <div class="rating-date">${rating.created_at}</div>
+                            </div>
+                            <div class="rating-comment" title="${rating.comment || 'No comment'}">
+                                ${rating.comment || 'No comment'}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    recentRatingsList.innerHTML = '<p>No recent ratings found.</p>';
+                }
+            } else {
+                summaryDiv.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading employee ratings:', error);
+            summaryDiv.style.display = 'none';
+        });
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        color: white;
+        font-weight: 600;
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+
+    const colors = {
+        success: '#10b981',
+        error: '#ef4444',
+        warning: '#f59e0b',
+        info: '#3b82f6'
+    };
+    notification.style.backgroundColor = colors[type] || colors.info;
+
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+
+window.onclick = function(event) {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+}

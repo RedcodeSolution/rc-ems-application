@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SuperAdmin;
 use App\Models\SuperAdminActivity;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -25,7 +26,6 @@ class SuperAdminAccountsController extends Controller
             return $user;
         });
 
-        // Fetch recent activities from DB (last 10)
         $recentActivities = SuperAdminActivity::orderBy('created_at', 'desc')
             ->limit(10)
             ->get()
@@ -51,32 +51,64 @@ class SuperAdminAccountsController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:super_admins,super_admin_email',
-            'password' => 'required|string|min:8|confirmed',
-            'permissions' => 'nullable|array'
-        ]);
+        try {
 
-        $superAdmin = SuperAdmin::create([
-            'super_admin_id' => Str::uuid(),
-            'super_admin_name' => $validated['name'],
-            'super_admin_email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'permissions' => json_encode($validated['permissions'] ?? []),
+            if (!$request->has('permissions')) {
+                $request->merge(['permissions' => []]);
+            }
 
-        ]);
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:super_admins,super_admin_email',
+                'password' => 'required|string|min:8|confirmed',
+                'permissions' => 'nullable|array'
+            ]);
 
-        // Log activity
-        SuperAdminActivity::create([
-            'super_admin_id' => $superAdmin->super_admin_id,
-            'type' => 'create',
-            'icon' => 'fas fa-user-plus',
-            'action' => 'Account Created',
-            'details' => "Super admin account created: {$superAdmin->super_admin_name}"
-        ]);
+            $superAdmin = SuperAdmin::create([
+                'super_admin_id' => Str::uuid(),
+                'super_admin_name' => $validated['name'],
+                'super_admin_email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'permissions' => json_encode($validated['permissions'] ?? []),
 
-        return response()->json(['success' => true, 'super_admin' => $superAdmin]);
+            ]);
+
+
+            SuperAdminActivity::create([
+                'super_admin_id' => $superAdmin->super_admin_id,
+                'type' => 'create',
+                'icon' => 'fas fa-user-plus',
+                'action' => 'Account Created',
+                'details' => "Super admin account created: {$superAdmin->super_admin_name}"
+            ]);
+
+
+            Notification::create([
+                'notifi_id' => Str::uuid(),
+                'title' => 'Super Admin Account Created',
+                'message' => 'A new super admin account has been created: ' . $validated['name'],
+                'type' => 'super_admin',
+                'priority' => 'high',
+                'read' => false,
+                'from' => auth()->user()->name ?? 'System',
+                'icon' => 'fas fa-user-shield',
+                'color' => 'indigo',
+                'timestamp' => now(),
+            ]);
+
+            return response()->json(['success' => true, 'super_admin' => $superAdmin]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors(),
+                'message' => 'Validation failed.'
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Server error: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function show($id)
@@ -111,40 +143,67 @@ class SuperAdminAccountsController extends Controller
 
     public function update(Request $request, $id)
     {
-        $user = SuperAdmin::findOrFail($id);
+        try {
+            $user = SuperAdmin::findOrFail($id);
 
-        if (!$request->has('permissions')) {
-            $request->merge(['permissions' => []]);
+            if (!$request->has('permissions')) {
+                $request->merge(['permissions' => []]);
+            }
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:super_admins,super_admin_email,' . $id . ',super_admin_id',
+                'status' => 'required|string|in:active,inactive,suspended',
+                'role' => 'required|string|in:super_admin,system_admin,security_admin',
+                'permissions' => 'nullable|array'
+            ]);
+
+            $user->super_admin_name = $validated['name'];
+            $user->super_admin_email = $validated['email'];
+            $user->status = $validated['status'];
+            $user->role = $validated['role'];
+            $user->permissions = json_encode($validated['permissions'] ?? []);
+            $user->save();
+
+            // Log activity
+            SuperAdminActivity::create([
+                'super_admin_id' => $user->super_admin_id,
+                'type' => 'update',
+                'icon' => 'fas fa-edit',
+                'action' => 'Account Updated',
+                'details' => "Account updated: {$user->super_admin_name}"
+            ]);
+
+            // Create notification for super admin account update
+            Notification::create([
+                'notifi_id' => Str::uuid(),
+                'title' => 'Super Admin Account Updated',
+                'message' => 'Super admin account updated: ' . $validated['name'],
+                'type' => 'super_admin',
+                'priority' => 'medium',
+                'read' => false,
+                'from' => auth()->user()->name ?? 'System',
+                'icon' => 'fas fa-user-shield',
+                'color' => 'purple',
+                'timestamp' => now(),
+            ]);
+
+            return response()->json(['success' => true, 'super_admin' => $user]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors(),
+                'message' => 'Validation failed.'
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Server error: ' . $e->getMessage()
+            ], 500);
         }
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:super_admins,super_admin_email,' . $id . ',super_admin_id',
-            'status' => 'required|string|in:active,inactive,suspended',
-            'role' => 'required|string|in:super_admin,system_admin,security_admin',
-            'permissions' => 'nullable|array'
-        ]);
-
-        $user->super_admin_name = $validated['name'];
-        $user->super_admin_email = $validated['email'];
-        $user->status = $validated['status'];
-        $user->role = $validated['role'];
-        $user->permissions = json_encode($validated['permissions'] ?? []);
-        $user->save();
-
-        // Log activity
-        SuperAdminActivity::create([
-            'super_admin_id' => $user->super_admin_id,
-            'type' => 'update',
-            'icon' => 'fas fa-edit',
-            'action' => 'Account Updated',
-            'details' => "Account updated: {$user->super_admin_name}"
-        ]);
-
-        return response()->json(['success' => true, 'super_admin' => $user]);
     }
 
-    // Add this method for password change
+
     public function changePassword(Request $request, $id)
     {
         $user = SuperAdmin::findOrFail($id);
@@ -161,7 +220,7 @@ class SuperAdminAccountsController extends Controller
         $user->password = \Hash::make($validated['new_password']);
         $user->save();
 
-        // Log activity
+
         SuperAdminActivity::create([
             'super_admin_id' => $user->super_admin_id,
             'type' => 'security',
@@ -173,7 +232,7 @@ class SuperAdminAccountsController extends Controller
         return response()->json(['success' => true]);
     }
 
-    // Add this method for deleting a super admin account
+
     public function destroy($id)
     {
         $user = SuperAdmin::find($id);
@@ -184,7 +243,7 @@ class SuperAdminAccountsController extends Controller
         $userName = $user->super_admin_name;
         $user->delete();
 
-        // Log activity
+
         SuperAdminActivity::create([
             'super_admin_id' => $id,
             'type' => 'delete',

@@ -36,7 +36,7 @@
             <p class="stat-label">Total Events</p>
         </div>
     </div>
-    
+
     <div class="stat-card">
         <div class="stat-icon upcoming">
             <i class="fas fa-clock"></i>
@@ -46,7 +46,7 @@
             <p class="stat-label">Upcoming Events</p>
         </div>
     </div>
-    
+
     <div class="stat-card">
         <div class="stat-icon completed">
             <i class="fas fa-check-circle"></i>
@@ -56,7 +56,7 @@
             <p class="stat-label">Completed Events</p>
         </div>
     </div>
-    
+
     <div class="stat-card">
         <div class="stat-icon month">
             <i class="fas fa-calendar-week"></i>
@@ -107,58 +107,58 @@
                 </button>
             </div>
         </div>
-        
+
         <div class="events-grid">
             @forelse($events as $event)
             <div class="event-card">
                 <div class="event-header">
-                    <div class="event-type-badge badge-{{ $event['type'] }}">
-                        {{ ucfirst($event['type']) }}
+                    <div class="event-type-badge badge-{{ $event->type }}">
+                        {{ ucfirst($event->type) }}
                     </div>
-                    <div class="event-status-badge badge-{{ $event['status'] }}">
-                        {{ ucfirst($event['status']) }}
+                    <div class="event-status-badge badge-{{ $event->status }}">
+                        {{ ucfirst($event->status) }}
                     </div>
                 </div>
-                
+
                 <div class="event-content">
-                    <h4 class="event-title">{{ $event['title'] }}</h4>
-                    <p class="event-description">{{ Str::limit($event['description'], 100) }}</p>
-                    
+                    <h4 class="event-title">{{ $event->title }}</h4>
+                    <p class="event-description">{{ Str::limit($event->description, 100) }}</p>
+
                     <div class="event-details">
                         <div class="event-detail">
                             <i class="fas fa-calendar"></i>
-                            <span>{{ $event['date']->format('M d, Y') }}</span>
+                            <span>{{ \Carbon\Carbon::parse($event->date)->format('M d, Y') }}</span>
                         </div>
                         <div class="event-detail">
                             <i class="fas fa-clock"></i>
-                            <span>{{ $event['time'] }}</span>
+                            <span>{{ $event->time }}</span>
                         </div>
                         <div class="event-detail">
                             <i class="fas fa-map-marker-alt"></i>
-                            <span>{{ $event['location'] }}</span>
+                            <span>{{ $event->location }}</span>
                         </div>
                         <div class="event-detail">
                             <i class="fas fa-users"></i>
-                            <span>{{ $event['attendees'] }} attendees</span>
+                            <span>{{ $event->attendees }} attendees</span>
                         </div>
                     </div>
-                    
+
                     <div class="event-organizer">
                         <i class="fas fa-user-tie"></i>
-                        <span>{{ $event['organizer'] }}</span>
+                        <span>{{ $event->organizer }}</span>
                     </div>
                 </div>
-                
+
                 <div class="event-actions">
-                    <button class="btn btn-sm btn-info" onclick="viewEvent({{ $event['id'] }})">
+                    <button class="btn btn-sm btn-info" onclick="viewEvent({{ $event->id }})">
                         <i class="fas fa-eye"></i>
                         View
                     </button>
-                    <button class="btn btn-sm btn-primary" onclick="editEvent({{ $event['id'] }})">
+                    <button class="btn btn-sm btn-primary" onclick="editEvent({{ $event->id }})">
                         <i class="fas fa-edit"></i>
                         Edit
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteEvent({{ $event['id'] }})">
+                    <button class="btn btn-sm btn-danger" onclick="deleteEvent({{ $event->id }})">
                         <i class="fas fa-trash"></i>
                         Delete
                     </button>
@@ -185,59 +185,59 @@
         <div class="panel-header">
             <h3>Upcoming Events</h3>
         </div>
-        
+
         <div class="events-grid">
             @forelse($events as $event)
-                @if($event['status'] === 'upcoming')
+                @if($event->status === 'upcoming')
                 <div class="event-card">
                     <div class="event-header">
-                        <div class="event-type-badge badge-{{ $event['type'] }}">
-                            {{ ucfirst($event['type']) }}
+                        <div class="event-type-badge badge-{{ $event->type }}">
+                            {{ ucfirst($event->type) }}
                         </div>
-                        <div class="event-status-badge badge-{{ $event['status'] }}">
-                            {{ ucfirst($event['status']) }}
+                        <div class="event-status-badge badge-{{ $event->status }}">
+                            {{ ucfirst($event->status) }}
                         </div>
                     </div>
-                    
+
                     <div class="event-content">
-                        <h4 class="event-title">{{ $event['title'] }}</h4>
-                        <p class="event-description">{{ Str::limit($event['description'], 100) }}</p>
-                        
+                        <h4 class="event-title">{{ $event->title }}</h4>
+                        <p class="event-description">{{ Str::limit($event->description, 100) }}</p>
+
                         <div class="event-details">
                             <div class="event-detail">
                                 <i class="fas fa-calendar"></i>
-                                <span>{{ $event['date']->format('M d, Y') }}</span>
+                                <span>{{ \Carbon\Carbon::parse($event->date)->format('M d, Y') }}</span>
                             </div>
                             <div class="event-detail">
                                 <i class="fas fa-clock"></i>
-                                <span>{{ $event['time'] }}</span>
+                                <span>{{ $event->time }}</span>
                             </div>
                             <div class="event-detail">
                                 <i class="fas fa-map-marker-alt"></i>
-                                <span>{{ $event['location'] }}</span>
+                                <span>{{ $event->location }}</span>
                             </div>
                             <div class="event-detail">
                                 <i class="fas fa-users"></i>
-                                <span>{{ $event['attendees'] }} attendees</span>
+                                <span>{{ $event->attendees }} attendees</span>
                             </div>
                         </div>
-                        
+
                         <div class="event-organizer">
                             <i class="fas fa-user-tie"></i>
-                            <span>{{ $event['organizer'] }}</span>
+                            <span>{{ $event->organizer }}</span>
                         </div>
                     </div>
-                    
+
                     <div class="event-actions">
-                        <button class="btn btn-sm btn-info" onclick="viewEvent({{ $event['id'] }})">
+                        <button class="btn btn-sm btn-info" onclick="viewEvent({{ $event->id }})">
                             <i class="fas fa-eye"></i>
                             View
                         </button>
-                        <button class="btn btn-sm btn-primary" onclick="editEvent({{ $event['id'] }})">
+                        <button class="btn btn-sm btn-primary" onclick="editEvent({{ $event->id }})">
                             <i class="fas fa-edit"></i>
                             Edit
                         </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteEvent({{ $event['id'] }})">
+                        <button class="btn btn-sm btn-danger" onclick="deleteEvent({{ $event->id }})">
                             <i class="fas fa-trash"></i>
                             Delete
                         </button>
@@ -261,55 +261,55 @@
         <div class="panel-header">
             <h3>Completed Events</h3>
         </div>
-        
+
         <div class="events-grid">
             @forelse($events as $event)
-                @if($event['status'] === 'completed')
+                @if($event->status === 'completed')
                 <div class="event-card">
                     <div class="event-header">
-                        <div class="event-type-badge badge-{{ $event['type'] }}">
-                            {{ ucfirst($event['type']) }}
+                        <div class="event-type-badge badge-{{ $event->type }}">
+                            {{ ucfirst($event->type) }}
                         </div>
-                        <div class="event-status-badge badge-{{ $event['status'] }}">
-                            {{ ucfirst($event['status']) }}
+                        <div class="event-status-badge badge-{{ $event->status }}">
+                            {{ ucfirst($event->status) }}
                         </div>
                     </div>
-                    
+
                     <div class="event-content">
-                        <h4 class="event-title">{{ $event['title'] }}</h4>
-                        <p class="event-description">{{ Str::limit($event['description'], 100) }}</p>
-                        
+                        <h4 class="event-title">{{ $event->title }}</h4>
+                        <p class="event-description">{{ Str::limit($event->description, 100) }}</p>
+
                         <div class="event-details">
                             <div class="event-detail">
                                 <i class="fas fa-calendar"></i>
-                                <span>{{ $event['date']->format('M d, Y') }}</span>
+                                <span>{{ \Carbon\Carbon::parse($event->date)->format('M d, Y') }}</span>
                             </div>
                             <div class="event-detail">
                                 <i class="fas fa-clock"></i>
-                                <span>{{ $event['time'] }}</span>
+                                <span>{{ $event->time }}</span>
                             </div>
                             <div class="event-detail">
                                 <i class="fas fa-map-marker-alt"></i>
-                                <span>{{ $event['location'] }}</span>
+                                <span>{{ $event->location }}</span>
                             </div>
                             <div class="event-detail">
                                 <i class="fas fa-users"></i>
-                                <span>{{ $event['attendees'] }} attendees</span>
+                                <span>{{ $event->attendees }} attendees</span>
                             </div>
                         </div>
-                        
+
                         <div class="event-organizer">
                             <i class="fas fa-user-tie"></i>
-                            <span>{{ $event['organizer'] }}</span>
+                            <span>{{ $event->organizer }}</span>
                         </div>
                     </div>
-                    
+
                     <div class="event-actions">
-                        <button class="btn btn-sm btn-info" onclick="viewEvent({{ $event['id'] }})">
+                        <button class="btn btn-sm btn-info" onclick="viewEvent({{ $event->id }})">
                             <i class="fas fa-eye"></i>
                             View
                         </button>
-                        <button class="btn btn-sm btn-secondary" onclick="generateReport({{ $event['id'] }})">
+                        <button class="btn btn-sm btn-secondary" onclick="generateReport({{ $event->id }})">
                             <i class="fas fa-chart-bar"></i>
                             Report
                         </button>
@@ -342,7 +342,7 @@
                 </button>
             </div>
         </div>
-        
+
         <div class="calendar-container">
             <div class="calendar-header">
                 <div class="calendar-day-header">Sun</div>
@@ -819,34 +819,34 @@
         gap: 1rem;
         text-align: center;
     }
-    
+
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .events-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .tab-navigation {
         flex-wrap: wrap;
     }
-    
+
     .tab-button {
         flex: 1 1 50%;
     }
-    
+
     .panel-header {
         flex-direction: column;
         gap: 1rem;
         align-items: flex-start;
     }
-    
+
     .bulk-actions {
         width: 100%;
         justify-content: center;
     }
-    
+
     .event-details {
         grid-template-columns: 1fr;
     }
@@ -858,15 +858,15 @@
 document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
         const tabName = button.getAttribute('data-tab');
-        
+
         // Remove active class from all tabs and panels
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
-        
+
         // Add active class to clicked tab and corresponding panel
         button.classList.add('active');
         document.getElementById(tabName + '-panel').classList.add('active');
-        
+
         // Initialize calendar if calendar tab is selected
         if (tabName === 'calendar') {
             initializeCalendar();
@@ -940,7 +940,6 @@ function closeModal() {
     document.getElementById('eventDetailsModal').style.display = 'none';
 }
 
-// Calendar functionality
 let currentDate = new Date();
 
 function initializeCalendar() {
@@ -950,33 +949,33 @@ function initializeCalendar() {
 function renderCalendar() {
     const calendarBody = document.getElementById('calendarBody');
     const currentMonth = document.getElementById('currentMonth');
-    
+
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    
-    currentMonth.textContent = new Date(year, month).toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long' 
+
+    currentMonth.textContent = new Date(year, month).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long'
     });
-    
+
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - firstDay.getDay());
-    
+
     let calendarHTML = '';
-    
+
     for (let i = 0; i < 42; i++) {
         const date = new Date(startDate);
         date.setDate(startDate.getDate() + i);
-        
+
         const isCurrentMonth = date.getMonth() === month;
         const isToday = date.toDateString() === new Date().toDateString();
-        
+
         let dayClass = 'calendar-day';
         if (!isCurrentMonth) dayClass += ' other-month';
         if (isToday) dayClass += ' today';
-        
+
         calendarHTML += `
             <div class="${dayClass}">
                 <div class="calendar-day-number">${date.getDate()}</div>
@@ -984,16 +983,14 @@ function renderCalendar() {
             </div>
         `;
     }
-    
+
     calendarBody.innerHTML = calendarHTML;
 }
 
 function getEventsForDate(date) {
-    // This would normally fetch events from the server
-    // For now, we'll show sample events
     const events = @json($events);
     const dateString = date.toISOString().split('T')[0];
-    
+
     let eventsHTML = '';
     events.forEach(event => {
         const eventDate = new Date(event.date).toISOString().split('T')[0];
@@ -1005,7 +1002,7 @@ function getEventsForDate(date) {
             `;
         }
     });
-    
+
     return eventsHTML;
 }
 
@@ -1027,4 +1024,4 @@ window.onclick = function(event) {
     }
 }
 </script>
-@endsection 
+@endsection

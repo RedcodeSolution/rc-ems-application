@@ -2,6 +2,7 @@
 @extends('layouts.admin')
 
 
+
 <style>
     :root {
         /* RedCode Solutions Color Palette - Matching Employee Form */
@@ -615,6 +616,9 @@
     }
 </style>
 
+<link rel="stylesheet" href="{{ asset('css/admin/projects.css') }}">
+
+
 @section('title', 'Projects Management')
 
 @section('content')
@@ -849,6 +853,8 @@
                         <!-- Project assignments will be populated here -->
                         </tbody>
                     </table>
+                    <!-- Card view for mobile -->
+                    <div class="assignment-card-list"></div>
                 </div>
 
                 <!-- No Assignments Message -->
@@ -1068,6 +1074,19 @@
 
     </div>
 
+
+    <!-- Project Statistics -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+        <div class="card">
+            <div class="card-body text-center">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
+                    {{ $projects->count() }}
+                </div>
+                <div style="color: var(--text-secondary); font-weight: 500;">
+                    Total Projects
+                </div>
+
+
     <!-- Project Statistics -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
         <div class="card">
@@ -1087,11 +1106,86 @@
                     {{ $projects->where('status', 'Completed')->count() }}
                 </div>
                 <div style="color: var(--gray-600); font-weight: 500;">Completed</div>
+
             </div>
         </div>
 
         <div class="card">
             <div class="card-body text-center">
+
+                <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">
+                    {{ $projects->where('status', 'Completed')->count() }}
+                </div>
+                <div style="color: var(--gray-600); font-weight: 500;">Completed</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body text-center">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;"> {{ $projects->where('status', 'On Hold')->count() }}</div>
+                <div style="color: var(--gray-600); font-weight: 500;">On Hold</div>
+            </div>
+        </div>
+
+        @php
+        $totalProjects = $projects->count();
+        $completedProjects = $projects->where('status', 'Completed')->count();
+        $successRate = $totalProjects > 0 ? round(($completedProjects / $totalProjects) * 100) : 0;
+        @endphp
+
+        <div class="card">
+            <div class="card-body text-center">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--info); margin-bottom: 0.5rem;">
+                    {{ $successRate }}%
+                </div>
+                <div style="color: var(--gray-600); font-weight: 500;">Success Rate</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Project Creation Modal -->
+    <div id="projectModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-project-diagram"></i>
+                    Add New Project
+                </div>
+                <div class="modal-subtitle">Fill in the project details below</div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form action="{{ route('admin.projects.store') }}" method="POST" id="projectForm">
+                    @csrf
+                    <div class="form-container">
+                        <!-- Basic Information Row -->
+                        <div class="form-row">
+
+                            <div class="form-group">
+                                <label for="project_name" class="form-label">
+                                    <i class="fas fa-project-diagram"></i>Project Name
+                                </label>
+                                <div style="position: relative;">
+
+                                    <input type="text" id="project_name" name="project_name" class="form-input" placeholder="Enter project name" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Client and Team Row -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="client" class="form-label">
+                                    <i class="fas fa-user-tie"></i>Client
+                                </label>
+                                <div style="position: relative;">
+
+                                    <input type="text" id="client" name="client" class="form-input" placeholder="Enter client name">
+
                 <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;"> {{ $projects->where('status', 'On Hold')->count() }}</div>
                 <div style="color: var(--gray-600); font-weight: 500;">On Hold</div>
             </div>
@@ -1172,9 +1266,57 @@
                                         @endforeach
                                         @endif
                                     </select>
+
                                 </div>
                             </div>
+
+
+                            <div class="form-group">
+                                <label for="team_id" class="form-label">
+                                    <i class="fas fa-users"></i>Assigned Team
+                                </label>
+                                <div style="position: relative;">
+
+                                    <select id="team_id" name="team_id" class="form-select" required>
+                                        <option value="">Select Team</option>
+                                        @if(isset($teams))
+                                        @foreach($teams as $team)
+                                        <option value="{{ $team->team_id }}">{{ $team->team_name }}</option>
+                                        @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+
+
+                        <!-- Status Row -->
+                        <div class="form-group">
+                            <label for="status" class="form-label">
+                                <i class="fas fa-tasks"></i>Project Status
+                            </label>
+                            <div style="position: relative;">
+                                <select id="status" name="status" class="form-select" required>
+                                    <option value="">Select status</option>
+                                    <option value="Planning">Planning</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="On Hold">On Hold</option>
+                                    <option value="Testing">Testing</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+
+                            </div>
                         </div>
+
+                        <!-- Date Range Row -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="start_date" class="form-label">
+                                    <i class="fas fa-calendar-plus"></i>Start Date
+                                </label>
+                                <div style="position: relative;">
+                                    <input type="date" id="start_date" name="start_date" class="form-input">
+                                </div>
+                            </div>
 
 
                         <!-- Status Row -->
@@ -1247,6 +1389,49 @@
                                 <i class="fas fa-save"></i> Create Project
                             </button>
                         </div>
+
+                            <div class="form-group">
+                                <label for="end_date" class="form-label">
+                                    <i class="fas fa-calendar-check"></i>End Date
+                                </label>
+                                <div style="position: relative;">
+                                    <input type="date" id="end_date" name="end_date" class="form-input">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label for="description" class="form-label">
+                                <i class="fas fa-file-alt"></i>Project Description
+                            </label>
+                            <div style="position: relative;">
+
+                                <textarea id="description" name="description" class="form-textarea" placeholder="Enter project description"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Milestone Info -->
+                        <div class="form-group">
+                            <label for="milestone_info" class="form-label">
+                                <i class="fas fa-flag"></i>Milestone Information
+                            </label>
+                            <div style="position: relative;">
+
+                                <textarea id="milestone_info" name="milestone_info" class="form-textarea" placeholder="Enter milestone details"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Project
+                            </button>
+                        </div>
+
                     </div>
                 </form>
             </div>
@@ -1802,6 +1987,7 @@
             });
     }
 
+
     document.getElementById("start_date").addEventListener("change", function() {
         let startDate = this.value;
         let endDateInput = document.getElementById("end_date");
@@ -1824,6 +2010,32 @@
     function openEditModalFromView() {
         // Close view modal first
         closeViewModal();
+
+
+
+    document.getElementById("start_date").addEventListener("change", function() {
+        let startDate = this.value;
+        let endDateInput = document.getElementById("end_date");
+
+        // set min date as next day
+        if (startDate) {
+            let date = new Date(startDate);
+            date.setDate(date.getDate() + 1);
+            endDateInput.min = date.toISOString().split("T")[0];
+        } else {
+            endDateInput.min = "";
+        }
+    });
+
+    function closeViewModal() {
+        document.getElementById('viewProjectModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    function openEditModalFromView() {
+        // Close view modal first
+        closeViewModal();
+
 
         // Open edit modal with stored data
         const data = window.currentProjectData;
@@ -2113,6 +2325,7 @@
         });
     }
 
+
     function hideEmployeeProjects() {
         document.getElementById('employeeProjectAssignments').style.display = 'none';
         currentSelectedEmployee = null;
@@ -2181,6 +2394,80 @@
 
         noAssignmentsDiv.style.display = 'none';
 
+
+
+    function hideEmployeeProjects() {
+        document.getElementById('employeeProjectAssignments').style.display = 'none';
+        currentSelectedEmployee = null;
+        currentProjectAssignments = [];
+    }
+
+    function loadEmployeeProjectAssignments(employeeId) {
+        // Simulate loading project assignments (in real implementation, this would be an AJAX call)
+        const mockProjectAssignments = [
+            {
+                id: 1,
+                project_name: 'E-Commerce Platform',
+                role: 'Project Manager',
+                status: 'active',
+                assigned_date: '2024-01-15',
+                progress: 75,
+                deadline: '2024-12-15',
+                priority: 'high'
+            },
+            {
+                id: 2,
+                project_name: 'Mobile App Development',
+                role: 'Developer',
+                status: 'active',
+                assigned_date: '2024-02-01',
+                progress: 45,
+                deadline: '2025-01-30',
+                priority: 'medium'
+            },
+            {
+                id: 3,
+                project_name: 'Analytics Dashboard',
+                role: 'Analyst',
+                status: 'completed',
+                assigned_date: '2024-01-01',
+                progress: 100,
+                deadline: '2024-11-20',
+                priority: 'low'
+            },
+            {
+                id: 4,
+                project_name: 'Website Redesign',
+                role: 'Designer',
+                status: 'on-hold',
+                assigned_date: '2024-03-01',
+                progress: 30,
+                deadline: '2024-08-15',
+                priority: 'medium'
+            }
+        ];
+
+        currentProjectAssignments = mockProjectAssignments;
+        displayProjectAssignments(mockProjectAssignments);
+        updateProjectStatistics(mockProjectAssignments);
+    }
+
+    function displayProjectAssignments(assignments) {
+        const tbody = document.getElementById('projectAssignmentsTableBody');
+        const noAssignmentsDiv = document.getElementById('noProjectAssignments');
+        const cardList = document.querySelector('.assignment-card-list');
+
+        if (assignments.length === 0) {
+            tbody.innerHTML = '';
+            cardList.innerHTML = '';
+            noAssignmentsDiv.style.display = 'block';
+            return;
+        }
+
+        noAssignmentsDiv.style.display = 'none';
+
+        // Table rows for desktop/tablet
+
         tbody.innerHTML = assignments.map(assignment => `
         <tr data-assignment-id="${assignment.id}" data-status="${assignment.status}" data-role="${assignment.role.toLowerCase()}" data-priority="${assignment.priority}">
             <td>
@@ -2212,6 +2499,7 @@
             </td>
         </tr>
     `).join('');
+
     }
 
     function updateProjectStatistics(assignments) {
@@ -2219,6 +2507,46 @@
         const completed = assignments.filter(a => a.status === 'completed').length;
         const onHold = assignments.filter(a => a.status === 'on-hold').length;
         const total = assignments.length;
+
+
+
+        // Card view for mobile
+        cardList.innerHTML = assignments.map(assignment => `
+            <div class="assignment-card">
+                <div class="assignment-title">${assignment.project_name}</div>
+                <div class="assignment-row">
+                    <span>Role:</span>
+                    <span class="badge" style="background: rgba(37,99,235,0.1); color: var(--info);">${assignment.role}</span>
+                </div>
+                <div class="assignment-row">
+                    <span>Status:</span>
+                    ${getProjectStatusBadge(assignment.status)}
+                </div>
+                <div class="assignment-row">
+                    <span>Assigned:</span>
+                    <span>${formatDate(assignment.assigned_date)}</span>
+                </div>
+                <div class="assignment-row">
+                    <span>Progress:</span>
+                    <span>${assignment.progress}%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-bar-inner" style="width: ${assignment.progress}%;"></div>
+                </div>
+                <div class="assignment-row">
+                    <span>Deadline:</span>
+                    <span>${formatDate(assignment.deadline)}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateProjectStatistics(assignments) {
+        const active = assignments.filter(a => a.status === 'active').length;
+        const completed = assignments.filter(a => a.status === 'completed').length;
+        const onHold = assignments.filter(a => a.status === 'on-hold').length;
+        const total = assignments.length;
+
 
         document.getElementById('activeProjectsCount').textContent = active;
         document.getElementById('completedProjectsCount').textContent = completed;
@@ -2231,6 +2559,7 @@
         const roleFilter = document.getElementById('projectRoleFilter').value;
         const dateFilter = document.getElementById('projectDateFilter').value;
         const priorityFilter = document.getElementById('projectPriorityFilter').value;
+
 
         let filteredAssignments = currentProjectAssignments.filter(assignment => {
             let showAssignment = true;
@@ -2288,6 +2617,66 @@
             btn.classList.remove('btn-primary', 'btn-success', 'btn-info', 'btn-warning', 'btn-danger');
             btn.classList.add('btn-secondary');
         });
+
+
+
+        let filteredAssignments = currentProjectAssignments.filter(assignment => {
+            let showAssignment = true;
+
+            // Status filter
+            if (statusFilter && assignment.status !== statusFilter) {
+                showAssignment = false;
+            }
+
+            // Role filter
+            if (roleFilter && assignment.role.toLowerCase() !== roleFilter) {
+                showAssignment = false;
+            }
+
+            // Priority filter
+            if (priorityFilter && assignment.priority !== priorityFilter) {
+                showAssignment = false;
+            }
+
+            // Date filter (simplified implementation)
+            if (dateFilter) {
+                const assignmentDate = new Date(assignment.assigned_date);
+                const now = new Date();
+
+                switch(dateFilter) {
+                    case 'current':
+                        showAssignment = assignment.status === 'active';
+                        break;
+                    case 'recent':
+                        const threeMonthsAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+                        showAssignment = assignmentDate >= threeMonthsAgo;
+                        break;
+                    case 'this-year':
+                        showAssignment = assignmentDate.getFullYear() === now.getFullYear();
+                        break;
+                    case 'last-year':
+                        showAssignment = assignmentDate.getFullYear() === now.getFullYear() - 1;
+                        break;
+                }
+            }
+
+            return showAssignment;
+        });
+
+        displayProjectAssignments(filteredAssignments);
+        updateProjectStatistics(filteredAssignments);
+    }
+
+    function filterProjectsByStatus(status) {
+        document.getElementById('projectStatusFilter').value = status === 'all' ? '' : status;
+        filterEmployeeProjects();
+
+        // Update button states
+        document.querySelectorAll('[onclick^="filterProjectsByStatus"]').forEach(btn => {
+            btn.classList.remove('btn-primary', 'btn-success', 'btn-info', 'btn-warning', 'btn-danger');
+            btn.classList.add('btn-secondary');
+        });
+
 
         // Highlight active button
         const activeButton = document.querySelector(`[onclick="filterProjectsByStatus('${status}')"]`);
@@ -2351,6 +2740,7 @@
         });
     }
 
+
     // Action functions for project assignments
     function viewProjectAssignment(assignmentId) {
         alert(`Viewing project assignment ${assignmentId}`);
@@ -2369,6 +2759,28 @@
             refreshEmployeeProjects();
         }
     }
+
+
+
+    // Action functions for project assignments
+    function viewProjectAssignment(assignmentId) {
+        alert(`Viewing project assignment ${assignmentId}`);
+        // Implement view project assignment functionality
+    }
+
+    function editProjectAssignment(assignmentId) {
+        alert(`Editing project assignment ${assignmentId}`);
+        // Implement edit functionality
+    }
+
+    function removeProjectAssignment(assignmentId) {
+        if (confirm('Are you sure you want to remove this project assignment?')) {
+            alert(`Removed project assignment ${assignmentId}`);
+            // Implement remove functionality
+            refreshEmployeeProjects();
+        }
+    }
+
 
     function assignNewProject() {
         alert('Assigning new project to employee');
@@ -2430,6 +2842,23 @@
                 icon = 'fas fa-chart-line';
                 iconColor = 'var(--info)';
             }
+
+
+            // Status badge
+            const statusClass = project.status === 'Active' ? 'success' : 'text-secondary';
+            const statusBg = project.status === 'Active' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(107, 114, 128, 0.1)';
+
+            // Progress calculation
+            let progress = 0;
+            switch (project.status) {
+                case 'Planning': progress = 10; break;
+                case 'In Progress': progress = 50; break;
+                case 'On Hold': progress = 30; break;
+                case 'Testing': progress = 70; break;
+                case 'Completed': progress = 100; break;
+                case 'Cancelled': progress = 0; break;
+            }
+
 
             // Status badge
             const statusClass = project.status === 'Active' ? 'success' : 'text-secondary';
@@ -2542,6 +2971,7 @@
 
         const modal = document.getElementById('editProjectModal');
         const form = document.getElementById('editProjectForm');
+
         if (!modal || !form) return alert('Edit modal or form not found!');
 
         modal.classList.add('active');
@@ -2579,6 +3009,41 @@
                 // Focus first input
                 const firstInput = form.querySelector('#edit_project_name');
                 if (firstInput) firstInput.focus();
+
+        modal.classList.add('active');
+        form.reset();
+
+        fetch(`/projects/${projectId}/edit`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Failed to fetch project data');
+
+                const project = data.project;
+                form.action = `/projects/${projectId}`;
+
+                document.getElementById("edit_project_id").value = project.project_id;
+
+                // Populate form fields
+                form.querySelector('#edit_project_name').value = project.project_name || '';
+                form.querySelector('#edit_client').value = project.client || '';
+                form.querySelector('#edit_status').value = project.status || '';
+                form.querySelector('#edit_start_date').value = project.start_date || '';
+                form.querySelector('#edit_end_date').value = project.end_date || '';
+                form.querySelector('#edit_description').value = project.description || '';
+                form.querySelector('#edit_milestone_info').value = project.milestone_info || '';
+                form.querySelector('#edit_team_id').value = project.team_id || '';
+
+                form.querySelector('#edit_project_name').focus();
+
+                //  Set selected Assigned Team
+                const teamSelect = document.getElementById('edit_team_id');
+                if (teamSelect && project.team_id) {
+                    teamSelect.value = project.team_id;
+                }
+
+
             })
             .catch(error => {
                 console.error('Error:', error);

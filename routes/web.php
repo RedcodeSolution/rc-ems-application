@@ -14,8 +14,11 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SuperAdmin\AdminController;
 use App\Http\Controllers\SuperAdmin\AdminLeaveController;
 use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
+use App\Http\Controllers\SuperAdmin\EventController;
 use App\Http\Controllers\SuperAdmin\SuperAdminAccountsController;
+
 use App\Http\Controllers\SuperAdminController;
+
 use App\Models\Admin;
 use App\Models\Department;
 use App\Models\Employee;
@@ -147,22 +150,22 @@ Route::middleware('auth')->group(function () {
     // Super Admin Admin Leave Management Routes
     Route::prefix('super_admin/admin-leaves')->name('super_admin.admin_leaves.')->group(function () {
         Route::get('/', [AdminLeaveController::class, 'index'])->name('index');
-        Route::get('/{id}', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'show'])->name('show');
-        Route::post('/{id}/approve', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'approve'])->name('approve');
-        Route::post('/{id}/reject', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'reject'])->name('reject');
-        Route::post('/bulk-approve', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'bulkApprove'])->name('bulk_approve');
-        Route::post('/bulk-reject', [\App\Http\Controllers\SuperAdmin\AdminLeaveController::class, 'bulkReject'])->name('bulk_reject');
+        Route::get('/{id}', [AdminLeaveController::class, 'show'])->name('show');
+        Route::post('/{id}/approve', [AdminLeaveController::class, 'approve'])->name('approve');
+        Route::post('/{id}/reject', [AdminLeaveController::class, 'reject'])->name('reject');
+        Route::post('/bulk-approve', [AdminLeaveController::class, 'bulkApprove'])->name('bulk_approve');
+        Route::post('/bulk-reject', [AdminLeaveController::class, 'bulkReject'])->name('bulk_reject');
     });
 
     // Super Admin Events Management Routes
     Route::prefix('super_admin/events')->name('super_admin.events.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\SuperAdmin\EventController::class, 'index'])->name('index');
-        Route::get('/create', [\App\Http\Controllers\SuperAdmin\EventController::class, 'create'])->name('create');
-        Route::post('/', [\App\Http\Controllers\SuperAdmin\EventController::class, 'store'])->name('store');
-        Route::get('/{id}', [\App\Http\Controllers\SuperAdmin\EventController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [\App\Http\Controllers\SuperAdmin\EventController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [\App\Http\Controllers\SuperAdmin\EventController::class, 'update'])->name('update');
-        Route::delete('/{id}', [\App\Http\Controllers\SuperAdmin\EventController::class, 'destroy'])->name('destroy');
+        Route::get('/', [EventController::class, 'index'])->name('index');
+        Route::get('/create', [EventController::class, 'create'])->name('create');
+        Route::post('/', [EventController::class, 'store'])->name('store');
+        Route::get('/{id}', [EventController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [EventController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [EventController::class, 'update'])->name('update');
+        Route::delete('/{id}', [EventController::class, 'destroy'])->name('destroy');
     });
 
     // Redirect authenticated users to their respective dashboards
@@ -180,7 +183,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::post('/admin/profile/update', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
 
-    // Admin section routes (UI pages with enhanced data)
 
 
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -251,11 +253,11 @@ Route::middleware('auth')->group(function () {
             return view('admin.other.index');
         })->name('other');
 
-        // Employee Ratings Management
+
         Route::resource('employeeRatings', \App\Http\Controllers\Admin\EmployeeRatingsController::class);
     });
 
-    // Authentication
+
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 
