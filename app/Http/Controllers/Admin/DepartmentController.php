@@ -78,8 +78,7 @@ class DepartmentController extends Controller{
         $department = Department::findOrFail($id);
         $department->update($validated);
 
-        return redirect()->route('admin.departments.index')
-            ->with('success', 'Department updated successfully!');
+        return redirect()->route('admin.departments.index')->with('success', 'Department updated successfully!');
     }
 
     public function show($id)
@@ -104,8 +103,7 @@ class DepartmentController extends Controller{
         $department = Department::findOrFail($id);
         $department->delete();
 
-        return redirect()->route('admin.departments.index')
-            ->with('success', 'Department deleted successfully!');
+        return redirect()->route('admin.departments.index')->with('success', 'Department deleted successfully!');
     }
 
 

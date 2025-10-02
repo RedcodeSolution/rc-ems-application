@@ -148,18 +148,24 @@
     display: none;
     position: fixed;
     z-index: 1000;
-    left: 0;
     top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.5);
     backdrop-filter: blur(4px);
+
 }
 
 .modal.show {
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 1;
 }
 
 .modal-content {
@@ -364,17 +370,17 @@
         width: 95%;
         margin: 1rem;
     }
-    
+
     .modal-header,
     .modal-body,
     .modal-footer {
         padding: 1rem;
     }
-    
+
     .modal-footer {
         flex-direction: column;
     }
-    
+
     .modal-footer button {
         width: 100%;
     }
@@ -402,7 +408,7 @@
         <!-- Search and Filter Section -->
         <div class="flex justify-between items-center mb-4">
             <div class="flex gap-2">
-                <input type="text" placeholder="Search documents..." class="form-input" style="width: 300px;">
+                <input type="text" id="documentSearch" placeholder="Search documents by title..." class="form-input" style="width: 300px; margin-bottom: 1rem;">
                 <select class="form-select" style="width: 200px;">
                     <option>All Categories</option>
                     <option>Policies</option>
@@ -425,231 +431,171 @@
             </button>
         </div>
 
-        <!-- Documents Grid -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-            <div class="card">
-                <div class="card-body">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                        <div style="width: 3rem; height: 3rem; background: rgba(239, 68, 68, 0.1); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--danger);">
-                            <i class="fas fa-file-pdf" style="font-size: 1.25rem;"></i>
-                        </div>
-                        <div class="flex gap-1">
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="viewDocument(1)" title="View Document">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="downloadDocument(1)" title="Download Document">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <button class="btn btn-warning" style="padding: 0.5rem;" onclick="editDocument(1)" title="Edit Document">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-danger" style="padding: 0.5rem;" onclick="deleteDocument(1)" title="Delete Document">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h4 style="font-size: 1rem; font-weight: 600; color: var(--gray-800); margin-bottom: 0.5rem;">Employee Handbook 2024</h4>
-                    <p style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 1rem; line-height: 1.5;">Comprehensive guide covering company policies, procedures, and employee benefits.</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <span class="badge" style="background: rgba(59, 130, 246, 0.1); color: var(--primary); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Policies</span>
-                        <div style="font-size: 0.875rem; color: var(--gray-500);">2.4 MB</div>
-                    </div>
-                    <div style="font-size: 0.75rem; color: var(--gray-500);">
-                        <div>Uploaded by HR Team</div>
-                        <div>Nov 15, 2024 • 234 downloads</div>
-                    </div>
-                </div>
-            </div>
+        <div id="documentsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem;">
+            @forelse($documents as $document)
+            @php
+            $ext = strtolower(pathinfo($document->file_path, PATHINFO_EXTENSION));
+            $icon = 'fas fa-file';
+            $iconColor = '#6b7280';
+            $bgColor = '#f3f4f6';
 
-            <div class="card">
-                <div class="card-body">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                        <div style="width: 3rem; height: 3rem; background: rgba(59, 130, 246, 0.1); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--primary);">
-                            <i class="fas fa-file-word" style="font-size: 1.25rem;"></i>
-                        </div>
-                        <div class="flex gap-1">
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="viewDocument(2)" title="View Document">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="downloadDocument(2)" title="Download Document">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <button class="btn btn-warning" style="padding: 0.5rem;" onclick="editDocument(2)" title="Edit Document">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-danger" style="padding: 0.5rem;" onclick="deleteDocument(2)" title="Delete Document">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h4 style="font-size: 1rem; font-weight: 600; color: var(--gray-800); margin-bottom: 0.5rem;">Leave Application Form</h4>
-                    <p style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 1rem; line-height: 1.5;">Standard form template for employee leave requests and approvals.</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Forms</span>
-                        <div style="font-size: 0.875rem; color: var(--gray-500);">156 KB</div>
-                    </div>
-                    <div style="font-size: 0.75rem; color: var(--gray-500);">
-                        <div>Uploaded by Admin</div>
-                        <div>Nov 10, 2024 • 89 downloads</div>
-                    </div>
-                </div>
-            </div>
+            switch ($ext) {
+            case 'pdf': $icon='fas fa-file-pdf'; $iconColor='#ef4444'; $bgColor='#fee2e2'; break;
+            case 'doc': case 'docx': $icon='fas fa-file-word'; $iconColor='#2563eb'; $bgColor='#dbeafe'; break;
+            case 'xls': case 'xlsx': $icon='fas fa-file-excel'; $iconColor='#059669'; $bgColor='#d1fae5'; break;
+            case 'ppt': case 'pptx': $icon='fas fa-file-powerpoint'; $iconColor='#d97706'; $bgColor='#fef3c7'; break;
+            case 'csv': $icon='fas fa-file-csv'; $iconColor='#0891b2'; $bgColor='#cffafe'; break;
+            case 'txt': $icon='fas fa-file-alt'; $iconColor='#6b7280'; $bgColor='#f3f4f6'; break;
+            }
+            @endphp
 
-            <div class="card">
-                <div class="card-body">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                        <div style="width: 3rem; height: 3rem; background: rgba(16, 185, 129, 0.1); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--success);">
-                            <i class="fas fa-file-excel" style="font-size: 1.25rem;"></i>
-                        </div>
-                        <div class="flex gap-1">
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="viewDocument(3)" title="View Document">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="downloadDocument(3)" title="Download Document">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <button class="btn btn-warning" style="padding: 0.5rem;" onclick="editDocument(3)" title="Edit Document">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-danger" style="padding: 0.5rem;" onclick="deleteDocument(3)" title="Delete Document">
+            <div class="document-card card p-4 border rounded" data-title="{{ strtolower($document->title) }}">
+                <div class="card-header flex justify-between items-start mb-2">
+                    <div style="width: 3rem; height: 3rem; background: {{ $bgColor }}; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: {{ $iconColor }};">
+                        <i class="{{ $icon }}" style="font-size: 1.25rem;"></i>
+                    </div>
+                    <div class="flex gap-1">
+                        <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="viewDocument('{{ $document->document_id }}')" title="View Document">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button id="download-btn-{{ $document->document_id }}" class="btn btn-secondary" style="padding: 0.5rem;" data-title="{{ $document->title }}" onclick="downloadDocument('{{ $document->document_id }}')" title="Download Document">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn btn-warning" style="padding: 0.5rem;" onclick="openEditDocumentModal('{{ $document->document_id }}')" title="Edit Document">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <form action="{{ route('admin.documents.destroy', $document->document_id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger" style="padding: 0.5rem;" title="Delete Document">
                                 <i class="fas fa-trash"></i>
                             </button>
-                        </div>
-                    </div>
-                    <h4 style="font-size: 1rem; font-weight: 600; color: var(--gray-800); margin-bottom: 0.5rem;">Employee Database Template</h4>
-                    <p style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 1rem; line-height: 1.5;">Excel template for maintaining employee records and information.</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <span class="badge" style="background: rgba(245, 158, 11, 0.1); color: var(--warning); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Templates</span>
-                        <div style="font-size: 0.875rem; color: var(--gray-500);">45 KB</div>
-                    </div>
-                    <div style="font-size: 0.75rem; color: var(--gray-500);">
-                        <div>Uploaded by IT Team</div>
-                        <div>Nov 5, 2024 • 67 downloads</div>
+                        </form>
                     </div>
                 </div>
-            </div>
 
-            <div class="card">
                 <div class="card-body">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                        <div style="width: 3rem; height: 3rem; background: rgba(245, 158, 11, 0.1); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--warning);">
-                            <i class="fas fa-file-powerpoint" style="font-size: 1.25rem;"></i>
-                        </div>
-                        <div class="flex gap-1">
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="viewDocument(4)" title="View Document">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="downloadDocument(4)" title="Download Document">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <button class="btn btn-warning" style="padding: 0.5rem;" onclick="editDocument(4)" title="Edit Document">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-danger" style="padding: 0.5rem;" onclick="deleteDocument(4)" title="Delete Document">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h4 style="font-size: 1rem; font-weight: 600; color: var(--gray-800); margin-bottom: 0.5rem;">Onboarding Presentation</h4>
-                    <p style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 1rem; line-height: 1.5;">New employee orientation presentation covering company culture and processes.</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--secondary); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Training</span>
-                        <div style="font-size: 0.875rem; color: var(--gray-500);">8.7 MB</div>
-                    </div>
-                    <div style="font-size: 0.75rem; color: var(--gray-500);">
-                        <div>Uploaded by HR Team</div>
-                        <div>Oct 28, 2024 • 123 downloads</div>
-                    </div>
-                </div>
-            </div>
+                    <h4 style="font-size: 1rem; font-weight: 600; color: var(--gray-800); margin-bottom: 0.5rem;">
+                        {{ $document->title }}
+                    </h4>
+                    <p style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 1rem; line-height: 1.5;">
+                        {{ $document->description }}
+                    </p>
 
-            <div class="card">
-                <div class="card-body">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                        <div style="width: 3rem; height: 3rem; background: rgba(6, 182, 212, 0.1); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--info);">
-                            <i class="fas fa-file-contract" style="font-size: 1.25rem;"></i>
-                        </div>
-                        <div class="flex gap-1">
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="viewDocument(5)" title="View Document">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="downloadDocument(5)" title="Download Document">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <button class="btn btn-warning" style="padding: 0.5rem;" onclick="editDocument(5)" title="Edit Document">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-danger" style="padding: 0.5rem;" onclick="deleteDocument(5)" title="Delete Document">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h4 style="font-size: 1rem; font-weight: 600; color: var(--gray-800); margin-bottom: 0.5rem;">Employment Contract Template</h4>
-                    <p style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 1rem; line-height: 1.5;">Standard employment contract template with terms and conditions.</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <span class="badge" style="background: rgba(6, 182, 212, 0.1); color: var(--info); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Contracts</span>
-                        <div style="font-size: 0.875rem; color: var(--gray-500);">234 KB</div>
-                    </div>
-                    <div style="font-size: 0.75rem; color: var(--gray-500);">
-                        <div>Uploaded by Legal Team</div>
-                        <div>Oct 20, 2024 • 45 downloads</div>
-                    </div>
-                </div>
-            </div>
+                    @php
+                    // Define colors for each category
+                    $categoryColors = [
+                    'policies'   => ['bg' => 'rgba(59,130,246,0.1)', 'text' => '#3B82F6'],   // Blue
+                    'forms'      => ['bg' => 'rgba(16,185,129,0.1)', 'text' => '#10B981'],   // Green
+                    'contracts'  => ['bg' => 'rgba(234,179,8,0.1)',  'text' => '#EAB308'],   // Yellow
+                    'reports'    => ['bg' => 'rgba(239,68,68,0.1)',  'text' => '#EF4444'],   // Red
+                    'training'   => ['bg' => 'rgba(168,85,247,0.1)', 'text' => '#A855F7'],   // Purple
+                    'templates'  => ['bg' => 'rgba(6,182,212,0.1)', 'text' => '#06B6D4'],    // Cyan
+                    ];
 
-            <div class="card">
-                <div class="card-body">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                        <div style="width: 3rem; height: 3rem; background: rgba(99, 102, 241, 0.1); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--secondary);">
-                            <i class="fas fa-file-chart-line" style="font-size: 1.25rem;"></i>
-                        </div>
-                        <div class="flex gap-1">
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="viewDocument(6)" title="View Document">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="downloadDocument(6)" title="Download Document">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <button class="btn btn-warning" style="padding: 0.5rem;" onclick="editDocument(6)" title="Edit Document">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-danger" style="padding: 0.5rem;" onclick="deleteDocument(6)" title="Delete Document">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <h4 style="font-size: 1rem; font-weight: 600; color: var(--gray-800); margin-bottom: 0.5rem;">Q3 Performance Report</h4>
-                    <p style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 1rem; line-height: 1.5;">Quarterly performance analysis and employee evaluation summary.</p>
+                    $catKey = strtolower($document->category ?? '');
+                    $bgColor = $categoryColors[$catKey]['bg'] ?? 'rgba(156,163,175,0.1)'; // default gray
+                    $textColor = $categoryColors[$catKey]['text'] ?? '#9CA3AF';
+                    @endphp
+
+                    @php
+                    if (!function_exists('formatFileSize')) {
+                    function formatFileSize($size) {
+                    if ($size === null) return '—';
+                    if ($size < 1024) return $size . ' B';
+                    if ($size < 1048576) return round($size / 1024, 2) . ' KB';
+                    if ($size < 1073741824) return round($size / 1048576, 2) . ' MB';
+                    return round($size / 1073741824, 2) . ' GB';
+                    }
+                    }
+                    @endphp
+
+
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <span class="badge" style="background: rgba(99, 102, 241, 0.1); color: var(--secondary); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Reports</span>
-                        <div style="font-size: 0.875rem; color: var(--gray-500);">1.8 MB</div>
+                        <span class="badge" style="background: {{ $bgColor }}; color: {{ $textColor }}; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">
+                         {{ $document->category }}
+                        </span>
+                        @php
+                        $size = null;
+
+                        if (!empty($document->file_path)) {
+                        // Adjust the path depending on where your file is stored
+                        $fullPath = storage_path('app/public/' . $document->file_path);
+
+                        if (file_exists($fullPath)) {
+                        $size = filesize($fullPath); // size in bytes
+                        }
+                        }
+
+                        if (!function_exists('formatFileSize')) {
+                        function formatFileSize($size) {
+                        if ($size === null) return '—';
+                        if ($size < 1024) return $size . ' B';
+                        if ($size < 1048576) return round($size / 1024, 2) . ' KB';
+                        if ($size < 1073741824) return round($size / 1048576, 2) . ' MB';
+                        return round($size / 1073741824, 2) . ' GB';
+                        }
+                        }
+                        @endphp
+
+                        <div style="font-size: 0.875rem; color: var(--gray-500);">
+                            {{ formatFileSize($size) }}
+                        </div>
+
                     </div>
+
                     <div style="font-size: 0.75rem; color: var(--gray-500);">
-                        <div>Uploaded by Analytics Team</div>
-                        <div>Oct 15, 2024 • 78 downloads</div>
+                        <div>
+                            Uploaded by
+                            {{ $document->department->department_name ?? ($document->uploaded_by ?? 'System') }}
+                        </div>
+                        <div>
+                            {{ \Carbon\Carbon::parse($document->created_at)->format('M d, Y') }}
+                            • <span id="downloads-count-{{ $document->document_id }}">
+                                         {{ $document->downloads ?? 0 }}
+                              </span> downloads
+                        </div>
                     </div>
+
                 </div>
             </div>
+            @empty
+            <p style="color: var(--gray-500);">No documents found.</p>
+            @endforelse
         </div>
 
-        <!-- Pagination -->
+<!-- paginate-->
         <div class="flex justify-between items-center mt-4">
             <div style="color: var(--gray-600); font-size: 0.875rem;">
-                Showing 1 to 6 of 24 documents
+                Showing {{ $documents->firstItem() }} to {{ $documents->lastItem() }} of {{ $documents->total() }} documents
             </div>
+
             <div class="flex gap-1">
-                <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+
+                <a href="{{ $documents->previousPageUrl() }}"
+                   class="btn btn-secondary"
+                   style="padding: 0.5rem 0.75rem;"
+                   @if(!$documents->onFirstPage()) @else disabled @endif>
                     <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="btn btn-primary" style="padding: 0.5rem 0.75rem;">1</button>
-                <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">2</button>
-                <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">3</button>
-                <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">4</button>
-                <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                </a>
+
+                @foreach ($documents->getUrlRange(1, $documents->lastPage()) as $page => $url)
+                <a href="{{ $url }}"
+                   class="btn {{ $documents->currentPage() == $page ? 'btn-primary' : 'btn-secondary' }}"
+                   style="padding: 0.5rem 0.75rem;">
+                    {{ $page }}
+                </a>
+                @endforeach
+
+                <a href="{{ $documents->nextPageUrl() }}"
+                   class="btn btn-secondary"
+                   style="padding: 0.5rem 0.75rem;"
+                   @if($documents->hasMorePages()) @else disabled @endif>
                     <i class="fas fa-chevron-right"></i>
-                </button>
+                </a>
             </div>
         </div>
+
     </div>
 </div>
 
@@ -657,25 +603,64 @@
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
     <div class="card">
         <div class="card-body text-center">
-            <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">24</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">{{ $documents->count() }}</div>
             <div style="color: var(--gray-600); font-weight: 500;">Total Documents</div>
         </div>
     </div>
+
+    @php
+    $totalDownloads = $documents->sum('downloads');
+    @endphp
+
     <div class="card">
         <div class="card-body text-center">
-            <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">836</div>
-            <div style="color: var(--gray-600); font-weight: 500;">Total Downloads</div>
+            <div id="total-downloads"
+                 style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">
+                {{ $totalDownloads }}
+            </div>
+            <div style="color: var(--gray-600); font-weight: 500;">
+                Total Downloads
+            </div>
         </div>
     </div>
+
+
+    @php
+    use Illuminate\Support\Facades\File;
+
+    $totalSizeBytes = 0;
+
+    foreach ($documents as $doc) {
+    if (!empty($doc->file_path)) {
+    $fullPath = storage_path('app/public/' . $doc->file_path);
+
+    if (File::exists($fullPath)) {
+    $totalSizeBytes += File::size($fullPath);
+    }
+    }
+    }
+
+    // Convert total to MB
+    $totalSizeMB = $totalSizeBytes > 0 ? round($totalSizeBytes / 1048576, 2) : 0;
+
+    @endphp
+
     <div class="card">
         <div class="card-body text-center">
-            <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">15.2</div>
-            <div style="color: var(--gray-600); font-weight: 500;">Total Size (MB)</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">
+                {{ $totalSizeMB }}
+            </div>
+            <div style="color: var(--gray-600); font-weight: 500;">
+                Total Size (MB)
+            </div>
         </div>
     </div>
+
     <div class="card">
         <div class="card-body text-center">
-            <div style="font-size: 2rem; font-weight: 700; color: var(--info); margin-bottom: 0.5rem;">6</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--info); margin-bottom: 0.5rem;">
+                {{ $documents->whereNotNull('category')->pluck('category')->unique()->count() }}
+            </div>
             <div style="color: var(--gray-600); font-weight: 500;">Categories</div>
         </div>
     </div>
@@ -688,7 +673,7 @@
             <h3><i class="fas fa-upload"></i> Upload New Document</h3>
             <button class="close" onclick="closeAddDocumentModal()">&times;</button>
         </div>
-        <form id="addDocumentForm" method="POST" action="{{ route('documents.store') }}" enctype="multipart/form-data">
+        <form id="addDocumentForm" method="POST" action="{{ route('admin.documents.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="modal-body">
                 <div class="form-group">
@@ -727,15 +712,15 @@
                     <label for="document_department">Department</label>
                     <div class="input-icon">
                         <i class="fas fa-building"></i>
-                        <select id="document_department" name="department_id">
+                        <select id="department_filter" name="department_id" class="form-select">
                             <option value="">All Departments</option>
-                            <option value="1">Human Resources</option>
-                            <option value="2">Finance</option>
-                            <option value="3">IT</option>
-                            <option value="4">Marketing</option>
-                            <option value="5">Operations</option>
-                            <option value="6">Legal</option>
+                            @foreach($departments as $department)
+                            <option value="{{ $department->department_id }}">
+                                {{ $department->department_name }}
+                            </option>
+                            @endforeach
                         </select>
+
                     </div>
                 </div>
 
@@ -819,43 +804,43 @@
                     <h4 id="viewDocumentTitle" style="margin: 0 0 0.5rem 0; font-size: 1.25rem; font-weight: 600;">Document Title</h4>
                     <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
                         <span id="viewDocumentCategory" class="badge" style="background: rgba(59, 130, 246, 0.1); color: var(--primary); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Category</span>
-                        <span id="viewDocumentSize" style="color: var(--text-secondary); font-size: 0.875rem;">Size</span>
+                        <span id="viewDocumentSize" style="color: var(--text-secondary); font-size: 0.875rem;"></span>
                     </div>
                     <div style="color: var(--text-secondary); font-size: 0.875rem;">
                         <div id="viewDocumentUploader">Uploaded by: User</div>
-                        <div id="viewDocumentDate">Date: Nov 15, 2024</div>
+                        <div id="viewDocumentDate"></div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label>Description</label>
                 <div id="viewDocumentDescription" style="padding: 0.75rem; background: var(--primary-light); border-radius: 0.5rem; min-height: 80px; color: var(--text-secondary);">
-                    Document description will be displayed here...
+
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label>Department</label>
                 <div id="viewDocumentDepartment" style="padding: 0.75rem; background: var(--primary-light); border-radius: 0.5rem; color: var(--text-secondary);">
-                    Department information
+
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label>Access Level</label>
                 <div id="viewDocumentAccess" style="padding: 0.75rem; background: var(--primary-light); border-radius: 0.5rem; color: var(--text-secondary);">
-                    Access level information
+
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label>Tags</label>
                 <div id="viewDocumentTags" style="padding: 0.75rem; background: var(--primary-light); border-radius: 0.5rem; color: var(--text-secondary);">
-                    No tags
+
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label>Statistics</label>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
@@ -926,14 +911,11 @@
                     <label for="edit_document_department">Department</label>
                     <div class="input-icon">
                         <i class="fas fa-building"></i>
-                        <select id="edit_document_department" name="department_id">
-                            <option value="">All Departments</option>
-                            <option value="1">Human Resources</option>
-                            <option value="2">Finance</option>
-                            <option value="3">IT</option>
-                            <option value="4">Marketing</option>
-                            <option value="5">Operations</option>
-                            <option value="6">Legal</option>
+                        <select id="edit_department_id" name="department_id" class="form-select" required>
+                            <option value="">Select Department</option>
+                            @foreach($departments as $department)
+                            <option value="{{ $department->department_id }}">{{ $department->department_name ?? $department->department_id }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
@@ -1010,7 +992,7 @@
                 <h4 style="margin: 0 0 0.5rem 0; color: var(--text-primary);">Are you sure?</h4>
                 <p style="color: var(--text-secondary); margin: 0;">This action cannot be undone. The document will be permanently deleted.</p>
             </div>
-            
+
             <div style="background: var(--primary-light); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
                     <i id="deleteDocumentIcon" class="fas fa-file-alt" style="color: var(--danger); font-size: 1.25rem;"></i>
@@ -1031,95 +1013,24 @@
 </div>
 
 <script>
-// Sample document data
-const documents = {
-    1: {
-        title: "Employee Handbook 2024",
-        description: "Comprehensive guide covering company policies, procedures, and employee benefits.",
-        category: "policies",
-        department: "Human Resources",
-        access: "public",
-        tags: "handbook, policies, benefits, procedures",
-        size: "2.4 MB",
-        icon: "fas fa-file-pdf",
-        uploader: "HR Team",
-        date: "Nov 15, 2024",
-        downloads: 234,
-        views: 456
-    },
-    2: {
-        title: "Leave Application Form",
-        description: "Standard form template for employee leave requests and approvals.",
-        category: "forms",
-        department: "Human Resources",
-        access: "public",
-        tags: "leave, form, application",
-        size: "156 KB",
-        icon: "fas fa-file-word",
-        uploader: "Admin",
-        date: "Nov 10, 2024",
-        downloads: 89,
-        views: 145
-    },
-    3: {
-        title: "Employee Database Template",
-        description: "Excel template for maintaining employee records and information.",
-        category: "templates",
-        department: "IT",
-        access: "admin",
-        tags: "database, template, excel",
-        size: "45 KB",
-        icon: "fas fa-file-excel",
-        uploader: "IT Team",
-        date: "Nov 5, 2024",
-        downloads: 67,
-        views: 123
-    },
-    4: {
-        title: "Onboarding Presentation",
-        description: "New employee orientation presentation covering company culture and processes.",
-        category: "training",
-        department: "Human Resources",
-        access: "department",
-        tags: "onboarding, training, presentation",
-        size: "8.7 MB",
-        icon: "fas fa-file-powerpoint",
-        uploader: "HR Team",
-        date: "Oct 28, 2024",
-        downloads: 123,
-        views: 234
-    },
-    5: {
-        title: "Employment Contract Template",
-        description: "Standard employment contract template with terms and conditions.",
-        category: "contracts",
-        department: "Legal",
-        access: "restricted",
-        tags: "contract, employment, legal",
-        size: "234 KB",
-        icon: "fas fa-file-contract",
-        uploader: "Legal Team",
-        date: "Oct 20, 2024",
-        downloads: 45,
-        views: 78
-    },
-    6: {
-        title: "Q3 Performance Report",
-        description: "Quarterly performance analysis and employee evaluation summary.",
-        category: "reports",
-        department: "Analytics",
-        access: "admin",
-        tags: "performance, report, quarterly",
-        size: "1.8 MB",
-        icon: "fas fa-file-chart-line",
-        uploader: "Analytics Team",
-        date: "Oct 15, 2024",
-        downloads: 78,
-        views: 156
-    }
-};
 
-let currentDocumentId = null;
+    document.getElementById('documentSearch').addEventListener('keyup', function() {
+        const searchValue = this.value.toLowerCase().trim();
+        const cards = document.querySelectorAll('#documentsGrid .document-card');
+
+        cards.forEach(card => {
+            const title = card.dataset.title; // title saved in data-title
+            if (title.includes(searchValue)) {
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    });
+
+
+
+    let currentDocumentId = null;
 
 // Add Document Modal Functions
 function openAddDocumentModal() {
@@ -1135,157 +1046,271 @@ function closeAddDocumentModal() {
     if (filePreview) filePreview.style.display = 'none';
 }
 
-// View Document Modal Functions
-function viewDocument(id) {
-    const doc = documents[id];
-    if (!doc) return;
-    
-    document.getElementById('viewDocumentTitle').textContent = doc.title;
-    document.getElementById('viewDocumentDescription').textContent = doc.description;
-    document.getElementById('viewDocumentCategory').textContent = doc.category.charAt(0).toUpperCase() + doc.category.slice(1);
-    document.getElementById('viewDocumentDepartment').textContent = doc.department;
-    document.getElementById('viewDocumentAccess').textContent = doc.access.charAt(0).toUpperCase() + doc.access.slice(1);
-    document.getElementById('viewDocumentTags').textContent = doc.tags || 'No tags';
-    document.getElementById('viewDocumentSize').textContent = doc.size;
-    document.getElementById('viewDocumentUploader').textContent = `Uploaded by: ${doc.uploader}`;
-    document.getElementById('viewDocumentDate').textContent = `Date: ${doc.date}`;
-    document.getElementById('viewDocumentDownloads').textContent = doc.downloads;
-    document.getElementById('viewDocumentViews').textContent = doc.views;
-    document.getElementById('viewDocumentIcon').className = doc.icon;
-    
-    currentDocumentId = id;
-    document.getElementById('viewDocumentModal').classList.add('show');
-    document.body.style.overflow = 'hidden';
-}
+function viewDocumentIcon(filePath) {
+    if (!filePath) return { icon: 'fas fa-file', color: '#6b7280', bgColor: '#f3f4f6' };
 
-function closeViewDocumentModal() {
-    document.getElementById('viewDocumentModal').classList.remove('show');
-    document.body.style.overflow = 'auto';
-    currentDocumentId = null;
-}
+    const ext = filePath.split('.').pop().toLowerCase();
 
-function downloadCurrentDocument() {
-    if (currentDocumentId) {
-        downloadDocument(currentDocumentId);
+    switch (ext) {
+        case 'pdf': return { icon: 'fas fa-file-pdf', color: '#ef4444', bgColor: '#fee2e2' };
+        case 'doc':
+        case 'docx': return { icon: 'fas fa-file-word', color: '#2563eb', bgColor: '#dbeafe' };
+        case 'xls':
+        case 'xlsx': return { icon: 'fas fa-file-excel', color: '#059669', bgColor: '#d1fae5' };
+        case 'ppt':
+        case 'pptx': return { icon: 'fas fa-file-powerpoint', color: '#d97706', bgColor: '#fef3c7' };
+        case 'csv': return { icon: 'fas fa-file-csv', color: '#0891b2', bgColor: '#cffafe' };
+        case 'txt': return { icon: 'fas fa-file-alt', color: '#6b7280', bgColor: '#f3f4f6' };
+        default: return { icon: 'fas fa-file', color: '#6b7280', bgColor: '#f3f4f6' };
     }
 }
 
-// Edit Document Modal Functions
-function editDocument(id) {
-    const doc = documents[id];
-    if (!doc) return;
-    
-    document.getElementById('edit_document_title').value = doc.title;
-    document.getElementById('edit_document_description').value = doc.description;
-    document.getElementById('edit_document_category').value = doc.category;
-    document.getElementById('edit_document_access').value = doc.access;
-    document.getElementById('edit_document_tags').value = doc.tags;
-    
-    // Set department if available
-    const departments = {
-        'Human Resources': '1',
-        'Finance': '2',
-        'IT': '3',
-        'Marketing': '4',
-        'Operations': '5',
-        'Legal': '6'
-    };
-    const deptId = departments[doc.department] || '';
-    document.getElementById('edit_document_department').value = deptId;
-    
-    currentDocumentId = id;
-    document.getElementById('editDocumentModal').classList.add('show');
-    document.body.style.overflow = 'hidden';
+function formatFileSize(bytes) {
+    if (!bytes || isNaN(bytes)) return '—';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
+    if (bytes < 1073741824) return (bytes / 1048576).toFixed(2) + ' MB';
+    return (bytes / 1073741824).toFixed(2) + ' GB';
 }
 
-function closeEditDocumentModal() {
-    document.getElementById('editDocumentModal').classList.remove('show');
+function viewDocument(documentId) {
+    fetch(`/admin/documents/${documentId}`)
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            if (!data.document) {
+                alert('Document not found');
+                return;
+            }
+
+            const doc = data.document;
+
+            // Set modal fields
+            document.getElementById('viewDocumentTitle').textContent = doc.title || 'N/A';
+            document.getElementById('viewDocumentDescription').textContent = doc.description || 'No description';
+            document.getElementById('viewDocumentCategory').textContent = doc.category ? doc.category.charAt(0).toUpperCase() + doc.category.slice(1) : 'N/A';
+            document.getElementById('viewDocumentDepartment').textContent = doc.department || 'N/A';
+            document.getElementById('viewDocumentAccess').textContent = doc.access ? doc.access.charAt(0).toUpperCase() + doc.access.slice(1) : 'N/A';
+            document.getElementById('viewDocumentTags').textContent = doc.tags || 'No tags';
+            document.getElementById('viewDocumentSize').textContent = formatFileSize(doc.size);
+            document.getElementById('viewDocumentUploader').textContent = `Uploaded by: ${doc.uploader || ''}`;
+            document.getElementById('viewDocumentDate').textContent = `Date: ${doc.date || 'N/A'}`;
+            document.getElementById('viewDocumentDownloads').textContent = doc.downloads ?? 0;
+            document.getElementById('viewDocumentViews').textContent = doc.views ?? 0;
+            document.getElementById('viewDocumentIcon').className = doc.icon || 'fas fa-file';
+
+            const iconData = viewDocumentIcon(doc.file_path);
+            const iconEl = document.getElementById('viewDocumentIcon');
+            iconEl.className = iconData.icon;
+            iconEl.style.color = iconData.color;
+            iconEl.parentElement.style.background = iconData.bgColor;
+
+
+            currentDocumentId = documentId;
+
+            // Show modal
+            document.getElementById('viewDocumentModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        })
+        .catch(err => {
+            console.error('Error fetching document:', err);
+            alert('Error fetching document. Check console for details.');
+        });
+}
+
+// Close modal function
+function closeViewDocumentModal() {
+    document.getElementById('viewDocumentModal').classList.remove('show');
     document.body.style.overflow = 'auto';
-    document.getElementById('editDocumentForm').reset();
-    const filePreview = document.getElementById('edit-file-preview');
-    if (filePreview) filePreview.style.display = 'none';
-    currentDocumentId = null;
 }
 
-// Delete Document Modal Functions
-function deleteDocument(id) {
-    const doc = documents[id];
-    if (!doc) return;
-    
-    document.getElementById('deleteDocumentTitle').textContent = doc.title;
-    document.getElementById('deleteDocumentInfo').textContent = `${doc.category.charAt(0).toUpperCase() + doc.category.slice(1)} • ${doc.size}`;
-    document.getElementById('deleteDocumentIcon').className = doc.icon;
-    
+// Optional: Download current document
+function downloadCurrentDocument() {
+    if (!currentDocumentId) return;
+    window.location.href = `/admin/documents/download/${currentDocumentId}`;
+}
+
+
+
+// Edit Document Modal Functions
+function openEditDocumentModal(documentId) {
+    if (!documentId) return alert('Document ID missing!');
+
+    const modal = document.getElementById('editDocumentModal');
+    const form = document.getElementById('editDocumentForm');
+    if (!modal || !form) return alert('Modal or form not found!');
+
+    modal.classList.add('show'); // show modal (using CSS class for centering)
+    form.reset();
+
+    // helper to set value safely
+    const setValue = (selector, value) => {
+        const el = form.querySelector(selector);
+        if (el) el.value = value ?? '';
+    };
+
+    fetch(`/documents/${documentId}/edit`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success || !data.document) {
+                throw new Error(data.message || 'Failed to fetch document data');
+            }
+
+            const doc = data.document;
+            form.action = `/documents/${documentId}`;
+
+            setValue('#edit_document_title', doc.title);
+            setValue('#edit_document_description', doc.description);
+            setValue('#edit_document_category', doc.category);
+            setValue('#edit_document_department', doc.department_id ?? '');
+            setValue('#edit_document_access', doc.access_level);
+            setValue('#edit_document_tags', doc.tags);
+
+            const departmentSelect = form.querySelector('#edit_department_id');
+            if (departmentSelect) {
+                departmentSelect.value = doc.department_id ?? '';
+            }
+
+            // Show current file name if exists
+            if (doc.file_path) {
+                const parts = doc.file_path.split('/');
+                const fileName = parts[parts.length - 1];
+                document.getElementById('edit-file-name').textContent = fileName;
+                document.getElementById('edit-file-preview').style.display = 'flex';
+            } else {
+                document.getElementById('edit-file-preview').style.display = 'none';
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert('Failed to load document: ' + err.message);
+            closeEditDocumentModal();
+        });
+}
+
+// File Upload Handling for Edit Document
+const fileInput = document.getElementById('edit_document_file');
+if (fileInput) {
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Check file size (10MB limit)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB');
+                e.target.value = '';
+                return;
+            }
+
+            // Show file preview
+            document.getElementById('edit-file-name').textContent = file.name;
+            document.getElementById('edit-file-preview').style.display = 'flex';
+        }
+    });
+}
+
+// Close modal function
+function closeEditDocumentModal() {
+    const modal = document.getElementById('editDocumentModal');
+    if (modal) modal.classList.remove('show');
+}
+
+
+function deleteDocument(id, title = '', category = '', size = '') {
     currentDocumentId = id;
-    document.getElementById('deleteDocumentModal').classList.add('show');
+
+    // Populate modal
+    document.getElementById('deleteDocumentTitle').textContent = title || 'Document';
+    document.getElementById('deleteDocumentInfo').textContent = category ? `${category} • ${size || ''}` : '';
+    document.getElementById('deleteDocumentIcon').className = 'fas fa-file-alt'; // customize if needed
+
+    document.getElementById('deleteDocumentModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
 }
 
 function closeDeleteDocumentModal() {
-    document.getElementById('deleteDocumentModal').classList.remove('show');
+    document.getElementById('deleteDocumentModal').style.display = 'none';
     document.body.style.overflow = 'auto';
     currentDocumentId = null;
 }
 
 function confirmDeleteDocument() {
-    if (currentDocumentId) {
-        // Show loading state
-        const deleteBtn = document.querySelector('#deleteDocumentModal .btn-submit');
-        const originalText = deleteBtn.innerHTML;
-        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
-        deleteBtn.disabled = true;
-        
-        // Simulate deletion process
-        setTimeout(() => {
-            alert('Document deleted successfully!');
-            closeDeleteDocumentModal();
-            
-            // Reset button
+    if (!currentDocumentId) return;
+
+    const deleteBtn = document.querySelector('#deleteDocumentModal .btn-submit');
+    const originalText = deleteBtn.innerHTML;
+
+    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+    deleteBtn.disabled = true;
+
+    fetch(`/admin/documents/${currentDocumentId}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // alert(data.message);
+                // Redirect to index page
+                window.location.href = data.redirect;
+            } else {
+                alert('Failed to delete document: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Error deleting document: ' + err.message);
+        })
+        .finally(() => {
             deleteBtn.innerHTML = originalText;
             deleteBtn.disabled = false;
-            
-            // Remove document from display (in a real app, this would refresh the data)
-            location.reload();
-        }, 1500);
+            closeDeleteDocumentModal();
+        });
+}
+
+async function downloadDocument(documentId) {
+    const token = document.querySelector('meta[name="csrf-token"]').content;
+
+    try {
+        let res = await fetch(`/admin/documents/increment-download/${documentId}`, {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": token,
+                "Accept": "application/json"
+            }
+        });
+
+        if (res.ok) {
+            let data = await res.json();
+
+            let docCountEl = document.getElementById(`downloads-count-${documentId}`);
+            if (docCountEl) docCountEl.textContent = data.downloads;
+
+            let totalEl = document.getElementById("total-downloads");
+            if (totalEl) {
+                totalEl.textContent = parseInt(totalEl.textContent) + 1;
+            }
+        }
+    } catch (e) {
+        console.error("Error incrementing download:", e);
     }
+
+    let link = document.createElement('a');
+    link.href = `/admin/documents/download/${documentId}`;
+    link.setAttribute("download", "");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 }
 
-// Download Document Function
-function downloadDocument(id) {
-    const doc = documents[id];
-    if (!doc) return;
-    
-    // Show download notification
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: var(--success);
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 0.5rem;
-        z-index: 10000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        animation: slideIn 0.3s ease-out;
-    `;
-    notification.innerHTML = `
-        <i class="fas fa-download"></i> 
-        Downloading "${doc.title}"...
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Remove notification after 3 seconds
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
-    
-    // In a real application, this would trigger the actual download
-    console.log(`Downloading document: ${doc.title}`);
-}
 
-// File Upload Handling for Add Document
+
 document.getElementById('document_file').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -1295,21 +1320,21 @@ document.getElementById('document_file').addEventListener('change', function(e) 
             e.target.value = '';
             return;
         }
-        
+
         // Show file preview
         document.getElementById('file-name').textContent = file.name;
         document.getElementById('file-preview').style.display = 'block';
-        
+
         // Update upload area
         const uploadArea = document.querySelector('.file-upload-area');
         uploadArea.style.borderColor = 'var(--success)';
         uploadArea.style.background = 'rgba(67, 160, 71, 0.1)';
-        
+
         // Update icon and text
         const icon = uploadArea.querySelector('.file-upload-icon i');
         icon.className = 'fas fa-check-circle';
         icon.style.color = 'var(--success)';
-        
+
         const text = uploadArea.querySelector('.file-upload-text');
         text.textContent = 'File selected successfully';
         text.style.color = 'var(--success)';
@@ -1326,7 +1351,7 @@ document.getElementById('edit_document_file').addEventListener('change', functio
             e.target.value = '';
             return;
         }
-        
+
         // Show file preview
         document.getElementById('edit-file-name').textContent = file.name;
         document.getElementById('edit-file-preview').style.display = 'block';
@@ -1336,17 +1361,17 @@ document.getElementById('edit_document_file').addEventListener('change', functio
 function removeFile() {
     document.getElementById('document_file').value = '';
     document.getElementById('file-preview').style.display = 'none';
-    
+
     // Reset upload area
     const uploadArea = document.querySelector('.file-upload-area');
     uploadArea.style.borderColor = 'var(--divider)';
     uploadArea.style.background = 'var(--primary-light)';
-    
+
     // Reset icon and text
     const icon = uploadArea.querySelector('.file-upload-icon i');
     icon.className = 'fas fa-cloud-upload-alt';
     icon.style.color = 'var(--text-secondary)';
-    
+
     const text = uploadArea.querySelector('.file-upload-text');
     text.textContent = 'Click to upload or drag and drop';
     text.style.color = 'var(--text-secondary)';
@@ -1373,7 +1398,7 @@ if (fileUploadArea) {
     fileUploadArea.addEventListener('drop', function(e) {
         e.preventDefault();
         this.classList.remove('dragover');
-        
+
         const files = e.dataTransfer.files;
         if (files.length > 0) {
             document.getElementById('document_file').files = files;
@@ -1382,59 +1407,11 @@ if (fileUploadArea) {
     });
 }
 
-// Form Submissions
-document.getElementById('addDocumentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const submitBtn = this.querySelector('.btn-submit');
-    const originalText = submitBtn.innerHTML;
-    
-    // Show loading state
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-    submitBtn.disabled = true;
-    
-    // Simulate upload process
-    setTimeout(() => {
-        alert('Document uploaded successfully!');
-        closeAddDocumentModal();
-        
-        // Reset button
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-        
-        // Refresh page
-        location.reload();
-    }, 2000);
-});
-
-document.getElementById('editDocumentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const submitBtn = this.querySelector('.btn-submit');
-    const originalText = submitBtn.innerHTML;
-    
-    // Show loading state
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-    submitBtn.disabled = true;
-    
-    // Simulate update process
-    setTimeout(() => {
-        alert('Document updated successfully!');
-        closeEditDocumentModal();
-        
-        // Reset button
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-        
-        // Refresh page
-        location.reload();
-    }, 2000);
-});
 
 // Close Modals on Outside Click
 document.addEventListener('click', function(e) {
     const modals = ['addDocumentModal', 'viewDocumentModal', 'editDocumentModal', 'deleteDocumentModal'];
-    
+
     modals.forEach(modalId => {
         const modal = document.getElementById(modalId);
         if (modal && e.target === modal) {
@@ -1448,7 +1425,7 @@ document.addEventListener('click', function(e) {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         const modals = ['addDocumentModal', 'viewDocumentModal', 'editDocumentModal', 'deleteDocumentModal'];
-        
+
         modals.forEach(modalId => {
             const modal = document.getElementById(modalId);
             if (modal && modal.classList.contains('show')) {
@@ -1464,21 +1441,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.querySelector('input[placeholder="Search documents..."]');
     const categoryFilter = document.querySelector('select option:first-child').parentNode;
     const typeFilter = categoryFilter.parentNode.lastElementChild;
-    
+
     if (searchInput) {
         searchInput.addEventListener('input', function() {
             // Implement search functionality
             console.log('Searching for:', this.value);
         });
     }
-    
+
     if (categoryFilter) {
         categoryFilter.addEventListener('change', function() {
             // Implement category filter
             console.log('Category filter:', this.value);
         });
     }
-    
+
     if (typeFilter) {
         typeFilter.addEventListener('change', function() {
             // Implement type filter
@@ -1506,16 +1483,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 pointer-events: none;
                 white-space: nowrap;
             `;
-            
+
             document.body.appendChild(tooltip);
-            
+
             const rect = this.getBoundingClientRect();
             tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
             tooltip.style.top = rect.top - tooltip.offsetHeight - 5 + 'px';
-            
+
             this.tooltipElement = tooltip;
         });
-        
+
         button.addEventListener('mouseleave', function() {
             if (this.tooltipElement) {
                 this.tooltipElement.remove();
@@ -1524,6 +1501,88 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function renderDocuments(documentsToRender) {
+    const grid = document.getElementById('documentsGrid');
+
+    if (!documentsToRender || documentsToRender.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-secondary);">
+                <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem;">No Documents Found</h3>
+                <p style="margin: 0; font-size: 1rem;">Try adjusting your search terms or clear the search to see all documents.</p>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+
+    documentsToRender.forEach(document => {
+        // Determine file icon based on extension
+        let ext = (document.file_name || '').split('.').pop().toLowerCase();
+        let icon = 'fas fa-file';
+        let iconColor = 'var(--secondary)';
+        let bgColor = 'rgba(99,102,241,0.1)';
+
+        switch (ext) {
+            case 'pdf': icon = 'fas fa-file-pdf'; iconColor = 'var(--danger)'; bgColor = 'rgba(239,68,68,0.1)'; break;
+            case 'doc': case 'docx': icon = 'fas fa-file-word'; iconColor = 'var(--primary)'; bgColor = 'rgba(59,130,246,0.1)'; break;
+            case 'xls': case 'xlsx': icon = 'fas fa-file-excel'; iconColor = 'var(--success)'; bgColor = 'rgba(16,185,129,0.1)'; break;
+            case 'ppt': case 'pptx': icon = 'fas fa-file-powerpoint'; iconColor = 'var(--warning)'; bgColor = 'rgba(245,158,11,0.1)'; break;
+            case 'csv': icon = 'fas fa-file-csv'; iconColor = 'var(--info)'; bgColor = 'rgba(6,182,212,0.1)'; break;
+            case 'zip': case 'rar': icon = 'fas fa-file-archive'; iconColor = 'var(--warning)'; bgColor = 'rgba(245,158,11,0.1)'; break;
+        }
+
+        html += `
+        <div class="card">
+            <div class="card-header flex justify-between items-start">
+                <div style="width: 3rem; height: 3rem; background: ${bgColor}; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: ${iconColor};">
+                    <i class="${icon}" style="font-size: 1.25rem;"></i>
+                </div>
+                <div class="flex gap-1">
+                    <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="viewDocument('${document.document_id}')" title="View Document">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="downloadDocument('${document.document_id}')" title="Download Document">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="btn btn-warning" style="padding: 0.5rem;" onclick="editDocument('${document.document_id}')" title="Edit Document">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-danger" style="padding: 0.5rem;" onclick="deleteDocument('${document.document_id}')" title="Delete Document">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <h4 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                    ${document.title || 'Untitled Document'}
+                </h4>
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5;">
+                    ${document.description || 'No description available'}
+                </p>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <span class="badge" style="background: rgba(59,130,246,0.1); color: var(--primary); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">
+                        ${document.category || 'Uncategorized'}
+                    </span>
+                    <div style="font-size: 0.875rem; color: var(--gray-500);">
+                        ${document.file_size || '—'}
+                    </div>
+                </div>
+
+                <div style="font-size: 0.75rem; color: var(--gray-500);">
+                    <div>Uploaded by ${document.uploaded_by || 'System'}</div>
+                    <div>${document.created_at || ''} • ${document.downloads || 0} downloads</div>
+                </div>
+            </div>
+        </div>
+        `;
+    });
+
+    grid.innerHTML = html;
+}
 </script>
 
 @endsection

@@ -71,7 +71,7 @@
 
                 <div class="sidebar-menu-section">
                     <div class="sidebar-menu-title">Reports & Analytics</div>
-                    <a href="{{ route('admin.reports') }}" class="sidebar-menu-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
+                    <a href="{{ route('admin.reports.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
                         <i class="fas fa-chart-bar"></i>
                         <span>Reports</span>
                     </a>
@@ -87,7 +87,7 @@
                         <i class="fas fa-user-shield"></i>
                         <span>Admin Profile</span>
                     </a>
-                    <a href="{{ route('admin.documents') }}" class="sidebar-menu-item {{ request()->routeIs('admin.documents') ? 'active' : '' }}">
+                    <a href="{{ route('admin.documents.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.documents') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
                         <span>Documents</span>
                     </a>
