@@ -110,12 +110,6 @@ Route::middleware('auth')->group(function () {
         return view('employees.dashboard', compact('todayMeetings'));
     })->name('employee.dashboard');
 
-    // Route::get('/employees/profile', function () {
-    //     return view('employees.profile.index');
-    // })->name('employee.profile');
-
-    // Route::get('/employees/{employee}', [EmployeeController::class, 'show'])->name('employees.profile');
-
     //employee profile managment
     Route::get('/employees/profile', [EmployeeProfileController::class, 'show'])->name('employee.profile');
     Route::put('/employees/profile', [EmployeeProfileController::class, 'update'])->name('employee.profile.update');
@@ -144,9 +138,6 @@ Route::middleware('auth')->group(function () {
     })->name('employee.projects');
 
     // Employee tasks route (frontend only)
-    // Route::get('/employees/tasks', function () {
-    //     return view('employees.tasks.index');
-    // })->name('employee.tasks');
     Route::put('/employees/tasks/{id}', [EmployeeTaskController::class, 'update'])->name('employee.update');
 
     Route::get('/employees/tasks/{id}', [EmployeeTaskController::class, 'show'])->name('employee.tasks');
@@ -179,6 +170,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/super_admin/system_stats', [SuperAdminController::class, 'systemStats'])->name('super_admin.system_stats');
     Route::get('/super_admin/admins', [SuperAdminController::class, 'admins'])->name('super_admin.admins');
     Route::get('/super_admin/notifications', [SuperAdminController::class, 'notifications'])->name('super_admin.notifications');
+    Route::post('/notifications/{id}/read', [SuperAdminController::class, 'markAsRead'])
+        ->name('super_admin.notifications.markAsRead');
+
+    Route::post('/notifications/read-all', [SuperAdminController::class, 'markAsRead'])
+        ->name('notifications.readAll');
+
+    Route::delete('/notifications/{id}', [SuperAdminController::class, 'deleteNotification'])
+        ->name('notifications.delete');
+
 
     Route::get('/super_admin/employee_ratings', [EmployeeRatingController::class, 'employeeRatings'])->name('super_admin.employee_ratings');
     Route::post('/super_admin/employee_ratings', [EmployeeRatingController::class, 'storeEmployeeRating'])->name('super_admin.employee_ratings.store');
@@ -245,20 +245,12 @@ Route::middleware('auth')->group(function () {
         })->name('projects');
 
         // Leave Management
-        // Route::get('/leaves', function () {
-        //     return view('admin.leaves.index');
-        // })->name('leaves');
         Route::put('/leaves/{leave}/status', [AdminsLeaveController::class, 'updateLeaveStatus'])->name('leaves.updateLeaveStatus');
-
         Route::put('/leaves/{leave}', [AdminsLeaveController::class, 'update'])->name('leaves.update');
         Route::get('/leaves', [AdminsLeaveController::class, 'index'])->name('leaves.index');
         Route::post('/leaves', [AdminsLeaveController::class, 'store'])->name('leaves.create');
         Route::get('/leaves/{leave}', [AdminsLeaveController::class, 'show'])->name('leaves.show');
         Route::delete('/leaves/{leave}', [AdminsLeaveController::class, 'destroy'])->name('leaves.destroy');
-
-
-
-
 
         // Reports & Analytics with enhanced data
         Route::get('/reports', function () {

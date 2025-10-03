@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Models\Admin;
 use App\Models\Department;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class AdminController
@@ -27,8 +28,16 @@ class AdminController
             'status'        => 'required|string',
         ]);
 
-        Admin::create($validated);
-
+        $admin = Admin::create($validated);
+        $notify = new NotificationService();
+        $notify->notify(
+            title: 'New Administrator Added',
+            message: "Administrator {$admin->admin_name} was added to the system.",
+            type: 'admin',
+            userId: null,
+            target: 'super admin',
+            referenceId: $admin->admin_id
+        );
         return redirect()->route('super_admin.admins')
             ->with('success', 'Administrator added successfully!');
     }
@@ -60,6 +69,15 @@ class AdminController
         ]);
 
         $admin->update($validated);
+        $notify = new NotificationService();
+        $notify->notify(
+            title: 'Administrator Updated',
+            message: "Administrator {$admin->admin_name}'s profile has been updated.",
+            type: 'admin',
+            userId: null,
+            target: 'super admin',
+            referenceId: $admin->admin_id
+        );
 
         return redirect()->route('super_admin.admins')->with('success', 'Admin updated successfully!');
     }
@@ -84,7 +102,19 @@ class AdminController
     public function destroy($id)
     {
         $admin = Admin::findOrFail($id);
+        $adminName = $admin->admin_name;
         $admin->delete();
+
+        $notify = new NotificationService();
+        $notify->notify(
+            title: 'Administrator Removed',
+            message: "Administrator {$adminName} was deleted from the system.",
+            type: 'admin',
+            userId: null,
+            target: 'super admin',
+            referenceId: $id
+        );
+
 
         return redirect()->route('super_admin.admins')->with('success', 'Admin deleted successfully!');
     }

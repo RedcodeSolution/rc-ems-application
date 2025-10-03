@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\Department;
 use App\Models\Leave;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -264,8 +265,20 @@ class AdminsLeaveController extends Controller
         ]);
 
         $validated['employee_id'] = $user->employee->employee_id;
-        Leave::create($validated);
-        // return ['leave' => $validated];
+        $leave = Leave::create($validated);
+        $leave->load('employee');
+
+        if ($user->role === 'admin') {
+            $notify = new NotificationService();
+            $notify->notify(
+                title: 'Admin Leave Request',
+                message: $leave->employee->name . ' (Admin) applied for ' . $leave->leave_type . ' leave.',
+                type: 'leave',
+                userId: null,
+                target: 'super admin',
+                referenceId: $leave->leave_id
+            );
+        }
         return redirect()->route('admin.leaves.index');
     }
 

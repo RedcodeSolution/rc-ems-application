@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\SuperAdmin;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -36,5 +37,93 @@ class SuperAdminController extends Controller
 
         // ...existing code for dashboard view...
         return view('super_admin.dashboard', compact('chartData'));
+    }
+
+    public function notifications()
+    {
+        $perPage = 10;
+
+        $query = Notification::where('target', 'super admin');
+
+        // $notifications = $query->latest()->paginate($perPage);
+        $notifications = $query->with('user')->latest()->paginate($perPage);
+
+        $notificationStats = [
+            'total'  => $query->count(),
+            'unread' => (clone $query)->where('is_read', false)->count(),
+            'read'   => (clone $query)->where('is_read', true)->count(),
+        ];
+
+        return view('super_admin.notifications', compact('notifications', 'notificationStats'));
+    }
+
+    public function markAsRead($id = null)
+    {
+        if ($id) {
+            // Mark single notification
+            $notification = Notification::findOrFail($id);
+            $notification->is_read = true;
+            $notification->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification marked as read'
+            ]);
+        } else {
+            // Bulk update (all)
+            Notification::where('target', 'super admin')
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'All notifications marked as read'
+            ]);
+        }
+    }
+
+
+    public function deleteNotification($id)
+    {
+        $notification = Notification::findOrFail($id);
+        $notification->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Notification deleted successfully'
+        ]);
+    }
+
+
+    /**
+     * Helper: get notification icon based on type
+     */
+    private function getNotificationIcon($type)
+    {
+        return match ($type) {
+            'employee'     => 'fas fa-user',
+            'leave'        => 'fas fa-calendar-alt',
+            'security'     => 'fas fa-shield-alt',
+            'project'      => 'fas fa-tasks',
+            'system'       => 'fas fa-cogs',
+            'announcement' => 'fas fa-bullhorn',
+            'department'   => 'fas fa-building',
+            'hr'           => 'fas fa-briefcase',
+            default        => 'fas fa-bell',
+        };
+    }
+
+    /**
+     * Helper: get notification color class based on priority
+     */
+    private function getNotificationColor($priority)
+    {
+        return match ($priority) {
+            'critical' => 'red',
+            'high'     => 'orange',
+            'medium'   => 'blue',
+            'low'      => 'gray',
+            default    => 'gray',
+        };
     }
 }
