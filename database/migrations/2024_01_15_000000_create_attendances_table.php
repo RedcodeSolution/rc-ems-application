@@ -27,9 +27,23 @@ return new class extends Migration
             $table->index('employee_id');
             $table->index('date');
             $table->index('status');
-            
+
             // Ensure unique attendance per employee per date
             $table->unique(['employee_id', 'date']);
+
+            // Regular break tracking
+            $table->timestamp('break_start_time')->nullable();
+            $table->timestamp('break_end_time')->nullable();
+            $table->decimal('break_duration', 8, 2)->default(0);
+            $table->boolean('is_on_break')->default(false);
+
+            // Emergency break tracking
+            $table->boolean('is_on_emergency')->default(false);
+            $table->string('emergency_type')->nullable();
+            $table->text('emergency_description')->nullable();
+            $table->timestamp('emergency_start_time')->nullable();
+            $table->timestamp('emergency_end_time')->nullable();
+            $table->decimal('emergency_duration', 8, 2)->default(0);
         });
     }
 

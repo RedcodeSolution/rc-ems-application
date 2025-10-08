@@ -11,6 +11,7 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\Employee\EmployeeAttendanceController;
 use App\Http\Controllers\Employee\EmployeeLeaveController;
 use App\Http\Controllers\Employee\EmployeeProfileController;
 use App\Http\Controllers\Employee\EmployeeTaskController;
@@ -149,10 +150,32 @@ Route::middleware('auth')->group(function () {
     Route::post('/employees/tasks/{id}/comments', [EmployeeTaskController::class, 'addComment'])
         ->name('employee.tasks.addComment');
 
-    // Employee attendance route (frontend only)
-    Route::get('/employees/attendance', function () {
-        return view('employees.attendance.index');
-    })->name('employee.attendance');
+    // Employee attendance 
+    Route::middleware(['auth'])->prefix('employees')->group(function () {
+
+        Route::get('/attendance', [EmployeeAttendanceController::class, 'show'])
+            ->name('employee.attendance');
+
+        // Clock in/out + breaks
+        Route::post('/attendance/clock-in', [EmployeeAttendanceController::class, 'clockIn'])
+            ->name('employee.attendance.clockin');
+
+        Route::post('/attendance/start-break', [EmployeeAttendanceController::class, 'startBreak'])
+            ->name('employee.attendance.startbreak');
+
+        Route::post('/attendance/end-break', [EmployeeAttendanceController::class, 'endBreak'])
+            ->name('employee.attendance.endbreak');
+
+        Route::post('/attendance/clock-out', [EmployeeAttendanceController::class, 'clockOut'])
+            ->name('employee.attendance.clockout');
+
+        Route::get('/attendance/break-status', [EmployeeAttendanceController::class, 'getBreakStatus'])
+            ->name('employee.attendance.getBreakStatus');
+
+        Route::put('/attendance/emergency/start', [EmployeeAttendanceController::class, 'startEmergency'])->name('employee.attendance.emergency.start');
+        Route::put('/attendance/emergency/end', [EmployeeAttendanceController::class, 'endEmergency'])->name('employee.attendance.emergency.end');
+        Route::get('/attendance/emergency/status', [EmployeeAttendanceController::class, 'getEmergencyStatus']);
+    });
 
     // Employee ratings routes
     Route::resource('employees/ratings', \App\Http\Controllers\Employee\EmployeeRatingController::class)
