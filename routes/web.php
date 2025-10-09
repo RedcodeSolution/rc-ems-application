@@ -13,6 +13,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\Employee\EmployeeAttendanceController;
 use App\Http\Controllers\Employee\EmployeeLeaveController;
+use App\Http\Controllers\Employee\EmployeeOverviewController;
 use App\Http\Controllers\Employee\EmployeeProfileController;
 use App\Http\Controllers\Employee\EmployeeTaskController;
 use App\Http\Controllers\LeaveController;
@@ -101,16 +102,19 @@ Route::middleware('auth')->group(function () {
         return view('admin.dashboard', $dashboardData);
     })->name('admin.dashboard');
 
-    Route::get('/employee/dashboard', function () {
-        $todayMeetings = \App\Models\Meeting::getTodayMeetings();
-        if ($todayMeetings->count() == 0) {
-            \App\Models\Meeting::createDailyStandup();
-            $todayMeetings = \App\Models\Meeting::getTodayMeetings();
-        }
+    // Route::get('/employee/dashboard', function () {
+    //     $todayMeetings = \App\Models\Meeting::getTodayMeetings();
+    //     if ($todayMeetings->count() == 0) {
+    //         \App\Models\Meeting::createDailyStandup();
+    //         $todayMeetings = \App\Models\Meeting::getTodayMeetings();
+    //     }
 
-        return view('employees.dashboard', compact('todayMeetings'));
-    })->name('employee.dashboard');
+    //     return view('employees.dashboard', compact('todayMeetings'));
+    // })->name('employee.dashboard');
 
+    Route::get('/employee/dashboard', [EmployeeOverviewController::class, 'index'])->name('employee.dashboard');
+    Route::get('/employee/meetings/{meeting}/join', [EmployeeOverviewController::class, 'join'])
+        ->name('employee.meetings.join');
     //employee profile managment
     Route::get('/employees/profile', [EmployeeProfileController::class, 'show'])->name('employee.profile');
     Route::put('/employees/profile', [EmployeeProfileController::class, 'update'])->name('employee.profile.update');
@@ -156,9 +160,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/attendance', [EmployeeAttendanceController::class, 'show'])
             ->name('employee.attendance');
 
+        Route::post('/employee/clock-in', [EmployeeAttendanceController::class, 'clockIn'])->name('employee.clockIn');
+        Route::post('/employee/clock-out', [EmployeeAttendanceController::class, 'clockOut'])->name('employee.clockOut');
         // Clock in/out + breaks
-        Route::post('/attendance/clock-in', [EmployeeAttendanceController::class, 'clockIn'])
-            ->name('employee.attendance.clockin');
+        // Route::post('/attendance/clock-in', [EmployeeAttendanceController::class, 'clockIn'])
+        //     ->name('employee.attendance.clockin');
 
         Route::post('/attendance/start-break', [EmployeeAttendanceController::class, 'startBreak'])
             ->name('employee.attendance.startbreak');
@@ -166,8 +172,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/attendance/end-break', [EmployeeAttendanceController::class, 'endBreak'])
             ->name('employee.attendance.endbreak');
 
-        Route::post('/attendance/clock-out', [EmployeeAttendanceController::class, 'clockOut'])
-            ->name('employee.attendance.clockout');
+        // Route::post('/attendance/clock-out', [EmployeeAttendanceController::class, 'clockOut'])
+        //     ->name('employee.attendance.clockout');
 
         Route::get('/attendance/break-status', [EmployeeAttendanceController::class, 'getBreakStatus'])
             ->name('employee.attendance.getBreakStatus');

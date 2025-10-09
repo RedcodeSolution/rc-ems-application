@@ -12,13 +12,13 @@
                     <p>Track your daily attendance and work hours</p>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-primary" onclick="clockIn()" id="clockInBtn">
-                        <i class="fas fa-sign-in-alt"></i>
-                        Clock In
+                    <button id="clockInBtn" class="btn btn-success" onclick="clockIn()"
+                        style="{{ $isClockedIn ? 'display:none;' : 'display:inline-flex;' }}">
+                        <i class="fas fa-sign-in-alt"></i> Clock In
                     </button>
-                    <button class="btn btn-secondary" onclick="clockOut()" id="clockOutBtn" style="display: none;">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Clock Out
+                    <button id="clockOutBtn" class="btn btn-danger" onclick="clockOut()"
+                        style="{{ $isClockedIn ? 'display:inline-flex;' : 'display:none;' }}">
+                        <i class="fas fa-sign-out-alt"></i> Clock Out
                     </button>
                     <button class="btn btn-secondary" onclick="toggleViewMode()">
                         <i class="fas fa-th-large" id="viewModeIcon"></i>
@@ -1472,7 +1472,7 @@
         <script>
             let currentViewMode = 'grid';
             let isOnBreak = false;
-            let clockedIn = true;
+            let clockedIn = false;
 
             // Update current time
             function updateCurrentTime() {
@@ -1514,17 +1514,53 @@
                 }
             }
 
+            // function clockIn() {
+            //     document.getElementById('clockModalIcon').className = 'fas fa-sign-in-alt';
+            //     document.getElementById('clockModalTitle').textContent = 'Clock In';
+            //     document.getElementById('confirmClockBtn').innerHTML = '<i class="fas fa-check"></i> Confirm Clock In';
+            //     document.getElementById('clockModal').classList.add('active');
+            // }
+
+            // function clockOut() {
+            //     document.getElementById('clockModalIcon').className = 'fas fa-sign-out-alt';
+            //     document.getElementById('clockModalTitle').textContent = 'Clock Out';
+            //     document.getElementById('confirmClockBtn').innerHTML = '<i class="fas fa-check"></i> Confirm Clock Out';
+            //     document.getElementById('clockModal').classList.add('active');
+            // }
+
+
+            // function confirmClock() {
+            //     const notes = document.getElementById('clockNotes').value;
+            //     const isClockingIn = document.getElementById('clockModalTitle').textContent === 'Clock In';
+
+            //     if (isClockingIn) {
+            //         // Clock in logic
+            //         document.getElementById('clockInBtn').style.display = 'none';
+            //         document.getElementById('clockOutBtn').style.display = 'inline-flex';
+            //         clockedIn = true;
+            //         showMessage('Successfully clocked in!', 'success');
+            //     } else {
+            //         // Clock out logic
+            //         document.getElementById('clockInBtn').style.display = 'inline-flex';
+            //         document.getElementById('clockOutBtn').style.display = 'none';
+            //         clockedIn = false;
+            //         showMessage('Successfully clocked out!', 'success');
+            //     }
+
+            //     closeClockModal();
+            // }
+
             function clockIn() {
                 document.getElementById('clockModalIcon').className = 'fas fa-sign-in-alt';
                 document.getElementById('clockModalTitle').textContent = 'Clock In';
-                document.getElementById('confirmClockBtn').innerHTML = '<i class="fas fa-check"></i> Confirm Clock In';
+                document.getElementById('confirmClockBtn').setAttribute('data-action', 'clock-in');
                 document.getElementById('clockModal').classList.add('active');
             }
 
             function clockOut() {
                 document.getElementById('clockModalIcon').className = 'fas fa-sign-out-alt';
                 document.getElementById('clockModalTitle').textContent = 'Clock Out';
-                document.getElementById('confirmClockBtn').innerHTML = '<i class="fas fa-check"></i> Confirm Clock Out';
+                document.getElementById('confirmClockBtn').setAttribute('data-action', 'clock-out');
                 document.getElementById('clockModal').classList.add('active');
             }
 
@@ -1533,25 +1569,65 @@
                 document.getElementById('clockNotes').value = '';
             }
 
-            function confirmClock() {
-                const notes = document.getElementById('clockNotes').value;
-                const isClockingIn = document.getElementById('clockModalTitle').textContent === 'Clock In';
+            async function confirmClock() {
+                const notes = document.getElementById('clockNotes').value.trim();
+                const action = document.getElementById('confirmClockBtn').getAttribute('data-action');
 
-                if (isClockingIn) {
-                    // Clock in logic
-                    document.getElementById('clockInBtn').style.display = 'none';
-                    document.getElementById('clockOutBtn').style.display = 'inline-flex';
-                    clockedIn = true;
-                    showMessage('Successfully clocked in!', 'success');
-                } else {
-                    // Clock out logic
-                    document.getElementById('clockInBtn').style.display = 'inline-flex';
-                    document.getElementById('clockOutBtn').style.display = 'none';
-                    clockedIn = false;
-                    showMessage('Successfully clocked out!', 'success');
+                // Get correct route based on action
+                const url = action === 'clock-in' ?
+                    "{{ route('employee.clockIn') }}" :
+                    "{{ route('employee.clockOut') }}";
+
+                try {
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            "Accept": "application/json",
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            notes
+                        })
+                    });
+
+                    const data = await response.json();
+                    console.log(data);
+
+                    if (data.success) {
+                        console.log(action);
+
+                        if (action === 'clock-in') {
+                            // Hide Clock In and show Clock Out
+                            document.getElementById('clockInBtn').style.display = 'none';
+                            document.getElementById('clockOutBtn').style.display = 'inline-flex';
+                            clockedIn = true;
+                            showMessage('Successfully clocked in!', 'success');
+                        } else {
+                            // Hide Clock Out and show Clock In
+                            document.getElementById('clockOutBtn').style.display = 'none';
+                            document.getElementById('clockInBtn').style.display = 'inline-flex';
+                            clockedIn = false;
+                            showMessage('Successfully clocked out!', 'success');
+                        }
+                    } else {
+                        showMessage(data.message || 'Something went wrong.', 'error');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    showMessage('Server error, please try again later.', 'error');
                 }
 
                 closeClockModal();
+            }
+
+            function showMessage(message, type = 'info') {
+                const alertBox = document.createElement('div');
+                alertBox.className = `alert alert-${type}`;
+                alertBox.textContent = message;
+                document.body.appendChild(alertBox);
+
+                setTimeout(() => alertBox.remove(), 3000);
             }
 
             document.addEventListener('DOMContentLoaded', () => {

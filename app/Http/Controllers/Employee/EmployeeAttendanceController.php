@@ -19,7 +19,6 @@ class EmployeeAttendanceController extends Controller
         $user = Auth::user();
         $employeeId = $user->employee_id;
 
-        // Optional: if a date is passed (e.g. /attendance/show?date=2024-01-15)
         $specificDate = $request->query('date');
 
         // Fetch all attendance records for this employee
@@ -45,6 +44,12 @@ class EmployeeAttendanceController extends Controller
         $attendance = Attendance::where('employee_id', $employeeId)
             ->whereDate('date', $targetDate)
             ->first();
+
+        // ✅ Detect if currently clocked in (today’s record with no checkout)
+        $isClockedIn = Attendance::where('employee_id', $employeeId)
+            ->whereDate('date', now('Asia/Colombo')->toDateString())
+            ->whereNull('check_out_time')
+            ->exists();
 
         // Default values
         $workingHoursNow = '0h 0m';
@@ -101,6 +106,8 @@ class EmployeeAttendanceController extends Controller
             }
         }
 
+
+        // ✅ Pass the new variable to the view
         return view('employees.attendance.index', compact(
             'attendances',
             'presentDays',
@@ -113,8 +120,87 @@ class EmployeeAttendanceController extends Controller
             'breakDurationFormatted',
             'breakStatus',
             'status',
-            'targetDate'
+            'targetDate',
+            'isClockedIn'
         ));
+    }
+
+
+    public function clockIn()
+    {
+        $user = Auth::user();
+        $employeeId = $user->employee_id;
+
+        if (!$employeeId) {
+            return response()->json(['success' => false, 'message' => 'Employee not found.']);
+        }
+
+        $now = Carbon::now('Asia/Colombo');
+        $today = $now->toDateString();
+        $nineAM = Carbon::today('Asia/Colombo')->setTime(9, 0, 0);
+
+        // Check if already clocked in today
+        $attendance = Attendance::where('employee_id', $employeeId)
+            ->whereDate('date', $today)
+            ->first();
+
+        if ($attendance && $attendance->check_in_time) {
+            return response()->json(['success' => false, 'message' => 'Already clocked in today.']);
+        }
+
+        // Create new attendance record
+        $attendance = Attendance::create([
+            'employee_id' => $employeeId,
+            'date' => $today,
+            'check_in_time' => $now,
+            'status' => $now->gt($nineAM) ? 'late' : 'present',
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Clock-in successful.', 'status' => $attendance->status]);
+    }
+
+
+    public function clockOut()
+    {
+        $user = Auth::user();
+        $employeeId = $user->employee_id;
+
+        if (!$employeeId) {
+            return response()->json(['success' => false, 'message' => 'Employee not found.']);
+        }
+
+        $now = Carbon::now('Asia/Colombo');
+        $today = $now->toDateString();
+
+        $attendance = Attendance::where('employee_id', $employeeId)
+            ->whereDate('date', $today)
+            ->first();
+
+        if (!$attendance || !$attendance->check_in_time) {
+            return response()->json(['success' => false, 'message' => 'You must clock in before clocking out.']);
+        }
+
+        if ($attendance->check_out_time) {
+            return response()->json(['success' => false, 'message' => 'Already clocked out today.']);
+        }
+
+        // Calculate total hours
+        $totalWorked = Carbon::parse($attendance->check_in_time)->diffInMinutes($now) / 60;
+        $hoursWorked = round($totalWorked - $attendance->break_duration, 2);
+        $overtime = $hoursWorked > 8 ? round($hoursWorked - 8, 2) : 0;
+
+        $attendance->update([
+            'check_out_time' => $now,
+            'hours_worked' => $hoursWorked,
+            'overtime_hours' => $overtime,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Clock-out successful.',
+            'hours_worked' => $hoursWorked,
+            'overtime_hours' => $overtime,
+        ]);
     }
 
 
