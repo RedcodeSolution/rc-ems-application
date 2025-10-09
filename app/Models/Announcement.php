@@ -11,15 +11,19 @@ class Announcement extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'announcement_id',
-        'announcement_title',
-        'content',
-        'announcement_text',
-        'date',
-        'status',
+        'title',
         'priority',
-        'target_team_id',
+        'category',
+        'content',
+        'expires_at',
+        'target_audience',
+        'status',
         'department_id'
+    ];
+
+    protected $casts = [
+        'target_audience' => 'array',
+        'expires_at' => 'datetime'
     ];
 
 
@@ -48,4 +52,3 @@ class Announcement extends Model
         return $this->belongsToMany(Team::class, 'team_announce_details', 'announcement_id', 'team_id');
     }
 }
-

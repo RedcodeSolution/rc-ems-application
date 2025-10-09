@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,7 +9,8 @@
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/SuperAdmin/superAdmin.css') }}">
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,6 +21,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 </head>
+
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
@@ -30,7 +33,8 @@
         <div class="sidebar-menu">
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Dashboard</div>
-                <a href="{{ route('super_admin.dashboard') }}" class="sidebar-menu-item {{ request()->routeIs('super_admin.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('super_admin.dashboard') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('super_admin.dashboard') ? 'active' : '' }}">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Overview</span>
                 </a>
@@ -38,11 +42,13 @@
 
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Admins</div>
-                <a href="{{ route('super_admin.admins') }}" class="sidebar-menu-item {{ request()->routeIs('super_admin.admins') ? 'active' : '' }}">
+                <a href="{{ route('super_admin.admins') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('super_admin.admins') ? 'active' : '' }}">
                     <i class="fas fa-user-shield"></i>
                     <span>Admin Management</span>
                 </a>
-                <a href="{{ route('super_admin.super_admin_accounts') }}" class="sidebar-menu-item {{ request()->routeIs('super_admin.super_admin_accounts') ? 'active' : '' }}">
+                <a href="{{ route('super_admin.super_admin_accounts') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('super_admin.super_admin_accounts') ? 'active' : '' }}">
                     <i class="fas fa-user-cog"></i>
                     <span> Account Management</span>
                 </a>
@@ -50,7 +56,8 @@
 
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Admin Management</div>
-                <a href="{{ route('super_admin.admin_leaves.index') }}" class="sidebar-menu-item {{ request()->routeIs('super_admin.admin_leaves.*') ? 'active' : '' }}">
+                <a href="{{ route('super_admin.admin_leaves.index') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('super_admin.admin_leaves.*') ? 'active' : '' }}">
                     <i class="fas fa-calendar-check"></i>
                     <span>Admin Leave Management</span>
                 </a>
@@ -58,7 +65,8 @@
 
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Events</div>
-                <a href="{{ route('super_admin.events.index') }}" class="sidebar-menu-item {{ request()->routeIs('super_admin.events.*') ? 'active' : '' }}">
+                <a href="{{ route('super_admin.events.index') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('super_admin.events.*') ? 'active' : '' }}">
                     <i class="fas fa-calendar-alt"></i>
                     <span>Events Management</span>
                 </a>
@@ -66,12 +74,14 @@
 
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Notifications</div>
-                <a href="{{ route('super_admin.notifications') }}" class="sidebar-menu-item {{ request()->routeIs('super_admin.notifications') ? 'active' : '' }}">
+                <a href="{{ route('super_admin.notifications') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('super_admin.notifications') ? 'active' : '' }}">
                     <i class="fas fa-bell"></i>
                     <span>All Notifications</span>
-                    <span class="badge">25</span>
+                    <span class="badge">{{ $notificationStats['unread'] ?? 0 }}</span>
                 </a>
-                <a href="{{ route('super_admin.employee_ratings') }}" class="sidebar-menu-item {{ request()->routeIs('super_admin.employee_ratings') ? 'active' : '' }}">
+                <a href="{{ route('super_admin.employee_ratings') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('super_admin.employee_ratings') ? 'active' : '' }}">
                     <i class="fas fa-star"></i>
                     <span>Employee Ratings</span>
                 </a>
@@ -128,7 +138,6 @@
     </div>
 
     <script>
-
         function toggleSidebar() {
             const sidebar = document.querySelector('.sidebar');
             sidebar.classList.toggle('active');
@@ -145,4 +154,5 @@
         });
     </script>
 </body>
+
 </html>

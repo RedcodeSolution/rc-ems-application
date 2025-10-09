@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Events;
+use App\Services\NotificationService;
+
 class EventController extends Controller
 {
     public function index()
@@ -15,7 +17,7 @@ class EventController extends Controller
         $totalEvents = $events->count();
         $upcomingEvents = $events->where('status', 'upcoming')->count();
         $completedEvents = $events->where('status', 'completed')->count();
-        $thisMonthEvents = $events->filter(function($event) {
+        $thisMonthEvents = $events->filter(function ($event) {
             return \Carbon\Carbon::parse($event->date)->isCurrentMonth();
         })->count();
 
@@ -81,7 +83,17 @@ class EventController extends Controller
             'contact_phone' => 'nullable|string|max:50',
         ]);
 
-        Events::create($validated);
+        $event = Events::create($validated);
+
+        $notify = new NotificationService();
+        $notify->notify(
+            title: 'New Event Created',
+            message: "Event '{$event->title}' has been created and scheduled on " . Carbon::parse($event->date)->format('M d, Y'),
+            type: 'event',
+            userId: null,
+            target: 'super admin',
+            referenceId: $event->id
+        );
 
         return redirect()->route('super_admin.events.index')
             ->with('success', 'Event created successfully!');
@@ -137,6 +149,16 @@ class EventController extends Controller
         $event = Events::findOrFail($id);
         $event->update($validated);
 
+        $notify = new NotificationService();
+        $notify->notify(
+            title: 'Event Updated',
+            message: "Event '{$event->title}' has been updated.",
+            type: 'event',
+            userId: null,
+            target: 'super admin',
+            referenceId: $event->id
+        );
+
         return redirect()->route('super_admin.events.index')
             ->with('success', 'Event updated successfully!');
     }
@@ -145,7 +167,19 @@ class EventController extends Controller
     {
         $event = Events::find($id);
         if ($event) {
+            $title = $event->title;
             $event->delete();
+
+            $notify = new NotificationService();
+            $notify->notify(
+                title: 'Event Cancelled',
+                message: "Event '{$title}' has been deleted/cancelled.",
+                type: 'event',
+                userId: null,
+                target: 'super admin',
+                referenceId: $id
+            );
+
             return response()->json(['success' => true]);
         }
         return response()->json(['success' => false, 'error' => 'Event not found'], 404);

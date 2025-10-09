@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Console\View\Components\Task;
 use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
@@ -11,8 +12,16 @@ class Employee extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
-        'employee_name', 'employee_type', 'employee_status',
-        'contact_no', 'email', 'department_id', 'admin_id', 'paid_status', 'role', 'profile_photo'
+        'employee_name',
+        'employee_type',
+        'employee_status',
+        'contact_no',
+        'email',
+        'department_id',
+        'admin_id',
+        'paid_status',
+        'role',
+        'profile_photo'
     ];
 
     public function admin()
@@ -76,5 +85,16 @@ class Employee extends Model
     public function ratings()
     {
         return $this->hasMany(EmployeeRating::class, 'employee_id', 'employee_id');
+    }
+
+    public function skills()
+    {
+        return $this->hasMany(EmployeeSkill::class, 'employee_id', 'employee_id');
+    }
+
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'employee_task', 'employee_id', 'task_id')
+            ->withTimestamps();
     }
 }

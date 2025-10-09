@@ -17,15 +17,37 @@ class Attendance extends Model
         'status',
         'hours_worked',
         'overtime_hours',
-        'notes'
+        'notes',
+        'break_start_time',
+        'break_end_time',
+        'break_duration',
+        'is_on_break',
+
+        // ✅ Emergency-related fields
+        'is_on_emergency',
+        'emergency_type',
+        'emergency_description',
+        'emergency_start_time',
+        'emergency_end_time',
+        'emergency_duration',
     ];
 
     protected $casts = [
         'date' => 'date',
         'check_in_time' => 'datetime',
         'check_out_time' => 'datetime',
+        'break_start_time' => 'datetime',
+        'break_end_time' => 'datetime',
         'hours_worked' => 'decimal:2',
+        'break_duration' => 'decimal:2',
         'overtime_hours' => 'decimal:2',
+        'is_on_break' => 'boolean',
+
+        // ✅ Cast emergency timestamps and duration
+        'is_on_emergency' => 'boolean',
+        'emergency_start_time' => 'datetime',
+        'emergency_end_time' => 'datetime',
+        'emergency_duration' => 'decimal:2',
     ];
 
     /**
@@ -35,8 +57,4 @@ class Attendance extends Model
     {
         return $this->belongsTo(Employee::class, 'employee_id');
     }
-
-
-
-
 }

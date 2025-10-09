@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminAnnouncementsController;
+use App\Http\Controllers\Admin\AdminNotificationController;
+use App\Http\Controllers\Admin\AdminsLeaveController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\EmployeeController;
@@ -8,17 +11,23 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+
+use App\Http\Controllers\Employee\EmployeeAttendanceController;
+use App\Http\Controllers\Employee\EmployeeLeaveController;
+use App\Http\Controllers\Employee\EmployeeOverviewController;
+use App\Http\Controllers\Employee\EmployeeProfileController;
+use App\Http\Controllers\Employee\EmployeeTaskController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SuperAdmin\AdminController;
+use App\Http\Controllers\SuperAdmin\SuperAdminController;
+
 use App\Http\Controllers\SuperAdmin\AdminLeaveController;
 use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
 use App\Http\Controllers\SuperAdmin\EventController;
 use App\Http\Controllers\SuperAdmin\SuperAdminAccountsController;
-
-use App\Http\Controllers\SuperAdminController;
-
+// use App\Http\Controllers\SuperAdmin\SuperAdminController as SuperAdminSuperAdminController;
 use App\Models\Admin;
 use App\Models\Department;
 use App\Models\Employee;
@@ -56,7 +65,7 @@ Route::middleware('auth')->group(function () {
         $rejectedLeaves = $leaves->where('status', 'rejected')->count();
 
         // Get employee project assignments and leave counts
-        $employeeData = $employees->map(function($employee) {
+        $employeeData = $employees->map(function ($employee) {
             return [
                 'employee' => $employee,
                 'project_count' => $employee->projects->count(),
@@ -64,7 +73,7 @@ Route::middleware('auth')->group(function () {
                 'pending_leaves' => $employee->leaves->where('status', 'pending')->count(),
                 'approved_leaves' => $employee->leaves->where('status', 'approved')->count(),
                 'rejected_leaves' => $employee->leaves->where('status', 'rejected')->count(),
-                'projects' => $employee->projects->map(function($project) {
+                'projects' => $employee->projects->map(function ($project) {
                     return [
                         'project' => $project,
                         'role' => $project->pivot->role_in_project,
@@ -93,19 +102,36 @@ Route::middleware('auth')->group(function () {
         return view('admin.dashboard', $dashboardData);
     })->name('admin.dashboard');
 
-    Route::get('/employee/dashboard', function () {
-        $todayMeetings = \App\Models\Meeting::getTodayMeetings();
-        if ($todayMeetings->count() == 0) {
-            \App\Models\Meeting::createDailyStandup();
-            $todayMeetings = \App\Models\Meeting::getTodayMeetings();
-        }
+    // Route::get('/employee/dashboard', function () {
+    //     $todayMeetings = \App\Models\Meeting::getTodayMeetings();
+    //     if ($todayMeetings->count() == 0) {
+    //         \App\Models\Meeting::createDailyStandup();
+    //         $todayMeetings = \App\Models\Meeting::getTodayMeetings();
+    //     }
 
-        return view('employees.dashboard', compact('todayMeetings'));
-    })->name('employee.dashboard');
+    //     return view('employees.dashboard', compact('todayMeetings'));
+    // })->name('employee.dashboard');
 
-    Route::get('/employees/profile', function () {
-        return view('employees.profile.index');
-    })->name('employee.profile');
+    Route::get('/employee/dashboard', [EmployeeOverviewController::class, 'index'])->name('employee.dashboard');
+    Route::get('/employee/meetings/{meeting}/join', [EmployeeOverviewController::class, 'join'])
+        ->name('employee.meetings.join');
+    //employee profile managment
+    Route::get('/employees/profile', [EmployeeProfileController::class, 'show'])->name('employee.profile');
+    Route::put('/employees/profile', [EmployeeProfileController::class, 'update'])->name('employee.profile.update');
+
+    //employee profile skills managment
+    Route::get('/employees/profile/skills', [EmployeeProfileController::class, 'getSkills'])->name('employee.skills.index');
+    Route::post('/employees/profile/skills', [EmployeeProfileController::class, 'createSkills'])->name('employee.skills.create');
+    Route::put('/employees/profile/skills/{skillId}', [EmployeeProfileController::class, 'updateSkill'])->name('employee.skills.update');
+    Route::delete('/employees/profile/skills/{skillId}', [EmployeeProfileController::class, 'deleteSkill'])->name('employee.skills.delete');
+
+    //employee leaves managment
+    Route::get('/employees/leaves', [EmployeeLeaveController::class, 'index'])->name('employee.leaves.index');
+    // Route::get('/employees/leaves', [EmployeeLeaveController::class, 'showRecent'])->name('employee.leaves.recent');
+    Route::post('/employees/leaves', [EmployeeLeaveController::class, 'store'])->name('employee.leaves.create');
+    Route::get('/employees/leaves/{leave}', [EmployeeLeaveController::class, 'show'])->name('employee.leaves.show');
+    Route::put('/employees/leaves/{leave}', [EmployeeLeaveController::class, 'update'])->name('employee.leaves.update');
+    Route::delete('/employees/leaves/{leave}', [EmployeeLeaveController::class, 'destroy'])->name('employee.leaves.destroy');
 
     Route::get('/employees/documents', function () {
         return view('employees.documents.index');
@@ -117,14 +143,45 @@ Route::middleware('auth')->group(function () {
     })->name('employee.projects');
 
     // Employee tasks route (frontend only)
-    Route::get('/employees/tasks', function () {
-        return view('employees.tasks.index');
-    })->name('employee.tasks');
+    Route::put('/employees/tasks/{id}', [EmployeeTaskController::class, 'update'])->name('employee.update');
 
-    // Employee attendance route (frontend only)
-    Route::get('/employees/attendance', function () {
-        return view('employees.attendance.index');
-    })->name('employee.attendance');
+    Route::get('/employees/tasks/{id}', [EmployeeTaskController::class, 'show'])->name('employee.tasks');
+    Route::get('/employees/tasks', [EmployeeTaskController::class, 'index'])->name('employee.tasks');
+
+    Route::post('/employees/tasks', [EmployeeTaskController::class, 'store'])->name('tasks.store');
+    Route::patch('/employees/tasks/{id}/status', [EmployeeTaskController::class, 'updateStatus'])
+        ->name('employee.tasks.updateStatus');
+    Route::post('/employees/tasks/{id}/comments', [EmployeeTaskController::class, 'addComment'])
+        ->name('employee.tasks.addComment');
+
+    // Employee attendance 
+    Route::middleware(['auth'])->prefix('employees')->group(function () {
+
+        Route::get('/attendance', [EmployeeAttendanceController::class, 'show'])
+            ->name('employee.attendance');
+
+        Route::post('/employee/clock-in', [EmployeeAttendanceController::class, 'clockIn'])->name('employee.clockIn');
+        Route::post('/employee/clock-out', [EmployeeAttendanceController::class, 'clockOut'])->name('employee.clockOut');
+        // Clock in/out + breaks
+        // Route::post('/attendance/clock-in', [EmployeeAttendanceController::class, 'clockIn'])
+        //     ->name('employee.attendance.clockin');
+
+        Route::post('/attendance/start-break', [EmployeeAttendanceController::class, 'startBreak'])
+            ->name('employee.attendance.startbreak');
+
+        Route::post('/attendance/end-break', [EmployeeAttendanceController::class, 'endBreak'])
+            ->name('employee.attendance.endbreak');
+
+        // Route::post('/attendance/clock-out', [EmployeeAttendanceController::class, 'clockOut'])
+        //     ->name('employee.attendance.clockout');
+
+        Route::get('/attendance/break-status', [EmployeeAttendanceController::class, 'getBreakStatus'])
+            ->name('employee.attendance.getBreakStatus');
+
+        Route::put('/attendance/emergency/start', [EmployeeAttendanceController::class, 'startEmergency'])->name('employee.attendance.emergency.start');
+        Route::put('/attendance/emergency/end', [EmployeeAttendanceController::class, 'endEmergency'])->name('employee.attendance.emergency.end');
+        Route::get('/attendance/emergency/status', [EmployeeAttendanceController::class, 'getEmergencyStatus']);
+    });
 
     // Employee ratings routes
     Route::resource('employees/ratings', \App\Http\Controllers\Employee\EmployeeRatingController::class)
@@ -142,6 +199,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/super_admin/system_stats', [SuperAdminController::class, 'systemStats'])->name('super_admin.system_stats');
     Route::get('/super_admin/admins', [SuperAdminController::class, 'admins'])->name('super_admin.admins');
     Route::get('/super_admin/notifications', [SuperAdminController::class, 'notifications'])->name('super_admin.notifications');
+    Route::post('/notifications/{id}/read', [SuperAdminController::class, 'markAsRead'])
+        ->name('super_admin.notifications.markAsRead');
+
+    Route::post('/notifications/read-all', [SuperAdminController::class, 'markAsRead'])
+        ->name('notifications.readAll');
+
+    Route::delete('/notifications/{id}', [SuperAdminController::class, 'deleteNotification'])
+        ->name('notifications.delete');
+
 
     Route::get('/super_admin/employee_ratings', [EmployeeRatingController::class, 'employeeRatings'])->name('super_admin.employee_ratings');
     Route::post('/super_admin/employee_ratings', [EmployeeRatingController::class, 'storeEmployeeRating'])->name('super_admin.employee_ratings.store');
@@ -151,10 +217,10 @@ Route::middleware('auth')->group(function () {
     Route::prefix('super_admin/admin-leaves')->name('super_admin.admin_leaves.')->group(function () {
         Route::get('/', [AdminLeaveController::class, 'index'])->name('index');
         Route::get('/{id}', [AdminLeaveController::class, 'show'])->name('show');
-        Route::post('/{id}/approve', [AdminLeaveController::class, 'approve'])->name('approve');
-        Route::post('/{id}/reject', [AdminLeaveController::class, 'reject'])->name('reject');
-        Route::post('/bulk-approve', [AdminLeaveController::class, 'bulkApprove'])->name('bulk_approve');
-        Route::post('/bulk-reject', [AdminLeaveController::class, 'bulkReject'])->name('bulk_reject');
+        Route::put('/{id}/approve', [AdminLeaveController::class, 'approve'])->name('approve');
+        Route::put('/{id}/reject', [AdminLeaveController::class, 'reject'])->name('reject');
+        Route::put('/bulk-approve', [AdminLeaveController::class, 'bulkApprove'])->name('bulk_approve');
+        Route::put('/bulk-reject', [AdminLeaveController::class, 'bulkReject'])->name('bulk_reject');
     });
 
     // Super Admin Events Management Routes
@@ -205,9 +271,12 @@ Route::middleware('auth')->group(function () {
         })->name('projects');
 
         // Leave Management
-        Route::get('/leaves', function () {
-            return view('admin.leaves.index');
-        })->name('leaves');
+        Route::put('/leaves/{leave}/status', [AdminsLeaveController::class, 'updateLeaveStatus'])->name('leaves.updateLeaveStatus');
+        Route::put('/leaves/{leave}', [AdminsLeaveController::class, 'update'])->name('leaves.update');
+        Route::get('/leaves', [AdminsLeaveController::class, 'index'])->name('leaves.index');
+        Route::post('/leaves', [AdminsLeaveController::class, 'store'])->name('leaves.create');
+        Route::get('/leaves/{leave}', [AdminsLeaveController::class, 'show'])->name('leaves.show');
+        Route::delete('/leaves/{leave}', [AdminsLeaveController::class, 'destroy'])->name('leaves.destroy');
 
         // Reports & Analytics with enhanced data
         Route::get('/reports', function () {
@@ -221,9 +290,10 @@ Route::middleware('auth')->group(function () {
         })->name('reports');
 
         // Announcements
-        Route::get('/announcements', function () {
-            return view('admin.announcements.index');
-        })->name('announcements');
+        Route::post('/announcements', [AdminAnnouncementsController::class, 'store'])->name('announcements.store');
+        Route::put('/announcements/{id}', [AdminAnnouncementsController::class, 'update'])->name('announcements.update');
+        Route::delete('/announcements/{id}', [AdminAnnouncementsController::class, 'destroy'])->name('announcements.destroy');
+        Route::get('/announcements', [AdminAnnouncementsController::class, 'index'])->name('announcements');
 
         // Administration (alias for management)
         Route::get('/administration', function () {
@@ -242,6 +312,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/notifications', function () {
             return view('admin.notifications.index');
         })->name('notifications');
+
+        Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications');
+        Route::get('/notifications/{notifi_id}', [AdminNotificationController::class, 'show'])
+            ->name('admin.notifications.show');
+
+        Route::post('/notifications/{id}/mark-as-read', [AdminNotificationController::class, 'markAsRead'])
+            ->name('admin.notifications.markAsRead');
+
+        Route::post('/notifications/mark-all-as-read', [AdminNotificationController::class, 'markAllAsRead'])
+            ->name('admin.notifications.markAllAsRead');
+
+        Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy'])
+            ->name('notifications.destroy');
+
+        Route::get('/admin/notifications/latest', [AdminNotificationController::class, 'latest'])
+            ->name('notifications.latest');
 
         // System Settings
         Route::get('/system', function () {
@@ -303,9 +389,9 @@ Route::middleware('auth')->group(function () {
 // Employee-specific routes
 Route::middleware('auth')->prefix('employee')->name('employee.')->group(function () {
     // Leave Management
-    Route::get('/leaves', function () {
-        return view('employees.leaves.index');
-    })->name('leaves.index');
+    // Route::get('/leaves', function () {
+    //     return view('employees.leaves.index');
+    // })->name('leaves.index');
 
     // Announcements
     Route::get('/announcements', function () {
@@ -379,7 +465,7 @@ Route::get('/admin/teams/{team}/manage-members', [TeamController::class, 'assign
 Route::post('/admin/teams/{team}/manage-members', [TeamController::class, 'assignEmployees'])->name('teams.assignEmployees');
 
 // admin profile management
-Route::prefix('super-admin')->name('super_admin.')->group(function() {
+Route::prefix('super-admin')->name('super_admin.')->group(function () {
     Route::get('/admins', [AdminController::class, 'index'])->name('admins');
     Route::post('/admins/store', [AdminController::class, 'store'])->name('store');
     Route::get('/admins/{adminId}/edit', [AdminController::class, 'edit'])->name('edit');
@@ -413,4 +499,6 @@ Route::post('/super_admin/super_admin_accounts', [SuperAdminAccountsController::
 Route::get('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'show'])->name('super_admin_accounts.show');
 Route::put('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'update'])->name('super_admin_accounts.update');
 Route::delete('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'destroy'])->name('super_admin_accounts.destroy');
-require __DIR__.'/auth.php';
+
+
+require __DIR__ . '/auth.php';

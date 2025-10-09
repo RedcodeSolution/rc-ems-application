@@ -11,7 +11,7 @@ return new class extends Migration
     {
         if (!Schema::hasTable('admins')) {
             Schema::create('admins', function (Blueprint $table) {
-                $table->id('admin_id'); // Primary Key
+                $table->id('admin_id');
                 $table->string('admin_name');
                 $table->string('role')->nullable();
                 $table->unsignedBigInteger('department_id')->nullable();
@@ -31,4 +31,3 @@ return new class extends Migration
         Schema::dropIfExists('admins');
     }
 };
-

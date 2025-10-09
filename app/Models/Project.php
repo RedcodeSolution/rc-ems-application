@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Console\View\Components\Task;
 use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
@@ -27,7 +28,8 @@ class Project extends Model
         return $this->belongsTo(Team::class, 'team_id', 'team_id');
     }
 
-    public function department() {
+    public function department()
+    {
         return $this->belongsTo(Department::class, 'department_id');
     }
 
@@ -38,10 +40,8 @@ class Project extends Model
             ->withPivot('role', 'status', 'assigned_date', 'progress', 'deadline');
     }
 
-
-
-
-
-
+    public function tasks()
+    {
+        return $this->hasMany(Tasks::class, 'project_id', 'project_id');
+    }
 }
-
