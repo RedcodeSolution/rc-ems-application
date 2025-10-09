@@ -49,7 +49,7 @@
                     <i class="fas fa-project-diagram"></i>
                 </div>
                 <div class="stat-content">
-                    <h3>{{ $assigned_project_count }}</h3>
+                    <h3>{{ $assigned_project_count ?? 0 }}</h3>
                     <p>My Projects</p>
                 </div>
                 <div class="stat-trend positive">
@@ -63,7 +63,7 @@
                     <i class="fas fa-users"></i>
                 </div>
                 <div class="stat-content">
-                    <h3>{{ $teamCount }}</h3>
+                    <h3>{{ $teamCount ?? 0 }}</h3>
                     <p>My Teams</p>
                 </div>
                 <div class="stat-trend positive">
@@ -77,7 +77,7 @@
                     <i class="fas fa-calendar-times"></i>
                 </div>
                 <div class="stat-content">
-                    <h3>{{ 21 - $approved_leave_count }}</h3>
+                    <h3>{{ 21 - $approved_leave_count ?? 0 }}</h3>
                     <p>Leave Balance</p>
                 </div>
                 <div class="stat-trend neutral">
