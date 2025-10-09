@@ -812,6 +812,53 @@
                 }
             }
 
+            @media (max-width: 395px) {
+                .meetings-grid {
+                    grid-template-columns: 1fr !important;
+                    gap: 1rem !important;
+                    width: 100vw !important;
+                    max-width: 100vw !important;
+                    box-sizing: border-box !important;
+                }
+
+                .meeting-card {
+                    padding: 0.75rem !important;
+                    font-size: 0.85rem !important;
+                    width: 100vw !important;
+                    max-width: 100vw !important;
+                    box-sizing: border-box !important;
+                }
+
+                .meeting-header {
+                    flex-direction: column !important;
+                    gap: 0.5rem !important;
+                }
+
+                .meeting-title {
+                    font-size: 1rem !important;
+                }
+
+                .meeting-section-title {
+                    font-size: 1.1rem !important;
+                }
+
+                .meeting-section-subtitle {
+                    font-size: 0.85rem !important;
+                }
+
+                .meeting-content {
+                    grid-template-columns: 1fr !important;
+                    gap: 1rem !important;
+                }
+
+                .meeting-link-input,
+                .copy-btn,
+                .join-meeting-btn {
+                    font-size: 0.85rem !important;
+                    padding: 0.5rem 0.7rem !important;
+                }
+            }
+
             /* Meeting Section Styles */
             .meeting-section {
                 margin-bottom: 2rem;

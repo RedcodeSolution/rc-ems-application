@@ -1,5 +1,5 @@
 @extends('layouts.super_admin')
-
+<link rel="stylesheet" href="{{ asset('css/SuperAdmin/superAdminAccount.css') }}">
 @section('title', 'Super Admin Account Management')
 
 @section('content')
@@ -106,11 +106,11 @@
                 </thead>
                 <tbody>
                 @forelse($superAdminUsers as $user)
-                <tr>
-                    <td>
+                <tr class="responsive-row">
+                    <td data-label="Select">
                         <input type="checkbox" class="row-select" value="{{ $user->super_admin_id }}">
                     </td>
-                    <td>
+                    <td data-label="Name">
                         <div class="user-info">
                             <div class="user-avatar">
                                 {{ strtoupper(substr($user->super_admin_name, 0, 1)) }}
@@ -121,20 +121,20 @@
                             </div>
                         </div>
                     </td>
-                    <td>{{ $user->super_admin_email }}</td>
-                    <td>
+                    <td data-label="Email">{{ $user->super_admin_email }}</td>
+                    <td data-label="Status">
                         <span class="status-badge {{ $user->status ?? 'active' }}">
                             {{ ucfirst($user->status ?? 'active') }}
                         </span>
                     </td>
-                    <td>
+                    <td data-label="Last Login">
                         <span class="text-muted">
                             {{-- If you track last login, show it here, else show 'Never' --}}
                             {{ $user->last_login ?? 'Never' }}
                         </span>
                     </td>
-                    <td>{{ \Carbon\Carbon::parse($user->created_at)->format('M d, Y') }}</td>
-                    <td>
+                    <td data-label="Created">{{ \Carbon\Carbon::parse($user->created_at)->format('M d, Y') }}</td>
+                    <td data-label="Actions">
                         <div class="action-buttons">
                             <button class="btn btn-sm btn-icon" onclick="viewAccount('{{ $user->super_admin_id }}')" title="View">
                                 <i class="fas fa-eye"></i>
@@ -484,703 +484,6 @@
     </div>
 </div>
 
-<style>
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        padding: 1.5rem;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .header-content h1 {
-        font-size: 1.875rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .header-content p {
-        color: var(--text-secondary);
-        margin: 0.5rem 0 0 0;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 1rem;
-    }
-
-    /* Statistics Grid */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background: #fff;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        transition: transform 0.2s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-2px);
-    }
-
-    .stat-icon {
-        width: 3rem;
-        height: 3rem;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.25rem;
-        color: #fff;
-        background: var(--primary);
-    }
-
-    .stat-icon.active {
-        background: var(--success);
-    }
-
-    .stat-icon.inactive {
-        background: var(--warning);
-    }
-
-    .stat-icon.recent {
-        background: var(--info);
-    }
-
-    .stat-number {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin: 0;
-    }
-
-    .stat-label {
-        color: var(--text-secondary);
-        margin: 0;
-        font-size: 0.875rem;
-    }
-
-    /* Content Grid */
-    .content-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 2rem;
-    }
-
-    .content-card {
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        overflow: hidden;
-    }
-
-    .card-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--border-light);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .card-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .card-actions {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    /* Table Styles */
-    .table-container {
-        overflow-x: auto;
-    }
-
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .data-table th,
-    .data-table td {
-        padding: 1rem;
-        text-align: left;
-        border-bottom: 1px solid var(--border-light);
-    }
-
-    .data-table th {
-        background: var(--bg-secondary);
-        font-weight: 600;
-        color: var(--text-primary);
-        font-size: 0.875rem;
-    }
-
-    .data-table tbody tr:hover {
-        background: var(--bg-secondary);
-    }
-
-    /* User Info */
-    .user-info {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .user-avatar {
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 50%;
-        background: var(--gradient-primary);
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        font-size: 0.875rem;
-    }
-
-    .user-details {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .user-name {
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .user-id {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-    }
-
-    /* Status Badge */
-    .status-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .status-badge.active {
-        background: var(--success);
-        color: #fff;
-    }
-
-    .status-badge.inactive {
-        background: var(--warning);
-        color: #fff;
-    }
-
-    /* Action Buttons */
-    .action-buttons {
-        display: flex;
-        gap: 0.25rem;
-    }
-
-    .btn-icon {
-        width: 2rem;
-        height: 2rem;
-        border-radius: 0.375rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: none;
-        background: var(--bg-secondary);
-        color: var(--text-secondary);
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .btn-icon:hover {
-        background: var(--primary);
-        color: #fff;
-    }
-
-    .btn-icon.danger:hover {
-        background: var(--danger);
-    }
-
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 3rem 1rem;
-    }
-
-    .empty-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .empty-content i {
-        font-size: 3rem;
-        color: var(--text-light);
-    }
-
-    .empty-content h3 {
-        color: var(--text-primary);
-        margin: 0;
-    }
-
-    .empty-content p {
-        color: var(--text-secondary);
-        margin: 0;
-    }
-
-    /* Activities List */
-    .activities-list {
-        padding: 1.5rem;
-    }
-
-    .activity-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        padding: 1rem 0;
-        border-bottom: 1px solid var(--border-light);
-    }
-
-    .activity-item:last-child {
-        border-bottom: none;
-    }
-
-    .activity-icon {
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-        color: #fff;
-    }
-
-    .activity-icon.login {
-        background: var(--success);
-    }
-
-    .activity-icon.create {
-        background: var(--info);
-    }
-
-    .activity-icon.security {
-        background: var(--warning);
-    }
-
-    .activity-icon.update {
-        background: var(--primary);
-    }
-
-    .activity-content {
-        flex: 1;
-    }
-
-    .activity-title {
-        font-weight: 600;
-        color: var(--text-primary);
-        margin: 0 0 0.25rem 0;
-        font-size: 0.875rem;
-    }
-
-    .activity-details {
-        color: var(--text-secondary);
-        margin: 0 0 0.5rem 0;
-        font-size: 0.75rem;
-    }
-
-    .activity-time {
-        color: var(--text-light);
-        font-size: 0.75rem;
-    }
-
-    /* Modal Styles */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 1000;
-    }
-
-    .modal-content {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #fff;
-        border-radius: 12px;
-        width: 90%;
-        max-width: 600px;
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-
-    .modal-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--border-light);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .modal-header h2 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-    }
-
-    .modal-close {
-        background: none;
-        border: none;
-        font-size: 1.25rem;
-        color: var(--text-secondary);
-        cursor: pointer;
-    }
-
-    .modal-form {
-        padding: 1.5rem;
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .form-group {
-        margin-bottom: 1rem;
-    }
-
-    .form-group label {
-        display: block;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-        font-size: 0.875rem;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--border-light);
-        border-radius: 0.5rem;
-        font-size: 0.875rem;
-    }
-
-    .permissions-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
-    }
-
-    .checkbox-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.875rem;
-        cursor: pointer;
-    }
-
-    .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-        margin-top: 1.5rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--border-light);
-    }
-
-    /* Buttons */
-    .btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        text-decoration: none;
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 0.875rem;
-    }
-
-    .btn-primary {
-        background: var(--primary);
-        color: #fff;
-    }
-
-    .btn-primary:hover {
-        background: var(--primary-dark);
-        transform: translateY(-1px);
-    }
-
-    .btn-secondary {
-        background: var(--bg-secondary);
-        color: var(--text-primary);
-        border: 1px solid var(--border-light);
-    }
-
-    .btn-secondary:hover {
-        background: var(--border-light);
-    }
-
-    .btn-outline {
-        background: transparent;
-        color: var(--text-primary);
-        border: 1px solid var(--border-light);
-    }
-
-    .btn-outline:hover {
-        background: var(--bg-secondary);
-    }
-
-    .btn-sm {
-        padding: 0.5rem 1rem;
-        font-size: 0.75rem;
-    }
-
-    /* Modal Body and Footer */
-    .modal-body {
-        padding: 1.5rem;
-        max-height: 60vh;
-        overflow-y: auto;
-    }
-
-    .modal-footer {
-        padding: 1.5rem;
-        border-top: 1px solid var(--border-light);
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-    }
-
-    /* Account Details */
-    .account-details {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-    }
-
-    .detail-section h3 {
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin: 0 0 1rem 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .detail-section h3::before {
-        content: '';
-        width: 4px;
-        height: 1.125rem;
-        background: var(--primary);
-        border-radius: 2px;
-    }
-
-    .detail-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-
-    .detail-item {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    .detail-item label {
-        font-weight: 600;
-        color: var(--text-secondary);
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .detail-item span {
-        color: var(--text-primary);
-        font-size: 0.875rem;
-    }
-
-    /* Permissions List */
-    .permissions-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-
-    .permission-badge {
-        background: var(--primary-light);
-        color: var(--primary);
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        border: 1px solid var(--primary);
-    }
-
-    /* Password Strength */
-    .password-strength {
-        margin-top: 0.5rem;
-    }
-
-    .strength-bar {
-        width: 100%;
-        height: 4px;
-        background: var(--border-light);
-        border-radius: 2px;
-        overflow: hidden;
-        margin-bottom: 0.25rem;
-    }
-
-    .strength-fill {
-        height: 100%;
-        width: 0%;
-        transition: all 0.3s ease;
-        border-radius: 2px;
-    }
-
-    .strength-fill.weak {
-        background: var(--danger);
-        width: 25%;
-    }
-
-    .strength-fill.fair {
-        background: var(--warning);
-        width: 50%;
-    }
-
-    .strength-fill.good {
-        background: var(--info);
-        width: 75%;
-    }
-
-    .strength-fill.strong {
-        background: var(--success);
-        width: 100%;
-    }
-
-    .strength-text {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-    }
-
-    /* Password Requirements */
-    .password-requirements {
-        background: var(--bg-secondary);
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin-top: 1rem;
-    }
-
-    .password-requirements h4 {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin: 0 0 0.75rem 0;
-    }
-
-    .password-requirements ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 0.5rem;
-    }
-
-    .password-requirements li {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .password-requirements li::before {
-        content: '○';
-        color: var(--text-light);
-        font-size: 0.875rem;
-    }
-
-    .password-requirements li.valid::before {
-        content: '●';
-        color: var(--success);
-    }
-
-    .password-requirements li.valid {
-        color: var(--success);
-    }
-
-    /* Responsive */
-    @media (max-width: 1024px) {
-        .content-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .page-header {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: flex-start;
-        }
-
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-
-        .permissions-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .detail-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .password-requirements ul {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
 <script>
     // Modal functions
     function createAccount() {
@@ -1381,7 +684,6 @@
         const form = e.target;
         const formData = new FormData(form);
 
-
         const permissions = [];
         form.querySelectorAll('input[name="permissions[]"]:checked').forEach(cb => {
             permissions.push(cb.value);
@@ -1392,7 +694,6 @@
         } else {
             permissions.forEach(p => formData.append('permissions[]', p));
         }
-
 
         formData.set('status', document.getElementById('edit-status').value);
         formData.set('role', document.getElementById('edit-role').value);
@@ -1406,15 +707,28 @@
             },
             body: formData
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
+            .then(async response => {
+                let data;
+                try {
+                    data = await response.json();
+                } catch {
+                    data = {};
+                }
+                if (response.ok && data.success) {
                     alert('Account updated successfully!');
                     closeModal('editAccountModal');
                     location.reload();
-                } else {
-                    alert('Failed to update account.');
+                } else if (data.errors) {
+                    // Show validation errors
+                    let msg = 'Please fix the following errors:\n';
+                    Object.values(data.errors).forEach(errArr => {
+                        msg += '- ' + errArr.join(', ') + '\n';
+                    });
+                    alert(msg);
+                } else if (data.message) {
+                    alert(data.message);
                 }
+                // No generic fail alert
             })
             .catch(error => {
                 alert('Error updating account.');
@@ -1512,15 +826,28 @@
             },
             body: formData
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
+            .then(async response => {
+                let data;
+                try {
+                    data = await response.json();
+                } catch {
+                    data = {};
+                }
+                if (response.ok && data.success) {
                     alert('Super Admin account created successfully!');
                     closeModal('createAccountModal');
                     location.reload();
-                } else {
-                    alert('Failed to create account.');
+                } else if (data.errors) {
+                    // Show validation errors
+                    let msg = 'Please fix the following errors:\n';
+                    Object.values(data.errors).forEach(errArr => {
+                        msg += '- ' + errArr.join(', ') + '\n';
+                    });
+                    alert(msg);
+                } else if (data.message) {
+                    alert(data.message);
                 }
+                // No generic fail alert
             })
             .catch(error => {
                 alert('Error creating account.');

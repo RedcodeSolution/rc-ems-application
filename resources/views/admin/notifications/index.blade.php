@@ -1,5 +1,6 @@
 @extends('layouts.admin')
 
+<link rel="stylesheet" href="{{ asset('css/admin/notifications.css') }}">
 <style>
     :root {
         --primary: #D32F2F;

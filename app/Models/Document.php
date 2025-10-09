@@ -11,18 +11,23 @@ class Document extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'document_id', 'employee_id', 'doc_path', 'version',
-        'review_date', 'access_permission', 'project_id'
+        'document_id',
+        'title',
+        'description',
+        'category',
+        'department_id',
+        'access_level',
+        'tags',
+        'file_path',
+        'notify_users',
     ];
 
-    public function employee()
+    // Document.php
+    public function department()
     {
-        return $this->belongsTo(Employee::class, 'employee_id');
+        return $this->belongsTo(Department::class, 'department_id', 'department_id');
     }
 
-    public function project()
-    {
-        return $this->belongsTo(Project::class, 'project_id');
-    }
+
 }
 

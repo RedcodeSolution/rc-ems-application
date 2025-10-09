@@ -1,6 +1,5 @@
 <?php
 
-// database/migrations/xxxx_xx_xx_xxxxxx_create_documents_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -10,19 +9,28 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('documents')) {
-            Schema::create('documents', function (Blueprint $table) {
-                $table->bigIncrements('document_id');
-                $table->unsignedBigInteger('employee_id');
-                $table->string('file_path');
-                $table->string('document_type');
-                $table->timestamps();
-            });
-        }
+        Schema::create('documents', function (Blueprint $table) {
+            $table->string('document_id')->primary();
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->string('category');
+            $table->unsignedBigInteger('department_id')->nullable();
+            $table->enum('access_level', ['public', 'department', 'admin', 'restricted']);
+            $table->string('tags')->nullable();
+            $table->string('file_path');
+            $table->boolean('notify_users')->default(false);
+            $table->unsignedBigInteger('downloads')->default(0);
+            $table->timestamps();
+
+            $table->foreign('department_id')->references('id')->on('departments')->onDelete('set null');
+        });
     }
 
     public function down(): void
     {
         Schema::dropIfExists('documents');
+        Schema::table('documents', function (Blueprint $table) {
+            $table->dropColumn('downloads');
+        });
     }
 };

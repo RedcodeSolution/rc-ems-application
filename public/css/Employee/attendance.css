@@ -1,0 +1,299 @@
+/* Responsive Attendance Styles */
+
+.attendance-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 clamp(0.5rem, 2vw, 2rem);
+}
+
+.attendance-header {
+    padding: clamp(1rem, 4vw, 2rem);
+    border-radius: clamp(0.5rem, 2vw, 1rem);
+    margin-bottom: clamp(1rem, 3vw, 2rem);
+}
+
+.header-info h1 {
+    font-size: clamp(1.2rem, 3vw, 2.5rem);
+    gap: clamp(0.5rem, 2vw, 1rem);
+}
+
+.header-info h1 i {
+    font-size: clamp(1.2rem, 3vw, 2.5rem);
+}
+
+.header-info p {
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+}
+
+.header-actions {
+    gap: clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.header-actions .btn {
+    padding: clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    border-radius: clamp(0.3rem, 1vw, 0.5rem);
+}
+
+.attendance-stats {
+    gap: clamp(1rem, 3vw, 1.5rem);
+    margin-bottom: clamp(1rem, 3vw, 2rem);
+}
+
+.stat-card {
+    padding: clamp(1rem, 3vw, 1.5rem);
+    border-radius: clamp(0.5rem, 2vw, 1rem);
+    gap: clamp(0.5rem, 2vw, 1rem);
+}
+
+.stat-icon {
+    width: clamp(40px, 6vw, 60px);
+    height: clamp(40px, 6vw, 60px);
+    font-size: clamp(1rem, 3vw, 2rem);
+}
+
+.stat-info h3 {
+    font-size: clamp(1rem, 2vw, 1.5rem);
+}
+
+.stat-info p {
+    font-size: clamp(0.7rem, 1.5vw, 0.875rem);
+}
+
+.current-status h2 {
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    margin-bottom: clamp(0.5rem, 2vw, 1rem);
+}
+
+.status-grid {
+    gap: clamp(1rem, 3vw, 1.5rem);
+}
+
+.status-card {
+    padding: clamp(1rem, 3vw, 1.5rem);
+    border-radius: clamp(0.5rem, 2vw, 1rem);
+    gap: clamp(0.5rem, 2vw, 1rem);
+}
+
+.status-icon {
+    width: clamp(35px, 5vw, 50px);
+    height: clamp(35px, 5vw, 50px);
+    font-size: clamp(1rem, 2vw, 1.5rem);
+}
+
+.status-info h3 {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+}
+
+.status-info p,
+.work-hours {
+    font-size: clamp(0.7rem, 1.5vw, 0.875rem);
+}
+
+.btn-sm {
+    padding: clamp(0.3rem, 1vw, 0.5rem) clamp(0.7rem, 2vw, 1rem);
+    font-size: clamp(0.7rem, 1.5vw, 0.875rem);
+    border-radius: clamp(0.3rem, 1vw, 0.5rem);
+}
+
+.attendance-controls {
+    padding: clamp(1rem, 3vw, 1.5rem);
+    border-radius: clamp(0.5rem, 2vw, 1rem);
+    margin-bottom: clamp(1rem, 3vw, 2rem);
+}
+
+.search-section {
+    gap: clamp(0.5rem, 2vw, 1rem);
+}
+
+.search-box input {
+    padding: clamp(0.6rem, 2vw, 0.875rem) clamp(1rem, 3vw, 1rem) clamp(0.6rem, 2vw, 0.875rem) clamp(2rem, 5vw, 2.5rem);
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    border-radius: clamp(0.5rem, 2vw, 0.75rem);
+}
+
+.filter-select {
+    padding: clamp(0.6rem, 2vw, 0.875rem) clamp(1rem, 3vw, 1rem);
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    border-radius: clamp(0.5rem, 2vw, 0.75rem);
+    min-width: clamp(100px, 15vw, 150px);
+}
+
+.attendance-content {
+    padding: clamp(1rem, 4vw, 2rem);
+    border-radius: clamp(0.5rem, 2vw, 1rem);
+}
+
+.attendance-grid {
+    gap: clamp(1rem, 3vw, 1.5rem);
+    grid-template-columns: repeat(auto-fill, minmax(clamp(220px, 40vw, 350px), 1fr));
+}
+
+.attendance-card {
+    border-radius: clamp(0.5rem, 2vw, 1rem);
+    padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.attendance-header {
+    margin-bottom: clamp(0.5rem, 2vw, 1rem);
+}
+
+.attendance-date h4 {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+}
+
+.attendance-date p,
+.attendance-status,
+.time-label,
+.time-value,
+.attendance-notes p {
+    font-size: clamp(0.7rem, 1.5vw, 0.875rem);
+}
+
+.action-btn {
+    width: clamp(28px, 5vw, 35px);
+    height: clamp(28px, 5vw, 35px);
+    font-size: clamp(0.7rem, 1.5vw, 0.875rem);
+}
+
+.modal-content {
+    border-radius: clamp(0.5rem, 2vw, 1rem);
+    width: 90%;
+    max-width: clamp(280px, 90vw, 500px);
+}
+
+.modal-header h3,
+.close-btn {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+}
+
+.clock-display {
+    border-radius: clamp(0.5rem, 2vw, 1rem);
+    padding: clamp(0.5rem, 2vw, 1rem);
+}
+
+.current-time {
+    font-size: clamp(1.2rem, 4vw, 2rem);
+}
+
+.current-date {
+    font-size: clamp(0.8rem, 2vw, 1rem);
+}
+
+.form-control {
+    padding: clamp(0.6rem, 2vw, 0.875rem) clamp(1rem, 3vw, 1rem);
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    border-radius: clamp(0.5rem, 2vw, 0.75rem);
+}
+
+.modal-footer {
+    padding: clamp(1rem, 3vw, 1.5rem);
+    border-radius: 0 0 clamp(0.5rem, 2vw, 1rem) clamp(0.5rem, 2vw, 1rem);
+    gap: clamp(0.5rem, 2vw, 1rem);
+}
+
+.btn {
+    padding: clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
+    font-size: clamp(0.8rem, 2vw, 0.875rem);
+    border-radius: clamp(0.3rem, 1vw, 0.5rem);
+    gap: clamp(0.3rem, 1vw, 0.5rem);
+}
+
+.summary-item {
+    padding: clamp(0.5rem, 2vw, 0.75rem);
+    border-radius: clamp(0.3rem, 1vw, 0.5rem);
+}
+
+.summary-label,
+.summary-value {
+    font-size: clamp(0.8rem, 2vw, 1rem);
+}
+
+@media (max-width: 1200px) {
+    .attendance-container {
+        max-width: 100vw;
+        padding: 0 clamp(0.5rem, 2vw, 1rem);
+    }
+}
+
+@media (max-width: 900px) {
+    .attendance-grid {
+        grid-template-columns: repeat(auto-fill, minmax(clamp(180px, 80vw, 1fr), 1fr));
+    }
+    .attendance-stats,
+    .status-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: clamp(0.5rem, 2vw, 1rem);
+    }
+    .attendance-stats,
+    .status-grid,
+    .attendance-grid {
+        grid-template-columns: 1fr;
+    }
+    .search-section {
+        flex-direction: column;
+        gap: clamp(0.5rem, 2vw, 1rem);
+    }
+    .filter-section {
+        width: 100%;
+    }
+    .filter-select {
+        flex: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .attendance-container,
+    .attendance-header,
+    .attendance-content,
+    .attendance-controls {
+        padding: clamp(0.2rem, 2vw, 0.5rem);
+        width: 100vw;
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
+    .attendance-content {
+        padding: clamp(0.2rem, 2vw, 0.5rem);
+        width: 100vw;
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
+    .attendance-grid {
+        grid-template-columns: 1fr;
+        gap: clamp(0.5rem, 2vw, 1rem);
+        width: 100vw;
+        max-width: 100vw;
+        box-sizing: border-box;
+        overflow-x: auto;
+    }
+    .attendance-card {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        padding: clamp(0.5rem, 2vw, 1rem);
+        margin: 0 auto;
+    }
+    .modal-content {
+        max-width: 98vw;
+        padding: clamp(0.5rem, 2vw, 1rem);
+    }
+    .stat-icon,
+    .status-icon {
+        width: clamp(28px, 8vw, 40px);
+        height: clamp(28px, 8vw, 40px);
+        font-size: clamp(0.8rem, 4vw, 1.2rem);
+    }
+    .action-btn {
+        width: clamp(22px, 6vw, 28px);
+        height: clamp(22px, 6vw, 28px);
+        font-size: clamp(0.6rem, 2vw, 0.8rem);
+    }
+}
+
+/* ...existing code for colors, gradients, shadows, etc. can be imported or defined above ... */

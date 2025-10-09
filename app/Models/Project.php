@@ -28,17 +28,16 @@ class Project extends Model
         return $this->belongsTo(Team::class, 'team_id', 'team_id');
     }
 
-
-    public function documents()
+    public function department()
     {
-        return $this->hasMany(Document::class, 'project_id');
+        return $this->belongsTo(Department::class, 'department_id');
     }
+
 
     public function employees()
     {
         return $this->belongsToMany(Employee::class, 'employee_project', 'project_id', 'employee_id')
-            ->withPivot('role_in_project', 'assigned_date')
-            ->withTimestamps();
+            ->withPivot('role', 'status', 'assigned_date', 'progress', 'deadline');
     }
 
     public function tasks()

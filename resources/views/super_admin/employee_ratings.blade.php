@@ -1,4 +1,5 @@
 @extends('layouts.super_admin')
+<link rel="stylesheet" href="{{ asset('css/SuperAdmin/employeeRatings.css') }}">
 
 @section('title', 'Employee Performance Ratings')
 
@@ -14,7 +15,6 @@
             Visual overview of employee ratings across the organization
         </p>
 
-        <!-- Role-based Access Notice -->
         <div class="role-notice">
             <div class="role-notice-title">
                 <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
@@ -25,7 +25,6 @@
             </div>
         </div>
 
-        <!-- Rating Legend -->
         <div class="rating-legend">
             <div class="rating-legend-title">Rating Color Legend:</div>
             <div class="rating-legend-items">
@@ -113,7 +112,6 @@
     </div>
 @endif
 
-<!-- Employee Ratings Grid -->
 <div class="employee-ratings-grid">
     @php
         // Group ratings by employee
@@ -306,7 +304,7 @@
                             </div>
                         </div>
                         <div class="recent-ratings" id="recent-ratings-list">
-                            <!-- Recent ratings will be loaded here -->
+
                         </div>
                     </div>
                 </div>
@@ -348,565 +346,6 @@
     </div>
 </div>
 
-<style>
-/* Page Header */
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 16px 0 rgba(220,38,38,0.07);
-    border: none;
-}
-
-/* Main Content Background */
-.content-area {
-    background-color: var(--primary-light);
-    min-height: 100vh;
-    padding: 2rem;
-}
-
-.header-content h1 {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.header-content p {
-    color: var(--text-secondary);
-    margin: 0.5rem 0 0 0;
-}
-
-.header-actions {
-    display: flex;
-    gap: 1rem;
-}
-
-/* Role-based Access Notice */
-.role-notice {
-    background: rgba(59, 130, 246, 0.1);
-    padding: 1rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-    border-left: 4px solid #3b82f6;
-}
-.role-notice-title {
-    font-weight: 600;
-    color: #1e40af;
-    margin-bottom: 0.5rem;
-}
-.role-notice-text {
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-}
-
-/* Rating Legend */
-.rating-legend {
-    background: #fff;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-    border: 1px solid var(--border-light);
-    box-shadow: 0 2px 16px 0 rgba(220,38,38,0.07);
-}
-.rating-legend-title {
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-}
-.rating-legend-items {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-.rating-legend-item {
-    display: flex;
-    align-items: center;
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-}
-.rating-legend-color {
-    width: 16px;
-    height: 16px;
-    border-radius: 3px;
-    margin-right: 0.5rem;
-}
-
-/* Employee Rating Cards */
-.employee-ratings-grid {
-    display: grid;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.employee-rating-card {
-    background: #fff;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    border: none;
-    box-shadow: 0 2px 16px 0 rgba(220,38,38,0.07);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.employee-rating-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 20px 25px -5px rgba(220,38,38,0.1);
-}
-
-.employee-info-section {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.employee-avatar {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    border: 2px solid var(--border-light);
-    background: var(--gradient-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: white;
-    margin-right: 1rem;
-}
-
-.employee-details {
-    flex: 1;
-}
-
-.employee-name {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.25rem;
-}
-
-.employee-role {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-}
-
-/* Progress Bar */
-.rating-progress-container {
-    margin-bottom: 1rem;
-}
-
-.rating-progress-bar {
-    width: 100%;
-    height: 12px;
-    background: var(--border-light);
-    border-radius: 6px;
-    overflow: hidden;
-    position: relative;
-}
-
-.rating-progress-segments {
-    display: flex;
-    height: 100%;
-}
-
-.progress-segment {
-    height: 100%;
-    transition: all 0.3s ease;
-}
-
-.segment-super-admin { background-color: #DC2626; }
-.segment-admin { background-color: #fbbf24; }
-.segment-ba { background-color: #f97316; }
-.segment-qa { background-color: #22c55e; }
-.segment-empty { background-color: var(--border-light); }
-
-.rating-percentage {
-    text-align: right;
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-top: 0.5rem;
-}
-
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 2rem;
-    color: var(--text-secondary);
-    background: #fff;
-    border-radius: 0.75rem;
-    box-shadow: 0 2px 16px 0 rgba(220,38,38,0.07);
-}
-.empty-icon {
-    width: 4rem;
-    height: 4rem;
-    background: var(--border-light);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-}
-.empty-title {
-    font-size: 1.125rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-}
-.empty-text {
-    color: var(--text-secondary);
-}
-
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-}
-
-.modal-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #fff;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-.modal-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--border-light);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h2 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 1.25rem;
-    color: var(--text-secondary);
-    cursor: pointer;
-}
-
-.modal-body {
-    padding: 1.5rem;
-}
-
-.modal-footer {
-    padding: 1.5rem;
-    border-top: 1px solid var(--border-light);
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-}
-
-/* Rating Details */
-.rating-details {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.detail-section h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 1rem 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.detail-section h3::before {
-    content: '';
-    width: 4px;
-    height: 1.125rem;
-    background: var(--primary);
-    border-radius: 2px;
-}
-
-.detail-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-}
-
-.detail-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.detail-item label {
-    font-weight: 600;
-    color: var(--text-secondary);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.detail-item span {
-    color: var(--text-primary);
-    font-size: 0.875rem;
-}
-
-.comment-full {
-    background: var(--bg-secondary);
-    padding: 1rem;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    line-height: 1.6;
-    color: var(--text-primary);
-}
-
-/* Buttons */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    font-weight: 600;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.875rem;
-}
-
-.btn-primary {
-    background: var(--primary);
-    color: #fff;
-}
-
-.btn-primary:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
-}
-
-.btn-secondary {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-light);
-}
-
-.btn-secondary:hover {
-    background: var(--border-light);
-}
-
-/* Form Styles */
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-}
-
-.form-control {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-light);
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    transition: border-color 0.3s ease;
-    background: #fff;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-control:invalid {
-    border-color: #ef4444;
-}
-
-/* Star Rating */
-.rating-input {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.star-rating {
-    display: flex;
-    flex-direction: row-reverse;
-    gap: 0.25rem;
-}
-
-.star-rating input[type="radio"] {
-    display: none;
-}
-
-.star-rating .star {
-    font-size: 1.5rem;
-    color: #ddd;
-    cursor: pointer;
-    transition: color 0.2s ease;
-}
-
-.star-rating .star:hover,
-.star-rating .star:hover ~ .star,
-.star-rating input[type="radio"]:checked ~ .star {
-    color: #DC2626; /* Red for Super Admin ratings */
-}
-
-.rating-text {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-/* Rating Summary Styles */
-.rating-summary {
-    background: var(--bg-secondary);
-    border-radius: 0.5rem;
-    padding: 1rem;
-    margin-top: 0.5rem;
-}
-
-.summary-stats {
-    display: flex;
-    gap: 2rem;
-    margin-bottom: 1rem;
-}
-
-.stat-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.stat-label {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.stat-value {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.recent-ratings {
-    border-top: 1px solid var(--border-light);
-    padding-top: 1rem;
-}
-
-.recent-rating-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid var(--border-light);
-}
-
-.recent-rating-item:last-child {
-    border-bottom: none;
-}
-
-.rating-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.rating-stars {
-    display: flex;
-    gap: 0.125rem;
-}
-
-.rating-stars .fas.fa-star {
-    color: #ddd;
-    font-size: 0.75rem;
-}
-
-.rating-stars .fas.fa-star.filled {
-    color: #DC2626; /* Red for Super Admin ratings */
-}
-
-.rating-date {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-}
-
-.rating-comment {
-    font-size: 0.875rem;
-    color: var(--text-primary);
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* Rating Display */
-.rating-display {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.rating-display .fas.fa-star {
-    color: #ddd;
-    font-size: 0.875rem;
-}
-
-.rating-display .fas.fa-star.filled {
-    color: #DC2626;
-}
-
-.rating-number {
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .page-header {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-
-    .employee-ratings-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
-
 <script>
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
@@ -927,7 +366,7 @@ function openRateEmployeeModal() {
         input.checked = false;
     });
 
-    // Hide employee rating summary
+
     const summaryDiv = document.getElementById('employee-rating-summary');
     if (summaryDiv) {
         summaryDiv.style.display = 'none';
@@ -941,7 +380,7 @@ function submitRating() {
     const form = document.getElementById('rateEmployeeForm');
     const formData = new FormData(form);
 
-    // Validate form
+
     if (!formData.get('employee_id')) {
         showNotification('Please select an employee', 'error');
         return;
@@ -952,13 +391,11 @@ function submitRating() {
         return;
     }
 
-    // Disable submit button to prevent double submission
     const submitBtn = document.querySelector('#rateEmployeeModal .btn-primary');
     const originalText = submitBtn.innerHTML;
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
-    // Submit form
     fetch(form.action, {
         method: 'POST',
         body: formData,
@@ -975,9 +412,8 @@ function submitRating() {
     .then(data => {
         if (data.success) {
             closeModal('rateEmployeeModal');
-            // Show success message
+
             showNotification('Rating submitted successfully!', 'success');
-            // Refresh the page to show new rating
             setTimeout(() => {
                 location.reload();
             }, 1000);
@@ -997,7 +433,6 @@ function submitRating() {
 }
 
 function viewRating(id) {
-    // Sample data - in real app, fetch from server
     const ratingData = {
         id: id,
         employeeName: 'John Doe',
@@ -1039,7 +474,6 @@ function viewRating(id) {
     ratingNumber.textContent = `(${ratingData.rating}/5)`;
     ratingDisplay.appendChild(ratingNumber);
 
-    // Show modal
     document.getElementById('viewRatingModal').style.display = 'block';
 }
 
@@ -1066,14 +500,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Load employee ratings when employee is selected
+
 function loadEmployeeRatings(employeeId) {
     if (!employeeId) {
         document.getElementById('employee-rating-summary').style.display = 'none';
         return;
     }
 
-    // Show loading state
+
     const summaryDiv = document.getElementById('employee-rating-summary');
     summaryDiv.style.display = 'block';
     document.getElementById('avg-rating').textContent = 'Loading...';
@@ -1126,7 +560,6 @@ function loadEmployeeRatings(employeeId) {
         });
 }
 
-// Notification function
 function showNotification(message, type = 'info') {
 
     const notification = document.createElement('div');

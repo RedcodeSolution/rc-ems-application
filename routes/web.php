@@ -4,13 +4,14 @@ use App\Http\Controllers\Admin\AdminAnnouncementsController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminsLeaveController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
-use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\Employee\EmployeeAttendanceController;
 use App\Http\Controllers\Employee\EmployeeLeaveController;
 use App\Http\Controllers\Employee\EmployeeOverviewController;
@@ -19,7 +20,6 @@ use App\Http\Controllers\Employee\EmployeeTaskController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SuperAdmin\AdminController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
 
@@ -227,11 +227,11 @@ Route::middleware('auth')->group(function () {
     Route::prefix('super_admin/events')->name('super_admin.events.')->group(function () {
         Route::get('/', [EventController::class, 'index'])->name('index');
         Route::get('/create', [EventController::class, 'create'])->name('create');
-        Route::post('/', [\App\Http\Controllers\SuperAdmin\EventController::class, 'store'])->name('store');
-        Route::get('/{id}', [\App\Http\Controllers\SuperAdmin\EventController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [\App\Http\Controllers\SuperAdmin\EventController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [\App\Http\Controllers\SuperAdmin\EventController::class, 'update'])->name('update');
-        Route::delete('/{id}', [\App\Http\Controllers\SuperAdmin\EventController::class, 'destroy'])->name('destroy');
+        Route::post('/', [EventController::class, 'store'])->name('store');
+        Route::get('/{id}', [EventController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [EventController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [EventController::class, 'update'])->name('update');
+        Route::delete('/{id}', [EventController::class, 'destroy'])->name('destroy');
     });
 
     // Redirect authenticated users to their respective dashboards
@@ -248,9 +248,6 @@ Route::middleware('auth')->group(function () {
     // Profile management
     Route::get('/admin/profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::post('/admin/profile/update', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
-
-    // Admin section routes (UI pages with enhanced data)
-
 
 
 
@@ -342,11 +339,11 @@ Route::middleware('auth')->group(function () {
             return view('admin.other.index');
         })->name('other');
 
-        // Employee Ratings Management
+
         Route::resource('employeeRatings', \App\Http\Controllers\Admin\EmployeeRatingsController::class);
     });
 
-    // Authentication
+
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 
@@ -364,11 +361,9 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('super_admins', EmployeeRatingController::class);
 
-
     Route::resource('projects', ProjectController::class);
 
     Route::resource('leaves', LeaveController::class);
-
     // Report management
     Route::resource('reports', ReportController::class);
     Route::get('/admin/reports/download/{id}', [ReportController::class, 'download'])->name('reports.download');
@@ -450,7 +445,6 @@ Route::put('/departments/{departmentId}', [DepartmentController::class, 'update'
 Route::get('/departments/{departmentId}/show', [DepartmentController::class, 'show'])->name('admin.departments.show');
 Route::delete('/departments/{departmentId}', [DepartmentController::class, 'destroy'])->name('admin.departments.destroy');
 
-
 //project Management
 Route::get('/admin/project', [ProjectController::class, 'index'])->name('admin.projects.index');
 Route::get('/projects/create', [ProjectController::class, 'create'])->name('admin.projects.create');
@@ -479,6 +473,24 @@ Route::prefix('super-admin')->name('super_admin.')->group(function () {
     Route::get('/{adminId}/show', [AdminController::class, 'show'])->name('show');
     Route::delete('/admins/{adminId}', [AdminController::class, 'destroy'])->name('destroy');
 });
+
+// Report Management
+Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');
+Route::post('/admin/reports', [ReportController::class, 'store'])->name('admin.reports.store');
+Route::get('/admin/reports/download/{report}', [ReportController::class, 'download'])->name('admin.reports.download');
+Route::get('/reports/{reportId}/view', [ReportController::class, 'show'])->name('admin.reports.show');
+
+//document Management
+Route::get('/admin/documents', [DocumentController::class, 'index'])->name('admin.documents.index');
+Route::post('/admin/documents', [DocumentController::class, 'store'])->name('admin.documents.store');
+Route::get('/documents/{document}/edit', [DocumentController::class, 'edit'])->name('admin.documents.edit');
+Route::put('/documents/{document}', [DocumentController::class, 'update'])->name('admin.documents.update');
+Route::get('/admin/documents/{document_id}', [DocumentController::class, 'show'])->name('admin.documents.show');
+Route::get('/admin/documents/download/{document_id}', [DocumentController::class, 'download'])->name('admin.documents.download');
+Route::delete('/admin/documents/{document_id}', [DocumentController::class, 'destroy'])->name('admin.documents.destroy');
+Route::post('/admin/documents/increment-download/{id}', [DocumentController::class, 'incrementDownload'])
+    ->name('documents.increment');
+
 
 
 Route::get('/admin/employeeRatings/employee/{employeeId}', [App\Http\Controllers\Admin\EmployeeRatingsController::class, 'employeeRatingsJson']);

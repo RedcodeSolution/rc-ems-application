@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Department;
+use App\Models\Employee;
 use App\Models\Project;
 use App\Models\Team;
 use App\Services\NotificationService;
@@ -18,8 +20,9 @@ class ProjectController extends Controller
         }])->get();
 
         $teams = Team::withCount('employees')->get();
-
-        return view('admin.projects.index', compact('projects', 'teams'));
+        $departments = Department::all();
+        $employees = Employee::with(['department', 'projects'])->get();
+        return view('admin.projects.index', compact('projects', 'teams', 'departments', 'employees'));
     }
 
 

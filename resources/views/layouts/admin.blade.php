@@ -18,6 +18,7 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}">
 
     <style>
         :root {
@@ -1170,19 +1171,48 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('open');
+            // Prevent body scroll when sidebar is open on mobile
+            if (window.innerWidth <= 450) {
+                if (sidebar.classList.contains('open')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            }
         }
 
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function(e) {
             const sidebar = document.getElementById('sidebar');
             const mobileBtn = document.querySelector('.mobile-menu-btn');
-
-            if (window.innerWidth <= 768 &&
+            if (
+                window.innerWidth <= 450 &&
+                sidebar.classList.contains('open') &&
                 !sidebar.contains(e.target) &&
-                !mobileBtn.contains(e.target) &&
-                sidebar.classList.contains('open')) {
+                !mobileBtn.contains(e.target)
+            ) {
                 sidebar.classList.remove('open');
+                document.body.style.overflow = '';
             }
+        });
+
+        // Close sidebar on mobile when a sidebar link is clicked and allow navigation
+        document.querySelectorAll('.sidebar-menu-item').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                const sidebar = document.getElementById('sidebar');
+                if (window.innerWidth <= 450 && sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                    document.body.style.overflow = '';
+                    // Use a short timeout to allow sidebar to close before navigation
+                    if (link.tagName.toLowerCase() === 'a' && link.href) {
+                        e.preventDefault();
+                        setTimeout(() => {
+                            window.location = link.href;
+                        }, 120);
+                    }
+                }
+                // For desktop or if sidebar not open, let navigation proceed normally
+            });
         });
 
         // Auto-hide flash messages

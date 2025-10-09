@@ -1305,7 +1305,7 @@
                         <div class="quick-action-description">Approve/Reject requests</div>
                     </a>
 
-                    <a href="{{ route('admin.reports') }}" class="quick-action">
+                    <a href="{{ route('admin.reports.index') }}" class="quick-action">
                         <div class="quick-action-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)">
                             <i class="fas fa-chart-bar"></i>
                         </div>
