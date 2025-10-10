@@ -30,7 +30,7 @@ class AdminController
 
         Admin::create($validated);
 
-        // Create notification for admin account creation
+
         Notification::create([
             'title' => 'Admin Account Created',
             'message' => 'A new admin account has been created: ' . $validated['admin_name'],

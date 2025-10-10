@@ -1350,7 +1350,6 @@ async function downloadDocument(documentId) {
 }
 
 
-
 document.getElementById('document_file').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -1447,7 +1446,6 @@ if (fileUploadArea) {
     });
 }
 
-
 // Close Modals on Outside Click
 document.addEventListener('click', function(e) {
     const modals = ['addDocumentModal', 'viewDocumentModal', 'editDocumentModal', 'deleteDocumentModal'];
@@ -1475,34 +1473,6 @@ document.addEventListener('keydown', function(e) {
         });
     }
 });
-
-// // Search and Filter Functionality
-// document.addEventListener('DOMContentLoaded', function() {
-//     const searchInput = document.querySelector('input[placeholder="Search documents..."]');
-//     const categoryFilter = document.querySelector('select option:first-child').parentNode;
-//     const typeFilter = categoryFilter.parentNode.lastElementChild;
-//
-//     if (searchInput) {
-//         searchInput.addEventListener('input', function() {
-//             // Implement search functionality
-//             console.log('Searching for:', this.value);
-//         });
-//     }
-//
-//     if (categoryFilter) {
-//         categoryFilter.addEventListener('change', function() {
-//             // Implement category filter
-//             console.log('Category filter:', this.value);
-//         });
-//     }
-//
-//     if (typeFilter) {
-//         typeFilter.addEventListener('change', function() {
-//             // Implement type filter
-//             console.log('Type filter:', this.value);
-//         });
-//     }
-// });
 
 // Initialize tooltips
 document.addEventListener('DOMContentLoaded', function() {

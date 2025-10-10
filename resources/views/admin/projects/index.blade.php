@@ -1,623 +1,5 @@
-
 @extends('layouts.admin')
-
-
-
-<style>
-    :root {
-        /* RedCode Solutions Color Palette - Matching Employee Form */
-        --redcode-primary: #DC2626; /* RedCode Brand Red */
-        --redcode-primary-dark: #991B1B; /* Deep Red */
-        --redcode-primary-light: #FEE2E2; /* Light Red Background */
-        --redcode-accent: #B91C1C; /* Accent Red */
-        --redcode-dark: #1F2937; /* Charcoal for headers/nav */
-        --redcode-gray: #6B7280; /* Medium Gray for text */
-        --redcode-light: #F9FAFB; /* Light Background */
-        --redcode-white: #FFFFFF; /* Pure White */
-        --redcode-blue: #2563EB; /* Links, buttons */
-        --redcode-green: #059669; /* Success states */
-        --redcode-orange: #D97706; /* Warnings */
-        --redcode-yellow: #F59E0B; /* Alerts */
-        --text-primary: #111827; /* Almost Black */
-        --text-secondary: #6B7280; /* Medium Gray */
-        --text-light: #9CA3AF; /* Light Gray */
-        --text-white: #FFFFFF; /* White Text */
-        --border-light: #E5E7EB;
-        --border-medium: #D1D5DB;
-        --border-dark: #6B7280;
-        --gradient-primary: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
-        --gradient-hero: linear-gradient(135deg, #DC2626 0%, #1F2937 50%, #991B1B 100%);
-        --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-        --icon-gap: 28px;
-
-    }
-    }
-
-    /* Modern Projects Management Styles */
-    .card {
-        border-radius: 1rem;
-        box-shadow: 0 2px 16px 0 rgba(0,0,0,0.07);
-        border: none;
-        background: #fff;
-    }
-    .card-header {
-        border-bottom: 1px solid #f1f1f1;
-        background: linear-gradient(90deg, #f8fafc 60%, #e0e7ef 100%);
-        border-radius: 1rem 1rem 0 0;
-        padding: 1.5rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .card-body {
-        padding: 2rem;
-    }
-    .btn {
-        border-radius: 0.75rem;
-        font-weight: 500;
-        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-        box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
-    }
-    .btn-primary {
-        background: linear-gradient(90deg, #2563eb 60%, #1d4ed8 100%);
-        color: #fff;
-        border: none;
-    }
-    .btn-primary:hover {
-        background: linear-gradient(90deg, #1d4ed8 60%, #2563eb 100%);
-    }
-    .btn-secondary {
-        background: #f3f4f6;
-        color: #374151;
-        border: none;
-    }
-    .btn-secondary:hover {
-        background: #e5e7eb;
-    }
-    .btn-warning {
-        background: #fbbf24;
-        color: #fff;
-        border: none;
-    }
-    .btn-warning:hover {
-        background: #f59e42;
-    }
-    .btn-danger {
-        background: #ef4444;
-        color: #fff;
-        border: none;
-    }
-    .btn-danger:hover {
-        background: #dc2626;
-    }
-    .btn-success {
-        background: #10b981;
-        color: #fff;
-        border: none;
-    }
-    .btn-success:hover {
-        background: #059669;
-    }
-    .btn-info {
-        background: #0ea5e9;
-        color: #fff;
-        border: none;
-    }
-    .btn-info:hover {
-        background: #0369a1;
-    }
-    .badge {
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        display: inline-block;
-    }
-    .form-input, .form-select {
-        border-radius: 0.5rem;
-        border: 1px solid #e5e7eb;
-        padding: 0.5rem 1rem;
-        font-size: 1rem;
-        background: #f9fafb;
-        transition: border 0.2s, box-shadow 0.2s;
-    }
-    .form-input:focus, .form-select:focus {
-        border-color: #2563eb;
-        outline: none;
-        box-shadow: 0 0 0 2px #2563eb22;
-    }
-    .flex {
-        display: flex;
-    }
-    .gap-1 { gap: 0.25rem; }
-    .gap-2 { gap: 0.75rem; }
-    .gap-3 { gap: 1.25rem; }
-    .justify-between { justify-content: space-between; }
-    .items-center { align-items: center; }
-    .text-center { text-align: center; }
-    .mt-4 { margin-top: 1.5rem; }
-    .mb-4 { margin-bottom: 1.5rem; }
-    .card-header h3, .card-header h2 {
-        margin: 0;
-        font-weight: 700;
-        color: #1e293b;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .card-body > div[style*="display: grid"] > .card {
-        border: 1px solid #f3f4f6;
-        box-shadow: 0 1px 8px 0 rgba(0,0,0,0.03);
-        transition: box-shadow 0.2s;
-    }
-    .card-body > div[style*="display: grid"] > .card:hover {
-        box-shadow: 0 4px 24px 0 rgba(37,99,235,0.08);
-    }
-    .card-body h3, .card-body h2 {
-        margin: 0;
-        font-weight: 700;
-        color: #1e293b;
-    }
-    .card-body p {
-        color: #64748b;
-        margin-bottom: 1rem;
-        line-height: 1.7;
-    }
-    .card-header .flex.gap-1 > button,
-    .card-header .flex.gap-1 > a {
-        min-width: 2.25rem;
-        min-height: 2.25rem;
-    }
-    .card-body .badge {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-    }
-    .card-body > div[style*="display: grid"] > .card .card-body > div[style*="background: var(--gray-200)"] {
-        margin-bottom: 0.25rem;
-    }
-    @media (max-width: 900px) {
-        .card-body, .card-header { padding: 1rem; }
-        .card-header h3, .card-header h2 { font-size: 1rem; }
-    }
-    ::-webkit-scrollbar {
-        height: 8px;
-        background: #f3f4f6;
-        border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: #e5e7eb;
-        border-radius: 4px;
-    }
-
-    /* Modal Styles */
-    .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(8px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .modal-overlay.active {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .modal-container {
-        background: rgba(255, 255, 255, 0.98);
-        backdrop-filter: blur(20px);
-        border-radius: 2rem;
-        width: 90%;
-        max-width: 800px;
-        max-height: 90vh;
-        overflow-y: auto;
-        box-shadow:
-            0 32px 64px rgba(220,38,38,0.15),
-            0 0 0 1px rgba(255,255,255,0.05),
-            inset 0 1px 0 rgba(255,255,255,0.1);
-        border: 1px solid var(--border-light);
-        position: relative;
-        transform: scale(0.9) translateY(20px);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .modal-overlay.active .modal-container {
-        transform: scale(1) translateY(0);
-    }
-
-    .modal-header {
-        padding: 2rem 2rem 0 2rem;
-        border-bottom: 1px solid var(--border-light);
-        margin-bottom: 2rem;
-        position: relative;
-    }
-
-    .modal-title {
-        font-size: 2rem;
-        font-weight: 800;
-        background: var(--gradient-primary);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .modal-subtitle {
-        color: var(--text-secondary);
-        font-size: 1rem;
-        font-weight: 500;
-        margin-bottom: 1.5rem;
-    }
-
-    .modal-close {
-        position: absolute;
-        top: 1rem;
-        right: 1.5rem;
-        background: rgba(220, 38, 38, 0.1);
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        color: var(--redcode-primary);
-    }
-
-    .modal-close:hover {
-        background: rgba(220, 38, 38, 0.2);
-        transform: scale(1.1);
-    }
-
-    .modal-body {
-        padding: 0 2rem 2rem 2rem;
-    }
-
-    /* Enhanced Form Styles */
-    .form-container {
-        display: grid;
-        gap: 1.5rem;
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-    }
-
-    .form-group {
-        position: relative;
-    }
-
-    .form-label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        font-size: 0.875rem;
-        letter-spacing: 0.025em;
-    }
-
-    .form-label i {
-        margin-right: 0.5rem;
-        color: var(--redcode-primary);
-    }
-
-    .form-input, .form-select, .form-textarea {
-        width: 100%;
-        padding: 16px 16px 16px 48px; /* Text Start: 48px from left (16px icon + 16px width + 16px buffer = 48px) */
-        border: 2px solid var(--border-light);
-        border-radius: 0.75rem;
-        font-size: 0.9rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        background: rgba(248, 250, 252, 0.5);
-        backdrop-filter: blur(10px);
-        color: var(--text-primary);
-        font-weight: 500;
-        box-sizing: border-box;
-        min-height: 48px;
-        display: flex;
-        align-items: center;
-
-    }
-
-    /* Enhanced styling for edit modal fields with data - matching view modal spacing */
-    .form-input:not(:placeholder-shown),
-    .form-select:not([value=""]),
-    .form-textarea:not(:placeholder-shown) {
-        background: rgba(16, 185, 129, 0.05);
-        border-color: rgba(16, 185, 129, 0.3);
-        color: var(--text-primary);
-        font-weight: 600;
-    }
-
-    /* Edit modal populated field styling - exact match with view modal */
-    #editProjectModal .form-input[data-populated="true"],
-    #editProjectModal .form-select[data-populated="true"],
-    #editProjectModal .form-textarea[data-populated="true"] {
-        background: rgba(16, 185, 129, 0.05);
-        border-color: rgba(16, 185, 129, 0.3);
-        color: var(--text-primary);
-        font-weight: 600;
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.08);
-        padding: 16px 16px 16px 48px; /* Maintain consistent spacing with view modal */
-
-
-    }
-
-    .form-textarea {
-        min-height: 100px;
-        resize: vertical;
-        font-family: inherit;
-        /* Textarea specific positioning: icon centered vertically at top area */
-        padding: 16px 16px 16px 48px; /* Slightly more top padding for better icon alignment - matching view modal */
-        align-items: flex-start;
-        line-height: 1.5;
-    }
-
-    /* Special positioning for textarea icons - matching view modal */
-    .form-group:has(.form-textarea) .input-icon {
-        top: 24px; /* Position icon in the top area of textarea instead of center */
-        transform: translateY(0); /* Remove center transform for textarea */
-    }
-
-    .form-input:focus, .form-select:focus, .form-textarea:focus {
-        outline: none;
-        border-color: var(--redcode-primary);
-        background: rgba(255, 255, 255, 0.9);
-        box-shadow:
-            0 0 0 4px rgba(220,38,38,0.08),
-            0 8px 25px rgba(220,38,38,0.12);
-        transform: translateY(-2px);
-    }
-
-
-
-    .input-icon {
-        position: absolute;
-        left: 16px; /* Icon Position: 16px from left */
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-light);
-        transition: all 0.3s;
-        z-index: 3;
-        pointer-events: none;
-        font-size: 1rem;
-        width: 16px; /* Icon Width: 16px */
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* Enhanced icon styling for edit modal populated fields */
-    #editProjectModal .form-group:has(.form-input[data-populated="true"]) .input-icon,
-    #editProjectModal .form-group:has(.form-select[data-populated="true"]) .input-icon,
-    #editProjectModal .form-group:has(.form-textarea[data-populated="true"]) .input-icon {
-        color: var(--redcode-green);
-        transform: translateY(-50%) scale(1.05);
-        text-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
-    }
-
-    .form-group:has(.form-input:focus) .input-icon,
-    .form-group:has(.form-select:focus) .input-icon,
-    .form-group:has(.form-textarea:focus) .input-icon {
-        color: var(--redcode-primary);
-        transform: translateY(-50%) scale(1.1);
-    }
-
-    .form-select {
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-        background-position: right 12px center;
-        background-repeat: no-repeat;
-        background-size: 16px;
-    }
-
-    .form-actions {
-        display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
-        margin-top: 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--border-light);
-    }
-
-    .btn {
-        padding: 12px 24px;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border: none;
-        position: relative;
-        overflow: hidden;
-        letter-spacing: 0.025em;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .btn-primary {
-        background: var(--gradient-primary);
-        color: white;
-        box-shadow:
-            0 8px 25px rgba(220,38,38,0.18),
-            0 3px 10px rgba(153,27,27,0.12);
-    }
-
-    .btn-primary::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s;
-    }
-
-    .btn-primary:hover::before {
-        left: 100%;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px) scale(1.02);
-        box-shadow:
-            0 15px 35px rgba(220,38,38,0.22),
-            0 5px 15px rgba(153,27,27,0.18);
-    }
-
-    .btn-secondary {
-        background: var(--border-light);
-        color: var(--text-secondary);
-        border: 1px solid var(--border-medium);
-    }
-
-    .btn-secondary:hover {
-        background: var(--border-medium);
-        transform: translateY(-2px);
-    }
-
-    /* Custom Scrollbar for Modal */
-    .modal-container::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .modal-container::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.05);
-        border-radius: 4px;
-    }
-
-    .modal-container::-webkit-scrollbar-thumb {
-        background: rgba(220,38,38,0.2);
-        border-radius: 4px;
-    }
-
-    .modal-container::-webkit-scrollbar-thumb:hover {
-        background: rgba(220,38,38,0.4);
-    }
-
-    /* Error Messages */
-    .error-message {
-        background: rgba(217, 119, 6, 0.1);
-        border: 1px solid rgba(217, 119, 6, 0.2);
-        color: #D97706;
-        padding: 12px 16px;
-        border-radius: 0.75rem;
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
-    }
-
-    /* View Modal Styles */
-    .view-field {
-        width: 100%;
-        padding: 12px 16px 12px 48px; /* Text Start: 48px from left (16px icon + 16px width + 16px buffer = 48px) */
-        border: 2px solid var(--border-light);
-        border-radius: 0.75rem;
-        font-size: 0.9rem;
-        background: rgba(248, 250, 252, 0.8);
-        color: var(--text-primary);
-        font-weight: 500;
-        box-sizing: border-box;
-        min-height: 48px;
-        display: flex;
-        align-items: center;
-        position: relative;
-        cursor: default;
-        transition: all 0.3s ease;
-    }
-
-    .view-field:hover {
-        background: rgba(220, 38, 38, 0.02);
-        border-color: rgba(220, 38, 38, 0.1);
-    }
-
-    .view-textarea {
-        min-height: 100px;
-        align-items: flex-start;
-        padding-top: 16px;
-        padding-bottom: 16px;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        line-height: 1.5;
-    }
-
-    /* Special positioning for view modal textarea icons */
-    .form-group:has(.view-textarea) .input-icon {
-        top: 24px; /* Position icon in the top area of textarea instead of center */
-        transform: translateY(0); /* Remove center transform for textarea */
-    }
-
-    .view-field:empty::before {
-        content: 'No data available';
-        color: var(--text-light);
-        font-style: italic;
-    }
-
-    /* Status badge styling in view modal */
-    .view-field.status-badge {
-        background: rgba(16, 185, 129, 0.1);
-        border-color: rgba(16, 185, 129, 0.3);
-        color: var(--redcode-green);
-        font-weight: 600;
-    }
-
-    .view-field.status-badge.in-progress {
-        background: rgba(59, 130, 246, 0.1);
-        border-color: rgba(59, 130, 246, 0.3);
-        color: var(--redcode-blue);
-    }
-
-    .view-field.status-badge.completed {
-        background: rgba(16, 185, 129, 0.1);
-        border-color: rgba(16, 185, 129, 0.3);
-        color: var(--redcode-green);
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .modal-container {
-            width: 95%;
-            margin: 1rem;
-            border-radius: 1.5rem;
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-
-        .modal-header, .modal-body {
-            padding: 1.5rem;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-        }
-
-        .form-actions {
-            flex-direction: column;
-        }
-    }
-</style>
-
 <link rel="stylesheet" href="{{ asset('css/admin/projects.css') }}">
-
 
 @section('title', 'Projects Management')
 
@@ -1048,19 +430,6 @@
 
     </div>
 
-
-    <!-- Project Statistics -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
-        <div class="card">
-            <div class="card-body text-center">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
-                    {{ $projects->count() }}
-                </div>
-                <div style="color: var(--text-secondary); font-weight: 500;">
-                    Total Projects
-                </div>
-
-
     <!-- Project Statistics -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
         <div class="card">
@@ -1080,86 +449,11 @@
                     {{ $projects->where('status', 'Completed')->count() }}
                 </div>
                 <div style="color: var(--gray-600); font-weight: 500;">Completed</div>
-
             </div>
         </div>
 
         <div class="card">
             <div class="card-body text-center">
-
-                <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">
-                    {{ $projects->where('status', 'Completed')->count() }}
-                </div>
-                <div style="color: var(--gray-600); font-weight: 500;">Completed</div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-body text-center">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;"> {{ $projects->where('status', 'On Hold')->count() }}</div>
-                <div style="color: var(--gray-600); font-weight: 500;">On Hold</div>
-            </div>
-        </div>
-
-        @php
-        $totalProjects = $projects->count();
-        $completedProjects = $projects->where('status', 'Completed')->count();
-        $successRate = $totalProjects > 0 ? round(($completedProjects / $totalProjects) * 100) : 0;
-        @endphp
-
-        <div class="card">
-            <div class="card-body text-center">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--info); margin-bottom: 0.5rem;">
-                    {{ $successRate }}%
-                </div>
-                <div style="color: var(--gray-600); font-weight: 500;">Success Rate</div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Project Creation Modal -->
-    <div id="projectModal" class="modal-overlay">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title">
-                    <i class="fas fa-project-diagram"></i>
-                    Add New Project
-                </div>
-                <div class="modal-subtitle">Fill in the project details below</div>
-                <button class="modal-close" onclick="closeModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <form action="{{ route('admin.projects.store') }}" method="POST" id="projectForm">
-                    @csrf
-                    <div class="form-container">
-                        <!-- Basic Information Row -->
-                        <div class="form-row">
-
-                            <div class="form-group">
-                                <label for="project_name" class="form-label">
-                                    <i class="fas fa-project-diagram"></i>Project Name
-                                </label>
-                                <div style="position: relative;">
-
-                                    <input type="text" id="project_name" name="project_name" class="form-input" placeholder="Enter project name" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Client and Team Row -->
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="client" class="form-label">
-                                    <i class="fas fa-user-tie"></i>Client
-                                </label>
-                                <div style="position: relative;">
-
-                                    <input type="text" id="client" name="client" class="form-input" placeholder="Enter client name">
-
                 <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;"> {{ $projects->where('status', 'On Hold')->count() }}</div>
                 <div style="color: var(--gray-600); font-weight: 500;">On Hold</div>
             </div>
@@ -1240,57 +534,9 @@
                                         @endforeach
                                         @endif
                                     </select>
-
                                 </div>
-                            </div>
-
-
-                            <div class="form-group">
-                                <label for="team_id" class="form-label">
-                                    <i class="fas fa-users"></i>Assigned Team
-                                </label>
-                                <div style="position: relative;">
-
-                                    <select id="team_id" name="team_id" class="form-select" required>
-                                        <option value="">Select Team</option>
-                                        @if(isset($teams))
-                                        @foreach($teams as $team)
-                                        <option value="{{ $team->team_id }}">{{ $team->team_name }}</option>
-                                        @endforeach
-                                        @endif
-                                    </select>
-                                </div>
-
-
-                        <!-- Status Row -->
-                        <div class="form-group">
-                            <label for="status" class="form-label">
-                                <i class="fas fa-tasks"></i>Project Status
-                            </label>
-                            <div style="position: relative;">
-                                <select id="status" name="status" class="form-select" required>
-                                    <option value="">Select status</option>
-                                    <option value="Planning">Planning</option>
-                                    <option value="In Progress">In Progress</option>
-                                    <option value="On Hold">On Hold</option>
-                                    <option value="Testing">Testing</option>
-                                    <option value="Completed">Completed</option>
-                                    <option value="Cancelled">Cancelled</option>
-                                </select>
-
                             </div>
                         </div>
-
-                        <!-- Date Range Row -->
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="start_date" class="form-label">
-                                    <i class="fas fa-calendar-plus"></i>Start Date
-                                </label>
-                                <div style="position: relative;">
-                                    <input type="date" id="start_date" name="start_date" class="form-input">
-                                </div>
-                            </div>
 
 
                         <!-- Status Row -->
@@ -1363,49 +609,6 @@
                                 <i class="fas fa-save"></i> Create Project
                             </button>
                         </div>
-
-                            <div class="form-group">
-                                <label for="end_date" class="form-label">
-                                    <i class="fas fa-calendar-check"></i>End Date
-                                </label>
-                                <div style="position: relative;">
-                                    <input type="date" id="end_date" name="end_date" class="form-input">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Description -->
-                        <div class="form-group">
-                            <label for="description" class="form-label">
-                                <i class="fas fa-file-alt"></i>Project Description
-                            </label>
-                            <div style="position: relative;">
-
-                                <textarea id="description" name="description" class="form-textarea" placeholder="Enter project description"></textarea>
-                            </div>
-                        </div>
-
-                        <!-- Milestone Info -->
-                        <div class="form-group">
-                            <label for="milestone_info" class="form-label">
-                                <i class="fas fa-flag"></i>Milestone Information
-                            </label>
-                            <div style="position: relative;">
-
-                                <textarea id="milestone_info" name="milestone_info" class="form-textarea" placeholder="Enter milestone details"></textarea>
-                            </div>
-                        </div>
-
-                        <!-- Form Actions -->
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-secondary" onclick="closeModal()">
-                                <i class="fas fa-times"></i> Cancel
-                            </button>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Create Project
-                            </button>
-                        </div>
-
                     </div>
                 </form>
             </div>
@@ -1961,7 +1164,6 @@
             });
     }
 
-
     document.getElementById("start_date").addEventListener("change", function() {
         let startDate = this.value;
         let endDateInput = document.getElementById("end_date");
@@ -1984,32 +1186,6 @@
     function openEditModalFromView() {
         // Close view modal first
         closeViewModal();
-
-
-
-    document.getElementById("start_date").addEventListener("change", function() {
-        let startDate = this.value;
-        let endDateInput = document.getElementById("end_date");
-
-        // set min date as next day
-        if (startDate) {
-            let date = new Date(startDate);
-            date.setDate(date.getDate() + 1);
-            endDateInput.min = date.toISOString().split("T")[0];
-        } else {
-            endDateInput.min = "";
-        }
-    });
-
-    function closeViewModal() {
-        document.getElementById('viewProjectModal').classList.remove('active');
-        document.body.style.overflow = 'auto';
-    }
-
-    function openEditModalFromView() {
-        // Close view modal first
-        closeViewModal();
-
 
         // Open edit modal with stored data
         const data = window.currentProjectData;
@@ -2299,77 +1475,6 @@
         });
     }
 
-
-    function hideEmployeeProjects() {
-        document.getElementById('employeeProjectAssignments').style.display = 'none';
-        currentSelectedEmployee = null;
-        currentProjectAssignments = [];
-    }
-
-    function loadEmployeeProjectAssignments(employeeId) {
-        // Simulate loading project assignments (in real implementation, this would be an AJAX call)
-        const mockProjectAssignments = [
-            {
-                id: 1,
-                project_name: 'E-Commerce Platform',
-                role: 'Project Manager',
-                status: 'active',
-                assigned_date: '2024-01-15',
-                progress: 75,
-                deadline: '2024-12-15',
-                priority: 'high'
-            },
-            {
-                id: 2,
-                project_name: 'Mobile App Development',
-                role: 'Developer',
-                status: 'active',
-                assigned_date: '2024-02-01',
-                progress: 45,
-                deadline: '2025-01-30',
-                priority: 'medium'
-            },
-            {
-                id: 3,
-                project_name: 'Analytics Dashboard',
-                role: 'Analyst',
-                status: 'completed',
-                assigned_date: '2024-01-01',
-                progress: 100,
-                deadline: '2024-11-20',
-                priority: 'low'
-            },
-            {
-                id: 4,
-                project_name: 'Website Redesign',
-                role: 'Designer',
-                status: 'on-hold',
-                assigned_date: '2024-03-01',
-                progress: 30,
-                deadline: '2024-08-15',
-                priority: 'medium'
-            }
-        ];
-
-        currentProjectAssignments = mockProjectAssignments;
-        displayProjectAssignments(mockProjectAssignments);
-        updateProjectStatistics(mockProjectAssignments);
-    }
-
-    function displayProjectAssignments(assignments) {
-        const tbody = document.getElementById('projectAssignmentsTableBody');
-        const noAssignmentsDiv = document.getElementById('noProjectAssignments');
-
-        if (assignments.length === 0) {
-            tbody.innerHTML = '';
-            noAssignmentsDiv.style.display = 'block';
-            return;
-        }
-
-        noAssignmentsDiv.style.display = 'none';
-
-
-
     function hideEmployeeProjects() {
         document.getElementById('employeeProjectAssignments').style.display = 'none';
         currentSelectedEmployee = null;
@@ -2441,7 +1546,6 @@
         noAssignmentsDiv.style.display = 'none';
 
         // Table rows for desktop/tablet
-
         tbody.innerHTML = assignments.map(assignment => `
         <tr data-assignment-id="${assignment.id}" data-status="${assignment.status}" data-role="${assignment.role.toLowerCase()}" data-priority="${assignment.priority}">
             <td>
@@ -2473,16 +1577,6 @@
             </td>
         </tr>
     `).join('');
-
-    }
-
-    function updateProjectStatistics(assignments) {
-        const active = assignments.filter(a => a.status === 'active').length;
-        const completed = assignments.filter(a => a.status === 'completed').length;
-        const onHold = assignments.filter(a => a.status === 'on-hold').length;
-        const total = assignments.length;
-
-
 
         // Card view for mobile
         cardList.innerHTML = assignments.map(assignment => `
@@ -2521,7 +1615,6 @@
         const onHold = assignments.filter(a => a.status === 'on-hold').length;
         const total = assignments.length;
 
-
         document.getElementById('activeProjectsCount').textContent = active;
         document.getElementById('completedProjectsCount').textContent = completed;
         document.getElementById('onHoldProjectsCount').textContent = onHold;
@@ -2534,7 +1627,6 @@
         const dateFilter = document.getElementById('projectDateFilter').value;
         const priorityFilter = document.getElementById('projectPriorityFilter').value;
 
-
         let filteredAssignments = currentProjectAssignments.filter(assignment => {
             let showAssignment = true;
 
@@ -2591,66 +1683,6 @@
             btn.classList.remove('btn-primary', 'btn-success', 'btn-info', 'btn-warning', 'btn-danger');
             btn.classList.add('btn-secondary');
         });
-
-
-
-        let filteredAssignments = currentProjectAssignments.filter(assignment => {
-            let showAssignment = true;
-
-            // Status filter
-            if (statusFilter && assignment.status !== statusFilter) {
-                showAssignment = false;
-            }
-
-            // Role filter
-            if (roleFilter && assignment.role.toLowerCase() !== roleFilter) {
-                showAssignment = false;
-            }
-
-            // Priority filter
-            if (priorityFilter && assignment.priority !== priorityFilter) {
-                showAssignment = false;
-            }
-
-            // Date filter (simplified implementation)
-            if (dateFilter) {
-                const assignmentDate = new Date(assignment.assigned_date);
-                const now = new Date();
-
-                switch(dateFilter) {
-                    case 'current':
-                        showAssignment = assignment.status === 'active';
-                        break;
-                    case 'recent':
-                        const threeMonthsAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-                        showAssignment = assignmentDate >= threeMonthsAgo;
-                        break;
-                    case 'this-year':
-                        showAssignment = assignmentDate.getFullYear() === now.getFullYear();
-                        break;
-                    case 'last-year':
-                        showAssignment = assignmentDate.getFullYear() === now.getFullYear() - 1;
-                        break;
-                }
-            }
-
-            return showAssignment;
-        });
-
-        displayProjectAssignments(filteredAssignments);
-        updateProjectStatistics(filteredAssignments);
-    }
-
-    function filterProjectsByStatus(status) {
-        document.getElementById('projectStatusFilter').value = status === 'all' ? '' : status;
-        filterEmployeeProjects();
-
-        // Update button states
-        document.querySelectorAll('[onclick^="filterProjectsByStatus"]').forEach(btn => {
-            btn.classList.remove('btn-primary', 'btn-success', 'btn-info', 'btn-warning', 'btn-danger');
-            btn.classList.add('btn-secondary');
-        });
-
 
         // Highlight active button
         const activeButton = document.querySelector(`[onclick="filterProjectsByStatus('${status}')"]`);
@@ -2714,7 +1746,6 @@
         });
     }
 
-
     // Action functions for project assignments
     function viewProjectAssignment(assignmentId) {
         alert(`Viewing project assignment ${assignmentId}`);
@@ -2733,28 +1764,6 @@
             refreshEmployeeProjects();
         }
     }
-
-
-
-    // Action functions for project assignments
-    function viewProjectAssignment(assignmentId) {
-        alert(`Viewing project assignment ${assignmentId}`);
-        // Implement view project assignment functionality
-    }
-
-    function editProjectAssignment(assignmentId) {
-        alert(`Editing project assignment ${assignmentId}`);
-        // Implement edit functionality
-    }
-
-    function removeProjectAssignment(assignmentId) {
-        if (confirm('Are you sure you want to remove this project assignment?')) {
-            alert(`Removed project assignment ${assignmentId}`);
-            // Implement remove functionality
-            refreshEmployeeProjects();
-        }
-    }
-
 
     function assignNewProject() {
         alert('Assigning new project to employee');
@@ -2816,23 +1825,6 @@
                 icon = 'fas fa-chart-line';
                 iconColor = 'var(--info)';
             }
-
-
-            // Status badge
-            const statusClass = project.status === 'Active' ? 'success' : 'text-secondary';
-            const statusBg = project.status === 'Active' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(107, 114, 128, 0.1)';
-
-            // Progress calculation
-            let progress = 0;
-            switch (project.status) {
-                case 'Planning': progress = 10; break;
-                case 'In Progress': progress = 50; break;
-                case 'On Hold': progress = 30; break;
-                case 'Testing': progress = 70; break;
-                case 'Completed': progress = 100; break;
-                case 'Cancelled': progress = 0; break;
-            }
-
 
             // Status badge
             const statusClass = project.status === 'Active' ? 'success' : 'text-secondary';
@@ -2945,45 +1937,6 @@
 
         const modal = document.getElementById('editProjectModal');
         const form = document.getElementById('editProjectForm');
-
-        if (!modal || !form) return alert('Edit modal or form not found!');
-
-        modal.classList.add('active');
-        form.reset();
-
-        // Helper function to safely set input/select/textarea values
-        const setValue = (selector, value) => {
-            const el = form.querySelector(selector);
-            if (el) el.value = value ?? '';
-        };
-
-        fetch(`/projects/${projectId}/edit`, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (!data.success || !data.project) {
-                    throw new Error(data.message || 'Failed to fetch project data');
-                }
-
-                const project = data.project;
-                form.action = `/projects/${projectId}`;
-
-                // Populate all fields safely
-                setValue('#edit_project_id', project.project_id);
-                setValue('#edit_project_name', project.project_name);
-                setValue('#edit_client', project.client);
-                setValue('#edit_status', project.status);
-                setValue('#edit_start_date', project.start_date);
-                setValue('#edit_end_date', project.end_date);
-                setValue('#edit_description', project.description);
-                setValue('#edit_milestone_info', project.milestone_info);
-                setValue('#edit_team_id', project.team_id);
-
-                // Focus first input
-                const firstInput = form.querySelector('#edit_project_name');
-                if (firstInput) firstInput.focus();
-
         modal.classList.add('active');
         form.reset();
 
@@ -3017,7 +1970,6 @@
                     teamSelect.value = project.team_id;
                 }
 
-
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -3025,7 +1977,6 @@
                 closeEditModal();
             });
     }
-
 
     function closeEditProjectModal() {
         const modal = document.getElementById('editProjectModal');

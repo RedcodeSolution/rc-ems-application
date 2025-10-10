@@ -285,12 +285,9 @@
 
                     <div class="form-group">
                         <label for="role" class="form-label">Role</label>
-                        <select id="role" name="role" class="form-select">
-                            <option value="Admin" {{ (Auth::user()->role ?? '') == 'Admin' ? 'selected' : '' }}>Admin</option>
-                            <option value="HR Admin" {{ (Auth::user()->role ?? '') == 'HR Admin' ? 'selected' : '' }}>HR Admin</option>
-                            <option value="Department Admin" {{ (Auth::user()->role ?? '') == 'Department Admin' ? 'selected' : '' }}>Department Admin</option>
-                        </select>
+                        <input type="text" id="role" name="role" class="form-input" value="{{ Auth::user()->role ?? 'N/A' }}" readonly>
                     </div>
+
                 </div>
 
                 <div class="form-group">

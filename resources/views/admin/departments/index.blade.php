@@ -1,3 +1,4 @@
+
 @extends('layouts.admin')
 
 <link rel="stylesheet" href="{{ asset('css/admin/department.css') }}">
@@ -283,8 +284,8 @@
                             </label>
                             <div class="input-wrapper">
                                 <select id="status" name="status" class="form-input" required>
-                                <option value="Active">Active</option>
-                                <option value="Inactive">Inactive</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
                                 </select>
                             </div>
                             <small class="form-hint">
@@ -703,28 +704,6 @@
                 'Accept': 'application/json'
             }
         })
-
-        .catch(error => {
-            console.error('Error loading department data:', error);
-            // alert('Error loading department data: ' + error.message);
-            // closeViewDepartmentModal() -- keep your close function if you have one
-            if (typeof closeViewDepartmentModal === 'function') closeViewDepartmentModal();
-        });
-}
-
-function closeViewDepartmentModal() {
-    const modal = document.getElementById('viewDepartmentModal');
-    modal.classList.remove('active');
-    currentViewDepartmentId = null;
-}
-
-function openEditDepartmentModal(departmentId) {
-    console.log(departmentId)
-    if (!departmentId) {
-        alert('Department ID missing!');
-        return;
-    }
-
             .then(response => {
                 // Ensure we surface JSON errors from server
                 if (!response.ok) return response.json().then(err => { throw new Error(err.message || 'Network error'); });
@@ -758,7 +737,6 @@ function openEditDepartmentModal(departmentId) {
                 if (dept.employee && typeof dept.employee === 'object') {
                     headName = dept.employee.employee_name || dept.employee.name || dept.employee.full_name || null;
                 }
-
 
                 // Convenience fields sometimes added by backend
                 if (!headName) headName = dept.department_head_name || dept.employee_name || null;
