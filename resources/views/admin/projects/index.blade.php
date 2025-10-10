@@ -1937,6 +1937,8 @@
 
         const modal = document.getElementById('editProjectModal');
         const form = document.getElementById('editProjectForm');
+        if (!modal || !form) return alert('Modal or form not found!');
+
         modal.classList.add('active');
         form.reset();
 
@@ -1945,38 +1947,42 @@
         })
             .then(res => res.json())
             .then(data => {
-                if (!data.success) throw new Error(data.message || 'Failed to fetch project data');
+                // If your backend doesn't return 'success', skip this check
+                if (data.success === false) throw new Error(data.message || 'Failed to fetch project data');
 
                 const project = data.project;
                 form.action = `/projects/${projectId}`;
 
-                document.getElementById("edit_project_id").value = project.project_id;
+                // Safely set values only if elements exist
+                const fields = {
+                    'edit_project_id': project.project_id,
+                    'edit_project_name': project.project_name,
+                    'edit_client': project.client,
+                    'edit_status': project.status,
+                    'edit_start_date': project.start_date,
+                    'edit_end_date': project.end_date,
+                    'edit_description': project.description,
+                    'edit_milestone_info': project.milestone_info,
+                    'edit_team_id': project.team_id,
+                };
 
-                // Populate form fields
-                form.querySelector('#edit_project_name').value = project.project_name || '';
-                form.querySelector('#edit_client').value = project.client || '';
-                form.querySelector('#edit_status').value = project.status || '';
-                form.querySelector('#edit_start_date').value = project.start_date || '';
-                form.querySelector('#edit_end_date').value = project.end_date || '';
-                form.querySelector('#edit_description').value = project.description || '';
-                form.querySelector('#edit_milestone_info').value = project.milestone_info || '';
-                form.querySelector('#edit_team_id').value = project.team_id || '';
-
-                form.querySelector('#edit_project_name').focus();
-
-                //  Set selected Assigned Team
-                const teamSelect = document.getElementById('edit_team_id');
-                if (teamSelect && project.team_id) {
-                    teamSelect.value = project.team_id;
+                for (let id in fields) {
+                    const el = document.getElementById(id);
+                    if (el) el.value = fields[id] || '';
                 }
+
+                // Focus project name if exists
+                const nameInput = document.getElementById('edit_project_name');
+                if (nameInput) nameInput.focus();
 
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Error loading project data: ' + error.message);
-                closeEditModal();
+                if (typeof closeEditModal === 'function') closeEditModal();
             });
     }
+
 
     function closeEditProjectModal() {
         const modal = document.getElementById('editProjectModal');

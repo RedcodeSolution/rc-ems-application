@@ -847,7 +847,7 @@
 
                 <div class="sidebar-menu-section">
                     <div class="sidebar-menu-title">Reports & Analytics</div>
-                    <a href="{{ route('admin.reports') }}"
+                    <a href="{{ route('admin.reports.index') }}"
                         class="sidebar-menu-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
                         <i class="fas fa-chart-bar"></i>
                         <span>Reports</span>
@@ -865,7 +865,7 @@
                         <i class="fas fa-user-shield"></i>
                         <span>Admin Profile</span>
                     </a>
-                    <a href="{{ route('admin.documents') }}"
+                    <a href="{{ route('admin.documents.index') }}"
                         class="sidebar-menu-item {{ request()->routeIs('admin.documents') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
                         <span>Documents</span>
@@ -1326,12 +1326,12 @@
                                 <div class="notification-title">${n.type ?? 'Notification'}</div>
                                 <div class="notification-desc">${n.message ?? ''}</div>
                                 <div class="notification-meta">
-                                    <i class="fas fa-clock"></i> 
+                                    <i class="fas fa-clock"></i>
                                     ${new Date(n.created_at).toLocaleString()}
                                 </div>
                             </div>
                             <div class="notification-actions">
-                                <a href="/admin/notifications" 
+                                <a href="/admin/notifications"
                                    class="btn btn-info btn-sm">View</a>
                             </div>
                         </div>

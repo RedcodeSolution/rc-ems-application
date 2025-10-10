@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::dropIfExists('employees');
@@ -14,7 +17,7 @@ return new class extends Migration
             $table->id('department_id');
             $table->string('department_name');
             $table->text('description')->nullable();
-
+            $table->unsignedBigInteger('employee_id')->nullable();
             $table->string('location')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
@@ -22,12 +25,17 @@ return new class extends Migration
             $table->enum('status', ['Active', 'Inactive'])->default('Active');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('set null');
+
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-
         Schema::dropIfExists('departments');
     }
 };

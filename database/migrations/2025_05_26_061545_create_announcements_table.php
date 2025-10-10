@@ -23,10 +23,7 @@ return new class extends Migration
             $table->unsignedBigInteger('department_id')->nullable();
             $table->timestamps();
 
-            $table->foreign('department_id')
-                ->references('department_id')
-                ->on('departments')
-                ->onDelete('set null');
+            $table->foreign('department_id')->references('department_id')->on('departments')->onDelete('set null');
         });
     }
 

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->unsignedBigInteger('department_id')->nullable();
             $table->unsignedBigInteger('team_id')->nullable();
             $table->string('employee_status');
-            $table->unsignedBigInteger('admin_id')->nullable();
+            $table->unsignedBigInteger('admin_id')->nullable(); // <-- changed from unsignedBigInteger to string
             $table->string('paid_status');
             $table->string('profile_photo')->nullable();
             $table->timestamps();
