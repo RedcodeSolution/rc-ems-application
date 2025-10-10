@@ -13,9 +13,13 @@ return new class extends Migration
     {
         Schema::create('announcements', function (Blueprint $table) {
             $table->bigIncrements('announcement_id');
+            $table->string('title'); // from form
+            $table->enum('priority', ['low', 'medium', 'high', 'urgent'])->default('medium');
+            $table->string('category'); // hr, policy, events etc.
             $table->text('content');
-            $table->date('date');
-            $table->string('target_team_id')->nullable();
+            $table->dateTime('expires_at')->nullable();
+            $table->json('target_audience')->nullable(); // stores ["all","managers"]
+            $table->enum('status', ['scheduled', 'published'])->default('published');
             $table->unsignedBigInteger('department_id')->nullable();
             $table->timestamps();
 
@@ -24,7 +28,6 @@ return new class extends Migration
                 ->on('departments')
                 ->onDelete('set null');
         });
-
     }
 
     /**

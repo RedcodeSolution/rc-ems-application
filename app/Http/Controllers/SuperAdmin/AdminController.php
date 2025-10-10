@@ -4,7 +4,7 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Models\Admin;
 use App\Models\Department;
-use App\Models\Notification;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class AdminController
@@ -14,7 +14,7 @@ class AdminController
 
         $departments = Department::all();
         $admins = Admin::with('department')->get();
-        return view('super_admin.admins', compact('admins','departments', ));
+        return view('super_admin.admins', compact('admins', 'departments',));
     }
 
     public function store(Request $request)
@@ -73,17 +73,15 @@ class AdminController
         ]);
 
         $admin->update($validated);
-
-        Notification::create([
-            'title' => 'Admin Account Updated',
-            'message' => 'Admin account updated: ' . $validated['admin_name'],
-            'type' => 'admin',
-            'priority' => 'medium',
-            'read' => false,
-            'from' => auth()->user()->name ?? 'System',
-            'icon' => 'fas fa-user-edit',
-            'color' => 'orange',
-        ]);
+        $notify = new NotificationService();
+        $notify->notify(
+            title: 'Administrator Updated',
+            message: "Administrator {$admin->admin_name}'s profile has been updated.",
+            type: 'admin',
+            userId: null,
+            target: 'super admin',
+            referenceId: $admin->admin_id
+        );
 
         return redirect()->route('super_admin.admins')->with('success', 'Admin updated successfully!');
     }
@@ -108,14 +106,20 @@ class AdminController
     public function destroy($id)
     {
         $admin = Admin::findOrFail($id);
+        $adminName = $admin->admin_name;
         $admin->delete();
+
+        $notify = new NotificationService();
+        $notify->notify(
+            title: 'Administrator Removed',
+            message: "Administrator {$adminName} was deleted from the system.",
+            type: 'admin',
+            userId: null,
+            target: 'super admin',
+            referenceId: $id
+        );
+
 
         return redirect()->route('super_admin.admins')->with('success', 'Admin deleted successfully!');
     }
-
-    public function profile()
-    {
-        return view('admin.profile.index');
-    }
-
 }
