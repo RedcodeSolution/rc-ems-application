@@ -185,7 +185,7 @@ Route::middleware('auth')->group(function () {
 
         Route::put('/attendance/emergency/start', [EmployeeAttendanceController::class, 'startEmergency'])->name('employee.attendance.emergency.start');
         Route::put('/attendance/emergency/end', [EmployeeAttendanceController::class, 'endEmergency'])->name('employee.attendance.emergency.end');
-        Route::get('/attendance/emergency/status', [EmployeeAttendanceController::class, 'getEmergencyStatus']);
+        Route::get('/attendance/emergency/status', [EmployeeAttendanceController::class, 'getEmergencyStatus'])->name('employee.attendance.getEmergencyStatus');
     });
 
     // Employee ratings routes

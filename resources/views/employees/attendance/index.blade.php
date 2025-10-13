@@ -12,10 +12,16 @@
                     <p>Track your daily attendance and work hours</p>
                 </div>
                 <div class="header-actions">
-                    <button id="clockInBtn" class="btn btn-success" onclick="clockIn()"
-                        style="{{ $isClockedIn ? 'display:none;' : 'display:inline-flex;' }}">
-                        <i class="fas fa-sign-in-alt"></i> Clock In
-                    </button>
+                    @if ($hasLeaveToday)
+                        <button id="clockInBtn" class="btn btn-secondary btn-disabled" disabled>
+                            <i class="fas fa-ban"></i> On Approved Leave
+                        </button>
+                    @elseif (!$isClockedIn)
+                        <button id="clockInBtn" class="btn btn-success" onclick="clockIn()">
+                            <i class="fas fa-sign-in-alt"></i> Clock In
+                        </button>
+                    @endif
+
                     <button id="clockOutBtn" class="btn btn-danger" onclick="clockOut()"
                         style="{{ $isClockedIn ? 'display:inline-flex;' : 'display:none;' }}">
                         <i class="fas fa-sign-out-alt"></i> Clock Out
@@ -1387,7 +1393,7 @@
                         }
 
                         // --- Sync emergency status ---
-                        updateEmergencyStatus();
+                        // updateEmergencyStatus();
                     })
                     .catch(err => console.error('Error fetching break status:', err));
             }
@@ -1525,6 +1531,79 @@
                 }
             });
 
+            function updateEmergencyStatus() {
+                const emergencyStatusElement = document.querySelector('.status-card:last-child .status-info p');
+                const emergencyActionsElement = document.querySelector('.emergency-actions');
+                const breakBtn = document.querySelector('.btn-break');
+
+                fetch('/employees/attendance/emergency/status', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const emergency = data.emergency;
+
+                            if (emergency.is_active) {
+                                // Emergency currently active
+                                emergencyStatusElement.textContent = `🚨 Emergency break active - ${emergency.reason}`;
+                                emergencyActionsElement.innerHTML = `
+                    <button class="btn-sm btn-emergency" onclick="endEmergencyBreak()">End Emergency Break</button>
+                `;
+
+                                // Disable Break Button
+                                if (breakBtn) {
+                                    breakBtn.textContent = 'Unavailable';
+                                    breakBtn.disabled = true;
+                                    breakBtn.classList.add('btn-disabled');
+                                }
+
+                            } else if (emergency && emergency.total > 0) {
+                                // Past emergencies recorded, no active emergency
+                                emergencyStatusElement.textContent = `${emergency.total} emergency break(s) recorded`;
+                                emergencyActionsElement.innerHTML = `
+                    <button class="btn-sm btn-emergency" onclick="reportEmergency()">Report Emergency</button>
+                `;
+
+                                // Enable Break Button
+                                if (breakBtn) {
+                                    breakBtn.textContent = 'Start Break';
+                                    breakBtn.disabled = false;
+                                    breakBtn.classList.remove('btn-disabled');
+                                    breakBtn.onclick = startBreak;
+                                }
+
+                            } else {
+                                // No emergencies at all
+                                emergencyStatusElement.textContent = 'No emergency breaks';
+                                emergencyActionsElement.innerHTML = `
+                    <button class="btn-sm btn-emergency" onclick="reportEmergency()">Report Emergency</button>
+                `;
+
+                                // Enable Break Button
+                                if (breakBtn) {
+                                    breakBtn.textContent = 'Start Break';
+                                    breakBtn.disabled = false;
+                                    breakBtn.classList.remove('btn-disabled');
+                                    breakBtn.onclick = startBreak;
+                                }
+                            }
+                        } else {
+                            emergencyStatusElement.textContent = 'Error loading emergency status';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching emergency status:', error);
+                        emergencyStatusElement.textContent = 'Unable to load emergency status';
+                        emergencyActionsElement.innerHTML = `
+            <button class="btn-sm btn-emergency" onclick="reportEmergency()">Report Emergency</button>
+        `;
+                    });
+            }
+
             function viewAttendanceDetails(attendanceId) {
                 console.log("Loading attendance for ID:", attendanceId);
 
@@ -1565,6 +1644,14 @@
                                 });
                             };
 
+                            function formatHours(totalHours) {
+                                if (!totalHours && totalHours !== 0) return '—';
+                                const hours = Math.floor(totalHours);
+                                const minutes = Math.round((totalHours - hours) * 60);
+                                return `${hours}h ${minutes}m`;
+                            }
+
+
                             // --- Generate formatted summary ---
                             const summaryHtml = `
                 <div class="summary-item">
@@ -1584,12 +1671,12 @@
                     <span class="summary-value">${formatTime(a.check_out_time)}</span>
                 </div>
                 <div class="summary-item">
-                    <span class="summary-label">☕ Break Duration:</span>
-                    <span class="summary-value">${a.break_duration ? a.break_duration + ' hrs' : '—'}</span>
-                </div>
+    <span class="summary-label">☕ Break Duration:</span>
+    <span class="summary-value">${formatHours(a.break_duration)}</span>
+</div>
                 <div class="summary-item">
                     <span class="summary-label">🕒 Total Hours:</span>
-                    <span class="summary-value">${a.hours_worked ? a.hours_worked + ' hrs' : '—'}</span>
+                    <span class="summary-value">${formatHours(a.total_hours)}</span>
                 </div>
                 <div class="summary-item">
                     <span class="summary-label">📋 Notes:</span>
@@ -1657,39 +1744,6 @@
                     messageDiv.remove();
                 }, 3000);
             }
-
-            // Search functionality
-            // document.getElementById('searchInput').addEventListener('input', function(e) {
-            //     const searchTerm = e.target.value.toLowerCase();
-            //     filterAttendance();
-            // });
-
-            // // Filter functionality
-            // document.getElementById('monthFilter').addEventListener('change', filterAttendance);
-            // document.getElementById('statusFilter').addEventListener('change', filterAttendance);
-
-            // function filterAttendance() {
-            //     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            //     const monthFilter = document.getElementById('monthFilter').value;
-            //     const statusFilter = document.getElementById('statusFilter').value;
-            //     const cards = document.querySelectorAll('.attendance-card');
-
-            //     cards.forEach(card => {
-            //         const date = card.querySelector('h4').textContent.toLowerCase();
-            //         const month = card.dataset.month;
-            //         const status = card.dataset.status;
-
-            //         const matchesSearch = date.includes(searchTerm);
-            //         const matchesMonth = !monthFilter || month === monthFilter;
-            //         const matchesStatus = !statusFilter || status === statusFilter;
-
-            //         if (matchesSearch && matchesMonth && matchesStatus) {
-            //             card.style.display = 'block';
-            //         } else {
-            //             card.style.display = 'none';
-            //         }
-            //     });
-            // }
 
             document.getElementById('searchInput').addEventListener('input', filterAttendance);
             document.getElementById('monthFilter').addEventListener('change', filterAttendance);

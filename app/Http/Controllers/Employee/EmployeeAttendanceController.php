@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\Leave;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,6 +30,7 @@ class EmployeeAttendanceController extends Controller
         // --- Summary stats ---
         $presentDays = $attendances->where('status', 'present')->count();
         $absentDays = $attendances->where('status', 'absent')->count();
+
         $lateArrivals = $attendances->where('status', 'late')->count();
 
         // --- Total hours calculation ---
@@ -86,7 +88,7 @@ class EmployeeAttendanceController extends Controller
 
             // --- Working Hours ---
             if ($attendance->check_in_time && !$attendance->check_out_time) {
-                $checkIn = \Carbon\Carbon::parse($attendance->check_in_time)->timezone('Asia/Colombo');
+                $checkIn = Carbon::parse($attendance->check_in_time)->timezone('Asia/Colombo');
                 $now = now('Asia/Colombo');
 
                 // --- Base worked minutes ---
@@ -98,12 +100,12 @@ class EmployeeAttendanceController extends Controller
 
                 // --- Deduct ongoing break if active ---
                 if ($attendance->is_on_break && $attendance->break_start_time) {
-                    $breakMinutes += \Carbon\Carbon::parse($attendance->break_start_time)->diffInMinutes($now);
+                    $breakMinutes += Carbon::parse($attendance->break_start_time)->diffInMinutes($now);
                 }
 
                 // --- Deduct ongoing emergency if active ---
                 if ($attendance->is_on_emergency && $attendance->emergency_start_time) {
-                    $emergencyMinutes += \Carbon\Carbon::parse($attendance->emergency_start_time)->diffInMinutes($now);
+                    $emergencyMinutes += Carbon::parse($attendance->emergency_start_time)->diffInMinutes($now);
                 }
 
                 // --- Final worked time ---
@@ -114,6 +116,16 @@ class EmployeeAttendanceController extends Controller
                 $workingHoursNow = sprintf('%dh %dm', $hours, $minutes);
             }
         }
+
+        // --- Check if employee has approved leave today ---
+        $today = now('Asia/Colombo')->toDateString();
+
+        $hasLeaveToday = Leave::where('employee_id', $employeeId)
+            ->where('status', 'approved')
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->exists();
+
 
         return view('employees.attendance.index', compact(
             'attendances',
@@ -128,7 +140,8 @@ class EmployeeAttendanceController extends Controller
             'breakStatus',
             'status',
             'targetDate',
-            'isClockedIn'
+            'isClockedIn',
+            'hasLeaveToday'
         ));
     }
 
@@ -251,7 +264,7 @@ class EmployeeAttendanceController extends Controller
                 'check_in_time' => $attendance->check_in_time,
                 'check_out_time' => $attendance->check_out_time,
                 'break_duration' => $attendance->break_duration,
-                'total_hours' => $attendance->total_hours,
+                'total_hours' => $attendance->hours_worked,
                 'notes' => $attendance->notes,
             ],
         ]);
