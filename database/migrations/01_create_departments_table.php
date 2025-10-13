@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::dropIfExists('employees');
@@ -27,15 +24,12 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('set null');
-
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
+
         Schema::dropIfExists('departments');
     }
 };

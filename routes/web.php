@@ -218,14 +218,14 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [EventController::class, 'destroy'])->name('destroy');
     });
 
-    
+
     Route::prefix('admin')->name('admin.')->group(function () {
         // Employee Management
         Route::get('/employees', function () {
             $employees = Employee::with(['department', 'admin'])->get();
             $departments = Department::all();
             $admins = Admin::all();
-            $teams = Team::all(); // <-- Add this line
+            $teams = Team::all();
             return view('admin.employees.index', compact('employees', 'departments', 'admins', 'teams'));
         })->name('employees');
 

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->unsignedBigInteger('downloads')->default(0);
             $table->timestamps();
 
-            $table->foreign('department_id')->references('id')->on('departments')->onDelete('set null');
+            $table->foreign('department_id')->references('department_id')->on('departments')->onDelete('set null');
         });
     }
 
