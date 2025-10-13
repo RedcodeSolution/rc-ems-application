@@ -121,9 +121,12 @@ Route::middleware('auth')->group(function () {
 
     //employee profile skills managment
     Route::get('/employees/profile/skills', [EmployeeProfileController::class, 'getSkills'])->name('employee.skills.index');
-    Route::post('/employees/profile/skills', [EmployeeProfileController::class, 'createSkills'])->name('employee.skills.create');
-    Route::put('/employees/profile/skills/{skillId}', [EmployeeProfileController::class, 'updateSkill'])->name('employee.skills.update');
-    Route::delete('/employees/profile/skills/{skillId}', [EmployeeProfileController::class, 'deleteSkill'])->name('employee.skills.delete');
+    Route::post('/skills/save', [EmployeeProfileController::class, 'saveSkills'])
+        ->name('employee.skills.save');
+
+    // Route::post('/employees/profile/skills', [EmployeeProfileController::class, 'createSkills'])->name('employee.skills.create');
+    // Route::put('/employees/profile/skills/{skillId}', [EmployeeProfileController::class, 'updateSkill'])->name('employee.skills.update');
+    // Route::delete('/employees/profile/skills/{skillId}', [EmployeeProfileController::class, 'deleteSkill'])->name('employee.skills.delete');
 
     //employee leaves managment
     Route::get('/employees/leaves', [EmployeeLeaveController::class, 'index'])->name('employee.leaves.index');
@@ -174,6 +177,8 @@ Route::middleware('auth')->group(function () {
 
         // Route::post('/attendance/clock-out', [EmployeeAttendanceController::class, 'clockOut'])
         //     ->name('employee.attendance.clockout');
+        Route::get('/attendance/details/{id}', [EmployeeAttendanceController::class, 'getDetailsById'])
+            ->name('employee.attendance.getDetailsById');
 
         Route::get('/attendance/break-status', [EmployeeAttendanceController::class, 'getBreakStatus'])
             ->name('employee.attendance.getBreakStatus');

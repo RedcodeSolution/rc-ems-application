@@ -847,11 +847,11 @@
 
                 <div class="sidebar-menu-section">
                     <div class="sidebar-menu-title">Reports & Analytics</div>
-                    <a href="{{ route('admin.reports') }}"
+                    {{-- <a href="{{ route('admin.reports') }}"
                         class="sidebar-menu-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
                         <i class="fas fa-chart-bar"></i>
                         <span>Reports</span>
-                    </a>
+                    </a> --}}
                     <a href="{{ route('admin.announcements') }}"
                         class="sidebar-menu-item {{ request()->routeIs('admin.announcements') ? 'active' : '' }}">
                         <i class="fas fa-bullhorn"></i>
@@ -866,11 +866,11 @@
                         <i class="fas fa-user-shield"></i>
                         <span>Admin Profile</span>
                     </a>
-                    <a href="{{ route('admin.documents') }}"
+                    {{-- <a href="{{ route('admin.documents') }}"
                         class="sidebar-menu-item {{ request()->routeIs('admin.documents') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
                         <span>Documents</span>
-                    </a>
+                    </a> --}}
                     <a href="{{ route('admin.notifications') }}"
                         class="sidebar-menu-item {{ request()->routeIs('admin.notifications') ? 'active' : '' }}">
                         <i class="fas fa-bell"></i>

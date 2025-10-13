@@ -131,11 +131,8 @@
                 <div class="filter-section">
                     <select id="monthFilter" class="filter-select">
                         <option value="">All Months</option>
-                        <option value="january">January 2024</option>
-                        <option value="february">February 2024</option>
-                        <option value="march">March 2024</option>
-                        <option value="april">April 2024</option>
                     </select>
+
                     <select id="statusFilter" class="filter-select">
                         <option value="">All Status</option>
                         <option value="present">Present</option>
@@ -148,298 +145,6 @@
         </div>
 
         <!-- Attendance Records -->
-        {{-- <div class="attendance-content">
-            <div class="attendance-grid" id="attendanceGrid">
-                <!-- Present Day Record -->
-                <div class="attendance-card present" data-status="present" data-month="january">
-                    <div class="attendance-header">
-                        <div class="attendance-date">
-                            <h4>January 15, 2024</h4>
-                            <p>Monday</p>
-                        </div>
-                        <div class="attendance-status present">
-                            <i class="fas fa-check-circle"></i>
-                            Present
-                        </div>
-                    </div>
-                    <div class="attendance-details">
-                        <div class="time-details">
-                            <div class="time-entry">
-                                <span class="time-label">Clock In:</span>
-                                <span class="time-value">9:00 AM</span>
-                            </div>
-                            <div class="time-entry">
-                                <span class="time-label">Clock Out:</span>
-                                <span class="time-value">6:00 PM</span>
-                            </div>
-                            <div class="time-entry">
-                                <span class="time-label">Break Time:</span>
-                                <span class="time-value">1h 00m</span>
-                            </div>
-                            <div class="time-entry total-hours">
-                                <span class="time-label">Total Hours:</span>
-                                <span class="time-value">8h 00m</span>
-                            </div>
-                        </div>
-                        <div class="attendance-notes">
-                            <p><i class="fas fa-sticky-note"></i> Regular working day</p>
-                        </div>
-                    </div>
-                    <div class="attendance-actions">
-                        <button class="action-btn" onclick="viewAttendanceDetails('2024-01-15')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="action-btn" onclick="editAttendance('2024-01-15')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn" onclick="downloadReport('2024-01-15')">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Late Arrival Record -->
-                <div class="attendance-card late" data-status="late" data-month="january">
-                    <div class="attendance-header">
-                        <div class="attendance-date">
-                            <h4>January 14, 2024</h4>
-                            <p>Sunday</p>
-                        </div>
-                        <div class="attendance-status late">
-                            <i class="fas fa-clock"></i>
-                            Late
-                        </div>
-                    </div>
-                    <div class="attendance-details">
-                        <div class="time-details">
-                            <div class="time-entry">
-                                <span class="time-label">Clock In:</span>
-                                <span class="time-value">9:30 AM</span>
-                            </div>
-                            <div class="time-entry">
-                                <span class="time-label">Clock Out:</span>
-                                <span class="time-value">6:30 PM</span>
-                            </div>
-                            <div class="time-entry">
-                                <span class="time-label">Break Time:</span>
-                                <span class="time-value">1h 00m</span>
-                            </div>
-                            <div class="time-entry total-hours">
-                                <span class="time-label">Total Hours:</span>
-                                <span class="time-value">8h 00m</span>
-                            </div>
-                        </div>
-                        <div class="attendance-notes">
-                            <p><i class="fas fa-exclamation-triangle"></i> 30 minutes late - Traffic delay</p>
-                        </div>
-                    </div>
-                    <div class="attendance-actions">
-                        <button class="action-btn" onclick="viewAttendanceDetails('2024-01-14')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="action-btn" onclick="editAttendance('2024-01-14')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn" onclick="downloadReport('2024-01-14')">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Absent Day Record -->
-                <div class="attendance-card absent" data-status="absent" data-month="january">
-                    <div class="attendance-header">
-                        <div class="attendance-date">
-                            <h4>January 13, 2024</h4>
-                            <p>Saturday</p>
-                        </div>
-                        <div class="attendance-status absent">
-                            <i class="fas fa-times-circle"></i>
-                            Absent
-                        </div>
-                    </div>
-                    <div class="attendance-details">
-                        <div class="time-details">
-                            <div class="time-entry">
-                                <span class="time-label">Clock In:</span>
-                                <span class="time-value">-</span>
-                            </div>
-                            <div class="time-entry">
-                                <span class="time-label">Clock Out:</span>
-                                <span class="time-value">-</span>
-                            </div>
-                            <div class="time-entry">
-                                <span class="time-label">Break Time:</span>
-                                <span class="time-value">-</span>
-                            </div>
-                            <div class="time-entry total-hours">
-                                <span class="time-label">Total Hours:</span>
-                                <span class="time-value">0h 00m</span>
-                            </div>
-                        </div>
-                        <div class="attendance-notes">
-                            <p><i class="fas fa-user-times"></i> Sick leave approved</p>
-                        </div>
-                    </div>
-                    <div class="attendance-actions">
-                        <button class="action-btn" onclick="viewAttendanceDetails('2024-01-13')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="action-btn" onclick="editAttendance('2024-01-13')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn" onclick="downloadReport('2024-01-13')">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Early Leave Record -->
-                <div class="attendance-card early-leave" data-status="early_leave" data-month="january">
-                    <div class="attendance-header">
-                        <div class="attendance-date">
-                            <h4>January 12, 2024</h4>
-                            <p>Friday</p>
-                        </div>
-                        <div class="attendance-status early-leave">
-                            <i class="fas fa-sign-out-alt"></i>
-                            Early Leave
-                        </div>
-                    </div>
-                    <div class="attendance-details">
-                        <div class="time-details">
-                            <div class="time-entry">
-                                <span class="time-label">Clock In:</span>
-                                <span class="time-value">9:00 AM</span>
-                            </div>
-                            <div class="time-entry">
-                                <span class="time-label">Clock Out:</span>
-                                <span class="time-value">4:00 PM</span>
-                            </div>
-                            <div class="time-entry">
-                                <span class="time-label">Break Time:</span>
-                                <span class="time-value">1h 00m</span>
-                            </div>
-                            <div class="time-entry total-hours">
-                                <span class="time-label">Total Hours:</span>
-                                <span class="time-value">6h 00m</span>
-                            </div>
-                        </div>
-                        <div class="attendance-notes">
-                            <p><i class="fas fa-calendar-alt"></i> Early leave approved - Personal appointment</p>
-                        </div>
-                    </div>
-                    <div class="attendance-actions">
-                        <button class="action-btn" onclick="viewAttendanceDetails('2024-01-12')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="action-btn" onclick="editAttendance('2024-01-12')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn" onclick="downloadReport('2024-01-12')">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Normal Working Day -->
-                <div class="attendance-card present" data-status="present" data-month="january">
-                    <div class="attendance-header">
-                        <div class="attendance-date">
-                            <h4>January 11, 2024</h4>
-                            <p>Thursday</p>
-                        </div>
-                        <div class="attendance-status present">
-                            <i class="fas fa-check-circle"></i>
-                            Present
-                        </div>
-                    </div>
-                    <div class="attendance-details">
-                        <div class="time-details">
-                            <div class="time-entry">
-                                <span class="time-label">Clock In:</span>
-                                <span class="time-value">8:45 AM</span>
-                            </div>
-                            <div class="time-entry">
-                                <span class="time-label">Clock Out:</span>
-                                <span class="time-value">5:45 PM</span>
-                            </div>
-                            <div class="time-entry">
-                                <span class="time-label">Break Time:</span>
-                                <span class="time-value">1h 00m</span>
-                            </div>
-                            <div class="time-entry total-hours">
-                                <span class="time-label">Total Hours:</span>
-                                <span class="time-value">8h 00m</span>
-                            </div>
-                        </div>
-                        <div class="attendance-notes">
-                            <p><i class="fas fa-thumbs-up"></i> Early arrival - Good performance</p>
-                        </div>
-                    </div>
-                    <div class="attendance-actions">
-                        <button class="action-btn" onclick="viewAttendanceDetails('2024-01-11')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="action-btn" onclick="editAttendance('2024-01-11')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn" onclick="downloadReport('2024-01-11')">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Overtime Day -->
-                <div class="attendance-card overtime" data-status="present" data-month="january">
-                    <div class="attendance-header">
-                        <div class="attendance-date">
-                            <h4>January 10, 2024</h4>
-                            <p>Wednesday</p>
-                        </div>
-                        <div class="attendance-status overtime">
-                            <i class="fas fa-clock"></i>
-                            Overtime
-                        </div>
-                    </div>
-                    <div class="attendance-details">
-                        <div class="time-details">
-                            <div class="time-entry">
-                                <span class="time-label">Clock In:</span>
-                                <span class="time-value">9:00 AM</span>
-                            </div>
-                            <div class="time-entry">
-                                <span class="time-label">Clock Out:</span>
-                                <span class="time-value">8:00 PM</span>
-                            </div>
-                            <div class="time-entry">
-                                <span class="time-label">Break Time:</span>
-                                <span class="time-value">1h 00m</span>
-                            </div>
-                            <div class="time-entry total-hours">
-                                <span class="time-label">Total Hours:</span>
-                                <span class="time-value">10h 00m</span>
-                            </div>
-                        </div>
-                        <div class="attendance-notes">
-                            <p><i class="fas fa-business-time"></i> Overtime approved - Project deadline</p>
-                        </div>
-                    </div>
-                    <div class="attendance-actions">
-                        <button class="action-btn" onclick="viewAttendanceDetails('2024-01-10')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="action-btn" onclick="editAttendance('2024-01-10')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn" onclick="downloadReport('2024-01-10')">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
-
         @php
             use Carbon\Carbon;
         @endphp
@@ -551,11 +256,8 @@
                         </div>
 
                         <div class="attendance-actions">
-                            <button class="action-btn" onclick="viewAttendanceDetails('{{ $attendance->date }}')">
+                            <button class="action-btn" onclick="viewAttendanceDetails('{{ $attendance->id }}')">
                                 <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="action-btn" onclick="editAttendance('{{ $attendance->date }}')">
-                                <i class="fas fa-edit"></i>
                             </button>
                             <button class="action-btn" onclick="downloadReport('{{ $attendance->date }}')">
                                 <i class="fas fa-download"></i>
@@ -1514,42 +1216,6 @@
                 }
             }
 
-            // function clockIn() {
-            //     document.getElementById('clockModalIcon').className = 'fas fa-sign-in-alt';
-            //     document.getElementById('clockModalTitle').textContent = 'Clock In';
-            //     document.getElementById('confirmClockBtn').innerHTML = '<i class="fas fa-check"></i> Confirm Clock In';
-            //     document.getElementById('clockModal').classList.add('active');
-            // }
-
-            // function clockOut() {
-            //     document.getElementById('clockModalIcon').className = 'fas fa-sign-out-alt';
-            //     document.getElementById('clockModalTitle').textContent = 'Clock Out';
-            //     document.getElementById('confirmClockBtn').innerHTML = '<i class="fas fa-check"></i> Confirm Clock Out';
-            //     document.getElementById('clockModal').classList.add('active');
-            // }
-
-
-            // function confirmClock() {
-            //     const notes = document.getElementById('clockNotes').value;
-            //     const isClockingIn = document.getElementById('clockModalTitle').textContent === 'Clock In';
-
-            //     if (isClockingIn) {
-            //         // Clock in logic
-            //         document.getElementById('clockInBtn').style.display = 'none';
-            //         document.getElementById('clockOutBtn').style.display = 'inline-flex';
-            //         clockedIn = true;
-            //         showMessage('Successfully clocked in!', 'success');
-            //     } else {
-            //         // Clock out logic
-            //         document.getElementById('clockInBtn').style.display = 'inline-flex';
-            //         document.getElementById('clockOutBtn').style.display = 'none';
-            //         clockedIn = false;
-            //         showMessage('Successfully clocked out!', 'success');
-            //     }
-
-            //     closeClockModal();
-            // }
-
             function clockIn() {
                 document.getElementById('clockModalIcon').className = 'fas fa-sign-in-alt';
                 document.getElementById('clockModalTitle').textContent = 'Clock In';
@@ -1639,21 +1305,93 @@
                 fetch("{{ route('employee.attendance.getBreakStatus') }}")
                     .then(res => res.json())
                     .then(data => {
-                        if (data.success && data.on_break) {
-                            isOnBreak = true;
-                            document.querySelector('.btn-break').textContent = 'End Break';
-                            document.querySelector('.btn-break').onclick = endBreak;
-                            document.querySelector('.status-info p').textContent =
-                                `On break since ${data.break_start_time}`;
-                        } else {
-                            isOnBreak = false;
-                            document.querySelector('.btn-break').textContent = 'Start Break';
-                            document.querySelector('.btn-break').onclick = startBreak;
-                            document.querySelector('.status-info p').textContent = 'Not on break';
+                        const breakBtn = document.querySelector('.btn-break');
+                        const emergencyBtn = document.querySelector('.btn-emergency');
+                        const statusInfo = document.querySelector('#todayStatus .status-info');
+                        const breakInfo = document.querySelectorAll('.status-info')[1]; // 2nd card (Break)
+                        const emergencyInfo = document.querySelectorAll('.status-info')[2]; // 3rd card (Emergency)
+
+                        // --- If no attendance or no clock-in ---
+                        if (!data.success || !data.check_in_time) {
+                            statusInfo.innerHTML = `<h3>N/A</h3><p>No clock-in data for today</p>`;
+                            breakInfo.querySelector('p').textContent = 'Not on break';
+                            emergencyInfo.querySelector('p').textContent = 'No emergency breaks';
+
+                            // Disable both buttons
+                            if (breakBtn) {
+                                breakBtn.textContent = 'Unavailable';
+                                breakBtn.disabled = true;
+                                breakBtn.classList.add('btn-disabled');
+                            }
+                            if (emergencyBtn) {
+                                emergencyBtn.textContent = 'Unavailable';
+                                emergencyBtn.disabled = true;
+                                emergencyBtn.classList.add('btn-disabled');
+                            }
+                            return;
                         }
+
+                        // --- Update "Today Status" card ---
+                        let html = `<h3>${data.status ?? 'N/A'}</h3>`;
+
+                        if (data.check_in_time) {
+                            html += `
+                    <p>Clocked in at ${data.check_in_time}</p>
+                    <div class="work-hours">
+                        <span>Work Hours: <strong>${data.working_hours}</strong></span>
+                    </div>
+                `;
+                        } else {
+                            html += `<p>No clock-in data for today</p>`;
+                        }
+
+                        statusInfo.innerHTML = html;
+
+                        // --- If checked out ---
+                        if (data.checked_out) {
+                            breakInfo.querySelector('p').textContent = 'Checked out — break unavailable';
+                            emergencyInfo.querySelector('p').textContent = 'Checked out — emergency unavailable';
+
+                            if (breakBtn) {
+                                breakBtn.textContent = 'Unavailable';
+                                breakBtn.disabled = true;
+                                breakBtn.classList.add('btn-disabled');
+                            }
+                            if (emergencyBtn) {
+                                emergencyBtn.textContent = 'Unavailable';
+                                emergencyBtn.disabled = true;
+                                emergencyBtn.classList.add('btn-disabled');
+                            }
+                            return;
+                        }
+
+                        // --- Handle break button logic ---
+                        if (data.on_break) {
+                            breakBtn.textContent = 'End Break';
+                            breakBtn.disabled = false;
+                            breakBtn.onclick = endBreak;
+                            breakInfo.querySelector('p').textContent = `On break since ${data.break_start_time}`;
+                        } else {
+                            breakBtn.textContent = 'Start Break';
+                            breakBtn.disabled = false;
+                            breakBtn.onclick = startBreak;
+                            breakInfo.querySelector('p').textContent = 'Not on break';
+                        }
+
+                        // --- Enable emergency button by default (only if checked in) ---
+                        if (emergencyBtn) {
+                            emergencyBtn.textContent = 'Report Emergency';
+                            emergencyBtn.disabled = false;
+                            emergencyBtn.classList.remove('btn-disabled');
+                            emergencyBtn.onclick = reportEmergency;
+                        }
+
+                        // --- Sync emergency status ---
+                        updateEmergencyStatus();
                     })
                     .catch(err => console.error('Error fetching break status:', err));
             }
+
 
             function startBreak() {
                 fetch("{{ route('employee.attendance.startbreak') }}", {
@@ -1666,13 +1404,7 @@
                     .then(res => res.json())
                     .then(data => {
                         alert(data.message);
-                        if (data.success) {
-                            isOnBreak = true;
-                            document.querySelector('.btn-break').textContent = 'End Break';
-                            document.querySelector('.btn-break').onclick = endBreak;
-                            document.querySelector('.status-info p').textContent =
-                                `On break since ${data.data.break_start_time}`;
-                        }
+                        if (data.success) checkBreakStatus();
                     });
             }
 
@@ -1687,15 +1419,10 @@
                     .then(res => res.json())
                     .then(data => {
                         alert(data.message);
-                        if (data.success) {
-                            isOnBreak = false;
-                            document.querySelector('.btn-break').textContent = 'Start Break';
-                            document.querySelector('.btn-break').onclick = startBreak;
-                            document.querySelector('.status-info p').textContent =
-                                `Last break ended at ${data.data.break_end_time}`;
-                        }
+                        if (data.success) checkBreakStatus();
                     });
             }
+
 
             function startEmergencyBreak() {
                 // Reset form
@@ -1717,7 +1444,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            showMessage('✅ Emergency break ended successfully.', 'success');
+                            showMessage('Emergency break ended successfully.', 'success');
                             updateEmergencyStatus(false);
                         } else {
                             showMessage(data.message, 'error');
@@ -1738,77 +1465,6 @@
                 document.getElementById('emergencyModal').classList.add('active');
             }
 
-            //     function updateEmergencyStatus() {
-
-            //         const emergencyStatusElement = document.querySelector('.status-card:last-child .status-info p');
-            //         const emergencyActionsElement = document.querySelector('.emergency-actions');
-
-            //         if (window.emergencyBreaks && window.emergencyBreaks.length > 0) {
-            //             const activeEmergency = window.emergencyBreaks.find(eb => !eb.endTime);
-            //             if (activeEmergency) {
-            //                 emergencyStatusElement.textContent = `Emergency break active - ${activeEmergency.reason}`;
-            //                 emergencyActionsElement.innerHTML = `
-    // <button class="btn-sm btn-emergency" onclick="endEmergencyBreak()">End Emergency Break</button>
-    // `;
-            //             } else {
-            //                 const totalEmergencies = window.emergencyBreaks.length;
-            //                 emergencyStatusElement.textContent = `${totalEmergencies} emergency break(s) recorded`;
-            //                 emergencyActionsElement.innerHTML = `
-    // <button class="btn-sm btn-emergency" onclick="reportEmergency()">Report Emergency</button>
-    // `;
-            //             }
-            //         } else {
-            //             emergencyStatusElement.textContent = 'No emergency breaks';
-            //             emergencyActionsElement.innerHTML = `
-    // <button class="btn-sm btn-emergency" onclick="reportEmergency()">Report Emergency</button>
-    // `;
-            //         }
-            //     }
-
-            function updateEmergencyStatus() {
-                const emergencyStatusElement = document.querySelector('.status-card:last-child .status-info p');
-                const emergencyActionsElement = document.querySelector('.emergency-actions');
-
-                fetch('/employees/attendance/emergency/status', {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                        },
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            const emergency = data.emergency;
-                            console.log(emergency);
-
-                            if (emergency.is_active) {
-                                emergencyStatusElement.textContent = `🚨 Emergency break active - ${emergency.reason}`;
-                                emergencyActionsElement.innerHTML = `
-                <button class="btn-sm btn-emergency" onclick="endEmergencyBreak()">End Emergency Break</button>
-            `;
-                            } else if (emergency && emergency.total > 0) {
-                                emergencyStatusElement.textContent = `${emergency.total} emergency break(s) recorded`;
-                                emergencyActionsElement.innerHTML = `
-                <button class="btn-sm btn-emergency" onclick="reportEmergency()">Report Emergency</button>
-            `;
-                            } else {
-                                emergencyStatusElement.textContent = 'No emergency breaks';
-                                emergencyActionsElement.innerHTML = `
-                <button class="btn-sm btn-emergency" onclick="reportEmergency()">Report Emergency</button>
-            `;
-                            }
-                        } else {
-                            emergencyStatusElement.textContent = 'Error loading emergency status';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching emergency status:', error);
-                        emergencyStatusElement.textContent = 'Unable to load emergency status';
-                        emergencyActionsElement.innerHTML = `
-        <button class="btn-sm btn-emergency" onclick="reportEmergency()">Report Emergency</button>
-    `;
-                    });
-            }
 
             function closeEmergencyModal() {
                 document.getElementById('emergencyModal').classList.remove('active');
@@ -1869,41 +1525,89 @@
                 }
             });
 
-            function viewAttendanceDetails(date) {
-                const summaryData = getAttendanceDetails(date);
-                const summaryHtml = `
-    <div class="summary-item">
-        <span class="summary-label">Date:</span>
-        <span class="summary-value">${summaryData.date}</span>
-    </div>
-    <div class="summary-item">
-        <span class="summary-label">Status:</span>
-        <span class="summary-value">${summaryData.status}</span>
-    </div>
-    <div class="summary-item">
-        <span class="summary-label">Clock In:</span>
-        <span class="summary-value">${summaryData.clockIn}</span>
-    </div>
-    <div class="summary-item">
-        <span class="summary-label">Clock Out:</span>
-        <span class="summary-value">${summaryData.clockOut}</span>
-    </div>
-    <div class="summary-item">
-        <span class="summary-label">Break Time:</span>
-        <span class="summary-value">${summaryData.breakTime}</span>
-    </div>
-    <div class="summary-item">
-        <span class="summary-label">Total Hours:</span>
-        <span class="summary-value">${summaryData.totalHours}</span>
-    </div>
-    <div class="summary-item">
-        <span class="summary-label">Notes:</span>
-        <span class="summary-value">${summaryData.notes}</span>
-    </div>
-    `;
+            function viewAttendanceDetails(attendanceId) {
+                console.log("Loading attendance for ID:", attendanceId);
 
-                document.getElementById('attendanceSummary').innerHTML = summaryHtml;
-                document.getElementById('attendanceModal').classList.add('active');
+                const summaryContainer = document.getElementById('attendanceSummary');
+                summaryContainer.innerHTML = `<p>Loading attendance details...</p>`;
+
+                // Fetch attendance record by ID
+                fetch(`/employees/attendance/details/${attendanceId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.attendance) {
+                            const a = data.attendance;
+
+                            // --- Helper functions ---
+                            const formatDate = (dateStr) => {
+                                if (!dateStr) return '—';
+                                const options = {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                };
+                                return new Date(dateStr).toLocaleDateString('en-US', options);
+                            };
+
+                            const formatTime = (timeStr) => {
+                                if (!timeStr) return '—';
+                                const date = new Date(timeStr);
+                                if (isNaN(date)) return timeStr; // fallback if not ISO format
+                                return date.toLocaleTimeString('en-US', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: true
+                                });
+                            };
+
+                            // --- Generate formatted summary ---
+                            const summaryHtml = `
+                <div class="summary-item">
+                    <span class="summary-label">📅 Date:</span>
+                    <span class="summary-value">${formatDate(a.date)}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">🟢 Status:</span>
+                    <span class="summary-value">${a.status ?? 'N/A'}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">⏰ Clock In:</span>
+                    <span class="summary-value">${formatTime(a.check_in_time)}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">🏁 Clock Out:</span>
+                    <span class="summary-value">${formatTime(a.check_out_time)}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">☕ Break Duration:</span>
+                    <span class="summary-value">${a.break_duration ? a.break_duration + ' hrs' : '—'}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">🕒 Total Hours:</span>
+                    <span class="summary-value">${a.hours_worked ? a.hours_worked + ' hrs' : '—'}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">📋 Notes:</span>
+                    <span class="summary-value">${a.notes ?? 'No notes'}</span>
+                </div>
+            `;
+
+                            summaryContainer.innerHTML = summaryHtml;
+                        } else {
+                            summaryContainer.innerHTML = `<p>No attendance record found.</p>`;
+                        }
+
+                        document.getElementById('attendanceModal').classList.add('active');
+                    })
+                    .catch(error => {
+                        console.error('Error fetching attendance details:', error);
+                        summaryContainer.innerHTML = `<p class="error">Unable to load details. Please try again later.</p>`;
+                    });
             }
 
             function closeAttendanceModal() {
@@ -1922,74 +1626,7 @@
                 showMessage('Downloading detailed attendance report...', 'info');
             }
 
-            function getAttendanceDetails(date) {
-                const attendanceData = {
-                    '2024-01-15': {
-                        date: 'January 15, 2024',
-                        status: 'Present',
-                        clockIn: '9:00 AM',
-                        clockOut: '6:00 PM',
-                        breakTime: '1h 00m',
-                        totalHours: '8h 00m',
-                        notes: 'Regular working day'
-                    },
-                    '2024-01-14': {
-                        date: 'January 14, 2024',
-                        status: 'Late',
-                        clockIn: '9:30 AM',
-                        clockOut: '6:30 PM',
-                        breakTime: '1h 00m',
-                        totalHours: '8h 00m',
-                        notes: '30 minutes late - Traffic delay'
-                    },
-                    '2024-01-13': {
-                        date: 'January 13, 2024',
-                        status: 'Absent',
-                        clockIn: '-',
-                        clockOut: '-',
-                        breakTime: '-',
-                        totalHours: '0h 00m',
-                        notes: 'Sick leave approved'
-                    },
-                    '2024-01-12': {
-                        date: 'January 12, 2024',
-                        status: 'Early Leave',
-                        clockIn: '9:00 AM',
-                        clockOut: '4:00 PM',
-                        breakTime: '1h 00m',
-                        totalHours: '6h 00m',
-                        notes: 'Early leave approved - Personal appointment'
-                    },
-                    '2024-01-11': {
-                        date: 'January 11, 2024',
-                        status: 'Present',
-                        clockIn: '8:45 AM',
-                        clockOut: '5:45 PM',
-                        breakTime: '1h 00m',
-                        totalHours: '8h 00m',
-                        notes: 'Early arrival - Good performance'
-                    },
-                    '2024-01-10': {
-                        date: 'January 10, 2024',
-                        status: 'Overtime',
-                        clockIn: '9:00 AM',
-                        clockOut: '8:00 PM',
-                        breakTime: '1h 00m',
-                        totalHours: '10h 00m',
-                        notes: 'Overtime approved - Project deadline'
-                    }
-                };
 
-                return attendanceData[date] || {
-                    date: date,
-                    status: 'Unknown',
-                    clockIn: '-',
-                    clockOut: '-',
-                    breakTime: '-',
-                    totalHours: '-',
-                    notes: 'No data available'
-                };
-            }
 
             function showMessage(message, type) {
                 const messageDiv = document.createElement('div');
@@ -2022,37 +1659,104 @@
             }
 
             // Search functionality
-            document.getElementById('searchInput').addEventListener('input', function(e) {
-                const searchTerm = e.target.value.toLowerCase();
-                filterAttendance();
-            });
+            // document.getElementById('searchInput').addEventListener('input', function(e) {
+            //     const searchTerm = e.target.value.toLowerCase();
+            //     filterAttendance();
+            // });
 
-            // Filter functionality
+            // // Filter functionality
+            // document.getElementById('monthFilter').addEventListener('change', filterAttendance);
+            // document.getElementById('statusFilter').addEventListener('change', filterAttendance);
+
+            // function filterAttendance() {
+            //     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            //     const monthFilter = document.getElementById('monthFilter').value;
+            //     const statusFilter = document.getElementById('statusFilter').value;
+            //     const cards = document.querySelectorAll('.attendance-card');
+
+            //     cards.forEach(card => {
+            //         const date = card.querySelector('h4').textContent.toLowerCase();
+            //         const month = card.dataset.month;
+            //         const status = card.dataset.status;
+
+            //         const matchesSearch = date.includes(searchTerm);
+            //         const matchesMonth = !monthFilter || month === monthFilter;
+            //         const matchesStatus = !statusFilter || status === statusFilter;
+
+            //         if (matchesSearch && matchesMonth && matchesStatus) {
+            //             card.style.display = 'block';
+            //         } else {
+            //             card.style.display = 'none';
+            //         }
+            //     });
+            // }
+
+            document.getElementById('searchInput').addEventListener('input', filterAttendance);
             document.getElementById('monthFilter').addEventListener('change', filterAttendance);
             document.getElementById('statusFilter').addEventListener('change', filterAttendance);
 
+
+            // Dynamically populate all months
+            document.addEventListener('DOMContentLoaded', function() {
+                const monthSelect = document.getElementById('monthFilter');
+                const currentYear = new Date().getFullYear();
+
+                const months = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+
+                months.forEach((month, index) => {
+                    const option = document.createElement('option');
+                    option.value = month.toLowerCase();
+                    option.textContent = `${month} ${currentYear}`;
+                    monthSelect.appendChild(option);
+                });
+            });
+
+
             function filterAttendance() {
-                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
                 const monthFilter = document.getElementById('monthFilter').value;
                 const statusFilter = document.getElementById('statusFilter').value;
                 const cards = document.querySelectorAll('.attendance-card');
+                let visibleCount = 0;
 
                 cards.forEach(card => {
-                    const date = card.querySelector('h4').textContent.toLowerCase();
-                    const month = card.dataset.month;
-                    const status = card.dataset.status;
+                    // Extract values from card
+                    const dateText = card.querySelector('.attendance-date h4')?.textContent.toLowerCase() || '';
+                    const status = card.dataset.status?.toLowerCase() || '';
+                    const month = card.dataset.month?.toLowerCase() || '';
 
-                    const matchesSearch = date.includes(searchTerm);
-                    const matchesMonth = !monthFilter || month === monthFilter;
-                    const matchesStatus = !statusFilter || status === statusFilter;
+                    //Match logic
+                    const matchesSearch = !searchTerm || dateText.includes(searchTerm);
+                    const matchesMonth = !monthFilter || month === monthFilter.toLowerCase();
+                    const matchesStatus = !statusFilter || status === statusFilter.toLowerCase();
 
+                    //Apply display logic
                     if (matchesSearch && matchesMonth && matchesStatus) {
                         card.style.display = 'block';
+                        visibleCount++;
                     } else {
                         card.style.display = 'none';
                     }
                 });
+
+                // Show or hide "No results" message
+                let noResults = document.getElementById('noResults');
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.id = 'noResults';
+                    noResults.textContent = 'No attendance records found.';
+                    noResults.style.textAlign = 'center';
+                    noResults.style.color = '#888';
+                    noResults.style.marginTop = '20px';
+                    document.querySelector('.attendance-content').appendChild(noResults);
+                }
+
+                noResults.style.display = visibleCount === 0 ? 'block' : 'none';
             }
+
 
             // Close modal when clicking outside
             document.getElementById('clockModal').addEventListener('click', function(e) {

@@ -384,10 +384,10 @@
                 <div class="card-header">
                     <h3><i class="fas fa-chart-line"></i> Attendance Overview</h3>
                     <div class="card-actions">
-                        <select class="period-selector">
-                            <option value="week">This Week</option>
-                            <option value="month">This Month</option>
-                            <option value="year">This Year</option>
+                        <select id="periodSelector" class="period-selector">
+                            <option value="week" {{ $selected_period == 'week' ? 'selected' : '' }}>This Week</option>
+                            <option value="month" {{ $selected_period == 'month' ? 'selected' : '' }}>This Month</option>
+                            <option value="year" {{ $selected_period == 'year' ? 'selected' : '' }}>This Year</option>
                         </select>
                     </div>
                 </div>
@@ -1102,46 +1102,83 @@
             }
 
 
-            const ctx = document.getElementById('attendanceChart').getContext('2d');
-            const attendanceChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: @json($attendance_labels),
-                    datasets: [{
-                            label: 'Present',
-                            backgroundColor: '#4caf50',
-                            data: @json($present_data),
-                        },
-                        {
-                            label: 'Absent',
-                            backgroundColor: '#f44336',
-                            data: @json($absent_data),
-                        },
-                        {
-                            label: 'Late',
-                            backgroundColor: '#ff9800',
-                            data: @json($late_data),
-                        },
-                        {
-                            label: 'Half Day',
-                            backgroundColor: '#2196f3',
-                            data: @json($halfday_data),
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top'
-                        }
+            let chartInstance;
+
+            function renderAttendanceChart(labels, present, absent, late, halfday) {
+                const ctx = document.getElementById('attendanceChart').getContext('2d');
+
+                if (chartInstance) chartInstance.destroy();
+
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                                label: 'Present',
+                                backgroundColor: '#4caf50',
+                                data: present
+                            },
+                            {
+                                label: 'Absent',
+                                backgroundColor: '#f44336',
+                                data: absent
+                            },
+                            {
+                                label: 'Late',
+                                backgroundColor: '#ff9800',
+                                data: late
+                            },
+                            {
+                                label: 'Half Day',
+                                backgroundColor: '#2196f3',
+                                data: halfday
+                            },
+                        ],
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                    },
+                });
+            }
+
+            // Initial load
+            renderAttendanceChart(
+                @json($attendance_labels),
+                @json($present_data),
+                @json($absent_data),
+                @json($late_data),
+                @json($halfday_data)
+            );
+
+            document.getElementById('periodSelector').addEventListener('change', function() {
+                const selectedPeriod = this.value;
+                fetch(`{{ route('employee.dashboard') }}?period=${selectedPeriod}`)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const newDoc = parser.parseFromString(html, 'text/html');
+                        const newLabels = JSON.parse(newDoc.querySelector('#attendanceDataLabels').textContent);
+                        const newPresent = JSON.parse(newDoc.querySelector('#attendanceDataPresent').textContent);
+                        const newAbsent = JSON.parse(newDoc.querySelector('#attendanceDataAbsent').textContent);
+                        const newLate = JSON.parse(newDoc.querySelector('#attendanceDataLate').textContent);
+                        const newHalfday = JSON.parse(newDoc.querySelector('#attendanceDataHalfday').textContent);
+                        renderAttendanceChart(newLabels, newPresent, newAbsent, newLate, newHalfday);
+                    });
             });
         </script>
+        <script type="application/json" id="attendanceDataLabels">@json($attendance_labels)</script>
+        <script type="application/json" id="attendanceDataPresent">@json($present_data)</script>
+        <script type="application/json" id="attendanceDataAbsent">@json($absent_data)</script>
+        <script type="application/json" id="attendanceDataLate">@json($late_data)</script>
+        <script type="application/json" id="attendanceDataHalfday">@json($halfday_data)</script>
     @endsection
