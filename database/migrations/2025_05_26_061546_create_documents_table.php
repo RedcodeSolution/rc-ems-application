@@ -15,6 +15,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('category');
             $table->unsignedBigInteger('department_id')->nullable();
+            $table->unsignedBigInteger('employee_id')->nullable();
             $table->enum('access_level', ['public', 'department', 'admin', 'restricted']);
             $table->string('tags')->nullable();
             $table->string('file_path');
@@ -22,7 +23,8 @@ return new class extends Migration
             $table->unsignedBigInteger('downloads')->default(0);
             $table->timestamps();
 
-            $table->foreign('department_id')->references('id')->on('departments')->onDelete('set null');
+            $table->foreign('department_id')->references('department_id')->on('departments')->onDelete('set null');
+            $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('set null');
         });
     }
 
@@ -31,6 +33,7 @@ return new class extends Migration
         Schema::dropIfExists('documents');
         Schema::table('documents', function (Blueprint $table) {
             $table->dropColumn('downloads');
+            $table->dropColumn('employee_id');
         });
     }
 };

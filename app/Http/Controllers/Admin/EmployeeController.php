@@ -12,10 +12,130 @@ use Illuminate\Support\Facades\DB;
 
 class EmployeeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $employees = Employee::all();
-        return view('employees.index', compact('employees'));
+        $departments = Department::all();
+        $admins = Admin::all();
+        $teams = Team::all();
+
+        $employeesQuery = Employee::with(['department', 'admin', 'teams', 'leaves']);
+
+        // Reset filters if requested
+        if ($request->has('reset') && $request->reset == '1') {
+            return redirect()->route('admin.employees');
+        }
+
+        // Leave Status Filter
+        if ($request->filled('leave_status')) {
+            switch ($request->leave_status) {
+                case 'with-leaves':
+                    $employeesQuery->has('leaves');
+                    break;
+                case 'no-leaves':
+                    $employeesQuery->doesntHave('leaves');
+                    break;
+                case 'pending-leaves':
+                    $employeesQuery->whereHas('leaves', function ($q) {
+                        $q->where('status', 'pending');
+                    });
+                    break;
+                case 'approved-leaves':
+                    $employeesQuery->whereHas('leaves', function ($q) {
+                        $q->where('status', 'approved');
+                    });
+                    break;
+                case 'rejected-leaves':
+                    $employeesQuery->whereHas('leaves', function ($q) {
+                        $q->where('status', 'rejected');
+                    });
+                    break;
+                case 'on-leave':
+                    $employeesQuery->where('employee_status', 'On Leave');
+                    break;
+            }
+        }
+
+        // Leave Type Filter
+        if ($request->filled('leave_type')) {
+            $employeesQuery->whereHas('leaves', function ($q) use ($request) {
+                $q->where('leave_type', $request->leave_type);
+            });
+        }
+
+        // Leave Count Filter
+        if ($request->filled('leave_count')) {
+            switch ($request->leave_count) {
+                case '0':
+                    $employeesQuery->doesntHave('leaves');
+                    break;
+                case '1-3':
+                    $employeesQuery->has('leaves', '>=', 1)->has('leaves', '<=', 3);
+                    break;
+                case '4-7':
+                    $employeesQuery->has('leaves', '>=', 4)->has('leaves', '<=', 7);
+                    break;
+                case '8+':
+                    $employeesQuery->has('leaves', '>=', 8);
+                    break;
+            }
+        }
+
+        // Leave Period Filter
+        if ($request->filled('leave_period')) {
+            $employeesQuery->whereHas('leaves', function ($q) use ($request) {
+                $now = now();
+                switch ($request->leave_period) {
+                    case 'this-month':
+                        $q->whereMonth('start_date', $now->month)->whereYear('start_date', $now->year);
+                        break;
+                    case 'last-month':
+                        $lastMonth = $now->copy()->subMonth();
+                        $q->whereMonth('start_date', $lastMonth->month)->whereYear('start_date', $lastMonth->year);
+                        break;
+                    case 'this-quarter':
+                        $quarter = ceil($now->month / 3);
+                        $q->whereRaw('QUARTER(start_date) = ?', [$quarter])->whereYear('start_date', $now->year);
+                        break;
+                    case 'this-year':
+                        $q->whereYear('start_date', $now->year);
+                        break;
+                    case 'last-30-days':
+                        $q->where('start_date', '>=', $now->copy()->subDays(30));
+                        break;
+                    case 'last-90-days':
+                        $q->where('start_date', '>=', $now->copy()->subDays(90));
+                        break;
+                }
+            });
+        }
+
+        // Sort logic
+        if ($request->filled('sort_by')) {
+            switch ($request->sort_by) {
+                case 'name_asc':
+                    $employeesQuery->orderBy('employee_name', 'asc');
+                    break;
+                case 'name_desc':
+                    $employeesQuery->orderBy('employee_name', 'desc');
+                    break;
+                case 'department_asc':
+                    $employeesQuery->orderBy('department_id', 'asc');
+                    break;
+                case 'department_desc':
+                    $employeesQuery->orderBy('department_id', 'desc');
+                    break;
+                case 'leave_count_asc':
+                    $employeesQuery->withCount('leaves')->orderBy('leaves_count', 'asc');
+                    break;
+                case 'leave_count_desc':
+                    $employeesQuery->withCount('leaves')->orderBy('leaves_count', 'desc');
+                    break;
+            }
+        }
+
+        $employees = $employeesQuery->get();
+
+        return view('admin.employees.index', compact('employees', 'departments', 'admins', 'teams'));
     }
 
     public function create()
@@ -105,7 +225,7 @@ class EmployeeController extends Controller
         }
 
         $employee->update($validated);
-        
+
         if ($request->has('team_ids')) {
             $employee->teams()->sync($request->team_ids);
         }
