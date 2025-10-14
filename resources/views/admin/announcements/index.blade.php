@@ -339,7 +339,7 @@
             </div>
             <div class="modal-body">
                 <form id="editAnnouncementForm"
-                    action="{{ route('admin.announcements.update', $announcement->announcement_id) }}" method="POST">
+                    action="{{ route('admin.announcements.update', $announcement->announcement_id ?? 0) }}" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="form-container">

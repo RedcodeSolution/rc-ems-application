@@ -160,9 +160,7 @@ class DocumentController extends Controller
     {
         $document = Document::where('document_id', $document_id)->firstOrFail();
 
-        // increase this document's downloads
         $document->increment('downloads');
-
 
         $totalDownloads = Document::sum('downloads');
 
@@ -171,8 +169,6 @@ class DocumentController extends Controller
             'total' => $totalDownloads,
         ]);
     }
-
-
 
     public function download($document_id)
     {

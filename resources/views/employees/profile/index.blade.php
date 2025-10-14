@@ -117,7 +117,7 @@
                         <div class="info-item">
                             <label>Department</label>
                             <div class="info-value">
-                                <span class="department-badge">{{ $employee->department->department_name }}</span>
+                                <span class="department-badge">{{ $employee->department->department_name ?? 'N/A' }}</span>
                             </div>
                         </div>
 
@@ -161,7 +161,7 @@
                             <label>Office Location</label>
                             <div class="info-value">
                                 <i class="fas fa-map-marker-alt"></i>
-                                {{ $employee->department->location }}
+                                {{ $employee->department->location ?? 'N/A' }}
                             </div>
                         </div>
 

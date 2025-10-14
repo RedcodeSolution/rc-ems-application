@@ -34,18 +34,18 @@ class Project extends Model
     }
 
 
-    // public function employees()
-    // {
-    //     return $this->belongsToMany(Employee::class, 'employee_project', 'project_id', 'employee_id')
-    //         ->withPivot('role', 'status', 'assigned_date', 'progress', 'deadline');
-    // }
-
     public function employees()
     {
         return $this->belongsToMany(Employee::class, 'employee_project', 'project_id', 'employee_id')
-            ->withPivot('role_in_project', 'assigned_date')
-            ->withTimestamps();
+            ->withPivot('role', 'status', 'assigned_date', 'progress', 'deadline');
     }
+
+    // public function employees()
+    // {
+    //     return $this->belongsToMany(Employee::class, 'employee_project', 'project_id', 'employee_id')
+    //         ->withPivot('role_in_project', 'assigned_date')
+    //         ->withTimestamps();
+    // }
 
     public function tasks()
     {

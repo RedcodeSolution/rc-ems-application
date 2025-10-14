@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminAnnouncementsController;
 use App\Http\Controllers\Admin\AdminNotificationController;
+use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AdminsLeaveController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\DocumentController;
@@ -33,6 +34,7 @@ use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Leave;
 use App\Models\Meeting;
+use App\Models\Project;
 use App\Models\Team;
 use Illuminate\Support\Facades\Route;
 
@@ -46,8 +48,8 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
     // Dashboard routes with enhanced data
     Route::get('/admin/dashboard', function () {
-        $employees = \App\Models\Employee::with(['department', 'projects', 'leaves'])->get();
-        $projects = \App\Models\Project::with(['employees', 'team'])->get();
+        $employees = Employee::with(['department', 'projects', 'leaves'])->get();
+        $projects = Project::with(['employees', 'team'])->get();
         $leaves = Leave::with(['employee'])->get();
 
         // Get today's meetings (morning and evening)
@@ -113,8 +115,7 @@ Route::middleware('auth')->group(function () {
     // })->name('employee.dashboard');
 
     Route::get('/employee/dashboard', [EmployeeOverviewController::class, 'index'])->name('employee.dashboard');
-    Route::get('/employee/meetings/{meeting}/join', [EmployeeOverviewController::class, 'join'])
-        ->name('employee.meetings.join');
+    Route::get('/employee/meetings/{meeting}/join', [EmployeeOverviewController::class, 'join'])->name('employee.meetings.join');
     //employee profile managment
     Route::get('/employees/profile', [EmployeeProfileController::class, 'show'])->name('employee.profile');
     Route::put('/employees/profile', [EmployeeProfileController::class, 'update'])->name('employee.profile.update');
@@ -147,49 +148,37 @@ Route::middleware('auth')->group(function () {
 
     // Employee tasks route (frontend only)
     Route::put('/employees/tasks/{id}', [EmployeeTaskController::class, 'update'])->name('employee.update');
-
     Route::get('/employees/tasks/{id}', [EmployeeTaskController::class, 'show'])->name('employee.tasks');
     Route::get('/employees/tasks', [EmployeeTaskController::class, 'index'])->name('employee.tasks');
-
     Route::post('/employees/tasks', [EmployeeTaskController::class, 'store'])->name('tasks.store');
-    Route::patch('/employees/tasks/{id}/status', [EmployeeTaskController::class, 'updateStatus'])
-        ->name('employee.tasks.updateStatus');
-    Route::post('/employees/tasks/{id}/comments', [EmployeeTaskController::class, 'addComment'])
-        ->name('employee.tasks.addComment');
+    Route::patch('/employees/tasks/{id}/status', [EmployeeTaskController::class, 'updateStatus'])->name('employee.tasks.updateStatus');
+    Route::post('/employees/tasks/{id}/comments', [EmployeeTaskController::class, 'addComment'])->name('employee.tasks.addComment');
 
-    // Employee attendance 
+    // Employee attendance
     Route::middleware(['auth'])->prefix('employees')->group(function () {
-
-        Route::get('/attendance', [EmployeeAttendanceController::class, 'show'])
-            ->name('employee.attendance');
-
+        Route::get('/attendance', [EmployeeAttendanceController::class, 'show'])->name('employee.attendance');
         Route::post('/employee/clock-in', [EmployeeAttendanceController::class, 'clockIn'])->name('employee.clockIn');
         Route::post('/employee/clock-out', [EmployeeAttendanceController::class, 'clockOut'])->name('employee.clockOut');
         // Clock in/out + breaks
         // Route::post('/attendance/clock-in', [EmployeeAttendanceController::class, 'clockIn'])
         //     ->name('employee.attendance.clockin');
 
-        Route::post('/attendance/start-break', [EmployeeAttendanceController::class, 'startBreak'])
-            ->name('employee.attendance.startbreak');
-
-        Route::post('/attendance/end-break', [EmployeeAttendanceController::class, 'endBreak'])
-            ->name('employee.attendance.endbreak');
+        Route::post('/attendance/start-break', [EmployeeAttendanceController::class, 'startBreak'])->name('employee.attendance.startbreak');
+        Route::post('/attendance/end-break', [EmployeeAttendanceController::class, 'endBreak'])->name('employee.attendance.endbreak');
 
         // Route::post('/attendance/clock-out', [EmployeeAttendanceController::class, 'clockOut'])
         //     ->name('employee.attendance.clockout');
         Route::get('/attendance/details/{id}', [EmployeeAttendanceController::class, 'getDetailsById'])
             ->name('employee.attendance.getDetailsById');
 
-        Route::get('/attendance/break-status', [EmployeeAttendanceController::class, 'getBreakStatus'])
-            ->name('employee.attendance.getBreakStatus');
-
+        Route::get('/attendance/break-status', [EmployeeAttendanceController::class, 'getBreakStatus'])->name('employee.attendance.getBreakStatus');
         Route::put('/attendance/emergency/start', [EmployeeAttendanceController::class, 'startEmergency'])->name('employee.attendance.emergency.start');
         Route::put('/attendance/emergency/end', [EmployeeAttendanceController::class, 'endEmergency'])->name('employee.attendance.emergency.end');
         Route::get('/attendance/emergency/status', [EmployeeAttendanceController::class, 'getEmergencyStatus'])->name('employee.attendance.getEmergencyStatus');
     });
 
     // Employee ratings routes
-    Route::resource('employees/ratings', \App\Http\Controllers\Employee\EmployeeRatingController::class)
+    Route::resource('employees/ratings', EmployeeRatingController::class)
         ->names([
             'index' => 'employee.ratings.index',
             'show' => 'employee.ratings.show',
@@ -197,21 +186,16 @@ Route::middleware('auth')->group(function () {
         ->parameters(['ratings' => 'rating']);
 
     // Employee rating submission and data routes
-    Route::post('/employees/ratings', [\App\Http\Controllers\Employee\EmployeeRatingController::class, 'store'])->name('employee.ratings.store');
-    Route::get('/employees/ratings/employee/{employeeId}', [\App\Http\Controllers\Employee\EmployeeRatingController::class, 'getEmployeeRatings'])->name('employee.ratings.employee');
+    Route::post('/employees/ratings', [EmployeeRatingController::class, 'store'])->name('employee.ratings.store');
+    Route::get('/employees/ratings/employee/{employeeId}', [EmployeeRatingController::class, 'getEmployeeRatings'])->name('employee.ratings.employee');
 
     Route::get('/super_admin/dashboard', [SuperAdminController::class, 'dashboard'])->name('super_admin.dashboard');
     Route::get('/super_admin/system_stats', [SuperAdminController::class, 'systemStats'])->name('super_admin.system_stats');
     Route::get('/super_admin/admins', [SuperAdminController::class, 'admins'])->name('super_admin.admins');
     Route::get('/super_admin/notifications', [SuperAdminController::class, 'notifications'])->name('super_admin.notifications');
-    Route::post('/notifications/{id}/read', [SuperAdminController::class, 'markAsRead'])
-        ->name('super_admin.notifications.markAsRead');
-
-    Route::post('/notifications/read-all', [SuperAdminController::class, 'markAsRead'])
-        ->name('notifications.readAll');
-
-    Route::delete('/notifications/{id}', [SuperAdminController::class, 'deleteNotification'])
-        ->name('notifications.delete');
+    Route::post('/notifications/{id}/read', [SuperAdminController::class, 'markAsRead'])->name('super_admin.notifications.markAsRead');
+    Route::post('/notifications/read-all', [SuperAdminController::class, 'markAsRead'])->name('notifications.readAll');
+    Route::delete('/notifications/{id}', [SuperAdminController::class, 'deleteNotification'])->name('notifications.delete');
 
 
     Route::get('/super_admin/employee_ratings', [EmployeeRatingController::class, 'employeeRatings'])->name('super_admin.employee_ratings');
@@ -238,22 +222,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', [EventController::class, 'update'])->name('update');
         Route::delete('/{id}', [EventController::class, 'destroy'])->name('destroy');
     });
-
-    // Redirect authenticated users to their respective dashboards
-    Route::get('/dashboard', function () {
-        $user = auth()->check() ? auth()->user() : null;
-        if ($user && $user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
-        } elseif ($user && $user->role === 'super_admin') {
-            return redirect()->route('super_admin.dashboard');
-        }
-        return redirect()->route('employee.dashboard');
-    })->name('dashboard');
-
-    // Profile management
-    Route::get('/admin/profile', [AdminController::class, 'profile'])->name('admin.profile');
-    Route::post('/admin/profile/update', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
-
 
 
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -284,15 +252,15 @@ Route::middleware('auth')->group(function () {
         Route::delete('/leaves/{leave}', [AdminsLeaveController::class, 'destroy'])->name('leaves.destroy');
 
         // Reports & Analytics with enhanced data
-        Route::get('/reports', function () {
-            $reportData = [
-                'totalRevenue' => '$2.4M',
-                'activeProjects' => 47,
-                'employeeCount' => 156,
-                'efficiency' => '94.2%'
-            ];
-            return view('admin.reports.index', $reportData);
-        })->name('reports');
+        //        Route::get('/reports', function () {
+        //            $reportData = [
+        //                'totalRevenue' => '$2.4M',
+        //                'activeProjects' => 47,
+        //                'employeeCount' => 156,
+        //                'efficiency' => '94.2%'
+        //            ];
+        //            return view('admin.reports.index', $reportData);
+        //        })->name('reports');
 
         // Announcements
         Route::post('/announcements', [AdminAnnouncementsController::class, 'store'])->name('announcements.store');
@@ -317,22 +285,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/notifications', function () {
             return view('admin.notifications.index');
         })->name('notifications');
-
         Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications');
-        Route::get('/notifications/{notifi_id}', [AdminNotificationController::class, 'show'])
-            ->name('admin.notifications.show');
-
-        Route::post('/notifications/{id}/mark-as-read', [AdminNotificationController::class, 'markAsRead'])
-            ->name('admin.notifications.markAsRead');
-
-        Route::post('/notifications/mark-all-as-read', [AdminNotificationController::class, 'markAllAsRead'])
-            ->name('admin.notifications.markAllAsRead');
-
-        Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy'])
-            ->name('notifications.destroy');
-
-        Route::get('/admin/notifications/latest', [AdminNotificationController::class, 'latest'])
-            ->name('notifications.latest');
+        Route::get('/notifications/{notifi_id}', [AdminNotificationController::class, 'show'])->name('admin.notifications.show');
+        Route::post('/notifications/{id}/mark-as-read', [AdminNotificationController::class, 'markAsRead'])->name('admin.notifications.markAsRead');
+        Route::post('/notifications/mark-all-as-read', [AdminNotificationController::class, 'markAllAsRead'])->name('admin.notifications.markAllAsRead');
+        Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
+        Route::get('/admin/notifications/latest', [AdminNotificationController::class, 'latest'])->name('notifications.latest');
 
         // System Settings
         Route::get('/system', function () {
@@ -493,9 +451,7 @@ Route::put('/documents/{document}', [DocumentController::class, 'update'])->name
 Route::get('/admin/documents/{document_id}', [DocumentController::class, 'show'])->name('admin.documents.show');
 Route::get('/admin/documents/download/{document_id}', [DocumentController::class, 'download'])->name('admin.documents.download');
 Route::delete('/admin/documents/{document_id}', [DocumentController::class, 'destroy'])->name('admin.documents.destroy');
-Route::post('/admin/documents/increment-download/{id}', [DocumentController::class, 'incrementDownload'])
-    ->name('documents.increment');
-
+Route::post('/admin/documents/increment-download/{id}', [DocumentController::class, 'incrementDownload'])->name('documents.increment');
 
 
 Route::get('/admin/employeeRatings/employee/{employeeId}', [App\Http\Controllers\Admin\EmployeeRatingsController::class, 'employeeRatingsJson']);
@@ -505,5 +461,25 @@ Route::get('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsControll
 Route::put('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'update'])->name('super_admin_accounts.update');
 Route::delete('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'destroy'])->name('super_admin_accounts.destroy');
 
+// Redirect authenticated users to their respective dashboards
+Route::get('/dashboard', function () {
+    $user = auth()->user();
+
+    if (!$user) {
+        return redirect()->route('login');
+    }
+
+    $role = strtolower($user->role);
+
+    if ($role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    } elseif ($role === 'super_admin') {
+        return redirect()->route('super_admin.dashboard');
+    } else {
+        return redirect()->route('employee.dashboard');
+    }
+})->name('dashboard');
+Route::get('/admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile.index');
+Route::post('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
 
 require __DIR__ . '/auth.php';

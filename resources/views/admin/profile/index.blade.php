@@ -156,7 +156,7 @@
     .grid-cols-2 {
         grid-template-columns: 1fr;
     }
-    
+
     .profile-header {
         flex-direction: column;
         text-align: center;
@@ -177,7 +177,7 @@
             </button>
         </div>
     </div>
-    
+
     <div class="card-body">
         <!-- Flash Messages -->
         @if(session('success'))
@@ -207,7 +207,7 @@
 
         <form id="profileForm" method="POST" action="{{ route('admin.profile.update') }}">
             @csrf
-            
+
             <!-- Profile Header -->
             <div class="profile-section">
                 <div class="profile-header">
@@ -227,17 +227,17 @@
                 <h3 style="margin-bottom: 1.5rem; color: var(--text-primary);">
                     <i class="fas fa-user"></i> Personal Information
                 </h3>
-                
+
                 <div class="grid grid-cols-2">
                     <div class="form-group">
                         <label for="name" class="form-label">Full Name</label>
-                        <input type="text" id="name" name="name" class="form-input" 
+                        <input type="text" id="name" name="name" class="form-input"
                                value="{{ Auth::user()->name ?? '' }}" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="email" class="form-label">Email Address</label>
-                        <input type="email" id="email" name="email" class="form-input" 
+                        <input type="email" id="email" name="email" class="form-input"
                                value="{{ Auth::user()->email ?? '' }}" required>
                     </div>
                 </div>
@@ -248,24 +248,24 @@
                 <h3 style="margin-bottom: 1.5rem; color: var(--text-primary);">
                     <i class="fas fa-lock"></i> Security Settings
                 </h3>
-                
+
                 <div class="grid grid-cols-2">
                     <div class="form-group">
                         <label for="current_password" class="form-label">Current Password</label>
-                        <input type="password" id="current_password" name="current_password" 
+                        <input type="password" id="current_password" name="current_password"
                                class="form-input" placeholder="Enter current password">
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="new_password" class="form-label">New Password</label>
-                        <input type="password" id="new_password" name="new_password" 
+                        <input type="password" id="new_password" name="new_password"
                                class="form-input" placeholder="Enter new password">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="new_password_confirmation" class="form-label">Confirm New Password</label>
-                    <input type="password" id="new_password_confirmation" name="new_password_confirmation" 
+                    <input type="password" id="new_password_confirmation" name="new_password_confirmation"
                            class="form-input" placeholder="Confirm new password">
                 </div>
             </div>
@@ -275,27 +275,24 @@
                 <h3 style="margin-bottom: 1.5rem; color: var(--text-primary);">
                     <i class="fas fa-id-card"></i> Admin Details
                 </h3>
-                
+
                 <div class="grid grid-cols-2">
                     <div class="form-group">
                         <label for="admin_id" class="form-label">Admin ID</label>
-                        <input type="text" id="admin_id" name="admin_id" class="form-input" 
-                               value="{{ Auth::user()->admin_id ?? '' }}" readonly>
+                        <input type="text" id="admin_id" name="admin_id" class="form-input"
+                               value="{{ Auth::user()->id }}" readonly>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="role" class="form-label">Role</label>
-                        <select id="role" name="role" class="form-select">
-                            <option value="Admin" {{ (Auth::user()->role ?? '') == 'Admin' ? 'selected' : '' }}>Admin</option>
-                            <option value="HR Admin" {{ (Auth::user()->role ?? '') == 'HR Admin' ? 'selected' : '' }}>HR Admin</option>
-                            <option value="Department Admin" {{ (Auth::user()->role ?? '') == 'Department Admin' ? 'selected' : '' }}>Department Admin</option>
-                        </select>
+                        <input type="text" id="role" name="role" class="form-input" value="{{ Auth::user()->role ?? 'N/A' }}" readonly>
                     </div>
+
                 </div>
-                
+
                 <div class="form-group">
                     <label for="contact_no" class="form-label">Contact Number</label>
-                    <input type="text" id="contact_no" name="contact_no" class="form-input" 
+                    <input type="text" id="contact_no" name="contact_no" class="form-input"
                            value="{{ Auth::user()->contact_no ?? '' }}" placeholder="Enter contact number">
                 </div>
             </div>
@@ -305,19 +302,20 @@
                 <h3 style="margin-bottom: 1.5rem; color: var(--text-primary);">
                     <i class="fas fa-cog"></i> System Information
                 </h3>
-                
+
                 <div class="grid grid-cols-2">
                     <div class="form-group">
                         <label class="form-label">Account Created</label>
-                        <input type="text" class="form-input" 
+                        <input type="text" class="form-input"
                                value="{{ Auth::user()->created_at ? Auth::user()->created_at->format('M d, Y H:i') : 'N/A' }}" readonly>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label">Last Login</label>
-                        <input type="text" class="form-input" 
+                        <input type="text" class="form-input"
                                value="{{ Auth::user()->last_login_at ? Auth::user()->last_login_at->format('M d, Y H:i') : 'N/A' }}" readonly>
                     </div>
+
                 </div>
             </div>
         </form>
@@ -325,36 +323,27 @@
 </div>
 
 <script>
-function saveProfile() {
-    // Basic validation
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const newPassword = document.getElementById('new_password').value;
-    const confirmPassword = document.getElementById('new_password_confirmation').value;
-    
-    if (!name) {
-        alert('Please enter your full name.');
-        return;
+
+    function saveProfile() {
+        const form = document.getElementById('profileForm');
+        const name = form.name.value.trim();
+        const email = form.email.value.trim();
+        const currentPassword = form.current_password.value;
+        const newPassword = form.new_password.value;
+        const confirmPassword = form.new_password_confirmation.value;
+
+        if (!name) { alert('Please enter your full name.'); return; }
+        if (!email) { alert('Please enter your email.'); return; }
+
+        if (newPassword || confirmPassword) {
+            if (!currentPassword) { alert('Please enter your current password.'); return; }
+            if (newPassword !== confirmPassword) { alert('New password and confirmation do not match.'); return; }
+            if (newPassword.length < 8) { alert('New password must be at least 8 characters.'); return; }
+        }
+
+        form.submit();
     }
-    
-    if (!email) {
-        alert('Please enter your email address.');
-        return;
-    }
-    
-    if (newPassword && newPassword !== confirmPassword) {
-        alert('New password and confirmation password do not match.');
-        return;
-    }
-    
-    if (newPassword && newPassword.length < 8) {
-        alert('New password must be at least 8 characters long.');
-        return;
-    }
-    
-    // Submit the form
-    document.getElementById('profileForm').submit();
-}
+
 
 // Auto-save functionality (optional)
 let autoSaveTimer;
@@ -374,4 +363,4 @@ function setupAutoSave() {
 // Initialize auto-save
 document.addEventListener('DOMContentLoaded', setupAutoSave);
 </script>
-@endsection 
+@endsection

@@ -63,19 +63,19 @@ class Employee extends Model
         return $this->belongsToMany(Team::class, 'employee_team', 'employee_id', 'team_id')->withTimestamps();
     }
 
-    public function projects()
-    {
-        return $this->belongsToMany(Project::class, 'employee_project', 'employee_id', 'project_id')
-            ->withPivot(['role_in_project', 'assigned_date'])
-            ->withTimestamps();
-    }
-
     // public function projects()
     // {
     //     return $this->belongsToMany(Project::class, 'employee_project', 'employee_id', 'project_id')
-    //         ->withPivot('role', 'status', 'assigned_date', 'progress', 'deadline')
+    //         ->withPivot(['role_in_project', 'assigned_date'])
     //         ->withTimestamps();
     // }
+
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'employee_project', 'employee_id', 'project_id')
+            ->withPivot('role', 'status', 'assigned_date', 'progress', 'deadline')
+            ->withTimestamps();
+    }
 
 
     public function ratings()

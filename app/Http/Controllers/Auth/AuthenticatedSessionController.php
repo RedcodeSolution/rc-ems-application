@@ -31,8 +31,13 @@ class AuthenticatedSessionController extends Controller
             // Regenerate the session to prevent session fixation attacks
             $request->session()->regenerate();
 
+
             // Redirect based on user role
             $user = Auth::user();
+
+            $user->last_login_at = now();
+            $user->save();
+
             if ($user->role === 'admin') {
                 return redirect()->intended(route('admin.dashboard'));
             } elseif ($user->role === 'employee') {
