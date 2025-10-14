@@ -33,22 +33,25 @@ class AppServiceProvider extends ServiceProvider
             if ($user) {
                 $query = Notification::query();
 
-                $query->where('target', $user->role);
+                if ($user->role === 'super_admin') {
+                    $query->where('target', 'super admin');
+                } elseif ($user->role === 'admin') {
+                    $query->where('target', 'admin');
+                } elseif ($user->role === 'employee') {
+                    $query->where('target', 'employee');
+                } else {
+                    $query->where('target', $user->role);
+                }
 
-                $total = $query->count();
-                $unread = (clone $query)->where('is_read', false)->count();
-                $read = $total - $unread;
+                $notifications = $query->with('user')->latest()->paginate(10);
 
-                $notifications = (clone $query)->with('user')->latest()->take(10)->get();
+                $notificationStats = [
+                    'total'  => $query->count(),
+                    'unread' => (clone $query)->where('is_read', false)->count(),
+                    'read'   => (clone $query)->where('is_read', true)->count(),
+                ];
 
-                $view->with([
-                    'notifications' => $notifications,
-                    'notificationStats' => [
-                        'total'  => $total,
-                        'unread' => $unread,
-                        'read'   => $read,
-                    ],
-                ]);
+                $view->with(compact('notifications', 'notificationStats'));
             }
         });
     }

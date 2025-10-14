@@ -875,7 +875,7 @@
                         class="sidebar-menu-item {{ request()->routeIs('admin.notifications') ? 'active' : '' }}">
                         <i class="fas fa-bell"></i>
                         <span>Notifications</span>
-                        <span class="badge">{{ $unreadCount ?? 0 }}</span>
+                        <span class="badge">{{ $notificationStats['unread'] ?? 0 }}</span>
                     </a>
                 </div>
             </div>

@@ -399,7 +399,7 @@
                                             <div class="employee-info">
                                                 <h4>{{ $leave->employee->employee_name }}</h4>
                                                 <p>{{ $leave->employee->employee_id }} •
-                                                    {{ $leave->employee->department->department_name }}
+                                                    {{-- {{ $leave->employee->department->department_name }} --}}
                                                 </p>
                                             </div>
                                         </div>
@@ -757,7 +757,7 @@
                                             <div class="employee-info">
                                                 <h4>{{ $leave->employee->employee_name }}</h4>
                                                 <p>{{ $leave->employee->employee_id }} <br />
-                                                    {{ $leave->employee->department->department_name }}</p>
+                                                    {{-- {{ $leave->employee->department->department_name }}</p> --}}
                                             </div>
                                         </div>
                                     </td>

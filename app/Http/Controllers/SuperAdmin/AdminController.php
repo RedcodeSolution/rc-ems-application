@@ -28,20 +28,16 @@ class AdminController
             'status'        => 'required|string',
         ]);
 
-        Admin::create($validated);
-
-
-        Notification::create([
-            'title' => 'Admin Account Created',
-            'message' => 'A new admin account has been created: ' . $validated['admin_name'],
-            'type' => 'admin',
-            'priority' => 'high',
-            'read' => false,
-            'from' => auth()->user()->name ?? 'System',
-            'icon' => 'fas fa-user-plus',
-            'color' => 'blue',
-        ]);
-
+        $admin = Admin::create($validated);
+        $notify = new NotificationService();
+        $notify->notify(
+            title: 'New Administrator Added',
+            message: "Administrator {$admin->admin_name} was added to the system.",
+            type: 'admin',
+            userId: null,
+            target: 'super admin',
+            referenceId: $admin->admin_id
+        );
         return redirect()->route('super_admin.admins')
             ->with('success', 'Administrator added successfully!');
     }
