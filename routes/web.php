@@ -123,6 +123,7 @@ Route::middleware('auth')->group(function () {
         return view('employees.documents.index');
     })->name('employee.documents');
 
+
     // Employee projects route (frontend only)
     Route::get('/employees/projects', function () {
         return view('employees.projects.index');
@@ -165,7 +166,6 @@ Route::middleware('auth')->group(function () {
     // Employee rating submission and data routes
     Route::post('/employees/ratings', [EmployeeRatingController::class, 'store'])->name('employee.ratings.store');
     Route::get('/employees/ratings/employee/{employeeId}', [EmployeeRatingController::class, 'getEmployeeRatings'])->name('employee.ratings.employee');
-
     Route::get('/super_admin/dashboard', [SuperAdminController::class, 'dashboard'])->name('super_admin.dashboard');
     Route::get('/super_admin/system_stats', [SuperAdminController::class, 'systemStats'])->name('super_admin.system_stats');
     Route::get('/super_admin/admins', [SuperAdminController::class, 'admins'])->name('super_admin.admins');
@@ -322,6 +322,9 @@ Route::middleware('auth')->prefix('employee')->name('employee.')->group(function
     // Route::get('/leaves', function () {
     //     return view('employees.leaves.index');
     // })->name('leaves.index');
+
+    // Dashboard
+    Route::get('/dashboard', [EmployeeOverviewController::class, 'index'])->name('dashboard');
 
     // Announcements
     Route::get('/announcements', function () {
