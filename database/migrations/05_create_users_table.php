@@ -24,8 +24,8 @@ return new class extends Migration
             $table->string('password');
             $table->string('contact_no');
             $table->string('role');
-            $table->rememberToken();
             $table->timestamp('last_login_at')->nullable();
+            $table->rememberToken();
             $table->timestamps();
         });
 
