@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('duration')->nullable();
             $table->text('reason');
             $table->string('contact_number')->nullable();
-            $table->string('supporting_doc');
+            $table->string('supporting_doc')->nullable();
             $table->string('status')->default('pending');
             $table->timestamp('applied_date')->nullable();
             $table->unsignedBigInteger('approved_by')->nullable();
