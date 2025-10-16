@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Employee;
+use App\Models\SuperAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -33,41 +34,35 @@ class RegistrationController extends Controller
 
         $role = $request->role;
         $employee = null;
-
-        // For both 'employee' and 'admin' roles, check if an employee record already exists.
-        if ($role === 'employee' || $role === 'admin') {
-            $employee = \App\Models\Employee::where('email', $request->email)->first();
+        if ($role === 'employee') {
+            $employee = Employee::where('email', $request->email)->first();
             if ($employee) {
-                $role = $employee->role; // This logic is correct to update the role from employee table if a record exists.
+                $role = $employee->role;
             }
         }
 
-        // Check super admin password against super_admins table
         if ($role === 'super_admin') {
-            $superAdmin = \App\Models\SuperAdmin::where('super_admin_email', $request->email)->first();
+            $superAdmin = SuperAdmin::where('super_admin_email', $request->email)->first();
             if (!$superAdmin) {
                 return redirect()->back()->withErrors(['email' => 'Super admin not found.'])->withInput();
             }
             if ($request->email !== 'amal@gmail.com') {
-                if (!\Illuminate\Support\Facades\Hash::check($request->password, $superAdmin->password)) {
+                if (!Hash::check($request->password, $superAdmin->password)) {
                     return redirect()->back()->withErrors(['password' => 'Password does not match the super admin account.'])->withInput();
                 }
             }
         }
 
-        // Create the User record
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+            'password' => Hash::make($request->password),
             'contact_no' => $request->contact_no,
             'role' => $role,
-            // employee_id will be set later
         ]);
 
-        // Create an Employee record for 'employee' and 'admin' roles and link it to the User
-        if (($role === 'employee' || $role === 'admin') && !$employee) {
-            $newEmployee = \App\Models\Employee::create([
+        if ($role === 'employee' && !$employee) {
+            Employee::create([
                 'employee_name' => $user->name,
                 'email' => $user->email,
                 'contact_no' => $user->contact_no,
@@ -76,27 +71,9 @@ class RegistrationController extends Controller
                 'paid_status' => 'Unpaid',
                 'role' => $user->role,
             ]);
-
-            // Update the user's employee_id
-            $user->employee_id = $newEmployee->employee_id;
-            $user->save();
-            if ($role === 'employee') {
-                $notify = new \App\Services\NotificationService();
-                $notify->notify(
-                    title: 'New Employee Registered',
-                    message: "{$user->name} has joined as a new employee.",
-                    type: 'employee',
-                    userId: $user->id,
-                    target: 'admin',
-                    referenceId: $user->employee_id
-                );
-            }
-        } else if ($employee) {
-            $user->employee_id = $employee->employee_id;
-            $user->save();
         }
 
-        \Illuminate\Support\Facades\Auth::login($user);
+        Auth::login($user);
 
         if ($user->role === 'super_admin') {
             return redirect()->route('super_admin.dashboard');

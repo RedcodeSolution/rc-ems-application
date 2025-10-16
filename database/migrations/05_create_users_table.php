@@ -24,6 +24,11 @@ return new class extends Migration
             $table->string('password');
             $table->string('contact_no');
             $table->string('role');
+<<<<<<< HEAD
+            $table->rememberToken();
+=======
+>>>>>>> d18933295db24b0ff6aa441bc5469a6e28d6a046
+            $table->timestamp('last_login_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

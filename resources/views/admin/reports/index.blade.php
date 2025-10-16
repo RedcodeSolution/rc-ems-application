@@ -645,33 +645,41 @@
 
         </div>
 
-        <!-- Filter Section -->
+
         <div class="flex justify-between items-center mb-4">
             <div class="flex gap-2">
                 <input type="text" id="reportSearch" placeholder="Search reports..." class="form-input" style="width: 300px;">
-                <select class="form-select" style="width: 200px;">
-                    <option>All Types</option>
-                    <option>Employee</option>
-                    <option>Department</option>
-                    <option>Project</option>
-                    <option>Finance</option>
+
+                <select id="typeFilter" class="form-select" style="width: 200px;">
+                    <option value="all">All Types</option>
+                    <option value="employee">Employee</option>
+                    <option value="department">Department</option>
+                    <option value="project">Project</option>
+                    <option value="finance">Finance</option>
                 </select>
-                <select class="form-select" style="width: 200px;">
-                    <option>All Status</option>
-                    <option>Completed</option>
-                    <option>Processing</option>
-                    <option>Failed</option>
+
+                <select id="statusFilter" class="form-select" style="width: 200px;">
+                    <option value="all">All Status</option>
+                    <option value="completed">Completed</option>
+                    <option value="processing">Processing</option>
+                    <option value="failed">Failed</option>
                 </select>
             </div>
-            <button class="btn btn-secondary">
-                <i class="fas fa-filter"></i>
-                Filter
-            </button>
+
+            <div class="flex gap-2">
+                <button onclick="filterReports()" class="btn btn-secondary">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                <button onclick="clearFilters()" class="btn btn-light">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
         </div>
+
 
         <!-- Reports Table -->
         <div class="table-container">
-            <table class="table">
+            <table  class="table" id="reportTable">
                 <thead>
                 <tr>
                     <th>Report Name</th>
@@ -690,9 +698,9 @@
 
                     </td>
                     <td>
-        <span class="badge" style="background: rgba(59, 130, 246, 0.1); color: var(--primary);">
-            {{ ucfirst($report->report_type) }}
-        </span>
+                      <span class="badge" style="background: rgba(59, 130, 246, 0.1); color: var(--primary);">
+                            {{ strtolower($report->report_type) }}
+                      </span>
                     </td>
                     <td>{{ $report->generated_by ?? 'Admin' }}</td>
                     <td>{{ $report->created_at->format('M d, Y') }}</td>
@@ -1369,5 +1377,44 @@
             }
         }
     });
+
+    function filterReports() {
+        const searchValue = document.getElementById('reportSearch').value.toLowerCase();
+        const typeValue = document.getElementById('typeFilter').value.toLowerCase();
+        const statusValue = document.getElementById('statusFilter').value.toLowerCase();
+
+        const rows = document.querySelectorAll("#reportTable tbody tr");
+
+        rows.forEach(row => {
+            const reportName = row.cells[0].textContent.toLowerCase();
+            const reportType = row.cells[1].textContent.toLowerCase();
+            const reportStatus = row.cells[4].textContent.toLowerCase();
+
+            // Check each filter
+            const matchesSearch = reportName.includes(searchValue);
+            const matchesType = typeValue === 'all' || reportType === typeValue;
+            const matchesStatus = statusValue === 'all' || reportStatus === statusValue;
+
+            if (matchesSearch && matchesType && matchesStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Clear all filters
+    function clearFilters() {
+        document.getElementById('reportSearch').value = '';
+        document.getElementById('typeFilter').value = 'all';
+        document.getElementById('statusFilter').value = 'all';
+        filterReports(); // show all rows
+    }
+
+    // Live filtering as user types or changes dropdowns
+    document.getElementById('reportSearch').addEventListener('keyup', filterReports);
+    document.getElementById('typeFilter').addEventListener('change', filterReports);
+    document.getElementById('statusFilter').addEventListener('change', filterReports);
+
 </script>
 @endsection

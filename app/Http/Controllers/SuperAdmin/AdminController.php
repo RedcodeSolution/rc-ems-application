@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Models\Admin;
 use App\Models\Department;
+use App\Models\Notification;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
@@ -28,16 +29,20 @@ class AdminController
             'status'        => 'required|string',
         ]);
 
-        $admin = Admin::create($validated);
-        $notify = new NotificationService();
-        $notify->notify(
-            title: 'New Administrator Added',
-            message: "Administrator {$admin->admin_name} was added to the system.",
-            type: 'admin',
-            userId: null,
-            target: 'super admin',
-            referenceId: $admin->admin_id
-        );
+        Admin::create($validated);
+
+
+        Notification::create([
+            'title' => 'Admin Account Created',
+            'message' => 'A new admin account has been created: ' . $validated['admin_name'],
+            'type' => 'admin',
+            'priority' => 'high',
+            'read' => false,
+            'from' => auth()->user()->name ?? 'System',
+            'icon' => 'fas fa-user-plus',
+            'color' => 'blue',
+        ]);
+
         return redirect()->route('super_admin.admins')
             ->with('success', 'Administrator added successfully!');
     }
@@ -110,11 +115,10 @@ class AdminController
             title: 'Administrator Removed',
             message: "Administrator {$adminName} was deleted from the system.",
             type: 'admin',
-            userId: null,
+            userId: null, // <-- Always use null unless you have a valid user ID
             target: 'super admin',
             referenceId: $id
         );
-
 
         return redirect()->route('super_admin.admins')->with('success', 'Admin deleted successfully!');
     }

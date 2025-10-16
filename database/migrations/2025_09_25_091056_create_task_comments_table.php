@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('task_comments', function (Blueprint $table) {
             $table->id();
-            $table->string('task_id');
-            $table->string('employee_id');
+            $table->unsignedBigInteger('task_id');
+            $table->unsignedBigInteger('employee_id');
             $table->text('comment');
             $table->timestamps();
 
             $table->foreign('task_id')->references('task_id')->on('tasks')->onDelete('cascade');
             $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('cascade');
         });
+
     }
 
     /**

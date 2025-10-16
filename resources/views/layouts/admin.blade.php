@@ -1333,6 +1333,7 @@
                             </div>
                             <div class="notification-actions">
                                 <a href="/admin/notifications"
+                                <a href="/admin/notifications"
                                    class="btn btn-info btn-sm">View</a>
                             </div>
                         </div>
