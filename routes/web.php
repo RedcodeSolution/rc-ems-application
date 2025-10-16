@@ -203,7 +203,6 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('admin')->name('admin.')->group(function () {
         // Employee Management
-<<<<<<< HEAD
         Route::get('/employees', function () {
             $employees = Employee::with(['department', 'admin'])->get();
             $departments = Department::all();
@@ -211,11 +210,14 @@ Route::middleware('auth')->group(function () {
             $teams = Team::all();
             return view('admin.employees.index', compact('employees', 'departments', 'admins', 'teams'));
         })->name('employees');
-=======
+
+
         Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');
 
 
->>>>>>> d18933295db24b0ff6aa441bc5469a6e28d6a046
+
+        Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');
+
         Route::match(['put', 'patch'], '/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
 
 
