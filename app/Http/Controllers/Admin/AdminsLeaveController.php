@@ -22,8 +22,16 @@ class AdminsLeaveController extends Controller
             return response()->json(['error' => 'Admin leaves data not found for this user.'], 404);
         }
 
-        $allLeaves = $user->employee->leaves;
-        $recentLeaves = $user->employee->leaves()->latest()->take(3)->get();
+        // If admin has no employee record, set personal leaves to empty
+        $allLeaves = collect();
+        $recentLeaves = collect();
+        $pendingCount = 0;
+
+        if ($user->employee) {
+            $allLeaves = $user->employee->leaves;
+            $recentLeaves = $user->employee->leaves()->latest()->take(3)->get();
+            $pendingCount = $allLeaves->where('status', 'pending')->count();
+        }
 
         // Get all employee leaves with proper relationships
         $employeeLeaves = Leave::with(['employee', 'employee.department'])
@@ -128,7 +136,6 @@ class AdminsLeaveController extends Controller
         $sickTotal = 10;
         $personalTotal = 5;
 
-        $pendingCount = $allLeaves->where('status', 'pending')->count();
 
         // Calculate percentages
         $annualPercent = $annualTotal > 0 ? round(($annualUsed / $annualTotal) * 100) : 0;
