@@ -14,6 +14,7 @@ return new class extends Migration
             $table->id('department_id');
             $table->string('department_name');
             $table->text('description')->nullable();
+            $table->unsignedBigInteger('employee_id')->nullable();
             $table->string('location')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
@@ -22,9 +23,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-
             $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('set null');
-
         });
     }
 

@@ -33,10 +33,9 @@ class Employee extends Model
     {
         return $this->hasOne(SuperAdmin::class, 'employee_id', 'employee_id');
     }
-
     public function department()
     {
-        return $this->belongsTo(Department::class, 'department_id');
+        return $this->belongsTo(Department::class, 'department_id', 'department_id');
     }
 
     public function team()
@@ -64,12 +63,12 @@ class Employee extends Model
         return $this->belongsToMany(Team::class, 'employee_team', 'employee_id', 'team_id')->withTimestamps();
     }
 
-//    public function projects()
-//    {
-//        return $this->belongsToMany(Project::class, 'employee_project', 'employee_id', 'project_id')
-//            ->withPivot(['role_in_project', 'status', 'assigned_date'])
-//            ->withTimestamps();
-//}
+    // public function projects()
+    // {
+    //     return $this->belongsToMany(Project::class, 'employee_project', 'employee_id', 'project_id')
+    //         ->withPivot(['role_in_project', 'assigned_date'])
+    //         ->withTimestamps();
+    // }
 
     public function projects()
     {
@@ -77,9 +76,6 @@ class Employee extends Model
             ->withPivot('role', 'status', 'assigned_date', 'progress', 'deadline')
             ->withTimestamps();
     }
-
-
-
 
 
     public function ratings()

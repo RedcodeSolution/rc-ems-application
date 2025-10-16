@@ -402,7 +402,7 @@
                                             <div class="employee-info">
                                                 <h4>{{ $leave->employee->employee_name }}</h4>
                                                 <p>{{ $leave->employee->employee_id }} •
-                                                    {{ $leave->employee->department->department_name }}
+                                                    {{-- {{ $leave->employee->department->department_name }} --}}
                                                 </p>
                                             </div>
                                         </div>
@@ -760,7 +760,7 @@
                                             <div class="employee-info">
                                                 <h4>{{ $leave->employee->employee_name }}</h4>
                                                 <p>{{ $leave->employee->employee_id }} <br />
-                                                    {{ $leave->employee->department->department_name }}</p>
+                                                    {{-- {{ $leave->employee->department->department_name }}</p> --}}
                                             </div>
                                         </div>
                                     </td>
@@ -3235,27 +3235,21 @@
             const rows = document.querySelectorAll('.leave-row');
             let filteredData = [];
             let visibleCount = 0;
-            const processedLeaveIds = new Set(); // Track by actual leave ID from database
+            const processedLeaveIds = new Set();
 
             rows.forEach(row => {
-                // Get the unique leave ID from the database (most important!)
                 const leaveId = row.dataset.leaveId || row.dataset.id || row.id;
 
-                // Skip if we've already processed this leave ID
                 if (leaveId && processedLeaveIds.has(leaveId)) {
                     console.warn('Duplicate leave ID found, skipping:', leaveId);
-                    row.style.display = 'none'; // Hide duplicate rows
+                    row.style.display = 'none';
                     return;
                 }
-
-                // Get data from row attributes and elements
                 const employeeNameElement = row.querySelector('.employee-info h4') ||
                     row.querySelector('.employee-name') ||
                     row.querySelector('[data-employee]');
                 const employeeName = employeeNameElement?.textContent.trim() ||
                     row.dataset.employee?.trim() || '';
-
-                // Get department - handle JSON format if present
                 let department = row.dataset.department?.trim() || '';
                 if (department.startsWith('{')) {
                     try {
@@ -3268,8 +3262,6 @@
 
                 const leaveType = row.dataset.type?.toLowerCase().trim() || '';
                 const status = row.dataset.status?.toLowerCase().trim() || '';
-
-                // Parse dates safely
                 let leaveStart, leaveEnd;
                 try {
                     leaveStart = row.dataset.start ? new Date(row.dataset.start + 'T00:00:00') : new Date();
@@ -3655,7 +3647,7 @@
             // --- Leave Trends Chart (Line) ---
             const trendsCanvas = document.getElementById('leaveTrendsChart');
             if (trendsCanvas) {
-                // Destroy existing chart if it exists
+
                 if (typeof trendsChart !== 'undefined' && trendsChart) {
                     trendsChart.destroy();
                 }
@@ -3811,7 +3803,7 @@
                         name: deptKey.charAt(0).toUpperCase() + deptKey.slice(1).toLowerCase(),
                         used: 0,
                         total: 60,
-                        leaves: [] // Track individual leaves for debugging
+                        leaves: []
                     };
                 }
 
@@ -3972,17 +3964,13 @@
 
             showNotification('Submitting leave application...', 'info');
 
-            // Simulate API call
+
             setTimeout(() => {
-                // Here you would normally send the data to your Laravel backend
-                // For now, we'll just show success and close modal
 
                 showNotification(
                     'Leave application submitted successfully! You will be notified once it\'s reviewed.',
                     'success');
                 closeApplyLeaveModal();
-
-                // Optionally refresh the my leaves tab
                 if (document.querySelector('.tab-btn[data-tab="my-leaves"]').classList.contains('active')) {
                     // Refresh the page or reload the tab content
                     setTimeout(() => {
@@ -4160,10 +4148,10 @@
                 showNotification('Cancelling leave request...', 'warning');
 
                 setTimeout(() => {
-                    // Here you would send cancel request to backend
+
                     showNotification('Leave request cancelled successfully!', 'success');
 
-                    // Remove the row from table or refresh
+
                     const row = document.querySelector(`[onclick="cancelMyLeave(${id})"]`).closest('tr');
                     if (row) {
                         row.style.background = '#FEE2E2';

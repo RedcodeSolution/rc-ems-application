@@ -240,4 +240,19 @@ class EmployeeController extends Controller
         $employee->delete();
         return redirect()->route('admin.employees')->with('success', 'Employee deleted successfully.');
     }
+
+
+    public function search(Request $request)
+    {
+        $query = $request->get('q', '');
+
+        // Fetch matching employees (limit results)
+        $employees = \App\Models\Employee::where('employee_name', 'like', "%{$query}%")
+            ->select('employee_id', 'employee_name')
+            ->limit(8)
+            ->get();
+
+        // Always return JSON
+        return response()->json($employees);
+    }
 }

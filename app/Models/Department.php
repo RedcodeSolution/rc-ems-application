@@ -21,17 +21,19 @@ class Department extends Model
         'status',
     ];
 
-    public function employee()
+    public function manager()
     {
         return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
     }
 
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
+    }
     public function employees()
     {
         return $this->hasMany(Employee::class, 'department_id', 'department_id');
     }
-
-
 
     // Get total number of employees in this department
     public function getTotalEmployeesAttribute()
@@ -91,4 +93,3 @@ class Department extends Model
         ]);
     }
 }
-

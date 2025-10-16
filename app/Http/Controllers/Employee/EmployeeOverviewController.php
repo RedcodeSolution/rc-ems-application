@@ -90,23 +90,29 @@ class EmployeeOverviewController extends Controller
             ->take(5)
             ->get();
 
-
+        $attendanceData = collect();
+        $allDates = collect();
         $period = request()->get('period', 'week');
         switch ($period) {
             case 'month':
                 $start = now()->startOfMonth();
                 $end = now()->endOfMonth();
                 $format = 'd';
+                $allDates = collect(range(1, now()->endOfMonth()->day))
+                    ->map(fn($d) => str_pad($d, 2, '0', STR_PAD_LEFT));
                 break;
             case 'year':
                 $start = now()->startOfYear();
                 $end = now()->endOfYear();
                 $format = 'M';
+                $allDates = collect(range(1, 12))
+                    ->map(fn($m) => Carbon::create()->month($m)->format('M'));
                 break;
             default:
                 $start = now()->startOfWeek();
                 $end = now()->endOfWeek();
                 $format = 'D';
+                $allDates = collect(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
         }
 
         $attendanceData = Attendance::where('employee_id', $employeeId)
@@ -120,13 +126,25 @@ class EmployeeOverviewController extends Controller
                 'half_day' => $group->where('status', 'half_day')->count(),
             ]);
 
-        $attendanceLabels = $attendanceData->keys()->values();
-        $presentData = $attendanceData->pluck('present')->values();
-        $absentData = $attendanceData->pluck('absent')->values();
-        $lateData = $attendanceData->pluck('late')->values();
-        $halfDayData = $attendanceData->pluck('half_day')->values();
+
+
+
+        $attendanceLabels = $allDates;
+        $presentData = $allDates->map(fn($label) => $attendanceData[$label]['present'] ?? 0);
+        $absentData = $allDates->map(fn($label) => $attendanceData[$label]['absent'] ?? 0);
+        $lateData = $allDates->map(fn($label) => $attendanceData[$label]['late'] ?? 0);
+        $halfDayData = $allDates->map(fn($label) => $attendanceData[$label]['half_day'] ?? 0);
+
+        $totalPresent = $presentData->sum();
+        $totalAbsent = $absentData->sum();
+        $totalLate = $lateData->sum();
+        $totalHalfDay = $halfDayData->sum();
+        $totalDays = $totalPresent + $totalAbsent + $totalLate + $totalHalfDay;
+
+
         Meeting::createDailyStandup();
         $todayMeetings = Meeting::getTodayMeetings();
+
         return view('employees.dashboard', [
             'employee' => $user->name,
             'today_hours_worked' => $todayHours,
@@ -146,6 +164,13 @@ class EmployeeOverviewController extends Controller
             'halfday_data' => $halfDayData,
             'selected_period' => $period,
             'hour_change_percent' => round($hourChangePercent, 1),
+
+            'total_present' => $totalPresent,
+            'total_absent' => $totalAbsent,
+            'total_late' => $totalLate,
+            'total_halfday' => $totalHalfDay,
+            'total_days' => $totalDays,
+
         ]);
     }
 

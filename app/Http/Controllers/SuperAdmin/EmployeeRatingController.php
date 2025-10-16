@@ -17,19 +17,6 @@ use Illuminate\Support\Facades\Auth;
 
 class EmployeeRatingController extends Controller
 {
-    public function index()
-    {
-        $superAdmins = SuperAdmin::all();
-        return view('super_admin.index', compact('superAdmins'));
-    }
-
-
-    public function show(SuperAdmin $superAdmin)
-    {
-        return view('super_admin.show', compact('superAdmin'));
-    }
-
-
 
     /**
      * Display the Employee Ratings page for Super Admin.

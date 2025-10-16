@@ -12,9 +12,9 @@
                     JD
                 </div>
                 <div class="profile-header-info">
-                    <h1>John Doe</h1>
-                    <p class="profile-role">Senior Developer</p>
-                    <p class="profile-id">ID: EMP001</p>
+                    <h1>{{ $employee->employee_name }}</h1>
+                    <p class="profile-role">{{ $employee->role }}</p>
+                    <p class="profile-id">{{ $employee->employee_id }}</p>
                 </div>
             </div>
             <div class="profile-actions">
@@ -117,36 +117,51 @@
                         <div class="info-item">
                             <label>Department</label>
                             <div class="info-value">
-                                <span class="department-badge">{{ $employee->department->department_name }}</span>
+                                <span class="department-badge">{{ $employee->department->department_name ?? 'N/A' }}</span>
                             </div>
                         </div>
 
                         <div class="info-item">
-                            <label>Team</label>
+                            <label>Teams</label>
                             <div class="info-value">
-                                <span class="team-badge">Backend Development</span>
-                                <span class="team-badge">DevOps</span>
+                                @if ($employee->teams->count())
+                                    @foreach ($employee->teams as $team)
+                                        <span class="team-badge">{{ $team->team_name }}</span>
+                                    @endforeach
+                                @else
+                                    <span class="text-muted">No Teams Assigned</span>
+                                @endif
                             </div>
                         </div>
 
                         <div class="info-item">
                             <label>Reporting Manager</label>
                             <div class="info-value">
-                                <div class="manager-info">
-                                    <div class="manager-avatar">SM</div>
-                                    <div class="manager-details">
-                                        <span class="manager-name">Sarah Martinez</span>
-                                        <span class="manager-title">Engineering Manager</span>
+                                @if ($employee->department && $employee->department->manager)
+                                    <div class="manager-info">
+                                        <div class="manager-avatar">
+                                            {{ strtoupper(substr($employee->department->manager->employee_name, 0, 1)) }}
+                                            {{ strtoupper(substr($employee->department->manager->last_name, 0, 1)) }}
+                                        </div>
+                                        <div class="manager-details">
+                                            <span class="manager-name">
+                                                {{ $employee->department->manager->employee_name }}
+                                            </span>
+                                            <span class="manager-title">Department Manager</span>
+                                        </div>
                                     </div>
-                                </div>
+                                @else
+                                    <span class="text-muted">Not Assigned</span>
+                                @endif
                             </div>
                         </div>
+
 
                         <div class="info-item">
                             <label>Office Location</label>
                             <div class="info-value">
                                 <i class="fas fa-map-marker-alt"></i>
-                                {{ $employee->department->location }}
+                                {{ $employee->department->location ?? 'N/A' }}
                             </div>
                         </div>
 
@@ -187,37 +202,39 @@
                 <div class="profile-card-body">
                     <div class="skills-section" id="skillsSection">
 
-                        {{-- Group skills by category --}}
                         @php
+                            // Define your default categories
+                            $defaultCategories = ['Programming Languages', 'Frameworks & Technologies'];
+
+                            // Group employee’s existing skills
                             $skillsByCategory = $employee->skills->groupBy('skill_category');
                         @endphp
 
-                        @foreach ($skillsByCategory as $skill_category => $skills)
+                        {{-- Loop through default categories first --}}
+                        @foreach ($defaultCategories as $category)
                             <div class="skill-category">
-                                <h4>{{ $skill_category ?? 'Other Skills' }}</h4>
-                                <div class="skill-tags" data-category="{{ $skill_category ?? 'other' }}">
-
-                                    @foreach ($skills as $skill)
-                                        <span class="skill-tag {{ strtolower($skill->skill_level) }}"
-                                            data-skill="{{ $skill->skill_name }}">
-                                            {{ $skill->skill_name }}
-                                            <button class="skill-remove-btn"
-                                                onclick="removeSkill(this, '{{ $skill->id }}')"
-                                                style="display: none;">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </span>
-                                    @endforeach
-
-                                    <button class="add-skill-btn" onclick="openAddSkillModal('{{ $skill_category }}')"
+                                <h4>{{ $category }}</h4>
+                                <div class="skill-tags" data-category="{{ $category }}">
+                                    @if (isset($skillsByCategory[$category]) && $skillsByCategory[$category]->count() > 0)
+                                        @foreach ($skillsByCategory[$category] as $skill)
+                                            <span class="skill-tag {{ strtolower($skill->skill_level) }}"
+                                                data-skill="{{ $skill->skill_name }}">
+                                                {{ $skill->skill_name }}
+                                                <button class="skill-remove-btn"
+                                                    onclick="removeSkill(this, '{{ $skill->id }}')"
+                                                    style="display: none;">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </span>
+                                        @endforeach
+                                    @endif
+                                    <button class="add-skill-btn" onclick="openAddSkillModal('{{ $category }}')"
                                         style="display: none;">
-                                        <i class="fas fa-plus"></i>
-                                        Add Skill
+                                        <i class="fas fa-plus"></i> Add Skill
                                     </button>
                                 </div>
                             </div>
                         @endforeach
-
                     </div>
 
                     <div class="skills-edit-actions" id="skillsEditActions" style="display: none;">
@@ -289,7 +306,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="addSkillForm" method="POST" action="{{ route('employee.skills.create') }}">
+                <form id="addSkillForm" method="POST">
                     @csrf
                     <div class="form-group">
                         <label for="skillName">Skill Name <span class="required">*</span></label>
@@ -1203,6 +1220,7 @@
         let isSkillsEditMode = false;
         let currentEditingSkill = null;
         let deletedSkills = [];
+        let originalSkillsHTML = '';
 
         function toggleSkillsEditMode() {
             const editBtn = document.getElementById('skillsEditBtn');
@@ -1213,17 +1231,14 @@
             isSkillsEditMode = !isSkillsEditMode;
 
             if (isSkillsEditMode) {
-                // Enter edit mode
+                // Save current DOM snapshot for cancel restore
+                originalSkillsHTML = document.getElementById('skillsSection').innerHTML;
+
                 editBtn.style.display = 'none';
                 editActions.style.display = 'flex';
 
-                removeButtons.forEach(btn => {
-                    btn.style.display = 'block';
-                });
-
-                addButtons.forEach(btn => {
-                    btn.style.display = 'inline-flex';
-                });
+                removeButtons.forEach(btn => (btn.style.display = 'block'));
+                addButtons.forEach(btn => (btn.style.display = 'inline-flex'));
 
                 // Make skill tags clickable for editing
                 document.querySelectorAll('.skill-tag').forEach(tag => {
@@ -1231,17 +1246,11 @@
                     tag.addEventListener('click', editSkillHandler);
                 });
             } else {
-                // Exit edit mode
                 editBtn.style.display = 'inline-flex';
                 editActions.style.display = 'none';
 
-                removeButtons.forEach(btn => {
-                    btn.style.display = 'none';
-                });
-
-                addButtons.forEach(btn => {
-                    btn.style.display = 'none';
-                });
+                removeButtons.forEach(btn => (btn.style.display = 'none'));
+                addButtons.forEach(btn => (btn.style.display = 'none'));
 
                 // Remove click handlers
                 document.querySelectorAll('.skill-tag').forEach(tag => {
@@ -1250,6 +1259,7 @@
                 });
             }
         }
+
 
         function editSkillHandler(event) {
             if (event.target.classList.contains('skill-remove-btn')) {
@@ -1383,19 +1393,43 @@
         }
 
         function cancelSkillsEdit() {
-            // Reset to original state - in a real app, you'd restore from server data
-            toggleSkillsEditMode();
-            showMessage('Changes cancelled', 'info');
+            const skillsSection = document.getElementById('skillsSection');
+
+            // Restore original DOM snapshot if available
+            if (originalSkillsHTML) {
+                skillsSection.innerHTML = originalSkillsHTML;
+            }
+
+            // Reset temporary edit data
+            deletedSkills = [];
+            currentEditingSkill = null;
+
+            // Exit edit mode
+            isSkillsEditMode = false;
+            document.getElementById('skillsEditBtn').style.display = 'inline-flex';
+            document.getElementById('skillsEditActions').style.display = 'none';
+
+            // Clean up click listeners
+            document.querySelectorAll('.skill-tag').forEach(tag => {
+                tag.style.cursor = 'default';
+                tag.removeEventListener('click', editSkillHandler);
+            });
+
+            showMessage('All unsaved skill changes have been discarded.', 'info');
         }
 
-        function saveSkills() {
-            // In a real app, you'd send the data to the server
 
+
+        async function saveSkills() {
             const skills = [];
+
             document.querySelectorAll('.skill-tag').forEach(tag => {
                 const skillName = tag.dataset.skill;
-                const skillLevel = tag.classList.contains('expert') ? 'expert' :
-                    tag.classList.contains('intermediate') ? 'intermediate' : 'beginner';
+                const skillLevel = tag.classList.contains('expert') ?
+                    'expert' :
+                    tag.classList.contains('intermediate') ?
+                    'intermediate' :
+                    'beginner';
                 const category = tag.closest('[data-category]').dataset.category;
 
                 skills.push({
@@ -1405,11 +1439,41 @@
                 });
             });
 
-            console.log('Saving skills:', skills);
+            try {
+                const response = await fetch('{{ route('employee.skills.save') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        skills
+                    })
+                });
 
-            toggleSkillsEditMode();
-            showMessage('Skills updated successfully!', 'success');
+                const text = await response.text();
+                let data;
+
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error("Non-JSON response:", text);
+                    showMessage('Unexpected response from server.', 'error');
+                    return;
+                }
+
+                if (data.success) {
+                    toggleSkillsEditMode();
+                    showMessage(data.message, 'success');
+                } else {
+                    showMessage('Failed to save skills.', 'error');
+                }
+            } catch (error) {
+                console.error('Error saving skills:', error);
+                showMessage('An error occurred while saving.', 'error');
+            }
         }
+
 
         function showMessage(message, type = 'info') {
             const messageDiv = document.createElement('div');
