@@ -224,13 +224,17 @@ Route::middleware('auth')->group(function () {
     });
 
 
+    Route::get('/admin/employee-projects/{employeeName}', [ProjectController::class, 'getProjectsByEmployee']);
+    Route::get('/admin/employee-assignments/{id}', [ProjectController::class, 'getEmployeeAssignments']);
+
+
     Route::prefix('admin')->name('admin.')->group(function () {
         // Employee Management
         Route::get('/employees', function () {
             $employees = Employee::with(['department', 'admin'])->get();
             $departments = Department::all();
             $admins = Admin::all();
-            $teams = Team::all(); // <-- Add this line
+            $teams = Team::all();
             return view('admin.employees.index', compact('employees', 'departments', 'admins', 'teams'));
         })->name('employees');
 
@@ -238,10 +242,15 @@ Route::middleware('auth')->group(function () {
         Route::match(['put', 'patch'], '/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
 
 
-
         Route::get('/projects', function () {
-            return view('admin.projects.index');
+            $employees = Employee::select('employee_id', 'employee_name')->get();
+            return view('admin.projects.index', compact('employees'));
         })->name('projects');
+
+
+        // Route::get('/projects', function () {
+        //     return view('admin.projects.index');
+        // })->name('projects');
 
         // Leave Management
         Route::put('/leaves/{leave}/status', [AdminsLeaveController::class, 'updateLeaveStatus'])->name('leaves.updateLeaveStatus');

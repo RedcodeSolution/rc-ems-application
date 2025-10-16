@@ -105,7 +105,7 @@ class EmployeeController extends Controller
         }
 
         $employee->update($validated);
-        
+
         if ($request->has('team_ids')) {
             $employee->teams()->sync($request->team_ids);
         }
@@ -119,5 +119,20 @@ class EmployeeController extends Controller
         $employee = Employee::findOrFail($employee_id);
         $employee->delete();
         return redirect()->route('admin.employees')->with('success', 'Employee deleted successfully.');
+    }
+
+
+    public function search(Request $request)
+    {
+        $query = $request->get('q', '');
+
+        // Fetch matching employees (limit results)
+        $employees = \App\Models\Employee::where('employee_name', 'like', "%{$query}%")
+            ->select('employee_id', 'employee_name')
+            ->limit(8)
+            ->get();
+
+        // Always return JSON
+        return response()->json($employees);
     }
 }
