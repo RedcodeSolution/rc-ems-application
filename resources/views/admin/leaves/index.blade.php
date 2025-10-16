@@ -205,7 +205,7 @@
                                 <span class="used">{{ $annualUsed }}</span> /
                                 <span class="total">{{ $annualTotal }}</span> days
                                 <div class="balance-bar">
-                                    <div class="balance-fill 
+                                    <div class="balance-fill
     {{ $annualPercent < 50 ? 'low' : ($annualPercent < 80 ? 'medium' : 'high') }}"
                                         style="width: {{ $annualPercent }}%">
                                     </div>
@@ -219,7 +219,7 @@
                                 <span class="used">{{ $sickUsed }}</span> /
                                 <span class="total">{{ $sickTotal }}</span> days
                                 <div class="balance-bar">
-                                    <div class="balance-fill 
+                                    <div class="balance-fill
     {{ $annualPercent < 50 ? 'low' : ($annualPercent < 80 ? 'medium' : 'high') }}"
                                         style="width: {{ $annualPercent }}%">
                                     </div>
@@ -233,7 +233,7 @@
                                 <span class="used">{{ $personalUsed }}</span> /
                                 <span class="total">{{ $personalTotal }}</span> days
                                 <div class="balance-bar">
-                                    <div class="balance-fill 
+                                    <div class="balance-fill
     {{ $annualPercent < 50 ? 'low' : ($annualPercent < 80 ? 'medium' : 'high') }}"
                                         style="width: {{ $annualPercent }}%">
                                     </div>
@@ -326,7 +326,10 @@
                                                     data-type="{{ $leave->leave_type }}"
                                                     data-start="{{ $leave->start_date }}"
                                                     data-end="{{ $leave->end_date }}" data-reason="{{ $leave->reason }}"
-                                                    data-contact="{{ $leave->contact_info }}">
+                                                    data-contact="{{ $leave->contact_info }}"
+                                                        data-doc="{{ $leave->supporting_doc ? asset('storage/leaves/' . $leave->supporting_doc) : '' }}"
+                                                >
+
                                                     <i class="fas fa-edit"></i>
                                                 </button>
                                                 <form action="{{ route('admin.leaves.destroy', $leave) }}" method="POST"
@@ -920,7 +923,7 @@
                 <button class="modal-close" onclick="closeApplyLeaveModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="applyLeaveForm" method="POST" action="{{ route('leaves.store') }}">
+                <form id="applyLeaveForm" method="POST" action="{{ route('leaves.store') }}" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="_method" id="formMethod" value="POST">
                     <div class="form-container">
@@ -998,19 +1001,43 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="supportingDocument" class="form-label">
-                                <i class="fas fa-paperclip"></i> Supporting Documents
+                            <label for="supporting_doc" class="form-label">
+                                <i class="fas fa-paperclip"></i> Supporting Document
                             </label>
-                            <div class="file-upload-container">
-                                <input type="file" id="supportingDocument" name="supporting_doc" class="file-input"
-                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
-                                <label for="supportingDocument" class="file-upload-label">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                    <span>Choose files or drag and drop</span>
-                                    <small>PDF, DOC, DOCX, JPG, PNG (Max 10MB)</small>
-                                </label>
+
+                            <div class="file-upload-container"
+                                 style="border: 2px dashed #ccc; padding: 1.5rem; text-align: center; border-radius: 0.5rem; cursor: pointer;"
+                                 onclick="document.getElementById('supporting_doc').click()">
+                                <input type="file" id="supporting_doc" name="supporting_doc"
+                                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                       style="display:none;" onchange="previewFile(event)">
+
+                                <div class="file-upload-label">
+                                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #4caf50;"></i>
+                                    <div class="file-upload-text" style="margin-top: 0.5rem;">
+                                        Click to upload or drag and drop
+                                    </div>
+                                    <div class="file-upload-subtext" style="font-size: 0.85rem; color: #777;">
+                                        Supported: PDF, DOC, DOCX, JPG, PNG (Max: 2MB)
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="file-preview"
+                                 style="margin-top: 1rem; display: none;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;
+                                      padding: 0.5rem; background: #f1f8e9; border-radius: 0.5rem;">
+                                    <i class="fas fa-file" style="color: #4caf50;"></i>
+                                    <span id="file-name" style="font-size: 0.9rem;"></span>
+                                    <button type="button"
+                                            onclick="removeFile()"
+                                            style="margin-left: auto; background: none; border: none; color: #e53935; cursor: pointer;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
+
 
                         <div class="form-group">
                             <label class="checkbox-label">
@@ -3590,7 +3617,7 @@
                             data: hasData ? leaveData : [1],
                             backgroundColor: hasData ? [
                                 '#DC2626', // Annual - Red
-                                '#2563EB', // Sick - Blue  
+                                '#2563EB', // Sick - Blue
                                 '#059669' // Personal - Green
                             ] : ['#E5E7EB'], // Gray for no data
                             borderWidth: 2,
@@ -4030,13 +4057,12 @@
             }, 500);
         }
 
+
         function editMyLeave(button) {
             showNotification('Opening leave editor...', 'info');
 
             setTimeout(() => {
                 const form = document.getElementById('applyLeaveForm');
-
-                // point form action to update route
                 const id = button.dataset.id;
 
                 form.action = `/admin/leaves/${id}`;
@@ -4044,19 +4070,43 @@
 
                 const formatDate = (dateStr) => {
                     if (!dateStr) return '';
-                    const d = new Date(dateStr);
-                    if (isNaN(d)) return ''; // invalid date
-                    return d.toISOString().split('T')[0]; // YYYY-MM-DD
+                    const date = new Date(dateStr);
+                    if (isNaN(date)) return '';
+
+                    // Adjust timezone offset so it shows correct day
+                    const corrected = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+                    return corrected.toISOString().split('T')[0];
                 };
 
-                // load data from button attributes
+                // populate fields
                 document.getElementById('leaveType').value = button.dataset.type;
                 document.getElementById('startDate').value = formatDate(button.dataset.start);
                 document.getElementById('endDate').value = formatDate(button.dataset.end);
-                document.getElementById('leaveReason').value = button.dataset.reason;
+                document.getElementById('leaveReason').value = button.dataset.reason || '';
                 document.getElementById('emergencyContact').value = button.dataset.contact || '';
 
-                // update button text
+                // handle document preview
+                const previewContainer = document.getElementById('file-preview');
+                const fileNameEl = document.getElementById('file-name');
+
+                if (button.dataset.doc) {
+                    // show preview of existing document
+                    previewContainer.style.display = 'flex';
+                    fileNameEl.innerHTML = `
+                <a href="${button.dataset.doc}" target="_blank" style="color: #2e7d32; text-decoration: underline;">
+                    View current document
+                </a>
+            `;
+                } else {
+                    // hide if no document
+                    previewContainer.style.display = 'none';
+                    fileNameEl.innerHTML = '';
+                }
+
+                // allow user to upload new file (optional)
+                document.getElementById('supporting_doc').value = '';
+
+                // update submit button
                 const submitBtn = document.querySelector('#applyLeaveModal .btn-primary');
                 submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Application';
 
@@ -4065,6 +4115,43 @@
                 showNotification('Edit mode activated', 'success');
             }, 500);
         }
+
+
+        // function editMyLeave(button) {
+        //     showNotification('Opening leave editor...', 'info');
+        //
+        //     setTimeout(() => {
+        //         const form = document.getElementById('applyLeaveForm');
+        //
+        //         // point form action to update route
+        //         const id = button.dataset.id;
+        //
+        //         form.action = `/admin/leaves/${id}`;
+        //         document.getElementById('formMethod').value = 'PUT';
+        //
+        //         const formatDate = (dateStr) => {
+        //             if (!dateStr) return '';
+        //             const d = new Date(dateStr);
+        //             if (isNaN(d)) return ''; // invalid date
+        //             return d.toISOString().split('T')[0]; // YYYY-MM-DD
+        //         };
+        //
+        //         // load data from button attributes
+        //         document.getElementById('leaveType').value = button.dataset.type;
+        //         document.getElementById('startDate').value = formatDate(button.dataset.start);
+        //         document.getElementById('endDate').value = formatDate(button.dataset.end);
+        //         document.getElementById('leaveReason').value = button.dataset.reason;
+        //         document.getElementById('emergencyContact').value = button.dataset.contact || '';
+        //
+        //         // update button text
+        //         const submitBtn = document.querySelector('#applyLeaveModal .btn-primary');
+        //         submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Application';
+        //
+        //         document.getElementById('applyLeaveModal').style.display = 'block';
+        //
+        //         showNotification('Edit mode activated', 'success');
+        //     }, 500);
+        // }
 
 
 
@@ -4160,6 +4247,35 @@
                 document.getElementById('duration').value = 0;
             }
         }
+
+
+        function previewFile(event) {
+            const fileInput = event.target;
+            const file = fileInput.files[0];
+            const preview = document.getElementById('file-preview');
+            const fileName = document.getElementById('file-name');
+
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                    alert("File size exceeds 2MB. Please choose a smaller file.");
+                    fileInput.value = '';
+                    return;
+                }
+
+                fileName.textContent = file.name;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        function removeFile() {
+            const fileInput = document.getElementById('supporting_doc');
+            const preview = document.getElementById('file-preview');
+            fileInput.value = '';
+            preview.style.display = 'none';
+        }
+
     </script>
 
 @endsection

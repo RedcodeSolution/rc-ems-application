@@ -10,6 +10,8 @@ use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AdminsLeaveController extends Controller
 {
@@ -261,8 +263,16 @@ class AdminsLeaveController extends Controller
             'duration' => 'required|integer|min:1',
             'reason' => 'required|string',
             'contact_number' => 'nullable|string|max:20',
-            'supporting_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'supporting_doc' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
         ]);
+
+        if ($request->hasFile('supporting_doc')) {
+            $file = $request->file('supporting_doc');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/leaves', $filename);
+            $validated['supporting_doc'] = $filename;
+        }
+
 
         $validated['employee_id'] = $user->employee->employee_id;
         $leave = Leave::create($validated);
@@ -309,12 +319,25 @@ class AdminsLeaveController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'contact_info' => 'nullable|string',
-            'supporting_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'supporting_doc' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
         ]);
+
+        if ($request->hasFile('supporting_doc')) {
+            $file = $request->file('supporting_doc');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/leaves', $filename);
+            $validated['supporting_doc'] = $filename;
+
+            // Optionally delete old file
+            if ($leave->supporting_doc && Storage::exists('public/leaves/' . $leave->supporting_doc)) {
+                Storage::delete('public/leaves/' . $leave->supporting_doc);
+            }
+        }
+
 
 
         $leave->update($validated);
-        return redirect()->route('admin.leaves.index');
+        return redirect()->route('admin.leaves.index')->with('success', 'Leave updated successfully.');
     }
 
 

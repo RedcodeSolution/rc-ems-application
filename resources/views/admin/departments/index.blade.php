@@ -22,7 +22,7 @@
     </div>
     <div class="card-body">
         <div class="flex justify-between items-center mb-4">
-            <input type="text" id="searchInput" placeholder="Search departments..." class="form-input search-input">
+            <input type="text" id="departmentSearch" placeholder="Search departments..." class="form-input search-input">
             <button class="btn btn-secondary" onclick="clearSearch()">
                 <i class="fas fa-times"></i>
                 Clear
@@ -599,65 +599,6 @@
         });
     });
 
-    // Form submission handling
-    document.getElementById('departmentForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const formData = new FormData(this);
-        const submitButton = this.querySelector('button[type="submit"]');
-        const originalText = submitButton.innerHTML;
-
-        // Show loading state
-        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
-        submitButton.disabled = true;
-
-        // Clear previous error messages
-        const errorMessages = document.querySelectorAll('.error-message');
-        errorMessages.forEach(msg => msg.remove());
-
-        fetch(this.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Show success message and reload page
-                    closeDepartmentModal();
-                    window.location.reload();
-                } else {
-                    // Show error messages
-                    if (data.errors) {
-                        Object.keys(data.errors).forEach(field => {
-                            const input = document.getElementById(field);
-                            if (input) {
-                                const errorDiv = document.createElement('div');
-                                errorDiv.className = 'error-message';
-                                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + data.errors[field][0];
-                                input.parentNode.parentNode.appendChild(errorDiv);
-                            }
-                        });
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // Show general error message
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error-message';
-                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> An error occurred. Please try again.';
-                this.querySelector('.form-container').insertBefore(errorDiv, this.querySelector('.form-actions'));
-            })
-            .finally(() => {
-                // Reset button state
-                submitButton.innerHTML = originalText;
-                submitButton.disabled = false;
-            });
-    });
 
     // Delete Department Function
     function confirmDeleteDepartment(departmentId, departmentName) {
@@ -859,73 +800,6 @@
 
     }
 
-    // Handle Edit Department Form Submission
-    document.getElementById('editDepartmentForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const submitButton = this.querySelector('button[type="submit"]');
-        const originalText = submitButton.innerHTML;
-
-        // Show loading state
-        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-        submitButton.disabled = true;
-
-        // Clear any previous error messages
-        const errorMessages = this.querySelectorAll('.error-message');
-        errorMessages.forEach(msg => msg.remove());
-
-        // Submit form
-        fetch(this.action, {
-            method: 'POST',
-            body: new FormData(this),
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json',
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Show success message
-                    const successDiv = document.createElement('div');
-                    successDiv.className = 'success-message';
-                    successDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
-                    this.querySelector('.form-container').insertBefore(successDiv, this.querySelector('.form-actions'));
-
-                    // Close modal and reload page after a short delay
-                    setTimeout(() => {
-                        closeEditDepartmentModal();
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    // Handle validation errors
-                    if (data.errors) {
-                        Object.keys(data.errors).forEach(field => {
-                            const input = document.getElementById('edit_' + field);
-                            if (input) {
-                                const errorDiv = document.createElement('div');
-                                errorDiv.className = 'error-message';
-                                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + data.errors[field][0];
-                                input.parentNode.parentNode.appendChild(errorDiv);
-                            }
-                        });
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // Show general error message
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error-message';
-                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> An error occurred. Please try again.';
-                this.querySelector('.form-container').insertBefore(errorDiv, this.querySelector('.form-actions'));
-            })
-            .finally(() => {
-                // Reset button state
-                submitButton.innerHTML = originalText;
-                submitButton.disabled = false;
-            });
-    });
 
     // Close edit modal when clicking outside
     document.addEventListener('click', function(e) {
@@ -1073,26 +947,30 @@
         grid.innerHTML = html;
     }
 
-    function searchDepartments(searchTerm) {
-        if (!searchTerm.trim()) {
-            filteredDepartments = departments;
-        } else {
-            const term = searchTerm.toLowerCase();
-            filteredDepartments = departments.filter(department => {
-                return (
-                    (department.department_id && department.department_id.toLowerCase().includes(term)) ||
-                    (department.department_name && department.department_name.toLowerCase().includes(term)) ||
-                    (department.description && department.description.toLowerCase().includes(term)) ||
-                    (department.department_head && department.department_head.toLowerCase().includes(term)) ||
-                    (department.location && department.location.toLowerCase().includes(term)) ||
-                    (department.status && department.status.toLowerCase().includes(term))
-                );
-            });
-        }
+    document.getElementById('departmentSearch').addEventListener('keyup', function() {
+        let searchValue = this.value.toLowerCase();
+        let cards = document.querySelectorAll("#departmentsGrid .card");
 
-        renderDepartments(filteredDepartments);
-        updateStatistics();
-    }
+        cards.forEach(card => {
+            let departmentName = card.querySelector(".department-title")?.textContent.toLowerCase() || "";
+            let departmentHead = card.querySelector(".department-head .value")?.textContent.toLowerCase() || "";
+            let departmentLocation = card.querySelector(".department-location .value")?.textContent.toLowerCase() || "";
+            let departmentDescription = card.querySelector(".department-description .value")?.textContent.toLowerCase() || "";
+            let departmentStatus = card.querySelector(".department-status")?.textContent.toLowerCase() || "";
+
+            if (
+                departmentName.includes(searchValue) ||
+                departmentHead.includes(searchValue) ||
+                departmentLocation.includes(searchValue) ||
+                departmentDescription.includes(searchValue) ||
+                departmentStatus.includes(searchValue)
+            ) {
+                card.style.display = "";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    });
 
     function updateStatistics() {
         // Update statistics based on filtered departments
@@ -1112,8 +990,13 @@
     }
 
     function clearSearch() {
-        document.getElementById('searchInput').value = '';
-        searchDepartments('');
+        const input = document.getElementById('departmentSearch');
+        input.value = ''; // Clear input field
+        // Trigger full list display
+        let cards = document.querySelectorAll("#departmentsGrid .card");
+        cards.forEach(card => {
+            card.style.display = "";
+        });
     }
 
     // Initialize search functionality

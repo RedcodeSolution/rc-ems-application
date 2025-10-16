@@ -228,8 +228,6 @@ Route::middleware('auth')->group(function () {
             $teams = Team::all();
             return view('admin.employees.index', compact('employees', 'departments', 'admins', 'teams'));
         })->name('employees');
-
-
         Route::match(['put', 'patch'], '/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
 
 
