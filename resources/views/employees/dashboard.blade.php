@@ -1,5 +1,5 @@
 @extends('layouts.employee')
-
+<link rel="stylesheet" href="{{ asset('css/Employee/overview.css') }}">
 @section('title', 'Employee Dashboard - Overview')
 
 @section('content')

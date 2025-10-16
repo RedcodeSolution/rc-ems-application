@@ -18,7 +18,7 @@ use App\Http\Controllers\Employee\EmployeeLeaveController;
 use App\Http\Controllers\Employee\EmployeeOverviewController;
 use App\Http\Controllers\Employee\EmployeeProfileController;
 use App\Http\Controllers\Employee\EmployeeTaskController;
-use App\Http\Controllers\Employee\EmployeeRatingController;
+use App\Http\Controllers\Employee\EmployeeRatingController as EmployeeEmployeeRatingController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NotificationController;
@@ -26,7 +26,7 @@ use App\Http\Controllers\SuperAdmin\AdminController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
 
 use App\Http\Controllers\SuperAdmin\AdminLeaveController;
-// use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
+use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
 use App\Http\Controllers\SuperAdmin\EventController;
 use App\Http\Controllers\SuperAdmin\SuperAdminAccountsController;
 use App\Models\Admin;
@@ -162,7 +162,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Employee ratings routes
-    Route::resource('employees/ratings', EmployeeRatingController::class)
+    Route::resource('employees/ratings', EmployeeEmployeeRatingController::class)
         ->names([
             'index' => 'employee.ratings.index',
             'show' => 'employee.ratings.show',
@@ -170,8 +170,8 @@ Route::middleware('auth')->group(function () {
         ->parameters(['ratings' => 'rating']);
 
     // Employee rating submission and data routes
-    Route::post('/employees/ratings', [EmployeeRatingController::class, 'store'])->name('employee.ratings.store');
-    Route::get('/employees/ratings/employee/{employeeId}', [EmployeeRatingController::class, 'getEmployeeRatings'])->name('employee.ratings.employee');
+    Route::post('/employees/ratings', [EmployeeEmployeeRatingController::class, 'store'])->name('employee.ratings.store');
+    Route::get('/employees/ratings/employee/{employeeId}', [EmployeeEmployeeRatingController::class, 'getEmployeeRatings'])->name('employee.ratings.employee');
 
     Route::get('/super_admin/dashboard', [SuperAdminController::class, 'dashboard'])->name('super_admin.dashboard');
     Route::get('/super_admin/system_stats', [SuperAdminController::class, 'systemStats'])->name('super_admin.system_stats');
