@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('file_path');
             $table->boolean('notify_users')->default(false);
             $table->unsignedBigInteger('downloads')->default(0);
-            $table->unsignedBigInteger('employee_id')->nullable();
             $table->timestamps();
 
             $table->foreign('department_id')->references('department_id')->on('departments')->onDelete('set null');
