@@ -14,7 +14,6 @@ return new class extends Migration
             $table->id('department_id');
             $table->string('department_name');
             $table->text('description')->nullable();
-            $table->unsignedBigInteger('employee_id')->nullable();
             $table->string('location')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
@@ -22,8 +21,11 @@ return new class extends Migration
             $table->enum('status', ['Active', 'Inactive'])->default('Active');
             $table->timestamps();
             $table->softDeletes();
+<<<<<<< HEAD
 
             $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('set null');
+=======
+>>>>>>> d18933295db24b0ff6aa441bc5469a6e28d6a046
         });
     }
 
