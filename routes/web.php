@@ -18,6 +18,7 @@ use App\Http\Controllers\Employee\EmployeeLeaveController;
 use App\Http\Controllers\Employee\EmployeeOverviewController;
 use App\Http\Controllers\Employee\EmployeeProfileController;
 use App\Http\Controllers\Employee\EmployeeTaskController;
+use App\Http\Controllers\Employee\EmployeeRatingController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NotificationController;
@@ -25,7 +26,7 @@ use App\Http\Controllers\SuperAdmin\AdminController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
 
 use App\Http\Controllers\SuperAdmin\AdminLeaveController;
-use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
+// use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
 use App\Http\Controllers\SuperAdmin\EventController;
 use App\Http\Controllers\SuperAdmin\SuperAdminAccountsController;
 use App\Models\Admin;
@@ -213,7 +214,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('admin')->name('admin.')->group(function () {
         // Employee Management
-<<<<<<< HEAD
+
         Route::get('/employees', function () {
             $employees = Employee::with(['department', 'admin'])->get();
             $departments = Department::all();
@@ -221,11 +222,7 @@ Route::middleware('auth')->group(function () {
             $teams = Team::all();
             return view('admin.employees.index', compact('employees', 'departments', 'admins', 'teams'));
         })->name('employees');
-=======
-        Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');
 
-
->>>>>>> d18933295db24b0ff6aa441bc5469a6e28d6a046
         Route::match(['put', 'patch'], '/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
 
 

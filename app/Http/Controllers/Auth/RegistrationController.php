@@ -58,11 +58,12 @@ class RegistrationController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'contact_no' => $request->contact_no,
+            'employee_id' => $employee ? $employee->employee_id : null,
             'role' => $role,
         ]);
 
         if ($role === 'employee' && !$employee) {
-            Employee::create([
+            $newEmployee = Employee::create([
                 'employee_name' => $user->name,
                 'email' => $user->email,
                 'contact_no' => $user->contact_no,
@@ -71,6 +72,9 @@ class RegistrationController extends Controller
                 'paid_status' => 'Unpaid',
                 'role' => $user->role,
             ]);
+
+            $user->employee_id = $newEmployee->employee_id;
+            $user->save();
         }
 
         Auth::login($user);
