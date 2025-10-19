@@ -19,6 +19,7 @@ use App\Http\Controllers\Employee\EmployeeOverviewController;
 use App\Http\Controllers\Employee\EmployeeProfileController;
 use App\Http\Controllers\Employee\EmployeeTaskController;
 use App\Http\Controllers\Employee\EmployeeRatingController as EmployeeEmployeeRatingController;
+use App\Http\Controllers\Employee\EmployeeNotificationController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NotificationController;
@@ -393,6 +394,14 @@ Route::middleware('auth')->prefix('employee')->name('employee.')->group(function
             'urgentAnnouncements' => 2
         ]);
     })->name('announcements');
+
+    // Notifications for employees
+    Route::get('/notifications', [EmployeeNotificationController::class, 'index'])->name('notifications');
+    Route::get('/notifications/{notifi_id}', [EmployeeNotificationController::class, 'show'])->name('notifications.show');
+    Route::post('/notifications/{id}/mark-as-read', [EmployeeNotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('/notifications/mark-all-as-read', [EmployeeNotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+    Route::delete('/notifications/{id}', [EmployeeNotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::get('/notifications/latest', [EmployeeNotificationController::class, 'latest'])->name('notifications.latest');
 });
 
 //department Management
