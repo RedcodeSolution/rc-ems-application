@@ -38,6 +38,8 @@ use App\Models\Team;
 use Illuminate\Support\Facades\Route;
 
 
+
+
 Route::get('/', function () {
     return view('guest');
 })->middleware('guest')->name('welcome');
@@ -100,7 +102,6 @@ Route::middleware('auth')->group(function () {
         return view('admin.dashboard', $dashboardData);
     })->name('admin.dashboard');
 
-    Route::get('/employee/dashboard', [EmployeeOverviewController::class, 'index'])->name('employee.dashboard');
     Route::get('/employee/meetings/{meeting}/join', [EmployeeOverviewController::class, 'join'])->name('employee.meetings.join');
     //employee profile managment
     Route::get('/employees/profile', [EmployeeProfileController::class, 'show'])->name('employee.profile');
@@ -203,22 +204,9 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('admin')->name('admin.')->group(function () {
         // Employee Management
-
-        Route::get('/employees', function () {
-            $employees = Employee::with(['department', 'admin'])->get();
-            $departments = Department::all();
-            $admins = Admin::all();
-            $teams = Team::all();
-            return view('admin.employees.index', compact('employees', 'departments', 'admins', 'teams'));
-        })->name('employees');
-
         Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');
 
-
-
         Route::match(['put', 'patch'], '/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
-
-
 
         Route::get('/projects', function () {return view('admin.projects.index');})->name('projects');
 
@@ -328,10 +316,6 @@ Route::middleware('auth')->group(function () {
 
 // Employee-specific routes
 Route::middleware('auth')->prefix('employee')->name('employee.')->group(function () {
-    // Leave Management
-    // Route::get('/leaves', function () {
-    //     return view('employees.leaves.index');
-    // })->name('leaves.index');
 
     // Dashboard
     Route::get('/dashboard', [EmployeeOverviewController::class, 'index'])->name('dashboard');
