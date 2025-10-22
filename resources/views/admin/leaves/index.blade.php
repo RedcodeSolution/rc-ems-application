@@ -139,11 +139,9 @@
                     <label for="department-filter">Department</label>
                     <select id="department-filter" class="filter-select">
                         <option value="">All Departments</option>
-                        <option value="engineering">Engineering</option>
-                        <option value="marketing">Marketing</option>
-                        <option value="sales">Sales</option>
-                        <option value="hr">Human Resources</option>
-                        <option value="finance">Finance</option>
+                        @foreach ($departments as $dept)
+                            <option value="{{ strtolower($dept->department_name) }}">{{ $dept->department_name }}</option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -202,7 +200,7 @@
                         <div class="balance-item">
                             <div class="balance-type">Annual Leave</div>
                             <div class="balance-info">
-                                <span class="used">{{ $annualUsed }}</span> /
+                                <span class="used">{{ $adminAnnualUsed }}</span> /
                                 <span class="total">{{ $annualTotal }}</span> days
                                 <div class="balance-bar">
                                     <div class="balance-fill
@@ -216,12 +214,12 @@
                         <div class="balance-item">
                             <div class="balance-type">Sick Leave</div>
                             <div class="balance-info">
-                                <span class="used">{{ $sickUsed }}</span> /
+                                <span class="used">{{ $adminSickUsed }}</span> /
                                 <span class="total">{{ $sickTotal }}</span> days
                                 <div class="balance-bar">
                                     <div class="balance-fill
-    {{ $annualPercent < 50 ? 'low' : ($annualPercent < 80 ? 'medium' : 'high') }}"
-                                        style="width: {{ $annualPercent }}%">
+    {{ $sickPercent < 50 ? 'low' : ($sickPercent < 80 ? 'medium' : 'high') }}"
+                                        style="width: {{ $sickPercent }}%">
                                     </div>
                                 </div>
                             </div>
@@ -230,12 +228,12 @@
                         <div class="balance-item">
                             <div class="balance-type">Personal Leave</div>
                             <div class="balance-info">
-                                <span class="used">{{ $personalUsed }}</span> /
+                                <span class="used">{{ $adminPersonalUsed }}</span> /
                                 <span class="total">{{ $personalTotal }}</span> days
                                 <div class="balance-bar">
                                     <div class="balance-fill
-    {{ $annualPercent < 50 ? 'low' : ($annualPercent < 80 ? 'medium' : 'high') }}"
-                                        style="width: {{ $annualPercent }}%">
+    {{ $personalPercent < 50 ? 'low' : ($personalPercent < 80 ? 'medium' : 'high') }}"
+                                        style="width: {{ $personalPercent }}%">
                                     </div>
                                 </div>
                             </div>
@@ -267,7 +265,16 @@
                                     data-status="{{ strtolower($leave->status) }}"
                                     data-start="{{ \Carbon\Carbon::parse($leave->start_date)->toDateString() }}"
                                     data-end="{{ \Carbon\Carbon::parse($leave->end_date)->toDateString() }}"
-                                    data-department="{{ strtolower($leave->employee->department ?? '') }}">
+                                    data-reason="{{ $leave->reason ?? '-' }}"
+                                    data-duration="{{ $leave->duration ?? '' }}"
+                                    data-contact="{{ $leave->contact_number ?? '-' }}"
+                                    data-applied="{{ \Carbon\Carbon::parse($leave->applied_date)->format('M d, Y') }}"
+                                    data-approvedby="{{ $leave->approvedBy->employee_name ?? '—' }}"
+                                    data-department="{{ $leave->employee->department->department_name ?? '' }}"
+                                    data-empid="{{ $leave->employee->employee_id ?? '' }}"
+                                    data-name="{{ $leave->employee->employee_name ?? '' }}">
+
+
                                     <td>
                                         <span class="leave-type-badge type-{{ strtolower($leave->leave_type) }}">
                                             {{ ucfirst($leave->leave_type) }}
@@ -324,11 +331,12 @@
                                                 <button class="btn-action btn-edit" onclick="editMyLeave(this)"
                                                     title="Edit Request" data-id="{{ $leave->leave_id }}"
                                                     data-type="{{ $leave->leave_type }}"
-                                                    data-start="{{ $leave->start_date }}"
-                                                    data-end="{{ $leave->end_date }}" data-reason="{{ $leave->reason }}"
-                                                    data-contact="{{ $leave->contact_info }}"
-                                                        data-doc="{{ $leave->supporting_doc ? asset('storage/leaves/' . $leave->supporting_doc) : '' }}"
-                                                >
+                                                    data-start="{{ \Carbon\Carbon::parse($leave->start_date)->toDateString() }}"
+                                                    data-end="{{ \Carbon\Carbon::parse($leave->end_date)->toDateString() }}"
+                                                    data-reason="{{ $leave->reason }}"
+                                                    data-duration="{{ $leave->duration ?? '' }}"
+                                                    data-contact="{{ $leave->contact_number }}"
+                                                    data-doc="{{ $leave->supporting_doc ? asset('storage/leaves/' . $leave->supporting_doc) : '' }}">
 
                                                     <i class="fas fa-edit"></i>
                                                 </button>
@@ -384,13 +392,16 @@
                         </thead>
                         <tbody>
                             @foreach ($pendingLeaves as $leave)
-                                <tr class="leave-row" data-id="{{ $leave->leave_id }}"
-                                    data-type="{{ strtolower($leave->leave_type) }}"
-                                    data-department="{{ strtolower($leave->employee->department->department_name ?? '') }}"
-                                    data-name="{{ strtolower($leave->employee->employee_name) }}"
-                                    data-start="{{ \Carbon\Carbon::parse($leave->start_date)->toDateString() }}"
-                                    data-end="{{ \Carbon\Carbon::parse($leave->end_date)->toDateString() }}"
-                                    data-status="pending">
+                                <tr class="leave-row" data-id="{{ e($leave->leave_id) }}"
+                                    data-name="{{ e($leave->employee->employee_name) }}"
+                                    data-empid="{{ e($leave->employee->employee_id) }}"
+                                    data-department="{{ e($leave->employee->department->department_name ?? '-') }}"
+                                    data-type="{{ e($leave->leave_type) }}" data-status="{{ e($leave->status) }}"
+                                    data-start="{{ e(\Carbon\Carbon::parse($leave->start_date)->format('M d, Y')) }}"
+                                    data-end="{{ e(\Carbon\Carbon::parse($leave->end_date)->format('M d, Y')) }}"
+                                    data-duration="{{ e($leave->duration ?? '0') }}"
+                                    data-reason="{{ e($leave->reason ?? '-') }}"
+                                    data-contact="{{ e($leave->contact_number ?? '-') }}">
                                     <td>
                                         <input type="checkbox" class="leave-checkbox" value="{{ $leave->leave_id }}">
                                     </td>
@@ -402,7 +413,6 @@
                                             <div class="employee-info">
                                                 <h4>{{ $leave->employee->employee_name }}</h4>
                                                 <p>{{ $leave->employee->employee_id }} •
-                                                    {{-- {{ $leave->employee->department->department_name }} --}}
                                                 </p>
                                             </div>
                                         </div>
@@ -520,12 +530,16 @@
                             </thead>
                             <tbody>
                                 @foreach ($approvedLeaves as $leave)
-                                    <tr class="leave-row" data-id="{{ $leave->leave_id }}"
-                                        data-name="{{ strtolower($leave->employee->employee_name) }}"
-                                        data-department="{{ strtolower($leave->employee->department->department_name ?? '') }}"
-                                        data-type="{{ strtolower($leave->leave_type) }}" data-status="approved"
-                                        data-start="{{ \Carbon\Carbon::parse($leave->start_date)->toDateString() }}"
-                                        data-end="{{ \Carbon\Carbon::parse($leave->end_date)->toDateString() }}">
+                                    <tr class="leave-row" data-id="{{ e($leave->leave_id) }}"
+                                        data-name="{{ e($leave->employee->employee_name) }}"
+                                        data-empid="{{ e($leave->employee->employee_id) }}"
+                                        data-department="{{ e($leave->employee->department->department_name ?? '-') }}"
+                                        data-type="{{ e($leave->leave_type) }}" data-status="{{ e($leave->status) }}"
+                                        data-start="{{ e(\Carbon\Carbon::parse($leave->start_date)->format('M d, Y')) }}"
+                                        data-end="{{ e(\Carbon\Carbon::parse($leave->end_date)->format('M d, Y')) }}"
+                                        data-duration="{{ e($leave->duration ?? '0') }}"
+                                        data-reason="{{ e($leave->reason ?? '-') }}"
+                                        data-contact="{{ e($leave->contact_number ?? '-') }}">
                                         <td>
                                             <div class="employee-cell">
                                                 <div class="employee-avatar">
@@ -635,12 +649,16 @@
                             </thead>
                             <tbody>
                                 @foreach ($rejectedLeaves as $leave)
-                                    <tr class="leave-row" data-id="{{ $leave->leave_id }}"
-                                        data-name="{{ strtolower($leave->employee->employee_name) }}"
-                                        data-department="{{ strtolower($leave->employee->department->department_name ?? '') }}"
-                                        data-type="{{ strtolower($leave->leave_type) }}" data-status="rejected"
-                                        data-start="{{ \Carbon\Carbon::parse($leave->start_date)->toDateString() }}"
-                                        data-end="{{ \Carbon\Carbon::parse($leave->end_date)->toDateString() }}">
+                                    <tr class="leave-row" data-id="{{ e($leave->leave_id) }}"
+                                        data-name="{{ e($leave->employee->employee_name) }}"
+                                        data-empid="{{ e($leave->employee->employee_id) }}"
+                                        data-department="{{ e($leave->employee->department->department_name ?? '-') }}"
+                                        data-type="{{ e($leave->leave_type) }}" data-status="{{ e($leave->status) }}"
+                                        data-start="{{ e(\Carbon\Carbon::parse($leave->start_date)->format('M d, Y')) }}"
+                                        data-end="{{ e(\Carbon\Carbon::parse($leave->end_date)->format('M d, Y')) }}"
+                                        data-duration="{{ e($leave->duration ?? '0') }}"
+                                        data-reason="{{ e($leave->reason ?? '-') }}"
+                                        data-contact="{{ e($leave->contact_number ?? '-') }}">
                                         <td>
                                             <div class="employee-cell">
                                                 <div class="employee-avatar">
@@ -744,14 +762,16 @@
 
                             @foreach ($employeeLeaves as $leave)
                                 <tr class="leave-row" data-id="{{ $leave->leave_id }}"
-                                    data-name="{{ $leave->employee->employee_name }}"
-                                    data-empid="{{ $leave->employee->employee_id }}"
-                                    data-department="{{ $leave->employee->department->department_name ?? '' }}"
-                                    data-type="{{ $leave->leave_type }}" data-status="{{ $leave->status }}"
-                                    data-start="{{ \Carbon\Carbon::parse($leave->start_date)->format('M d, Y') }}"
-                                    data-end="{{ \Carbon\Carbon::parse($leave->end_date)->format('M d, Y') }}"
-                                    data-duration="{{ $leave->duration }}" data-reason="{{ $leave->reason }}"
-                                    data-contact="{{ $leave->emergency_contact }}">
+                                    data-name="{{ e($leave->employee->employee_name) }}"
+                                    data-empid="{{ e($leave->employee->employee_id) }}"
+                                    data-department="{{ e($leave->employee->department->department_name ?? '') }}"
+                                    data-type="{{ e($leave->leave_type) }}" data-status="{{ e($leave->status) }}"
+                                    data-start="{{ e(\Carbon\Carbon::parse($leave->start_date)->format('M d, Y')) }}"
+                                    data-end="{{ e(\Carbon\Carbon::parse($leave->end_date)->format('M d, Y')) }}"
+                                    data-duration="{{ e($leave->duration) }}"
+                                    data-reason="{{ e($leave->reason ?? '-') }}"
+                                    data-contact="{{ e($leave->emergency_contact ?? '-') }}">
+
                                     <td>
                                         <div class="employee-cell">
                                             <div class="employee-avatar">
@@ -923,7 +943,8 @@
                 <button class="modal-close" onclick="closeApplyLeaveModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="applyLeaveForm" method="POST" action="{{ route('leaves.store') }}" enctype="multipart/form-data">
+                <form id="applyLeaveForm" method="POST" action="{{ route('leaves.store') }}"
+                    enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="_method" id="formMethod" value="POST">
                     <div class="form-container">
@@ -1006,11 +1027,11 @@
                             </label>
 
                             <div class="file-upload-container"
-                                 style="border: 2px dashed #ccc; padding: 1.5rem; text-align: center; border-radius: 0.5rem; cursor: pointer;"
-                                 onclick="document.getElementById('supporting_doc').click()">
+                                style="border: 2px dashed #ccc; padding: 1.5rem; text-align: center; border-radius: 0.5rem; cursor: pointer;"
+                                onclick="document.getElementById('supporting_doc').click()">
                                 <input type="file" id="supporting_doc" name="supporting_doc"
-                                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                       style="display:none;" onchange="previewFile(event)">
+                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display:none;"
+                                    onchange="previewFile(event)">
 
                                 <div class="file-upload-label">
                                     <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #4caf50;"></i>
@@ -1023,15 +1044,14 @@
                                 </div>
                             </div>
 
-                            <div id="file-preview"
-                                 style="margin-top: 1rem; display: none;">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;
+                            <div id="file-preview" style="margin-top: 1rem; display: none;">
+                                <div
+                                    style="display: flex; align-items: center; gap: 0.5rem;
                                       padding: 0.5rem; background: #f1f8e9; border-radius: 0.5rem;">
                                     <i class="fas fa-file" style="color: #4caf50;"></i>
                                     <span id="file-name" style="font-size: 0.9rem;"></span>
-                                    <button type="button"
-                                            onclick="removeFile()"
-                                            style="margin-left: auto; background: none; border: none; color: #e53935; cursor: pointer;">
+                                    <button type="button" onclick="removeFile()"
+                                        style="margin-left: auto; background: none; border: none; color: #e53935; cursor: pointer;">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
@@ -1058,7 +1078,6 @@
         </div>
     </div>
 
-
     <!-- Leave Details Modal -->
     <div id="leaveDetailsModal" class="modal">
         <div class="modal-content">
@@ -1072,16 +1091,11 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
-                <button class="btn btn-danger" onclick="rejectFromModal()">
-                    <i class="fas fa-times"></i> Reject
-                </button>
-                <button class="btn btn-success" onclick="approveFromModal()">
-                    <i class="fas fa-check"></i> Approve
-                </button>
+                <!-- Footer buttons will be inserted dynamically by JS -->
             </div>
         </div>
     </div>
+
 
     <!-- Rejection Reason Modal -->
     <div id="rejectionModal" class="modal" style="display:none;">
@@ -3358,6 +3372,7 @@
         }
 
         // Leave actions
+
         function viewLeaveDetails(id) {
             showNotification(`Loading leave details...`, 'info');
 
@@ -3370,7 +3385,9 @@
                 if (!row) return;
 
                 const content = document.getElementById('leaveDetailsContent');
+                const modalFooter = modal.querySelector('.modal-footer'); // footer buttons area
 
+                // Fill modal content
                 content.innerHTML = `
             <div class="leave-details">
                 <div class="form-container">
@@ -3384,6 +3401,7 @@
                             <div class="view-field">${row.dataset.empid}</div>
                         </div>
                     </div>
+
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label"><i class="fas fa-calendar-alt"></i> Leave Type</label>
@@ -3394,6 +3412,7 @@
                             <div class="view-field">${row.dataset.department}</div>
                         </div>
                     </div>
+
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label"><i class="fas fa-calendar"></i> Start Date</label>
@@ -3404,6 +3423,7 @@
                             <div class="view-field">${row.dataset.end}</div>
                         </div>
                     </div>
+
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label"><i class="fas fa-clock"></i> Duration</label>
@@ -3416,10 +3436,12 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="form-group">
                         <label class="form-label"><i class="fas fa-comment"></i> Reason</label>
                         <div class="view-field view-textarea">${row.dataset.reason ?? '-'}</div>
                     </div>
+
                     <div class="form-group">
                         <label class="form-label"><i class="fas fa-phone"></i> Emergency Contact</label>
                         <div class="view-field">${row.dataset.contact ?? '-'}</div>
@@ -3428,10 +3450,45 @@
             </div>
         `;
 
+                // --- Dynamic footer buttons ---
+                // --- Dynamic footer buttons ---
+                let footerButtons = `
+    <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+`;
+
+                if (row.dataset.status && row.dataset.status.toLowerCase() === 'pending') {
+                    const id = row.dataset.id;
+
+                    footerButtons += `
+    <form action="/admin/leaves/${id}/status" method="POST" style="display:inline;">
+        <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
+        <input type="hidden" name="_method" value="PUT">
+        <input type="hidden" name="status" value="rejected">
+        <button type="submit" class="btn btn-danger">
+            <i class="fas fa-times"></i> Reject
+        </button>
+    </form>
+
+    <form action="/admin/leaves/${id}/status" method="POST" style="display:inline;">
+        <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
+        <input type="hidden" name="_method" value="PUT">
+        <input type="hidden" name="status" value="approved">
+        <button type="submit" class="btn btn-success">
+            <i class="fas fa-check"></i> Approve
+        </button>
+    </form>
+`;
+                }
+
+
+                // Replace footer with new buttons
+                modalFooter.innerHTML = footerButtons;
+
                 modal.style.display = 'block';
                 showNotification('Leave details loaded!', 'success');
             }, 800);
         }
+
 
 
         function approveLeave(id) {
@@ -3471,19 +3528,92 @@
 
         function approveFromModal() {
             const currentId = document.getElementById('leaveDetailsModal').dataset.currentId;
-            if (currentId) {
-                approveLeave(parseInt(currentId));
-                closeModal();
-            }
+            if (!currentId) return;
+
+            // Confirmation (optional)
+            if (!confirm('Are you sure you want to approve this leave request?')) return;
+
+            fetch(`/admin/leaves/${currentId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        status: 'approved'
+                    })
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to approve leave');
+                    return res.text(); // Laravel may redirect, so we handle text instead of JSON
+                })
+                .then(() => {
+                    showNotification('Leave approved successfully!', 'success');
+                    closeModal();
+
+                    // Optionally refresh or update the table row dynamically
+                    const row = document.querySelector(`tr[data-id="${currentId}"]`);
+                    if (row) {
+                        row.dataset.status = 'approved';
+                        const badge = row.querySelector('.status-badge');
+                        if (badge) {
+                            badge.textContent = 'Approved';
+                            badge.className = 'status-badge approved';
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showNotification('Error approving leave!', 'error');
+                });
         }
 
         function rejectFromModal() {
             const currentId = document.getElementById('leaveDetailsModal').dataset.currentId;
-            if (currentId) {
-                closeModal();
-                rejectLeave(parseInt(currentId));
+            if (!currentId) return;
+
+            const reason = prompt('Enter rejection reason:');
+            if (reason === null || reason.trim() === '') {
+                showNotification('Rejection cancelled or reason missing.', 'warning');
+                return;
             }
+
+            fetch(`/admin/leaves/${currentId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        status: 'rejected',
+                        rejection_reason: reason
+                    })
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to reject leave');
+                    return res.text();
+                })
+                .then(() => {
+                    showNotification('Leave rejected successfully!', 'success');
+                    closeModal();
+
+                    // Update table row dynamically
+                    const row = document.querySelector(`tr[data-id="${currentId}"]`);
+                    if (row) {
+                        row.dataset.status = 'rejected';
+                        const badge = row.querySelector('.status-badge');
+                        if (badge) {
+                            badge.textContent = 'Rejected';
+                            badge.className = 'status-badge rejected';
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showNotification('Error rejecting leave!', 'error');
+                });
         }
+
 
         // Bulk actions
         function bulkApprove() {
@@ -3993,47 +4123,61 @@
                 const content = document.getElementById('leaveDetailsContent');
 
                 content.innerHTML = `
-            <div class="leave-details">
-                <div class="form-container">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Leave Type</label>
-                            <div class="view-field">${row.dataset.type}</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Status</label>
-                            <div class="view-field status-badge ${row.dataset.status}">
-                                ${row.dataset.status.charAt(0).toUpperCase() + row.dataset.status.slice(1)}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Start Date</label>
-                            <div class="view-field">${row.dataset.start}</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">End Date</label>
-                            <div class="view-field">${row.dataset.end}</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Reason</label>
-                        <div class="view-field view-textarea">${row.dataset.reason}</div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Applied Date</label>
-                            <div class="view-field">${row.dataset.applied}</div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Approved By</label>
-                            <div class="view-field">${row.dataset.approvedby}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+<div class="leave-details">
+  <div class="form-container">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Leave Type</label>
+        <div class="view-field">${row.dataset.type}</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <div class="view-field status-badge ${row.dataset.status}">
+          ${row.dataset.status.charAt(0).toUpperCase() + row.dataset.status.slice(1)}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Start Date</label>
+        <div class="view-field">${row.dataset.start}</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">End Date</label>
+        <div class="view-field">${row.dataset.end}</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Duration</label>
+      <div class="view-field">${row.dataset.duration ? row.dataset.duration + ' days' : '-'}</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Reason</label>
+      <div class="view-field view-textarea">${row.dataset.reason || '-'}</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Emergency Contact</label>
+      <div class="view-field">${row.dataset.contact || '-'}</div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Applied Date</label>
+        <div class="view-field">${row.dataset.applied}</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Approved By</label>
+        <div class="view-field">${row.dataset.approvedby}</div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 
                 // Modal footer
                 const modalFooter = modal.querySelector('.modal-footer');
@@ -4045,7 +4189,6 @@
             }, 500);
         }
 
-
         function editMyLeave(button) {
             showNotification('Opening leave editor...', 'info');
 
@@ -4056,29 +4199,23 @@
                 form.action = `/admin/leaves/${id}`;
                 document.getElementById('formMethod').value = 'PUT';
 
-                const formatDate = (dateStr) => {
-                    if (!dateStr) return '';
-                    const date = new Date(dateStr);
-                    if (isNaN(date)) return '';
 
-                    // Adjust timezone offset so it shows correct day
-                    const corrected = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
-                    return corrected.toISOString().split('T')[0];
-                };
+                const formatDate = (dateStr) => dateStr || '';
 
-                // populate fields
                 document.getElementById('leaveType').value = button.dataset.type;
+                document.getElementById('duration').value = button.dataset.duration || 0;
+                document.getElementById('durationValue').innerText = button.dataset.duration || 0;
+
                 document.getElementById('startDate').value = formatDate(button.dataset.start);
                 document.getElementById('endDate').value = formatDate(button.dataset.end);
                 document.getElementById('leaveReason').value = button.dataset.reason || '';
                 document.getElementById('emergencyContact').value = button.dataset.contact || '';
 
-                // handle document preview
+                // Handle document preview
                 const previewContainer = document.getElementById('file-preview');
                 const fileNameEl = document.getElementById('file-name');
 
                 if (button.dataset.doc) {
-                    // show preview of existing document
                     previewContainer.style.display = 'flex';
                     fileNameEl.innerHTML = `
                 <a href="${button.dataset.doc}" target="_blank" style="color: #2e7d32; text-decoration: underline;">
@@ -4086,61 +4223,22 @@
                 </a>
             `;
                 } else {
-                    // hide if no document
                     previewContainer.style.display = 'none';
                     fileNameEl.innerHTML = '';
                 }
 
-                // allow user to upload new file (optional)
+                // Reset file input
                 document.getElementById('supporting_doc').value = '';
 
-                // update submit button
+                // Update submit button text
                 const submitBtn = document.querySelector('#applyLeaveModal .btn-primary');
                 submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Application';
 
+                // Show modal
                 document.getElementById('applyLeaveModal').style.display = 'block';
-
                 showNotification('Edit mode activated', 'success');
             }, 500);
         }
-
-
-        // function editMyLeave(button) {
-        //     showNotification('Opening leave editor...', 'info');
-        //
-        //     setTimeout(() => {
-        //         const form = document.getElementById('applyLeaveForm');
-        //
-        //         // point form action to update route
-        //         const id = button.dataset.id;
-        //
-        //         form.action = `/admin/leaves/${id}`;
-        //         document.getElementById('formMethod').value = 'PUT';
-        //
-        //         const formatDate = (dateStr) => {
-        //             if (!dateStr) return '';
-        //             const d = new Date(dateStr);
-        //             if (isNaN(d)) return ''; // invalid date
-        //             return d.toISOString().split('T')[0]; // YYYY-MM-DD
-        //         };
-        //
-        //         // load data from button attributes
-        //         document.getElementById('leaveType').value = button.dataset.type;
-        //         document.getElementById('startDate').value = formatDate(button.dataset.start);
-        //         document.getElementById('endDate').value = formatDate(button.dataset.end);
-        //         document.getElementById('leaveReason').value = button.dataset.reason;
-        //         document.getElementById('emergencyContact').value = button.dataset.contact || '';
-        //
-        //         // update button text
-        //         const submitBtn = document.querySelector('#applyLeaveModal .btn-primary');
-        //         submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Application';
-        //
-        //         document.getElementById('applyLeaveModal').style.display = 'block';
-        //
-        //         showNotification('Edit mode activated', 'success');
-        //     }, 500);
-        // }
-
 
 
         function cancelMyLeave(id) {
@@ -4263,7 +4361,6 @@
             fileInput.value = '';
             preview.style.display = 'none';
         }
-
     </script>
 
 @endsection

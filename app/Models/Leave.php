@@ -11,10 +11,23 @@ class Leave extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'leave_id', 'employee_id', 'leave_type', 'start_date', 'end_date',
-        'duration', 'reason', 'contact_number', 'supporting_doc',
-        'status', 'applied_date', 'approved_by', 'approved_date',
-        'rejected_by', 'rejected_date', 'rejection_reason', 'comments'
+        'leave_id',
+        'user_id',
+        'leave_type',
+        'start_date',
+        'end_date',
+        'duration',
+        'reason',
+        'contact_number',
+        'supporting_doc',
+        'status',
+        'applied_date',
+        'approved_by',
+        'approved_date',
+        'rejected_by',
+        'rejected_date',
+        'rejection_reason',
+        'comments'
     ];
 
     protected $casts = [
@@ -26,9 +39,14 @@ class Leave extends Model
     ];
 
     // Relationships
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function employee()
     {
-        return $this->belongsTo(Employee::class, 'employee_id');
+        return $this->belongsTo(Employee::class, 'user_id', 'employee_id');
     }
 
     public function approvedBy()
@@ -52,11 +70,10 @@ class Leave extends Model
         return $query->where('leave_type', $type);
     }
 
-    public function scopeEmployee($query, $employeeId)
+    public function scopeUser($query, $userId)
     {
-        return $query->where('employee_id', $employeeId);
+        return $query->where('user_id', $userId);
     }
-
     // Accessors
     public function getFormattedStatusAttribute()
     {
@@ -111,8 +128,8 @@ class Leave extends Model
         $prefix = 'LEV-' . $year . '-';
 
         $lastLeave = self::where('leave_id', 'like', $prefix . '%')
-                         ->orderBy('leave_id', 'desc')
-                         ->first();
+            ->orderBy('leave_id', 'desc')
+            ->first();
 
         if ($lastLeave) {
             $lastNumber = (int) substr($lastLeave->leave_id, -3);
@@ -144,4 +161,3 @@ class Leave extends Model
         });
     }
 }
-

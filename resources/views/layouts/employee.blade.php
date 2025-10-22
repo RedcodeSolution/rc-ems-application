@@ -87,7 +87,7 @@
 
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Communication</div>
-                <a href="{{ route('employee.announcements') }}"
+                <a href="{{ route('employee.announcements.index') }}"
                     class="sidebar-menu-item {{ request()->routeIs('employee.announcements') ? 'active' : '' }}">
                     <i class="fas fa-bullhorn"></i>
                     <span>Announcements</span>

@@ -7,6 +7,7 @@ use App\Models\Admin;
 use App\Models\Department;
 use App\Models\Leave;
 use App\Services\NotificationService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,8 @@ use Illuminate\Support\Str;
 
 class AdminsLeaveController extends Controller
 {
+
+
     public function index()
     {
         $user = Auth::user();
@@ -22,14 +25,13 @@ class AdminsLeaveController extends Controller
             return response()->json(['error' => 'Admin leaves data not found for this user.'], 404);
         }
 
-        // If admin has no employee record, set personal leaves to empty
         $allLeaves = collect();
         $recentLeaves = collect();
         $pendingCount = 0;
 
-        if ($user->employee) {
-            $allLeaves = $user->employee->leaves;
-            $recentLeaves = $user->employee->leaves()->latest()->take(3)->get();
+        if ($user) {
+            $allLeaves = Leave::where('user_id', $user->id)->get();
+            $recentLeaves = Leave::where('user_id', $user->id)->latest()->take(3)->get();
             $pendingCount = $allLeaves->where('status', 'pending')->count();
         }
 
@@ -136,11 +138,26 @@ class AdminsLeaveController extends Controller
         $sickTotal = 10;
         $personalTotal = 5;
 
+        $adminAnnualUsed = Leave::where('user_id', $user->id)
+            ->where('leave_type', 'annual')
+            ->where('status', 'approved')
+            ->sum('duration');
+
+        $adminSickUsed = Leave::where('user_id', $user->id)
+            ->where('leave_type', 'sick')
+            ->where('status', 'approved')
+            ->sum('duration');
+
+        $adminPersonalUsed = Leave::where('user_id', $user->id)
+            ->where('leave_type', 'personal')
+            ->where('status', 'approved')
+            ->sum('duration');
+
 
         // Calculate percentages
-        $annualPercent = $annualTotal > 0 ? round(($annualUsed / $annualTotal) * 100) : 0;
-        $sickPercent = $sickTotal > 0 ? round(($sickUsed / $sickTotal) * 100) : 0;
-        $personalPercent = $personalTotal > 0 ? round(($personalUsed / $personalTotal) * 100) : 0;
+        $annualPercent = $annualTotal > 0 ? round(($adminAnnualUsed / $annualTotal) * 100) : 0;
+        $sickPercent = $sickTotal > 0 ? round(($adminSickUsed / $sickTotal) * 100) : 0;
+        $personalPercent = $personalTotal > 0 ? round(($adminPersonalUsed / $personalTotal) * 100) : 0;
 
         // Trend analysis
         $yesterday = now()->subDay()->toDateString();
@@ -215,6 +232,11 @@ class AdminsLeaveController extends Controller
             ->whereDate('start_date', '<', $today)
             ->count();
 
+        $departments = Department::select('department_id', 'department_name')->orderBy('department_name')->get();
+        // ✅ Admin’s own used leave counts
+
+
+
         return view('admin.leaves.index', [
             'leaves' => $allLeaves,
             'recentLeaves' => $recentLeaves,
@@ -233,7 +255,6 @@ class AdminsLeaveController extends Controller
             'employeePendingMonthlyCount' => $employeePendingMonthlyCount,
             'employeeRejectedMonthlyCount' => $employeeRejectedMonthlyCount,
             'employeeApprovedTodayCount' => $employeeApprovedTodayCount,
-
             'leaveLabels' => ['Annual Leave', 'Sick Leave', 'Personal Leave'],
             'leaveData' => [$annualUsed, $sickUsed, $personalUsed],
             'trendLabels' => ['Approved', 'Rejected', 'Pending'],
@@ -242,7 +263,6 @@ class AdminsLeaveController extends Controller
                 'rejected' => $employeeRejectedMonthlyCount,
                 'pending' => $employeePendingMonthlyCount,
             ],
-
             'approvedTrendDiff' => $approvedTrendDiff,
             'monthlyTrendPercent' => $monthlyTrendPercent,
             'rejectedStatus' => $rejectedStatus,
@@ -254,15 +274,18 @@ class AdminsLeaveController extends Controller
             'approvalRate' => $approvalRate,
             'employeesOnLeaveToday' => $employeesOnLeaveToday,
             'overdueRequests' => $overdueRequests,
+            'departments' => $departments,
+
+            'adminAnnualUsed' => $adminAnnualUsed,
+            'adminSickUsed' => $adminSickUsed,
+            'adminPersonalUsed' => $adminPersonalUsed,
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function store(Request $request)
     {
         $user = Auth::user();
+
         $validated = $request->validate([
             'leave_type' => 'required|string|max:255',
             'start_date' => 'required|date|after_or_equal:today',
@@ -270,9 +293,10 @@ class AdminsLeaveController extends Controller
             'duration' => 'required|integer|min:1',
             'reason' => 'required|string',
             'contact_number' => 'nullable|string|max:20',
-            'supporting_doc' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
+            'supporting_doc' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
         ]);
 
+        // Handle supporting document upload
         if ($request->hasFile('supporting_doc')) {
             $file = $request->file('supporting_doc');
             $filename = time() . '_' . $file->getClientOriginalName();
@@ -280,54 +304,75 @@ class AdminsLeaveController extends Controller
             $validated['supporting_doc'] = $filename;
         }
 
+        $validated['user_id'] = $user->id;
+        $validated['status'] = 'pending';
+        $validated['applied_date'] = now();
 
-        $validated['employee_id'] = $user->employee->employee_id;
         $leave = Leave::create($validated);
-        $leave->load('employee');
+        $leave->load('user');
+
+        $notify = new NotificationService();
 
         if ($user->role === 'admin') {
-            $notify = new NotificationService();
             $notify->notify(
                 title: 'Admin Leave Request',
-                message: $leave->employee->name . ' (Admin) applied for ' . $leave->leave_type . ' leave.',
+                message: $user->name . ' (Admin) applied for ' . $leave->leave_type . ' leave.',
                 type: 'leave',
                 userId: null,
-                target: 'super admin',
+                target: 'superadmin',
+                referenceId: $leave->leave_id
+            );
+        } else {
+
+            $notify->notify(
+                title: 'New Leave Request',
+                message: $user->name . ' applied for ' . $leave->leave_type . ' leave.',
+                type: 'leave',
+                userId: null,
+                target: 'admin',
                 referenceId: $leave->leave_id
             );
         }
-        return redirect()->route('admin.leaves.index');
+
+
+        return redirect()->route(
+            $user->role === 'admin' ? 'admin.leaves.index' : 'employee.leaves.index'
+        )->with('success', 'Leave request submitted successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Leave $leave)
     {
         $user = Auth::user();
-        if ($leave->employee_id !== $user->employee->employee_id) {
+        if ($leave->user_id !== $user->id) {
             return response()->json(['error' => 'Leave not found for this user.'], 404);
         }
-        $leave->load('employee');
-        return ['leave' => $leave];
+
+        $leave->load([
+            'user.employee.department',
+            'approvedBy.employee'
+        ]);
+
+        return response()->json(['leave' => $leave]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Leave $leave)
     {
         if ($leave->status === 'approved') {
             return response()->json(['error' => 'Cannot update an approved leave request.'], 403);
         }
+
         $validated = $request->validate([
             'leave_type' => 'required|string|in:annual,sick,personal,maternity,paternity,emergency',
             'reason' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'contact_info' => 'nullable|string',
+            'contact_number' => 'nullable|string',
             'supporting_doc' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
         ]);
+
+        $startDate = Carbon::parse($validated['start_date']);
+        $endDate = Carbon::parse($validated['end_date']);
+        $validated['duration'] = $startDate->diffInDays($endDate) + 1;
 
         if ($request->hasFile('supporting_doc')) {
             $file = $request->file('supporting_doc');
@@ -335,17 +380,16 @@ class AdminsLeaveController extends Controller
             $file->storeAs('public/leaves', $filename);
             $validated['supporting_doc'] = $filename;
 
-            // Optionally delete old file
             if ($leave->supporting_doc && Storage::exists('public/leaves/' . $leave->supporting_doc)) {
                 Storage::delete('public/leaves/' . $leave->supporting_doc);
             }
         }
 
-
-
         $leave->update($validated);
+
         return redirect()->route('admin.leaves.index')->with('success', 'Leave updated successfully.');
     }
+
 
 
     public function updateLeaveStatus(Request $request, $leaveId)
@@ -390,23 +434,24 @@ class AdminsLeaveController extends Controller
         }
 
         $leave->save();
-        return redirect()->route('admin.leaves.index');
+        return $request->ajax()
+            ? response()->json(['message' => 'Leave status updated successfully'])
+            : redirect()->route('admin.leaves.index')->with('success', 'Leave status updated successfully');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Leave $leave)
     {
         $user = Auth::user();
-        if ($leave->employee_id !== $user->employee->employee_id) {
+
+        if ($leave->user_id !== $user->id) {
             return response()->json(['error' => 'You do not have permission to delete this leave.'], 403);
         }
+
         if ($leave->status !== 'pending') {
             return response()->json(['error' => 'Cannot delete a ' . $leave->status . ' leave request.'], 403);
         }
         $leave->delete();
 
-        return redirect()->route('admin.leaves.index');
+        return redirect()->route('admin.leaves.index')->with('success', 'Leave request deleted successfully.');
     }
 }

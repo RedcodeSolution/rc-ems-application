@@ -45,12 +45,14 @@ class Employee extends Model
 
     public function leaves()
     {
-        return $this->hasMany(Leave::class, 'employee_id');
+        return $this->hasMany(Leave::class, 'user_id', 'employee_id');
     }
 
     public function announcements()
     {
-        return $this->belongsToMany(Announcement::class, 'employee_announcement_details', 'employee_id', 'announcement_id');
+        return $this->belongsToMany(Announcement::class, 'employee_announcement_details', 'employee_id', 'announcement_id')
+            ->withPivot('is_read')
+            ->withTimestamps();
     }
 
     public function notifications()
@@ -60,8 +62,9 @@ class Employee extends Model
 
     public function teams()
     {
-        return $this->belongsToMany(Team::class, 'employee_team', 'employee_id', 'team_id')->withTimestamps();
+        return $this->belongsToMany(Team::class, 'employee_team', 'employee_id', 'team_id');
     }
+
 
     // public function projects()
     // {
