@@ -10,7 +10,7 @@ class Attendance extends Model
     use HasFactory;
 
     protected $fillable = [
-        'employee_id',
+        'user_id',
         'date',
         'check_in_time',
         'check_out_time',
@@ -23,7 +23,7 @@ class Attendance extends Model
         'break_duration',
         'is_on_break',
 
-        // ✅ Emergency-related fields
+
         'is_on_emergency',
         'emergency_type',
         'emergency_description',
@@ -43,7 +43,6 @@ class Attendance extends Model
         'overtime_hours' => 'decimal:2',
         'is_on_break' => 'boolean',
 
-        // ✅ Cast emergency timestamps and duration
         'is_on_emergency' => 'boolean',
         'emergency_start_time' => 'datetime',
         'emergency_end_time' => 'datetime',
@@ -51,10 +50,10 @@ class Attendance extends Model
     ];
 
     /**
-     * Get the employee that owns the attendance record.
+     * Get the user that owns the attendance record.
      */
-    public function employee()
+    public function user()
     {
-        return $this->belongsTo(Employee::class, 'employee_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

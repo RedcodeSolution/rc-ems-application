@@ -12,8 +12,9 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-
+use App\Http\Controllers\Employee\EmployeeAnnouncementController;
 use App\Http\Controllers\Employee\EmployeeAttendanceController;
+use App\Http\Controllers\Employee\EmployeeDocumentController;
 use App\Http\Controllers\Employee\EmployeeLeaveController;
 use App\Http\Controllers\Employee\EmployeeOverviewController;
 use App\Http\Controllers\Employee\EmployeeProfileController;
@@ -39,8 +40,6 @@ use App\Models\Team;
 use Illuminate\Support\Facades\Route;
 
 
-
-
 Route::get('/', function () {
     return view('guest');
 })->middleware('guest')->name('welcome');
@@ -50,7 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/dashboard', function () {
         $employees = Employee::with(['department', 'projects', 'leaves'])->get();
         $projects = Project::with(['employees', 'team'])->get();
-        $leaves = Leave::with(['employee'])->get();
+        $leaves = Leave::with(['user'])->get();
 
         $todayMeetings = \App\Models\Meeting::getTodayMeetings();
         if ($todayMeetings->count() == 0) {
@@ -103,6 +102,7 @@ Route::middleware('auth')->group(function () {
         return view('admin.dashboard', $dashboardData);
     })->name('admin.dashboard');
 
+    Route::get('/employee/dashboard', [EmployeeOverviewController::class, 'index'])->name('employee.dashboard');
     Route::get('/employee/meetings/{meeting}/join', [EmployeeOverviewController::class, 'join'])->name('employee.meetings.join');
     //employee profile managment
     Route::get('/employees/profile', [EmployeeProfileController::class, 'show'])->name('employee.profile');
@@ -119,7 +119,8 @@ Route::middleware('auth')->group(function () {
 
     //employee leaves managment
     Route::get('/employees/leaves', [EmployeeLeaveController::class, 'index'])->name('employee.leaves.index');
-    Route::post('/employees/leaves', [EmployeeLeaveController::class, 'store'])->name('employee.leaves.create');
+    Route::post('/employees/leaves', [EmployeeLeaveController::class, 'store'])
+        ->name('employee.leaves.store');
     Route::get('/employees/leaves/{leave}', [EmployeeLeaveController::class, 'show'])->name('employee.leaves.show');
     Route::put('/employees/leaves/{leave}', [EmployeeLeaveController::class, 'update'])->name('employee.leaves.update');
     Route::delete('/employees/leaves/{leave}', [EmployeeLeaveController::class, 'destroy'])->name('employee.leaves.destroy');
@@ -161,6 +162,12 @@ Route::middleware('auth')->group(function () {
         Route::put('/attendance/emergency/end', [EmployeeAttendanceController::class, 'endEmergency'])->name('employee.attendance.emergency.end');
         Route::get('/attendance/emergency/status', [EmployeeAttendanceController::class, 'getEmergencyStatus'])->name('employee.attendance.getEmergencyStatus');
     });
+
+    // Employee Announcement
+    Route::get('/employee/announcements', [EmployeeAnnouncementController::class, 'index'])->name('employee.announcements.index');
+    Route::get('/employee/announcements/{id}', [EmployeeAnnouncementController::class, 'show']);
+    Route::post('/employee/announcements/{id}/read', [EmployeeAnnouncementController::class, 'markAsRead']);
+    Route::post('/employee/announcements/{id}/unread', [EmployeeAnnouncementController::class, 'markAsUnread']);
 
     // Employee ratings routes
     Route::resource('employees/ratings', EmployeeEmployeeRatingController::class)
@@ -216,13 +223,6 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         // Employee Management
 
-        Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');
-
-        Route::match(['put', 'patch'], '/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
-
-        Route::get('/projects', function () {return view('admin.projects.index');})->name('projects');
-
-
         Route::get('/employees', function () {
             $employees = Employee::with(['department', 'admin'])->get();
             $departments = Department::all();
@@ -233,17 +233,10 @@ Route::middleware('auth')->group(function () {
 
         Route::match(['put', 'patch'], '/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
 
-
         Route::get('/projects', function () {
             $employees = Employee::select('employee_id', 'employee_name')->get();
             return view('admin.projects.index', compact('employees'));
         })->name('projects');
-
-
-        // Route::get('/projects', function () {
-        //     return view('admin.projects.index');
-        // })->name('projects');
-
 
         // Leave Management
         Route::put('/leaves/{leave}/status', [AdminsLeaveController::class, 'updateLeaveStatus'])->name('leaves.updateLeaveStatus');
@@ -253,22 +246,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/leaves/{leave}', [AdminsLeaveController::class, 'show'])->name('leaves.show');
         Route::delete('/leaves/{leave}', [AdminsLeaveController::class, 'destroy'])->name('leaves.destroy');
 
-        // Reports & Analytics with enhanced data
-        //        Route::get('/reports', function () {
-        //            $reportData = [
-        //                'totalRevenue' => '$2.4M',
-        //                'activeProjects' => 47,
-        //                'employeeCount' => 156,
-        //                'efficiency' => '94.2%'
-        //            ];
-        //            return view('admin.reports.index', $reportData);
-        //        })->name('reports');
-
         // Announcements
+        Route::get('/announcements', [AdminAnnouncementsController::class, 'index'])->name('announcements');
         Route::post('/announcements', [AdminAnnouncementsController::class, 'store'])->name('announcements.store');
         Route::put('/announcements/{id}', [AdminAnnouncementsController::class, 'update'])->name('announcements.update');
         Route::delete('/announcements/{id}', [AdminAnnouncementsController::class, 'destroy'])->name('announcements.destroy');
-        Route::get('/announcements', [AdminAnnouncementsController::class, 'index'])->name('announcements');
+        Route::get('/announcements/{id}', [EmployeeAnnouncementController::class, 'show']);
+        Route::post('/employee/announcements/{id}/read', [EmployeeAnnouncementController::class, 'markAsRead']);
+
+
+
+        // Dynamic team loading by department
+        Route::get('/departments/{id}/teams', [AdminAnnouncementsController::class, 'getTeamsByDepartment'])
+            ->name('departments.teams');
 
         // Administration (alias for management)
         Route::get('/administration', function () {
@@ -351,54 +341,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/meetings/{meeting}/status', [MeetingController::class, 'updateStatus'])->name('meetings.update-status');
 });
 
-// Employee-specific routes
-Route::middleware('auth')->prefix('employee')->name('employee.')->group(function () {
 
-    // Dashboard
-    Route::get('/dashboard', [EmployeeOverviewController::class, 'index'])->name('dashboard');
-
-    // Announcements
-    Route::get('/announcements', function () {
-
-        $announcements = collect([
-            (object) [
-                'announcement_id' => 'ann_001',
-                'title' => 'System Maintenance - December 1st',
-                'content' => 'Scheduled system maintenance will take place on Sunday, December 1st, from 2:00 AM to 4:00 AM.',
-                'priority' => 'urgent',
-                'category' => 'system',
-                'author' => 'IT Department',
-                'created_at' => now()->subDays(2),
-                'expires_at' => now()->addDays(3),
-                'target_audience' => 'All Employees',
-                'is_read' => false,
-                'views' => 127,
-                'likes' => 23
-            ],
-            (object) [
-                'announcement_id' => 'ann_002',
-                'title' => 'New Employee Onboarding Process',
-                'content' => 'We have updated our employee onboarding process to make it more streamlined and efficient.',
-                'priority' => 'high',
-                'category' => 'hr',
-                'author' => 'HR Department',
-                'created_at' => now()->subDays(5),
-                'expires_at' => null,
-                'target_audience' => 'All Employees',
-                'is_read' => true,
-                'views' => 89,
-                'likes' => 34
-            ]
-        ]);
-
-        return view('employees.announcements.index', [
-            'announcements' => $announcements,
-            'totalAnnouncements' => 8,
-            'unreadAnnouncements' => 3,
-            'urgentAnnouncements' => 2
-        ]);
-    })->name('announcements');
-});
 
 //department Management
 Route::get('/admin/department', [DepartmentController::class, 'index'])->name('admin.departments.index');
@@ -482,5 +425,11 @@ Route::get('/dashboard', function () {
 })->name('dashboard');
 Route::get('/admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile.index');
 Route::post('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+
+Route::prefix('employees')->name('employees.')->group(function () {
+    Route::get('/documents', [EmployeeDocumentController::class, 'index'])->name('documents.index');
+    Route::post('/documents', [EmployeeDocumentController::class, 'store'])->name('documents.store');
+});
+
 
 require __DIR__ . '/auth.php';

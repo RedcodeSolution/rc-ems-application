@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id(); // optional, Laravel will auto-increment
             $table->unsignedBigInteger('employee_id');
             $table->unsignedBigInteger('announcement_id');
+            $table->boolean('is_read')->default(false);
             $table->timestamps();
 
             $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('cascade');
             $table->foreign('announcement_id')->references('announcement_id')->on('announcements')->onDelete('cascade');
         });
-
     }
 
     /**

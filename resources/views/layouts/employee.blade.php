@@ -50,7 +50,7 @@
                     <i class="fas fa-user"></i>
                     <span>My Profile</span>
                 </a>
-                <a href="{{ route('employee.documents') }}"
+                <a href="{{ route('employees.documents.index') }}"
                     class="sidebar-menu-item {{ request()->routeIs('employee.documents') ? 'active' : '' }}">
                     <i class="fas fa-file-alt"></i>
                     <span>My Documents</span>
@@ -87,7 +87,7 @@
 
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Communication</div>
-                <a href="{{ route('employee.announcements') }}"
+                <a href="{{ route('employee.announcements.index') }}"
                     class="sidebar-menu-item {{ request()->routeIs('employee.announcements') ? 'active' : '' }}">
                     <i class="fas fa-bullhorn"></i>
                     <span>Announcements</span>

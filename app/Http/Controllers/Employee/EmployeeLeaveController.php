@@ -49,10 +49,10 @@ class EmployeeLeaveController extends Controller
         ]);
     }
 
-
     public function store(Request $request)
     {
         $user = Auth::user();
+
         $validated = $request->validate([
             'leave_type' => 'required|string|max:255',
             'start_date' => 'required|date|after_or_equal:today',
@@ -60,25 +60,36 @@ class EmployeeLeaveController extends Controller
             'duration' => 'required|integer|min:1',
             'reason' => 'required|string',
             'contact_number' => 'nullable|string|max:20',
-            'supporting_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'supporting_doc' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
         ]);
 
-        $validated['employee_id'] = $user->employee->employee_id;
+        if ($request->hasFile('supporting_doc')) {
+            $file = $request->file('supporting_doc');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/leaves', $filename);
+            $validated['supporting_doc'] = $filename;
+        }
+
+        $validated['user_id'] = $user->id;
 
         $leave = Leave::create($validated);
+        $leave->load('user');
 
-        $notify = new NotificationService();
-        $notify->notify(
+        // Example notification (adjust message)
+        (new \App\Services\NotificationService())->notify(
             title: 'New Leave Request',
-            message: $leave->employee->name . ' applied for ' . $leave->leave_type . ' leave.',
+            message: $leave->user->name . ' applied for ' . $leave->leave_type . ' leave.',
             type: 'leave',
             userId: null,
             target: 'admin',
             referenceId: $leave->leave_id
         );
 
-        return redirect()->route('employee.leaves.index');
+        return redirect()->route('employee.leaves.index')
+            ->with('success', 'Leave request submitted successfully.');
     }
+
+
 
     /**
      * Display the specified resource.
@@ -110,6 +121,8 @@ class EmployeeLeaveController extends Controller
             'supporting_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ]);
 
+        $validated['contact_number'] = $validated['contact_info'] ?? null;
+        unset($validated['contact_info']);
 
         $leave->update($validated);
         return redirect()->route('employee.leaves.index');

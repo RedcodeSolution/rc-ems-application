@@ -136,148 +136,80 @@
 
     <!-- Documents Grid -->
     <div class="documents-content">
-        <div class="documents-grid" id="documentsGrid">
-            <!-- Personal Documents -->
-            <div class="document-card" data-category="personal" data-type="pdf">
-                <div class="document-icon">
-                    <i class="fas fa-file-pdf"></i>
-                </div>
-                <div class="document-info">
-                    <h4>Employment_Contract.pdf</h4>
-                    <p>Personal Documents</p>
-                    <div class="document-meta">
-                        <span><i class="fas fa-calendar"></i> Jan 15, 2024</span>
-                        <span><i class="fas fa-database"></i> 2.4 MB</span>
-                    </div>
-                </div>
-                <div class="document-actions">
-                    <button class="action-btn" onclick="viewDocument('Employment_Contract.pdf')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="downloadDocument('Employment_Contract.pdf')">
-                        <i class="fas fa-download"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareDocument('Employment_Contract.pdf')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
-            </div>
+        <div id="documentsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem;">
+            @forelse($documents as $document)
+            @php
+            // Get file extension
+            $ext = strtolower(pathinfo($document->file_path, PATHINFO_EXTENSION));
 
-            <div class="document-card" data-category="personal" data-type="img">
-                <div class="document-icon">
-                    <i class="fas fa-file-image"></i>
-                </div>
-                <div class="document-info">
-                    <h4>Profile_Photo.jpg</h4>
-                    <p>Personal Documents</p>
-                    <div class="document-meta">
-                        <span><i class="fas fa-calendar"></i> Jan 10, 2024</span>
-                        <span><i class="fas fa-database"></i> 1.2 MB</span>
-                    </div>
-                </div>
-                <div class="document-actions">
-                    <button class="action-btn" onclick="viewDocument('Profile_Photo.jpg')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="downloadDocument('Profile_Photo.jpg')">
-                        <i class="fas fa-download"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareDocument('Profile_Photo.jpg')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
-            </div>
+            // Default icon and colors
+            $icon = 'fas fa-file';
+            $iconColor = '#6b7280';
+            $bgColor = '#f3f4f6';
 
-            <!-- Contracts -->
-            <div class="document-card" data-category="contracts" data-type="pdf">
-                <div class="document-icon">
-                    <i class="fas fa-file-contract"></i>
-                </div>
-                <div class="document-info">
-                    <h4>NDA_Agreement.pdf</h4>
-                    <p>Contracts & Agreements</p>
-                    <div class="document-meta">
-                        <span><i class="fas fa-calendar"></i> Dec 20, 2023</span>
-                        <span><i class="fas fa-database"></i> 1.8 MB</span>
-                    </div>
-                </div>
-                <div class="document-actions">
-                    <button class="action-btn" onclick="viewDocument('NDA_Agreement.pdf')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="downloadDocument('NDA_Agreement.pdf')">
-                        <i class="fas fa-download"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareDocument('NDA_Agreement.pdf')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
-            </div>
+            switch ($ext) {
+            case 'pdf': $icon='fas fa-file-pdf'; $iconColor='#ef4444'; $bgColor='#fee2e2'; break;
+            case 'doc': case 'docx': $icon='fas fa-file-word'; $iconColor='#2563eb'; $bgColor='#dbeafe'; break;
+            case 'xls': case 'xlsx': $icon='fas fa-file-excel'; $iconColor='#059669'; $bgColor='#d1fae5'; break;
+            case 'ppt': case 'pptx': $icon='fas fa-file-powerpoint'; $iconColor='#d97706'; $bgColor='#fef3c7'; break;
+            case 'jpg': case 'jpeg': case 'png': $icon='fas fa-file-image'; $iconColor='#f59e0b'; $bgColor='#fef3c7'; break;
+            }
 
-            <!-- Certificates -->
-            <div class="document-card" data-category="certificates" data-type="pdf">
-                <div class="document-icon">
-                    <i class="fas fa-certificate"></i>
-                </div>
-                <div class="document-info">
-                    <h4>AWS_Certificate.pdf</h4>
-                    <p>Certificates</p>
-                    <div class="document-meta">
-                        <span><i class="fas fa-calendar"></i> Nov 15, 2023</span>
-                        <span><i class="fas fa-database"></i> 3.2 MB</span>
-                    </div>
-                </div>
-                <div class="document-actions">
-                    <button class="action-btn" onclick="viewDocument('AWS_Certificate.pdf')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="downloadDocument('AWS_Certificate.pdf')">
-                        <i class="fas fa-download"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareDocument('AWS_Certificate.pdf')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
-            </div>
+            // Category label colors
+            $categoryColors = [
+            'personal'     => ['bg' => 'rgba(59,130,246,0.1)', 'text' => '#3B82F6'],
+            'contracts'    => ['bg' => 'rgba(234,179,8,0.1)', 'text' => '#EAB308'],
+            'certificates' => ['bg' => 'rgba(16,185,129,0.1)', 'text' => '#10B981'],
+            'reports'      => ['bg' => 'rgba(239,68,68,0.1)', 'text' => '#EF4444'],
+            ];
 
-            <!-- Reports -->
-            <div class="document-card" data-category="reports" data-type="xls">
-                <div class="document-icon">
-                    <i class="fas fa-file-excel"></i>
-                </div>
-                <div class="document-info">
-                    <h4>Performance_Report.xlsx</h4>
-                    <p>Reports</p>
-                    <div class="document-meta">
-                        <span><i class="fas fa-calendar"></i> Oct 30, 2023</span>
-                        <span><i class="fas fa-database"></i> 890 KB</span>
-                    </div>
-                </div>
-                <div class="document-actions">
-                    <button class="action-btn" onclick="viewDocument('Performance_Report.xlsx')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="downloadDocument('Performance_Report.xlsx')">
-                        <i class="fas fa-download"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareDocument('Performance_Report.xlsx')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
-            </div>
+            $catKey = strtolower($document->category ?? '');
+            $catBg = $categoryColors[$catKey]['bg'] ?? 'rgba(156,163,175,0.1)';
+            $catText = $categoryColors[$catKey]['text'] ?? '#9CA3AF';
 
-            <div class="document-card" data-category="personal" data-type="doc">
-                <div class="document-icon">
-                    <i class="fas fa-file-word"></i>
-                </div>
-                <div class="document-info">
-                    <h4>Resume_2024.docx</h4>
-                    <p>Personal Documents</p>
-                    <div class="document-meta">
-                        <span><i class="fas fa-calendar"></i> Jan 05, 2024</span>
-                        <span><i class="fas fa-database"></i> 1.5 MB</span>
+            // File size
+            $size = null;
+            $fullPath = storage_path('app/public/' . $document->file_path);
+            if (file_exists($fullPath)) {
+            $size = filesize($fullPath);
+            }
+
+
+            // Helper function to format file size
+            if (!function_exists('formatFileSize')) {
+            function formatFileSize($size) {
+            if ($size === null) return '—';
+            if ($size < 1024) return $size . ' B';
+            if ($size < 1048576) return round($size / 1024, 2) . ' KB';
+            if ($size < 1073741824) return round($size / 1048576, 2) . ' MB';
+            return round($size / 1073741824, 2) . ' GB';
+            }
+            }
+
+            @endphp
+
+
+            <div class="document-card card p-4 border rounded shadow-sm transition hover:shadow-lg" data-category="{{ $document->category }}" data-type="{{ $ext }}">
+                <div class="flex justify-between items-start mb-3">
+                    <div style="width: 3rem; height: 3rem; background: {{ $bgColor }}; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: {{ $iconColor }};">
+                        <i class="{{ $icon }}" style="font-size: 1.25rem;"></i>
                     </div>
                 </div>
+                <!-- Document Icon and Actions -->
+                <div class="document-info">
+                    <!-- Display the actual file name -->
+                    <h4>{{ $document->file_name ?? 'No file name' }}</h4>
+
+                    <!-- Display category -->
+                    <p>{{ ucfirst($document->category ?? 'Uncategorized') }}</p>
+
+                    <!-- Display meta info: upload date and file size -->
+                    <div class="document-meta">
+                        <span><i class="fas fa-calendar"></i> {{ \Carbon\Carbon::parse($document->created_at)->format('M d, Y') }}</span>
+                        <span> <i class="fas fa-database"></i> {{ formatFileSize($document->file_size) }} </span>
+                    </div>
+                </div>
+
                 <div class="document-actions">
                     <button class="action-btn" onclick="viewDocument('Resume_2024.docx')">
                         <i class="fas fa-eye"></i>
@@ -288,10 +220,53 @@
                     <button class="action-btn" onclick="shareDocument('Resume_2024.docx')">
                         <i class="fas fa-share"></i>
                     </button>
+
                 </div>
+
+            </div>
+            @empty
+            <p style="color: #9ca3af;">No documents found.</p>
+            @endforelse
+        </div>
+
+        <div class="flex justify-between items-center mt-4">
+            <!-- Showing X to Y of Z documents -->
+            <div class="text-gray-600 text-sm">
+                Showing {{ $documents->firstItem() ?? 0 }} to {{ $documents->lastItem() ?? 0 }} of {{ $documents->total() }} documents
+            </div>
+
+            <!-- Pagination Buttons -->
+            <div class="flex gap-1">
+                <!-- Previous Page -->
+                <a href="{{ $documents->previousPageUrl() ?? '#' }}"
+                   class="btn btn-secondary"
+                   style="padding: 0.5rem 0.75rem;"
+                   @if(!$documents->onFirstPage()) @else disabled @endif>
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+
+                <!-- Page Numbers -->
+                @foreach ($documents->getUrlRange(1, $documents->lastPage()) as $page => $url)
+                <a href="{{ $url }}"
+                   class="btn {{ $documents->currentPage() == $page ? 'btn-primary' : 'btn-secondary' }}"
+                   style="padding: 0.5rem 0.75rem;">
+                    {{ $page }}
+                </a>
+                @endforeach
+
+                <!-- Next Page -->
+                <a href="{{ $documents->nextPageUrl() ?? '#' }}"
+                   class="btn btn-secondary"
+                   style="padding: 0.5rem 0.75rem;"
+                   @if($documents->hasMorePages()) @else disabled @endif>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
             </div>
         </div>
+
     </div>
+
+
 
     <!-- Upload Modal -->
     <div id="uploadModal" class="modal">
@@ -302,41 +277,122 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="upload-area" id="uploadArea">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <h4>Drag & Drop files here</h4>
-                    <p>or click to browse</p>
-                    <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xlsx,.xls">
-                </div>
-                <div class="upload-form">
+            <form id="uploadDocumentForm" method="POST"  action="{{ route('eemployee.documents.store') }}" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
                     <div class="form-group">
-                        <label for="documentCategory">Category</label>
-                        <select id="documentCategory" class="form-control">
+                        <label for="document_file">Document File(s) *</label>
+                        <div class="file-upload-area" onclick="document.getElementById('document_file').click()">
+                            <input type="file" id="document_file" name="files[]" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" multiple required>
+                            <div class="file-upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div class="file-upload-text">
+                                Click to upload or drag and drop
+                            </div>
+                            <div class="file-upload-subtext">
+                                Supported formats: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG (Max: 10MB per file)
+                            </div>
+                        </div>
+                        <div id="file-preview" style="margin-top: 1rem; display: none;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--primary-light); border-radius: 0.5rem;">
+                                <i class="fas fa-file" style="color: var(--primary);"></i>
+                                <span id="file-name"></span>
+                                <button type="button" onclick="removeFile()" style="margin-left: auto; background: none; border: none; color: var(--danger); cursor: pointer;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="documentCategory">Category *</label>
+                        <select id="documentCategory" name="category" class="form-control" required>
                             <option value="personal">Personal Documents</option>
                             <option value="contracts">Contracts & Agreements</option>
                             <option value="certificates">Certificates</option>
                             <option value="reports">Reports</option>
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label for="documentDescription">Description (Optional)</label>
-                        <textarea id="documentDescription" class="form-control" rows="3" placeholder="Enter document description..."></textarea>
+                        <textarea id="documentDescription" name="description" class="form-control" rows="3" placeholder="Enter document description..."></textarea>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeUploadModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="uploadDocument()">
-                    <i class="fas fa-upload"></i>
-                    Upload
-                </button>
-            </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeUploadModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Upload
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <style>
+
+    .flex {
+        display: flex;
+    }
+    .gap-1 { gap: 0.25rem; }
+    .gap-2 { gap: 0.75rem; }
+    .gap-3 { gap: 1.25rem; }
+    .justify-between { justify-content: space-between; }
+    .items-center { align-items: center; }
+    .text-center { text-align: center; }
+    .mt-4 { margin-top: 1.5rem; }
+    .mb-4 { margin-bottom: 1.5rem; }
+    .card-body > div[style*="display: grid"] > .card {
+        border: 1px solid var(--divider);
+        box-shadow: 0 1px 8px 0 rgba(0,0,0,0.03);
+        transition: box-shadow 0.2s;
+    }
+
+    .file-upload-area {
+        border: 2px dashed var(--divider);
+        border-radius: 0.5rem;
+        padding: 2rem;
+        text-align: center;
+        background: var(--primary-light);
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .file-upload-area:hover {
+        border-color: var(--primary);
+        background: rgba(211, 47, 47, 0.05);
+    }
+
+    .file-upload-area.dragover {
+        border-color: var(--primary);
+        background: rgba(211, 47, 47, 0.1);
+    }
+
+    .file-upload-area input[type="file"] {
+        display: none;
+    }
+
+    .file-upload-icon {
+        font-size: 3rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+    }
+
+    .file-upload-text {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .file-upload-subtext {
+        color: var(--text-disabled);
+        font-size: 0.75rem;
+    }
+
     .documents-container {
         max-width: 1200px;
         margin: 0 auto;
@@ -1020,7 +1076,7 @@
         const grid = document.getElementById('documentsGrid');
         const icon = document.getElementById('viewModeIcon');
         const text = document.getElementById('viewModeText');
-        
+
         if (currentViewMode === 'grid') {
             grid.classList.add('list-view');
             icon.className = 'fas fa-th-list';
@@ -1042,24 +1098,105 @@
         document.getElementById('uploadModal').classList.remove('active');
     }
 
-    function uploadDocument() {
-        const fileInput = document.getElementById('fileInput');
-        const category = document.getElementById('documentCategory').value;
-        const description = document.getElementById('documentDescription').value;
-        
-        if (fileInput.files.length === 0) {
-            alert('Please select at least one file to upload.');
-            return;
+    // function uploadDocument() {
+    //     // Get selected files and input values
+    //     let files = document.getElementById('fileInput').files;
+    //     let category = document.getElementById('documentCategory').value;
+    //     let description = document.getElementById('documentDescription').value;
+    //
+    //     if (files.length === 0) {
+    //         alert('Please select at least one file.');
+    //         return;
+    //     }
+    //
+    //     // Create FormData object
+    //     let formData = new FormData();
+    //
+    //     for (let i = 0; i < files.length; i++) {
+    //         formData.append('files[]', files[i]); // multiple files
+    //     }
+    //
+    //     formData.append('category', category);
+    //     formData.append('description', description);
+    //     formData.append('employee_id', document.querySelector('meta[name="user-id"]').content); // use meta tag for dynamic user id
+    //
+    //     // Send AJAX request to backend
+    //     fetch('/employees/documents/store', { // adjust URL if different
+    //         method: 'POST',
+    //         headers: {
+    //             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+    //         },
+    //         body: formData
+    //     })
+    //         .then(async response => {
+    //             if (!response.ok) {
+    //                 const errText = await response.text();
+    //                 throw new Error(errText);
+    //             }
+    //             return response.json();
+    //         })
+    //         .then(data => {
+    //             if (data.success) {
+    //                 alert(data.message);
+    //                 closeUploadModal(); // close the modal
+    //                 location.reload();  // reload page to show new documents
+    //             } else {
+    //                 alert(data.message || 'Upload failed.');
+    //             }
+    //         })
+    //         .catch(err => {
+    //             console.error('Upload error:', err);
+    //             alert('An error occurred while uploading. Check console for details.');
+    //         });
+    // }
+
+    document.getElementById('document_file').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Check file size (10MB limit)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB');
+                e.target.value = '';
+                return;
+            }
+
+            // Show file preview
+            document.getElementById('file-name').textContent = file.name;
+            document.getElementById('file-preview').style.display = 'block';
+
+            // Update upload area styling
+            const uploadArea = document.querySelector('.file-upload-area');
+            uploadArea.style.borderColor = 'var(--success)';
+            uploadArea.style.background = 'rgba(67, 160, 71, 0.1)';
+
+            // Update icon and text
+            const icon = uploadArea.querySelector('.file-upload-icon i');
+            icon.className = 'fas fa-check-circle';
+            icon.style.color = 'var(--success)';
+
+            const text = uploadArea.querySelector('.file-upload-text');
+            text.textContent = 'File selected successfully';
+            text.style.color = 'var(--success)';
         }
-        
-        // Show success message
-        showMessage('Documents uploaded successfully!', 'success');
-        closeUploadModal();
-        
-        // Reset form
+    });
+
+    // Remove selected file
+    function removeFile() {
+        const fileInput = document.getElementById('document_file');
         fileInput.value = '';
-        document.getElementById('documentDescription').value = '';
+        document.getElementById('file-preview').style.display = 'none';
+
+        const uploadArea = document.querySelector('.file-upload-area');
+        uploadArea.style.borderColor = '';
+        uploadArea.style.background = '';
+        const icon = uploadArea.querySelector('.file-upload-icon i');
+        icon.className = 'fas fa-cloud-upload-alt';
+        icon.style.color = '';
+        const text = uploadArea.querySelector('.file-upload-text');
+        text.textContent = 'Click to upload or drag and drop';
+        text.style.color = '';
     }
+
 
     function viewDocument(filename) {
         showMessage(`Opening ${filename}...`, 'info');
@@ -1095,9 +1232,9 @@
             align-items: center;
             gap: 0.5rem;
         `;
-        
+
         document.body.appendChild(messageDiv);
-        
+
         setTimeout(() => {
             messageDiv.remove();
         }, 3000);
@@ -1118,16 +1255,16 @@
         const categoryFilter = document.getElementById('categoryFilter').value;
         const typeFilter = document.getElementById('typeFilter').value;
         const documents = document.querySelectorAll('.document-card');
-        
+
         documents.forEach(doc => {
             const title = doc.querySelector('h4').textContent.toLowerCase();
             const category = doc.dataset.category;
             const type = doc.dataset.type;
-            
+
             const matchesSearch = title.includes(searchTerm);
             const matchesCategory = !categoryFilter || category === categoryFilter;
             const matchesType = !typeFilter || type === typeFilter;
-            
+
             if (matchesSearch && matchesCategory && matchesType) {
                 doc.style.display = 'block';
             } else {
@@ -1142,7 +1279,7 @@
             const category = this.dataset.category;
             document.getElementById('categoryFilter').value = category;
             filterDocuments();
-            
+
             // Update active state
             document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
             this.classList.add('active');
@@ -1151,17 +1288,17 @@
 
     // Drag and drop functionality
     const uploadArea = document.getElementById('uploadArea');
-    
+
     uploadArea.addEventListener('dragover', function(e) {
         e.preventDefault();
         this.classList.add('dragover');
     });
-    
+
     uploadArea.addEventListener('dragleave', function(e) {
         e.preventDefault();
         this.classList.remove('dragover');
     });
-    
+
     uploadArea.addEventListener('drop', function(e) {
         e.preventDefault();
         this.classList.remove('dragover');
@@ -1189,34 +1326,34 @@
                 opacity: 1;
             }
         }
-        
+
         .documents-grid.list-view {
             grid-template-columns: 1fr;
         }
-        
+
         .documents-grid.list-view .document-card {
             display: flex;
             align-items: center;
             gap: 1rem;
             padding: 1rem;
         }
-        
+
         .documents-grid.list-view .document-icon {
             margin-bottom: 0;
             flex-shrink: 0;
         }
-        
+
         .documents-grid.list-view .document-info {
             flex: 1;
         }
-        
+
         .documents-grid.list-view .document-meta {
             display: flex;
             flex-direction: row;
             gap: 1rem;
             margin-bottom: 0;
         }
-        
+
         .documents-grid.list-view .document-actions {
             flex-shrink: 0;
         }
