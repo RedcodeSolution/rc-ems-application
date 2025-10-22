@@ -78,6 +78,10 @@ class Department extends Model
         return $this->belongsTo(Department::class, 'department_id');
     }
 
+    public function teams()
+    {
+        return $this->hasMany(Team::class, 'department_id', 'department_id');
+    }
 
     // Scope to get departments with employee counts
     public function scopeWithEmployeeCounts($query)

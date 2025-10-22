@@ -28,61 +28,58 @@ class EmployeeOverviewController extends Controller
         $employeeId = $user->employee_id;
         $today = Carbon::today();
 
-
+        // --- Attendance Tracking ---
         $todayAttendance = Attendance::where('employee_id', $employeeId)
             ->whereDate('date', $today)
             ->first();
 
         $todayHoursDecimal = $todayAttendance ? $todayAttendance->hours_worked : 0;
 
-
         $yesterday = Carbon::yesterday();
         $yesterdayAttendance = Attendance::where('employee_id', $employeeId)
             ->whereDate('date', $yesterday)
             ->first();
+
         $yesterdayHoursDecimal = $yesterdayAttendance ? $yesterdayAttendance->hours_worked : 0;
 
-
-        if ($yesterdayHoursDecimal > 0) {
-            $hourChangePercent = (($todayHoursDecimal - $yesterdayHoursDecimal) / $yesterdayHoursDecimal) * 100;
-        } else {
-            $hourChangePercent = 0;
-        }
+        $hourChangePercent = $yesterdayHoursDecimal > 0
+            ? (($todayHoursDecimal - $yesterdayHoursDecimal) / $yesterdayHoursDecimal) * 100
+            : 0;
 
         $hours = floor($todayHoursDecimal);
         $minutes = round(($todayHoursDecimal - $hours) * 60);
         $todayHours = sprintf('%dh %02dm', $hours, $minutes);
 
-
-
+        // --- Project and Team Data ---
         $projectCount = Project::whereHas('employees', function ($q) use ($employeeId) {
             $q->where('employee_project.employee_id', $employeeId);
         })->count();
-
 
         $teamCount = Team::whereHas('employees', function ($q) use ($employeeId) {
             $q->where('employee_team.employee_id', $employeeId);
         })->count();
 
-
+        // --- Notifications ---
         $unreadNotifications = Notification::where('user_id', $user->id)
             ->where('is_read', false)
             ->count();
 
-
+        // --- Documents ---
         $documentCount = Document::where('employee_id', $employeeId)->count();
 
-        $approvedLeaveCount = Leave::where('employee_id', $employeeId)
+        // --- Leaves (updated to use user_id) ---
+        $approvedLeaveCount = Leave::where('user_id', $user->id)
             ->where('status', 'approved')
             ->count();
 
+        // --- Teams, Projects, Tasks ---
         $employee = Employee::where('employee_id', $employeeId)->firstOrFail();
         $teamIds = $employee->teams->pluck('team_id');
         $projects = Project::whereIn('team_id', $teamIds)->get();
         $projectIds = $projects->pluck('project_id');
         $tasks = Tasks::whereIn('project_id', $projectIds)->get();
 
-
+        // --- Announcements ---
         $announcements = Announcement::whereJsonContains('target_audience', ["all"])
             ->where('status', 'published')
             ->orderBy('priority', 'desc')
@@ -90,9 +87,11 @@ class EmployeeOverviewController extends Controller
             ->take(5)
             ->get();
 
+        // --- Attendance Chart Data ---
         $attendanceData = collect();
         $allDates = collect();
         $period = request()->get('period', 'week');
+
         switch ($period) {
             case 'month':
                 $start = now()->startOfMonth();
@@ -101,6 +100,7 @@ class EmployeeOverviewController extends Controller
                 $allDates = collect(range(1, now()->endOfMonth()->day))
                     ->map(fn($d) => str_pad($d, 2, '0', STR_PAD_LEFT));
                 break;
+
             case 'year':
                 $start = now()->startOfYear();
                 $end = now()->endOfYear();
@@ -108,6 +108,7 @@ class EmployeeOverviewController extends Controller
                 $allDates = collect(range(1, 12))
                     ->map(fn($m) => Carbon::create()->month($m)->format('M'));
                 break;
+
             default:
                 $start = now()->startOfWeek();
                 $end = now()->endOfWeek();
@@ -126,9 +127,6 @@ class EmployeeOverviewController extends Controller
                 'half_day' => $group->where('status', 'half_day')->count(),
             ]);
 
-
-
-
         $attendanceLabels = $allDates;
         $presentData = $allDates->map(fn($label) => $attendanceData[$label]['present'] ?? 0);
         $absentData = $allDates->map(fn($label) => $attendanceData[$label]['absent'] ?? 0);
@@ -141,10 +139,11 @@ class EmployeeOverviewController extends Controller
         $totalHalfDay = $halfDayData->sum();
         $totalDays = $totalPresent + $totalAbsent + $totalLate + $totalHalfDay;
 
-
+        // --- Meetings ---
         Meeting::createDailyStandup();
         $todayMeetings = Meeting::getTodayMeetings();
 
+        // --- Return to View ---
         return view('employees.dashboard', [
             'employee' => $user->name,
             'today_hours_worked' => $todayHours,
@@ -170,9 +169,9 @@ class EmployeeOverviewController extends Controller
             'total_late' => $totalLate,
             'total_halfday' => $totalHalfDay,
             'total_days' => $totalDays,
-
         ]);
     }
+
 
     public function join(Meeting $meeting)
     {

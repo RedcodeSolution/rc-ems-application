@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Leave;
 use App\Models\Admin;
 use App\Models\Employee;
+use App\Models\SuperAdmin;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AdminLeaveController extends Controller
 {
@@ -59,15 +61,12 @@ class AdminLeaveController extends Controller
         return view('super_admin.admin_leaves.show', compact('leave'));
     }
 
-    public function approve(string $leave_id)
+    public function approve(Request $request, string $leave_id)
     {
-        $user = Auth::user();
-        $email = $user->email;
-        $admin = Admin::where('email', $email)->first();
         $leave = Leave::findOrFail($leave_id);
         $leave->status = 'approved';
-        $leave->approved_by   =  $admin->admin_id;
         $leave->approved_date = now();
+        $leave->comments = $request->input('comments', null);
         $leave->save();
 
         return response()->json(['success' => true]);
@@ -75,15 +74,12 @@ class AdminLeaveController extends Controller
 
     public function reject(Request $request, string $leave_id)
     {
-        $user = Auth::user();
-        $email = $user->email;
-        $admin = Admin::where('email', $email)->first();
+
         $leave = Leave::findOrFail($leave_id);
         $leave->status = 'rejected';
         $leave->rejection_reason = $request->input('rejection_reason');
-        $leave->rejected_by   =  $admin->admin_id;
         $leave->rejected_date = now();
-
+        $leave->comments = $request->input('comments', null);
         $leave->save();
 
         return response()->json(['success' => true]);
@@ -91,19 +87,17 @@ class AdminLeaveController extends Controller
 
     public function bulkApprove(Request $request)
     {
-        $user = Auth::user();
-        $email = $user->email;
-        $admin = Admin::where('email', $email)->first();
         $leaveIds = $request->input('leave_ids', []);
+        $comments = $request->input('comments', null);
 
         if (empty($leaveIds)) {
             return response()->json(['success' => false, 'error' => 'No leave requests selected.']);
         }
 
         Leave::whereIn('leave_id', $leaveIds)->update([
-            'status'      => 'approved',
-            'approved_by' => $admin->admin_id,
+            'status' => 'approved',
             'approved_date' => now(),
+            'comments' => $comments,
         ]);
 
         return response()->json([
@@ -114,11 +108,9 @@ class AdminLeaveController extends Controller
 
     public function bulkReject(Request $request)
     {
-        $user = Auth::user();
-        $email = $user->email;
-        $admin = Admin::where('email', $email)->first();
         $leaveIds = $request->input('leave_ids', []);
-        $reason   = $request->input('rejection_reason');
+        $reason = $request->input('rejection_reason');
+        $comments = $request->input('comments', null);
 
         if (empty($leaveIds)) {
             return response()->json(['success' => false, 'error' => 'No leave requests selected.']);
@@ -129,10 +121,10 @@ class AdminLeaveController extends Controller
         }
 
         Leave::whereIn('leave_id', $leaveIds)->update([
-            'status'           => 'rejected',
+            'status' => 'rejected',
             'rejection_reason' => $reason,
-            'rejected_by'      => $admin->admin_id,
-            'rejected_date'    => now(),
+            'rejected_date' => now(),
+            'comments' => $comments,
         ]);
 
         return response()->json([
