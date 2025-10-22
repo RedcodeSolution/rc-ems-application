@@ -861,7 +861,8 @@
 
                 <div class="sidebar-menu-section">
                     <div class="sidebar-menu-title">Administration</div>
-                    <a href="{{ route('admin.profile.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
+                    <a href="{{ route('admin.profile.index') }}"
+                        class="sidebar-menu-item {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
                         <i class="fas fa-user-shield"></i>
                         <span>Admin Profile</span>
                     </a>
@@ -874,7 +875,7 @@
                         class="sidebar-menu-item {{ request()->routeIs('admin.notifications') ? 'active' : '' }}">
                         <i class="fas fa-bell"></i>
                         <span>Notifications</span>
-                        <span class="badge">{{ $unreadCount ?? 0 }}</span>
+                        <span class="badge">{{ $notificationStats['unread'] ?? 0 }}</span>
                     </a>
                 </div>
             </div>
@@ -1331,6 +1332,7 @@
                                 </div>
                             </div>
                             <div class="notification-actions">
+                                <a href="/admin/notifications"
                                 <a href="/admin/notifications"
                                    class="btn btn-info btn-sm">View</a>
                             </div>

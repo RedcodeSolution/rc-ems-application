@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Models\Admin;
 use App\Models\Department;
+use App\Models\Notification;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
@@ -114,11 +115,10 @@ class AdminController
             title: 'Administrator Removed',
             message: "Administrator {$adminName} was deleted from the system.",
             type: 'admin',
-            userId: null,
+            userId: null, // <-- Always use null unless you have a valid user ID
             target: 'super admin',
             referenceId: $id
         );
-
 
         return redirect()->route('super_admin.admins')->with('success', 'Admin deleted successfully!');
     }

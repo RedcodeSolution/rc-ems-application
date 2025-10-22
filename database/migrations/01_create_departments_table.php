@@ -21,9 +21,6 @@ return new class extends Migration
             $table->enum('status', ['Active', 'Inactive'])->default('Active');
             $table->timestamps();
             $table->softDeletes();
-
-            $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('set null');
-
         });
     }
 

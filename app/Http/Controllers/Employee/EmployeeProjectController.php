@@ -55,7 +55,7 @@ class ProjectController extends Controller
         }
 
         // Create project
-        $project = Project::create([
+        Project::create([
             'project_id'     => $newId,
             'project_name'   => $request->project_name,
             'client'         => $request->client,
@@ -66,21 +66,6 @@ class ProjectController extends Controller
             'description'    => $request->description,
             'milestone_info' => $request->milestone_info,
         ]);
-
-        $team = Team::with('employees')->find($request->team_id);
-
-        if ($team && $team->employees->isNotEmpty()) {
-            foreach ($team->employees as $employee) {
-                $project->employees()->attach($employee->employee_id, [
-                    'role' => $employee->employee_id == $team->team_lead ? 'Team Lead' : 'Member',
-                    'status' => 'Active',
-                    'assigned_date' => now(),
-                    'progress' => 0,
-                    'deadline' => $request->end_date,
-                ]);
-            }
-        }
-
 
         return redirect()->route('admin.projects.index')->with('success', 'Project created successfully!');
     }
@@ -175,62 +160,5 @@ class ProjectController extends Controller
         $project->delete();
 
         return redirect()->route('admin.projects.index')->with('success', 'Department deleted successfully!');
-    }
-
-
-    public function getProjectsByEmployee($employeeName)
-    {
-        $employee = Employee::where('employee_name', $employeeName)->first();
-
-        if (!$employee) {
-            return response()->json([]);
-        }
-
-        // Fetch only the projects this employee is assigned to
-        $projects = $employee->projects()
-            ->with(['team'])
-            ->get();
-
-        return response()->json($projects);
-    }
-
-
-    public function getEmployeeAssignments($id)
-    {
-        $employee = Employee::with(['department', 'projects' => function ($query) {
-            $query->withPivot(['role', 'status', 'assigned_date']);
-        }])->find($id);
-
-        if (!$employee) {
-            return response()->json(['message' => 'Employee not found'], 404);
-        }
-
-        $assignments = $employee->projects->map(function ($project) use ($employee) {
-            return [
-                'id' => $project->id,
-                'project_name' => $project->project_name,
-                'role' => $project->pivot->role,
-                'status' => strtolower($project->pivot->status ?? $project->status ?? 'active'),
-                'assigned_date' => $project->pivot->assigned_date,
-                'progress' => match ($project->status) {
-                    'Planning' => 10,
-                    'In Progress' => 50,
-                    'Testing' => 70,
-                    'Completed' => 100,
-                    'On Hold' => 30,
-                    default => 0,
-                },
-                'deadline' => $project->end_date,
-                'priority' => $project->priority ?? 'medium',
-                'department' => $employee->department->department_name ?? 'N/A',
-            ];
-        });
-
-
-
-        return response()->json([
-            'employee_name' => $employee->employee_name,
-            'assignments' => $assignments,
-        ]);
     }
 }
