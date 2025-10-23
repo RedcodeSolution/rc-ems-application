@@ -46,18 +46,18 @@
 
 .header-info h1 {
     margin: 0;
-    font-size: clamp(1.25rem, 2vw + 0.5rem, 2.5rem);
+    font-size: 2rem;
     font-weight: 700;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
-    gap: clamp(0.5rem, 1vw, 1.5rem);
+    gap: 0.75rem;
 }
 
 .header-info p {
     margin: 0.5rem 0 0 0;
     color: rgba(255, 255, 255, 0.9);
-    font-size: clamp(0.8rem, 1vw, 1.1rem);
+    font-size: 1.1rem;
 }
 
 .header-actions {
@@ -107,8 +107,8 @@
 }
 
 .stat-icon {
-    width: clamp(40px, 6vw, 60px);
-    height: clamp(40px, 6vw, 60px);
+    width: 60px;
+    height: 60px;
     background: var(--gradient-hero);
     background-size: 400% 400%;
     animation: gradientShift 18s ease infinite;
@@ -117,7 +117,7 @@
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: clamp(1.1rem, 2vw, 2rem);
+    font-size: 1.5rem;
     box-shadow: var(--shadow-sm);
 }
 
@@ -176,8 +176,8 @@
 }
 
 .status-icon {
-    width: clamp(40px, 6vw, 60px);
-    height: clamp(40px, 6vw, 60px);
+    width: 50px;
+    height: 50px;
     background: var(--gradient-hero);
     background-size: 400% 400%;
     animation: gradientShift 18s ease infinite;
@@ -233,10 +233,10 @@
 
 .search-box input {
     width: 100%;
-    padding: clamp(0.5rem, 2vw, 1rem) clamp(0.75rem, 2vw, 1.5rem);
+    padding: 0.875rem 1rem 0.875rem 2.5rem;
     border: 2px solid var(--border-light);
     border-radius: 0.75rem;
-    font-size: clamp(0.9rem, 1vw, 1.1rem);
+    font-size: 1rem;
     background: var(--bg-primary);
     transition: all 0.3s ease;
 }
@@ -253,10 +253,10 @@
 }
 
 .filter-select {
-    padding: clamp(0.5rem, 2vw, 1rem);
+    padding: 0.875rem 1rem;
     border: 2px solid var(--border-light);
     border-radius: 0.75rem;
-    font-size: clamp(0.9rem, 1vw, 1.1rem);
+    font-size: 1rem;
     background: var(--bg-primary);
     transition: all 0.3s ease;
     min-width: 150px;
@@ -291,7 +291,7 @@
 
 .section-header h3 {
     margin: 0;
-    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-size: 1.25rem;
     font-weight: 600;
     color: var(--text-primary);
     display: flex;
@@ -304,9 +304,9 @@
     background-size: 400% 400%;
     animation: gradientShift 18s ease infinite;
     color: white;
-    padding: clamp(0.15rem, 1vw, 0.5rem) clamp(0.5rem, 2vw, 1rem);
+    padding: 0.25rem 0.75rem;
     border-radius: 1rem;
-    font-size: clamp(0.7rem, 1vw, 1rem);
+    font-size: 0.875rem;
     font-weight: 600;
 }
 
@@ -367,14 +367,14 @@
 }
 
 .task-priority {
-    padding: clamp(0.15rem, 1vw, 0.75rem) clamp(0.5rem, 2vw, 1rem);
+    padding: 0.25rem 0.75rem;
     border-radius: 1rem;
-    font-size: clamp(0.7rem, 1vw, 0.9rem);
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     display: flex;
     align-items: center;
-    gap: clamp(0.15rem, 1vw, 0.5rem);
+    gap: 0.25rem;
 }
 
 .task-priority.high {
@@ -393,14 +393,14 @@
 }
 
 .task-status {
-    padding: clamp(0.15rem, 1vw, 0.75rem) clamp(0.5rem, 2vw, 1rem);
+    padding: 0.25rem 0.75rem;
     border-radius: 1rem;
-    font-size: clamp(0.7rem, 1vw, 0.9rem);
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     display: flex;
     align-items: center;
-    gap: clamp(0.15rem, 1vw, 0.5rem);
+    gap: 0.25rem;
 }
 
 .task-status.todo {
@@ -425,7 +425,7 @@
 
 .task-content h4 {
     margin: 0 0 0.5rem 0;
-    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-size: 1.1rem;
     font-weight: 600;
     color: var(--text-primary);
 }
@@ -433,7 +433,7 @@
 .task-content p {
     margin: 0 0 1rem 0;
     color: var(--text-secondary);
-    font-size: clamp(0.8rem, 1vw, 1.1rem);
+    font-size: 0.875rem;
     line-height: 1.5;
 }
 
@@ -446,7 +446,7 @@
 
 .task-meta span {
     color: var(--text-light);
-    font-size: clamp(0.8rem, 1vw, 1rem);
+    font-size: 0.8rem;
     display: flex;
     align-items: center;
     gap: 0.25rem;
@@ -461,7 +461,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.5rem;
-    font-size: clamp(0.8rem, 1vw, 1.1rem);
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--text-primary);
 }
@@ -496,8 +496,8 @@
 }
 
 .action-btn {
-    width: clamp(28px, 5vw, 40px);
-    height: clamp(28px, 5vw, 40px);
+    width: 35px;
+    height: 35px;
     border: none;
     border-radius: 50%;
     background: var(--redcode-primary-light);
@@ -507,7 +507,7 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: clamp(0.8rem, 1vw, 1.2rem);
+    font-size: 0.875rem;
 }
 
 .action-btn:hover {
@@ -539,10 +539,8 @@
     background: white;
     border-radius: 1rem;
     width: 90%;
-    max-width: clamp(320px, 80vw, 600px);
+    max-width: 600px;
     max-height: 90vh;
-    padding: clamp(1rem, 3vw, 2rem);
-    border-radius: clamp(0.5rem, 2vw, 1.5rem);
     overflow-y: auto;
     box-shadow: var(--shadow-xl);
     animation: modalSlideIn 0.3s ease;
@@ -560,9 +558,7 @@
 }
 
 .modal-header {
-    padding: clamp(1rem, 2vw, 1.5rem);
-    border-radius: clamp(0.5rem, 2vw, 1.5rem) clamp(0.5rem, 2vw, 1.5rem) 0 0;
-    font-size: clamp(1rem, 2vw, 1.5rem);
+    padding: 1.5rem;
     border-bottom: 1px solid var(--border-light);
     display: flex;
     justify-content: space-between;
@@ -571,11 +567,12 @@
     background-size: 400% 400%;
     animation: gradientShift 18s ease infinite;
     color: white;
+    border-radius: 1rem 1rem 0 0;
 }
 
 .modal-header h3 {
     margin: 0;
-    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-size: 1.25rem;
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -586,9 +583,9 @@
     background: none;
     border: none;
     color: white;
-    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-size: 1.25rem;
     cursor: pointer;
-    padding: clamp(0.25rem, 1vw, 0.5rem);
+    padding: 0.5rem;
     border-radius: 50%;
     transition: all 0.3s ease;
 }
@@ -598,7 +595,7 @@
 }
 
 .modal-body {
-    padding: clamp(1rem, 2vw, 1.5rem);
+    padding: 1.5rem;
 }
 
 .form-group {
@@ -610,15 +607,14 @@
     margin-bottom: 0.5rem;
     font-weight: 600;
     color: var(--text-primary);
-    font-size: clamp(0.9rem, 1vw, 1.1rem);
 }
 
 .form-control {
     width: 100%;
-    padding: clamp(0.5rem, 2vw, 1rem);
+    padding: 0.875rem 1rem;
     border: 2px solid var(--border-light);
-    border-radius: clamp(0.5rem, 2vw, 1rem);
-    font-size: clamp(0.9rem, 1vw, 1.1rem);
+    border-radius: 0.75rem;
+    font-size: 1rem;
     background: var(--bg-primary);
     transition: all 0.3s ease;
 }
@@ -691,14 +687,13 @@
 }
 
 .modal-footer {
-    padding: clamp(1rem, 2vw, 1.5rem);
-    border-radius: 0 0 clamp(0.5rem, 2vw, 1.5rem) clamp(0.5rem, 2vw, 1.5rem);
-    gap: clamp(0.5rem, 2vw, 2rem);
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    padding: 1.5rem;
     border-top: 1px solid var(--border-light);
     display: flex;
     justify-content: flex-end;
+    gap: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 0 0 1rem 1rem;
 }
 
 .btn {
@@ -712,7 +707,7 @@
     align-items: center;
     gap: 0.5rem;
     text-decoration: none;
-    font-size: clamp(0.8rem, 1vw, 1.1rem);
+    font-size: 0.875rem;
 }
 
 .btn-primary {
@@ -917,9 +912,9 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    padding: clamp(0.5rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem);
-    border-radius: clamp(1rem, 3vw, 2rem);
-    font-size: clamp(0.8rem, 1vw, 1rem);
+    padding: 8px 16px;
+    border-radius: 25px;
+    font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -1025,8 +1020,8 @@
 .description-text,
 .additional-content {
     background: #ffffff;
-    padding: clamp(1rem, 2vw, 1.5rem);
-    border-radius: clamp(0.5rem, 2vw, 1rem);
+    padding: 20px;
+    border-radius: 8px;
     border: 1px solid #e5e7eb;
     line-height: 1.7;
 }
@@ -1058,8 +1053,8 @@
 
 .progress-container {
     background: #ffffff;
-    padding: clamp(1rem, 2vw, 1.5rem);
-    border-radius: clamp(0.5rem, 2vw, 1rem);
+    padding: 20px;
+    border-radius: 8px;
     border: 1px solid #e5e7eb;
 }
 
@@ -1079,7 +1074,7 @@
 }
 
 .comment-item {
-    padding: clamp(0.75rem, 2vw, 1.5rem) clamp(1rem, 3vw, 2rem);
+    padding: 15px 20px;
     border-bottom: 1px solid #f3f4f6;
 }
 
@@ -1109,7 +1104,7 @@
     line-height: 1.6;
 }
 
-
+/* Responsive design for view modal */
 @media (max-width: 768px) {
     .task-badges {
         flex-direction: column;
@@ -1126,146 +1121,30 @@
     }
 }
 
-/* Responsive font and icon sizes using clamp */
-html {
-    font-size: clamp(14px, 1vw + 0.5rem, 20px);
-}
-
-.header-info h1 {
-    font-size: clamp(1.25rem, 2vw + 0.5rem, 2.5rem);
-    gap: clamp(0.5rem, 1vw, 1.5rem);
-}
-
-.header-info p,
-.stat-info p,
-.status-info p,
-.task-content p,
-.task-meta span,
-.progress-info,
-#progressValue,
-.btn {
-    font-size: clamp(0.8rem, 1vw, 1.1rem);
-}
-
-.stat-icon,
-.status-icon {
-    font-size: clamp(1.1rem, 2vw, 2rem);
-    width: clamp(40px, 6vw, 60px);
-    height: clamp(40px, 6vw, 60px);
-}
-
-.action-btn {
-    width: clamp(28px, 5vw, 40px);
-    height: clamp(28px, 5vw, 40px);
-    font-size: clamp(0.8rem, 1vw, 1.2rem);
-}
-
-.section-header h3,
-.modal-header h3,
-.task-content h4,
-.status-info h3,
-.stat-info h3,
-.task-status-filter h2 {
-    font-size: clamp(1rem, 2vw, 1.5rem);
-}
-
-.form-control,
-.filter-select,
-.search-box input {
-    font-size: clamp(0.9rem, 1vw, 1.1rem);
-    padding: clamp(0.5rem, 2vw, 1rem) clamp(0.75rem, 2vw, 1.5rem);
-}
-
-.form-group label {
-    font-size: clamp(0.9rem, 1vw, 1.1rem);
-}
-
-.task-priority,
-.task-status {
-    font-size: clamp(0.7rem, 1vw, 0.9rem);
-    gap: clamp(0.15rem, 1vw, 0.5rem);
-    padding: clamp(0.15rem, 1vw, 0.75rem) clamp(0.5rem, 2vw, 1rem);
-}
-
-.task-count {
-    font-size: clamp(0.7rem, 1vw, 1rem);
-    padding: clamp(0.15rem, 1vw, 0.5rem) clamp(0.5rem, 2vw, 1rem);
-}
-
-.tasks-content,
-.tasks-controls,
-.tasks-header,
-.stat-card,
-.status-card,
-.modal-content {
-    padding: clamp(1rem, 3vw, 2rem);
-    border-radius: clamp(0.5rem, 2vw, 1.5rem);
-}
-
-.tasks-list,
-.status-grid,
-.tasks-stats,
-.header-actions,
-.form-row,
-.meta-row,
-.task-badges {
-    gap: clamp(0.5rem, 2vw, 2rem);
-}
-
-.priority-badge,
-.status-badge {
-    font-size: clamp(0.8rem, 1vw, 1rem);
-    padding: clamp(0.5rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem);
-    border-radius: clamp(1rem, 3vw, 2rem);
-    gap: clamp(0.3rem, 1vw, 0.7rem);
-}
-
-.comment-item {
-    padding: clamp(0.75rem, 2vw, 1.5rem) clamp(1rem, 3vw, 2rem);
-}
-
-.description-text,
-.additional-content,
-.progress-container {
-    padding: clamp(1rem, 2vw, 1.5rem);
-    border-radius: clamp(0.5rem, 2vw, 1rem);
-}
-
-@media (max-width: 480px) {
-    .modal-content {
-        max-width: 98vw;
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-    }
-    .modal-header,
-    .modal-body,
-    .modal-footer {
-        padding: 0.5rem;
-        font-size: 1rem;
-    }
-    .form-row {
+@media (min-width: 320px) and (max-width: 512px) {
+    .filter-section {
+        display: flex;
+        flex-wrap: wrap;
         gap: 0.5rem;
     }
-    .btn {
-        font-size: 0.9rem;
-        padding: 0.5rem 1rem;
-    }
-}
 
-@media (min-width: 1900px) {
-    .modal-content {
-        max-width: 600px;
-        padding: 2rem;
-        border-radius: 1.5rem;
+    .filter-section .filter-select {
+        min-width: 120px;
+        flex: 0 0 auto;
     }
-    .modal-header,
-    .modal-body,
-    .modal-footer {
-        padding: 1.5rem;
-        font-size: 1.5rem;
+
+    .filter-section .filter-select.project,
+    .filter-section .filter-select.project-filter,
+    .filter-section .filter-select[data-filter="project"],
+    .filter-section [data-filter="project"],
+    .filter-section .project {
+        flex: 0 0 100%;
+        width: 100%;
+        order: 99;
+        margin-top: 0.25rem;
     }
-    .btn {
-        font-size: 1.1rem;
-        padding: 0.75rem 1.5rem;
+
+    .search-section {
+        width: 100%;
     }
 }

@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="admin-management-container">
-    <!-- Admin Management Header -->
     <div class="admin-management-header">
         <div class="header-content">
             <h1><i class="fas fa-user-shield"></i> Admin Management</h1>
@@ -19,8 +18,6 @@
             </button>
         </div>
     </div>
-
-    <!-- Admin Statistics Cards -->
     <div class="admin-stats-grid">
         <div class="stat-card total-admins">
             <div class="stat-icon">
@@ -63,7 +60,6 @@
         </div>
     </div>
 
-    <!-- Search and Filter Section -->
     <div class="search-filter-section">
         <div class="search-container">
             <div class="search-input-wrapper">
@@ -88,7 +84,6 @@
         </div>
     </div>
 
-    <!-- Admins Table -->
     <div class="admins-table-container">
         <div class="table-header">
             <h2><i class="fas fa-table"></i> Administrators List</h2>
@@ -217,19 +212,16 @@
             </table>
         </div>
 
-        <!-- Pagination -->
         <div class="table-pagination">
             <div class="pagination-info">
                 Showing {{ $admins->count() }} of {{ $admins->count() }} administrators
             </div>
             <div class="pagination-controls">
-                <!-- Pagination controls would go here -->
             </div>
         </div>
     </div>
 </div>
 
-<!-- Add Admin Modal -->
 <div id="addAdminModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -257,7 +249,6 @@
                                    value="{{ old('admin_name') }}" placeholder="Enter full name" required>
                         </div>
 
-                        <!-- Role -->
                         <div class="form-group">
                             <label for="role" class="form-label">
                                 <i class="fas fa-user-tag"></i> Role/Position
@@ -268,7 +259,6 @@
                     </div>
 
                     <div class="form-row">
-                        <!-- Department -->
                         <div class="form-group">
                             <label for="department_id" class="form-label">
                                 <i class="fas fa-building"></i> Department
@@ -284,8 +274,6 @@
                             </select>
                         </div>
 
-
-                        <!-- Email -->
                         <div class="form-group">
                             <label for="email" class="form-label">
                                 <i class="fas fa-envelope"></i> Email
@@ -296,7 +284,6 @@
                     </div>
 
                     <div class="form-row">
-                        <!-- Contact Number -->
                         <div class="form-group">
                             <label for="contact_no" class="form-label">
                                 <i class="fas fa-phone"></i> Contact Number
@@ -305,7 +292,6 @@
                                    value="{{ old('contact_no') }}" placeholder="Enter contact number" required>
                         </div>
 
-                        <!-- Status -->
                         <div class="form-group">
                             <label for="status" class="form-label">
                                 <i class="fas fa-toggle-on"></i> Status
@@ -333,8 +319,6 @@
     </div>
 </div>
 
-
-<!-- Edit Admin Modal -->
 <div id="editAdminModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">

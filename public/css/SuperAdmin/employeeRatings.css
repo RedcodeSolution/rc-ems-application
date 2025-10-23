@@ -298,7 +298,7 @@
     display: flex; justify-content: flex-end; gap: 0.75rem;
 }
 
-/* Small screens */
+
 @media (max-width: 768px) {
     .page-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
     .header-actions { width: 100%; justify-content: flex-start; }
@@ -308,7 +308,6 @@
     .rating-comment { max-width: 100%; white-space: normal; overflow: visible; text-overflow: unset; }
 }
 
-/* Large and Ultra-wide */
 @media (min-width: 1200px) {
     .modal-content { max-width: 720px; }
 }
@@ -320,3 +319,5 @@
     .employee-ratings-grid { gap: 2rem; }
     .stats-grid { gap: 2rem; }
 }
+
+
