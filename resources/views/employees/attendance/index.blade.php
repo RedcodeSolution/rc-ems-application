@@ -1594,13 +1594,6 @@
                 <button class="btn-sm btn-emergency" onclick="reportEmergency()">Report Emergency</button>
             `;
 
-                            // Enable normal break button
-                            // if (breakBtn) {
-                            //     breakBtn.textContent = 'Start Break';
-                            //     breakBtn.disabled = false;
-                            //     breakBtn.classList.remove('btn-disabled');
-                            //     breakBtn.onclick = startBreak;
-                            // }
                         }
                     })
                     .catch(error => {

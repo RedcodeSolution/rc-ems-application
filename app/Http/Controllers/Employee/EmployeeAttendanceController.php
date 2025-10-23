@@ -137,42 +137,6 @@ class EmployeeAttendanceController extends Controller
         ));
     }
 
-    // public function clockIn()
-    // {
-    //     $user = Auth::user();
-
-    //     if (!$user) {
-    //         return response()->json(['success' => false, 'message' => 'User not authenticated.']);
-    //     }
-
-    //     $userId = $user->id;
-
-    //     $now = Carbon::now('Asia/Colombo');
-    //     $today = $now->toDateString();
-    //     $nineAM = Carbon::today('Asia/Colombo')->setTime(9, 0, 0);
-
-    //     $attendance = Attendance::where('user_id', $userId)
-    //         ->whereDate('date', $today)
-    //         ->first();
-
-    //     if ($attendance && $attendance->check_in_time) {
-    //         return response()->json(['success' => false, 'message' => 'Already clocked in today.']);
-    //     }
-
-    //     $attendance = Attendance::create([
-    //         'user_id' => $userId,
-    //         'date' => $today,
-    //         'check_in_time' => $now,
-    //         'status' => $now->gt($nineAM) ? 'late' : 'present',
-    //     ]);
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Clock-in successful.',
-    //         'status' => $attendance->status
-    //     ]);
-    // }
-
     public function clockIn()
     {
         $user = Auth::user();

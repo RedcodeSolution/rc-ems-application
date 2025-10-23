@@ -400,6 +400,7 @@ Route::post('/admin/documents/increment-download/{id}', [DocumentController::cla
 Route::get('/admin/employeeRatings/employee/{employeeId}', [App\Http\Controllers\Admin\EmployeeRatingsController::class, 'employeeRatingsJson']);
 Route::get('/super_admin/super_admin_accounts', [SuperAdminAccountsController::class, 'index'])->name('super_admin.super_admin_accounts');
 Route::post('/super_admin/super_admin_accounts', [SuperAdminAccountsController::class, 'store'])->name('super_admin_accounts.store');
+Route::put('/super_admin/super_admin_accounts/{id}/change-password', [SuperAdminAccountsController::class, 'changePassword'])->name('super_admin_accounts.changePassword');
 Route::get('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'show'])->name('super_admin_accounts.show');
 Route::put('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'update'])->name('super_admin_accounts.update');
 Route::delete('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'destroy'])->name('super_admin_accounts.destroy');
