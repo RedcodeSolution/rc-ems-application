@@ -10,14 +10,16 @@ return new class extends Migration
     {
         Schema::create('leaves', function (Blueprint $table) {
             $table->string('leave_id')->primary();
-            $table->unsignedBigInteger('employee_id');
+
+            $table->unsignedBigInteger('user_id');
+
             $table->string('leave_type');
             $table->date('start_date');
             $table->date('end_date');
             $table->integer('duration')->nullable();
             $table->text('reason');
             $table->string('contact_number')->nullable();
-            $table->string('supporting_doc');
+            $table->string('supporting_doc')->nullable();
             $table->string('status')->default('pending');
             $table->timestamp('applied_date')->nullable();
             $table->unsignedBigInteger('approved_by')->nullable();
@@ -28,8 +30,7 @@ return new class extends Migration
             $table->text('comments')->nullable();
             $table->timestamps();
 
-            // Foreign key constraints
-            $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('approved_by')->references('admin_id')->on('admins')->onDelete('set null');
             $table->foreign('rejected_by')->references('admin_id')->on('admins')->onDelete('set null');
         });

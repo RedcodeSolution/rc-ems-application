@@ -326,7 +326,7 @@
                 <div class="dashboard-card">
                     <div class="card-header">
                         <h3><i class="fas fa-bullhorn"></i> Announcements</h3>
-                        <a href="{{ route('employee.announcements') }}" class="view-all">View All</a>
+                        <a href="{{ route('employee.announcements.index') }}" class="view-all">View All</a>
                     </div>
 
                     <div class="card-content">

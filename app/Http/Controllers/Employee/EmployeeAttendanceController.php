@@ -18,19 +18,18 @@ class EmployeeAttendanceController extends Controller
     public function show(Request $request)
     {
         $user = Auth::user();
-        $employeeId = $user->employee_id;
+        $userId = $user->id; // ✅ now using 'users.id'
 
         $specificDate = $request->query('date');
 
-        // Fetch all attendance records for this employee
-        $attendances = Attendance::where('employee_id', $employeeId)
+        // Fetch all attendance records for this user
+        $attendances = Attendance::where('user_id', $userId)
             ->orderBy('date', 'desc')
             ->get();
 
         // --- Summary stats ---
         $presentDays = $attendances->where('status', 'present')->count();
         $absentDays = $attendances->where('status', 'absent')->count();
-
         $lateArrivals = $attendances->where('status', 'late')->count();
 
         // --- Total hours calculation ---
@@ -43,11 +42,11 @@ class EmployeeAttendanceController extends Controller
         // --- Fetch today’s or specific attendance ---
         $targetDate = $specificDate ?? now('Asia/Colombo')->toDateString();
 
-        $attendance = Attendance::where('employee_id', $employeeId)
+        $attendance = Attendance::where('user_id', $userId)
             ->whereDate('date', $targetDate)
             ->first();
 
-        $isClockedIn = Attendance::where('employee_id', $employeeId)
+        $isClockedIn = Attendance::where('user_id', $userId)
             ->whereDate('date', now('Asia/Colombo')->toDateString())
             ->whereNull('check_out_time')
             ->exists();
@@ -91,41 +90,34 @@ class EmployeeAttendanceController extends Controller
                 $checkIn = Carbon::parse($attendance->check_in_time)->timezone('Asia/Colombo');
                 $now = now('Asia/Colombo');
 
-                // --- Base worked minutes ---
                 $workedMinutes = $checkIn->diffInMinutes($now);
 
-                // --- Deduct total recorded break and emergency time ---
                 $breakMinutes = ($attendance->break_duration ?? 0) * 60;
                 $emergencyMinutes = ($attendance->emergency_duration ?? 0) * 60;
 
-                // --- Deduct ongoing break if active ---
                 if ($attendance->is_on_break && $attendance->break_start_time) {
                     $breakMinutes += Carbon::parse($attendance->break_start_time)->diffInMinutes($now);
                 }
 
-                // --- Deduct ongoing emergency if active ---
                 if ($attendance->is_on_emergency && $attendance->emergency_start_time) {
                     $emergencyMinutes += Carbon::parse($attendance->emergency_start_time)->diffInMinutes($now);
                 }
 
-                // --- Final worked time ---
                 $netWorked = max($workedMinutes - $breakMinutes - $emergencyMinutes, 0);
-
                 $hours = floor($netWorked / 60);
                 $minutes = $netWorked % 60;
                 $workingHoursNow = sprintf('%dh %dm', $hours, $minutes);
             }
         }
 
-        // --- Check if employee has approved leave today ---
+        // --- Check if user has approved leave today ---
         $today = now('Asia/Colombo')->toDateString();
 
-        $hasLeaveToday = Leave::where('employee_id', $employeeId)
+        $hasLeaveToday = Leave::where('user_id', $userId)
             ->where('status', 'approved')
             ->whereDate('start_date', '<=', $today)
             ->whereDate('end_date', '>=', $today)
             ->exists();
-
 
         return view('employees.attendance.index', compact(
             'attendances',
@@ -146,21 +138,22 @@ class EmployeeAttendanceController extends Controller
     }
 
 
+
     public function clockIn()
     {
         $user = Auth::user();
-        $employeeId = $user->employee_id;
 
-        if (!$employeeId) {
-            return response()->json(['success' => false, 'message' => 'Employee not found.']);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not authenticated.']);
         }
+
+        $userId = $user->id;
 
         $now = Carbon::now('Asia/Colombo');
         $today = $now->toDateString();
         $nineAM = Carbon::today('Asia/Colombo')->setTime(9, 0, 0);
 
-        // Check if already clocked in today
-        $attendance = Attendance::where('employee_id', $employeeId)
+        $attendance = Attendance::where('user_id', $userId)
             ->whereDate('date', $today)
             ->first();
 
@@ -168,17 +161,19 @@ class EmployeeAttendanceController extends Controller
             return response()->json(['success' => false, 'message' => 'Already clocked in today.']);
         }
 
-        // Create new attendance record
         $attendance = Attendance::create([
-            'employee_id' => $employeeId,
+            'user_id' => $userId,
             'date' => $today,
             'check_in_time' => $now,
             'status' => $now->gt($nineAM) ? 'late' : 'present',
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Clock-in successful.', 'status' => $attendance->status]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Clock-in successful.',
+            'status' => $attendance->status
+        ]);
     }
-
 
     public function clockOut()
     {
@@ -245,9 +240,14 @@ class EmployeeAttendanceController extends Controller
     public function getDetailsById($id)
     {
         $user = Auth::user();
-        $employeeId = $user->employee_id;
 
-        $attendance = Attendance::where('employee_id', $employeeId)
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not authenticated']);
+        }
+
+        $userId = $user->id; // ✅ use user_id now
+
+        $attendance = Attendance::where('user_id', $userId)
             ->where('id', $id)
             ->first();
 
@@ -270,17 +270,19 @@ class EmployeeAttendanceController extends Controller
         ]);
     }
 
-
-
-
     public function startBreak()
     {
         $user = Auth::user();
-        $employeeId = $user->employee_id;
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not authenticated.']);
+        }
+
+        $userId = $user->id; // ✅ use user_id instead of employee_id
         $now = Carbon::now('Asia/Colombo');
         $today = $now->toDateString();
 
-        $attendance = Attendance::where('employee_id', $employeeId)
+        $attendance = Attendance::where('user_id', $userId)
             ->whereDate('date', $today)
             ->first();
 
@@ -300,15 +302,19 @@ class EmployeeAttendanceController extends Controller
         return response()->json(['success' => true, 'message' => 'Break started successfully.']);
     }
 
-
     public function endBreak()
     {
         $user = Auth::user();
-        $employeeId = $user->employee_id;
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not authenticated.']);
+        }
+
+        $userId = $user->id; // ✅ using user_id
         $now = Carbon::now('Asia/Colombo');
         $today = $now->toDateString();
 
-        $attendance = Attendance::where('employee_id', $employeeId)
+        $attendance = Attendance::where('user_id', $userId)
             ->whereDate('date', $today)
             ->first();
 
@@ -320,27 +326,39 @@ class EmployeeAttendanceController extends Controller
             return response()->json(['success' => false, 'message' => 'No active break to end.']);
         }
 
-        // Calculate break duration in hours
-        $breakMinutes = $attendance->break_start_time->diffInMinutes($now);
+        // ✅ Ensure break_start_time is a Carbon instance
+        $breakStart = Carbon::parse($attendance->break_start_time);
+        $breakMinutes = $breakStart->diffInMinutes($now);
         $breakHours = round($breakMinutes / 60, 2);
 
-        // Add to existing total break duration
+        // ✅ Update break info safely
         $attendance->update([
             'break_end_time' => $now,
             'break_duration' => $attendance->break_duration + $breakHours,
             'is_on_break' => false,
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Break ended successfully.']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Break ended successfully.',
+            'break_duration' => $attendance->break_duration + $breakHours
+        ]);
     }
+
 
     public function getBreakStatus()
     {
         $user = Auth::user();
-        $employeeId = $user->employee_id;
-        $today = now('Asia/Colombo')->toDateString();
 
-        $attendance = Attendance::where('employee_id', $employeeId)
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not authenticated.']);
+        }
+
+        $userId = $user->id; // ✅ use user_id now
+        $now = now('Asia/Colombo');
+        $today = $now->toDateString();
+
+        $attendance = Attendance::where('user_id', $userId)
             ->whereDate('date', $today)
             ->first();
 
@@ -348,40 +366,43 @@ class EmployeeAttendanceController extends Controller
             return response()->json(['success' => false, 'on_break' => false]);
         }
 
-        // Format check-in time
+        // ✅ Format check-in time
         $checkInTimeFormatted = $attendance->check_in_time
-            ? \Carbon\Carbon::parse($attendance->check_in_time)
+            ? Carbon::parse($attendance->check_in_time)
             ->timezone('Asia/Colombo')
             ->format('g:i A')
             : null;
 
         $workingHoursNow = '0h 0m';
 
+        // ✅ If currently working (checked in but not out)
         if ($attendance->check_in_time && !$attendance->check_out_time) {
-            $checkIn = \Carbon\Carbon::parse($attendance->check_in_time)->timezone('Asia/Colombo');
-            $now = now('Asia/Colombo');
+            $checkIn = Carbon::parse($attendance->check_in_time)->timezone('Asia/Colombo');
 
-            // --- Base worked minutes ---
+            // Base worked minutes
             $workedMinutes = $checkIn->diffInMinutes($now);
 
-            // --- Deduct total break & emergency time ---
+            // Deduct stored breaks
             $breakMinutes = ($attendance->break_duration ?? 0) * 60;
             $emergencyMinutes = ($attendance->emergency_duration ?? 0) * 60;
 
-            // If currently on break → subtract ongoing time
+            // Deduct ongoing breaks
             if ($attendance->is_on_break && $attendance->break_start_time) {
-                $breakMinutes += \Carbon\Carbon::parse($attendance->break_start_time)->diffInMinutes($now);
+                $breakMinutes += Carbon::parse($attendance->break_start_time)->diffInMinutes($now);
             }
 
-            // If currently in emergency → subtract ongoing emergency time
+            // Deduct ongoing emergency breaks
             if ($attendance->is_on_emergency && $attendance->emergency_start_time) {
-                $emergencyMinutes += \Carbon\Carbon::parse($attendance->emergency_start_time)->diffInMinutes($now);
+                $emergencyMinutes += Carbon::parse($attendance->emergency_start_time)->diffInMinutes($now);
             }
 
-            // Final calculation
+            // Net worked time
             $netWorked = max($workedMinutes - $breakMinutes - $emergencyMinutes, 0);
             $workingHoursNow = sprintf('%dh %dm', floor($netWorked / 60), $netWorked % 60);
-        } elseif ($attendance->check_out_time && $attendance->hours_worked) {
+        }
+
+        // ✅ If already checked out
+        elseif ($attendance->check_out_time && $attendance->hours_worked) {
             $totalMinutes = round($attendance->hours_worked * 60);
             $hours = floor($totalMinutes / 60);
             $minutes = $totalMinutes % 60;
@@ -393,14 +414,10 @@ class EmployeeAttendanceController extends Controller
             'on_break' => $attendance->is_on_break,
             'on_emergency' => $attendance->is_on_emergency,
             'break_start_time' => $attendance->break_start_time
-                ? \Carbon\Carbon::parse($attendance->break_start_time)
-                ->timezone('Asia/Colombo')
-                ->format('g:i A')
+                ? Carbon::parse($attendance->break_start_time)->timezone('Asia/Colombo')->format('g:i A')
                 : null,
             'emergency_start_time' => $attendance->emergency_start_time
-                ? \Carbon\Carbon::parse($attendance->emergency_start_time)
-                ->timezone('Asia/Colombo')
-                ->format('g:i A')
+                ? Carbon::parse($attendance->emergency_start_time)->timezone('Asia/Colombo')->format('g:i A')
                 : null,
             'status' => ucfirst($attendance->status ?? 'N/A'),
             'check_in_time' => $checkInTimeFormatted,
@@ -409,15 +426,19 @@ class EmployeeAttendanceController extends Controller
         ]);
     }
 
-
     public function startEmergency(Request $request)
     {
         $user = Auth::user();
-        $employeeId = $user->employee_id;
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not authenticated.']);
+        }
+
+        $userId = $user->id; // ✅ use user_id now
         $now = Carbon::now('Asia/Colombo');
         $today = $now->toDateString();
 
-        $attendance = Attendance::where('employee_id', $employeeId)
+        $attendance = Attendance::where('user_id', $userId)
             ->whereDate('date', $today)
             ->first();
 
@@ -431,59 +452,95 @@ class EmployeeAttendanceController extends Controller
 
         $attendance->update([
             'is_on_emergency' => true,
-            'emergency_type' => $request->emergency_type,
-            'emergency_description' => $request->emergency_description,
+            'emergency_type' => $request->input('emergency_type'),
+            'emergency_description' => $request->input('emergency_description'),
             'emergency_start_time' => $now,
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Emergency break started.']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Emergency break started successfully.',
+            'emergency_type' => $request->input('emergency_type'),
+            'start_time' => $now->format('g:i A'),
+        ]);
     }
 
     public function endEmergency()
     {
         $user = Auth::user();
-        $employeeId = $user->employee_id;
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not authenticated.']);
+        }
+
+        $userId = $user->id; // ✅ switched to user_id
         $now = Carbon::now('Asia/Colombo');
         $today = $now->toDateString();
 
-        $attendance = Attendance::where('employee_id', $employeeId)
+        $attendance = Attendance::where('user_id', $userId)
             ->whereDate('date', $today)
             ->first();
 
-        if (!$attendance || !$attendance->is_on_emergency) {
-            return response()->json(['success' => false, 'message' => 'No active emergency break found.']);
+        if (!$attendance) {
+            return response()->json(['success' => false, 'message' => 'No attendance record found for today.']);
         }
 
-        $startTime = Carbon::parse($attendance->emergency_start_time);
-        $duration = $startTime->diffInMinutes($now) / 60;
+        if (!$attendance->is_on_emergency || !$attendance->emergency_start_time) {
+            return response()->json(['success' => false, 'message' => 'No active emergency break to end.']);
+        }
 
+        // ✅ Calculate emergency duration (in hours)
+        $startTime = Carbon::parse($attendance->emergency_start_time);
+        $duration = round($startTime->diffInMinutes($now) / 60, 2);
+
+        // ✅ Update attendance record
         $attendance->update([
             'is_on_emergency' => false,
             'emergency_end_time' => $now,
             'emergency_duration' => $attendance->emergency_duration + $duration,
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Emergency break ended.']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Emergency break ended successfully.',
+            'duration' => $duration . ' hours',
+            'ended_at' => $now->format('g:i A'),
+        ]);
     }
+
 
     public function getEmergencyStatus()
     {
         $user = Auth::user();
-        $employeeId = $user->employee_id;
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not authenticated.']);
+        }
+
+        $userId = $user->id; // ✅ switched from employee_id to user_id
         $today = now('Asia/Colombo')->toDateString();
 
-        $attendance = Attendance::where('employee_id', $employeeId)
+        $attendance = Attendance::where('user_id', $userId)
             ->whereDate('date', $today)
             ->first();
 
         if (!$attendance) {
-            return response()->json(['success' => true, 'emergency' => null]);
+            return response()->json([
+                'success' => true,
+                'emergency' => [
+                    'is_active' => false,
+                    'reason' => null,
+                    'total' => 0,
+                ],
+            ]);
         }
 
+        // ✅ Check if an emergency is currently active
         $isActive = $attendance->is_on_emergency && $attendance->emergency_start_time && !$attendance->emergency_end_time;
         $reason = $isActive ? $attendance->emergency_type : null;
 
-        $totalEmergencies = Attendance::where('employee_id', $employeeId)
+        // ✅ Count total emergencies by this user
+        $totalEmergencies = Attendance::where('user_id', $userId)
             ->whereNotNull('emergency_start_time')
             ->count();
 
@@ -493,6 +550,9 @@ class EmployeeAttendanceController extends Controller
                 'is_active' => $isActive,
                 'reason' => $reason,
                 'total' => $totalEmergencies,
+                'started_at' => $isActive
+                    ? Carbon::parse($attendance->emergency_start_time)->timezone('Asia/Colombo')->format('g:i A')
+                    : null,
             ],
         ]);
     }

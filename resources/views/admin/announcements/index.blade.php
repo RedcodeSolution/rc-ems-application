@@ -57,15 +57,35 @@
                                         <!-- Category Badge -->
                                         <span class="badge"
                                             style="background: rgba(59, 130, 246, 0.1); color: var(--primary);
-                                         padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">
+                                padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">
                                             {{ ucfirst($announcement->category) }}
                                         </span>
 
                                         <!-- Status Badge -->
+                                        @php
+                                            $statusColors = [
+                                                'published' => [
+                                                    'bg' => 'rgba(16,185,129,0.1)',
+                                                    'color' => 'var(--success)',
+                                                ],
+                                                'scheduled' => [
+                                                    'bg' => 'rgba(245,158,11,0.1)',
+                                                    'color' => 'var(--warning)',
+                                                ],
+                                                'draft' => [
+                                                    'bg' => 'rgba(107,114,128,0.1)',
+                                                    'color' => 'var(--gray-600)',
+                                                ],
+                                            ];
+                                            $colors = $statusColors[$announcement->status] ?? [
+                                                'bg' => 'rgba(107,114,128,0.1)',
+                                                'color' => 'var(--gray-600)',
+                                            ];
+                                        @endphp
                                         <span class="badge"
-                                            style="background: {{ $announcement->status === 'active' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)' }};
-                                         color: {{ $announcement->status === 'active' ? 'var(--success)' : 'var(--warning)' }};
-                                         padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">
+                                            style="background: {{ $colors['bg'] }};
+                                color: {{ $colors['color'] }};
+                                padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">
                                             {{ ucfirst($announcement->status) }}
                                         </span>
                                     </div>
@@ -75,6 +95,24 @@
                                         style="color: var(--gray-600); margin-bottom: 1rem; line-height: 1.6;">
                                         {{ $announcement->content }}
                                     </p>
+
+                                    <!-- Target Info -->
+                                    <div style="font-size: 0.85rem; color: var(--gray-500); margin-bottom: 0.5rem;">
+                                        @if ($announcement->departments->count())
+                                            <strong>Departments:</strong>
+                                            {{ $announcement->departments->pluck('department_name')->join(', ') }}
+                                        @else
+                                            <strong>Departments:</strong> All Departments
+                                        @endif
+
+                                        @if ($announcement->teams->count())
+                                            | <strong>Teams:</strong>
+                                            {{ $announcement->teams->pluck('team_name')->join(', ') }}
+                                        @else
+                                            | <strong>Teams:</strong> All Teams
+                                        @endif
+                                    </div>
+
 
                                     <!-- Meta Info -->
                                     <div
@@ -94,29 +132,37 @@
                                 <div class="flex gap-1">
                                     <button class="btn btn-secondary" style="padding: 0.5rem;"
                                         onclick="openViewAnnouncementModal(
-                                    {{ $announcement->announcement_id }},
-                                    '{{ addslashes($announcement->title) }}',
-                                    '{{ $announcement->priority }}',
-                                    '{{ $announcement->category }}',
-                                    '{{ addslashes($announcement->content) }}',
-                                    '{{ $announcement->expires_at }}',
-                                    {{ json_encode($announcement->audience ?? ['all']) }}
-                                )">
+        {{ $announcement->announcement_id }},
+        '{{ addslashes($announcement->title) }}',
+        '{{ $announcement->priority }}',
+        '{{ $announcement->category }}',
+        '{{ addslashes($announcement->content) }}',
+        '{{ $announcement->expires_at }}',
+        {{ json_encode($announcement->target_audience ?? ['all']) }},
+        {{ json_encode($announcement->departments->pluck('department_name')) }},
+        {{ json_encode($announcement->teams->pluck('team_name')) }}
+    )">
                                         <i class="fas fa-eye"></i>
                                     </button>
 
+
+
                                     <button class="btn btn-warning" style="padding: 0.5rem;"
                                         onclick="openEditAnnouncementModal(
-                                    {{ $announcement->announcement_id }},
-                                    '{{ addslashes($announcement->title) }}',
-                                    '{{ $announcement->priority }}',
-                                    '{{ $announcement->category }}',
-                                    '{{ addslashes($announcement->content) }}',
-                                    '{{ $announcement->expires_at }}',
-                                    {{ json_encode($announcement->audience ?? ['all']) }}
-                                )">
+        {{ $announcement->announcement_id }},
+        '{{ addslashes($announcement->title) }}',
+        '{{ $announcement->priority }}',
+        '{{ $announcement->category }}',
+        '{{ addslashes($announcement->content) }}',
+        '{{ $announcement->expires_at }}',
+        {{ json_encode($announcement->target_audience ?? ['all']) }},
+        '{{ $announcement->department_id ?? '' }}',
+        '{{ $announcement->team_id ?? '' }}'
+    )">
                                         <i class="fas fa-edit"></i>
                                     </button>
+
+
 
                                     <form method="POST"
                                         action="{{ route('admin.announcements.destroy', $announcement->announcement_id) }}"
@@ -136,80 +182,106 @@
                 @endforelse
             </div>
 
+
             <!-- Pagination -->
-            <div class="flex justify-between items-center mt-4">
-                <div style="color: var(--gray-600); font-size: 0.875rem;">
-                    Showing {{ $announcements->firstItem() }} to {{ $announcements->lastItem() }}
-                    of {{ $announcements->total() }} announcements
-                </div>
+            @if ($announcements->hasPages())
+                <div class="flex justify-between items-center mt-6 border-t pt-4">
+                    <!-- Summary -->
+                    <div style="color: var(--gray-600); font-size: 0.875rem;">
+                        Showing
+                        <strong>{{ $announcements->firstItem() }}</strong>
+                        to
+                        <strong>{{ $announcements->lastItem() }}</strong>
+                        of
+                        <strong>{{ $announcements->total() }}</strong>
+                        announcements
+                    </div>
 
-                <div class="flex gap-1">
-                    {{-- Previous Page --}}
-                    @if ($announcements->onFirstPage())
-                        <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;" disabled>
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                    @else
-                        <a href="{{ $announcements->previousPageUrl() }}" class="btn btn-secondary"
-                            style="padding: 0.5rem 0.75rem;">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    @endif
-
-                    {{-- Page Numbers --}}
-                    @foreach ($announcements->getUrlRange(1, $announcements->lastPage()) as $page => $url)
-                        @if ($page == $announcements->currentPage())
-                            <button class="btn btn-primary" style="padding: 0.5rem 0.75rem;">{{ $page }}</button>
+                    <!-- Pagination Controls -->
+                    <div class="flex gap-1">
+                        {{-- Previous Page --}}
+                        @if ($announcements->onFirstPage())
+                            <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;" disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
                         @else
-                            <a href="{{ $url }}" class="btn btn-secondary"
-                                style="padding: 0.5rem 0.75rem;">{{ $page }}</a>
+                            <a href="{{ $announcements->previousPageUrl() }}" class="btn btn-secondary"
+                                style="padding: 0.5rem 0.75rem;">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
                         @endif
-                    @endforeach
 
-                    {{-- Next Page --}}
-                    @if ($announcements->hasMorePages())
-                        <a href="{{ $announcements->nextPageUrl() }}" class="btn btn-secondary"
-                            style="padding: 0.5rem 0.75rem;">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    @else
-                        <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;" disabled>
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    @endif
+                        {{-- Page Numbers (limited range) --}}
+                        @php
+                            $start = max($announcements->currentPage() - 2, 1);
+                            $end = min($announcements->currentPage() + 2, $announcements->lastPage());
+                        @endphp
+
+                        @for ($page = $start; $page <= $end; $page++)
+                            @if ($page == $announcements->currentPage())
+                                <button class="btn btn-primary"
+                                    style="padding: 0.5rem 0.75rem;">{{ $page }}</button>
+                            @else
+                                <a href="{{ $announcements->url($page) }}" class="btn btn-secondary"
+                                    style="padding: 0.5rem 0.75rem;">{{ $page }}</a>
+                            @endif
+                        @endfor
+
+                        {{-- Next Page --}}
+                        @if ($announcements->hasMorePages())
+                            <a href="{{ $announcements->nextPageUrl() }}" class="btn btn-secondary"
+                                style="padding: 0.5rem 0.75rem;">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        @else
+                            <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;" disabled>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        @endif
+                    </div>
                 </div>
-            </div>
+            @endif
         </div>
     </div>
 
     <!-- Announcement Statistics -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
-        <div class="card">
-            <div class="card-body text-center">
+    <div class="grid"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+
+        <!-- Total Announcements -->
+        <div class="card"
+            style="border: 1px solid var(--gray-200); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <div class="card-body text-center" style="padding: 1.25rem;">
                 <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
                     {{ $totalAnnouncements }}
                 </div>
-                <div style="color: var(--gray-600); font-weight: 500;">Total Announcements</div>
+                <div style="color: var(--gray-700); font-weight: 600;">Total Announcements</div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-body text-center">
+
+        <!-- Published -->
+        <div class="card"
+            style="border: 1px solid var(--gray-200); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <div class="card-body text-center" style="padding: 1.25rem;">
                 <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">
                     {{ $publishedCount }}
                 </div>
-                <div style="color: var(--gray-600); font-weight: 500;">Published</div>
+                <div style="color: var(--gray-700); font-weight: 600;">Published</div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-body text-center">
+
+        <!-- Scheduled -->
+        <div class="card"
+            style="border: 1px solid var(--gray-200); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <div class="card-body text-center" style="padding: 1.25rem;">
                 <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">
                     {{ $scheduledCount }}
                 </div>
-                <div style="color: var(--gray-600); font-weight: 500;">Scheduled</div>
+                <div style="color: var(--gray-700); font-weight: 600;">Scheduled</div>
             </div>
         </div>
-    </div>
 
+    </div>
 
     <!-- Announcement Creation Modal -->
     <div id="announcementModal" class="modal-overlay">
@@ -224,23 +296,25 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
+
             <div class="modal-body">
                 <form id="announcementForm" action="{{ route('admin.announcements.store') }}" method="POST">
                     @csrf
+
                     <div class="form-container">
+                        <!-- Title + Priority -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="title" class="form-label">
-                                    <i class="fas fa-heading"></i>
-                                    Title
+                                    <i class="fas fa-heading"></i> Title
                                 </label>
                                 <input type="text" id="title" name="title" class="form-input"
                                     placeholder="Enter announcement title" required>
                             </div>
+
                             <div class="form-group">
                                 <label for="priority" class="form-label">
-                                    <i class="fas fa-flag"></i>
-                                    Priority Level
+                                    <i class="fas fa-flag"></i> Priority Level
                                 </label>
                                 <select id="priority" name="priority" class="form-select" required>
                                     <option value="">Select Priority</option>
@@ -252,11 +326,11 @@
                             </div>
                         </div>
 
+                        <!-- Category + Expiry -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="category" class="form-label">
-                                    <i class="fas fa-tag"></i>
-                                    Category
+                                    <i class="fas fa-tag"></i> Category
                                 </label>
                                 <select id="category" name="category" class="form-select" required>
                                     <option value="">Select Category</option>
@@ -269,28 +343,57 @@
                                     <option value="operations">⚙️ Operations</option>
                                 </select>
                             </div>
+
                             <div class="form-group">
                                 <label for="expires_at" class="form-label">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    Expires At (Optional)
+                                    <i class="fas fa-calendar-alt"></i> Expires At (Optional)
                                 </label>
                                 <input type="datetime-local" id="expires_at" name="expires_at" class="form-input">
                             </div>
                         </div>
 
+                        <!-- Content -->
                         <div class="form-group">
                             <label for="content" class="form-label">
-                                <i class="fas fa-file-text"></i>
-                                Content
+                                <i class="fas fa-file-text"></i> Content
                             </label>
                             <textarea id="content" name="content" class="form-textarea" rows="6"
                                 placeholder="Enter announcement content..." required></textarea>
                         </div>
 
+                        <!-- Department Selection -->
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 1;">
+                                <label for="department_id" class="form-label">
+                                    <i class="fas fa-building"></i> Department
+                                </label>
+                                <select id="department_id" name="department_id[]" class="form-select" multiple>
+                                    <option value="all">All Departments</option>
+                                    @foreach ($departments as $department)
+                                        <option value="{{ $department->department_id }}">
+                                            {{ $department->department_name }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple.</small>
+                            </div>
+
+                            <!-- Team Selection -->
+                            <div class="form-group" style="flex: 1;">
+                                <label for="team_id" class="form-label">
+                                    <i class="fas fa-users"></i> Team
+                                </label>
+                                <select id="team_id" name="team_id[]" class="form-select" multiple disabled>
+                                    <option value="">Select a department first</option>
+                                </select>
+                                <small class="text-muted">Teams will load automatically based on selected
+                                    department.</small>
+                            </div>
+                        </div>
+
+                        <!-- Target Audience -->
                         <div class="form-group">
                             <label class="form-label">
-                                <i class="fas fa-users"></i>
-                                Target Audience
+                                <i class="fas fa-user-check"></i> Target Audience
                             </label>
                             <div class="form-checkbox">
                                 <input type="checkbox" id="all_employees" name="target_audience[]" value="all"
@@ -308,14 +411,13 @@
                             </div>
                         </div>
 
+                        <!-- Actions -->
                         <div class="form-actions">
                             <button type="button" class="btn btn-secondary" onclick="closeAnnouncementModal()">
-                                <i class="fas fa-times"></i>
-                                Cancel
+                                <i class="fas fa-times"></i> Cancel
                             </button>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-paper-plane"></i>
-                                Create Announcement
+                                <i class="fas fa-paper-plane"></i> Create Announcement
                             </button>
                         </div>
                     </div>
@@ -337,26 +439,28 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
+
             <div class="modal-body">
                 <form id="editAnnouncementForm"
                     action="{{ route('admin.announcements.update', $announcement->announcement_id ?? 0) }}"
                     method="POST">
                     @csrf
                     @method('PUT')
+
                     <div class="form-container">
+                        <!-- Title + Priority -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="edit_title" class="form-label">
-                                    <i class="fas fa-heading"></i>
-                                    Title
+                                    <i class="fas fa-heading"></i> Title
                                 </label>
                                 <input type="text" id="edit_title" name="title" class="form-input"
                                     placeholder="Enter announcement title" required>
                             </div>
+
                             <div class="form-group">
                                 <label for="edit_priority" class="form-label">
-                                    <i class="fas fa-flag"></i>
-                                    Priority Level
+                                    <i class="fas fa-flag"></i> Priority Level
                                 </label>
                                 <select id="edit_priority" name="priority" class="form-select" required>
                                     <option value="">Select Priority</option>
@@ -368,11 +472,11 @@
                             </div>
                         </div>
 
+                        <!-- Category + Expiry -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="edit_category" class="form-label">
-                                    <i class="fas fa-tag"></i>
-                                    Category
+                                    <i class="fas fa-tag"></i> Category
                                 </label>
                                 <select id="edit_category" name="category" class="form-select" required>
                                     <option value="">Select Category</option>
@@ -385,28 +489,56 @@
                                     <option value="operations">⚙️ Operations</option>
                                 </select>
                             </div>
+
                             <div class="form-group">
                                 <label for="edit_expires_at" class="form-label">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    Expires At (Optional)
+                                    <i class="fas fa-calendar-alt"></i> Expires At (Optional)
                                 </label>
                                 <input type="datetime-local" id="edit_expires_at" name="expires_at" class="form-input">
                             </div>
                         </div>
 
+                        <!-- Content -->
                         <div class="form-group">
                             <label for="edit_content" class="form-label">
-                                <i class="fas fa-file-text"></i>
-                                Content
+                                <i class="fas fa-file-text"></i> Content
                             </label>
                             <textarea id="edit_content" name="content" class="form-textarea" rows="6"
                                 placeholder="Enter announcement content..." required></textarea>
                         </div>
 
+                        <!-- Department & Team Selection -->
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 1;">
+                                <label for="edit_department_id" class="form-label">
+                                    <i class="fas fa-building"></i> Department
+                                </label>
+                                <select id="edit_department_id" name="department_id[]" class="form-select" multiple>
+                                    <option value="all">All Departments</option>
+                                    @foreach ($departments as $department)
+                                        <option value="{{ $department->department_id }}">
+                                            {{ $department->department_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple.</small>
+                            </div>
+
+                            <div class="form-group" style="flex: 1;">
+                                <label for="edit_team_id" class="form-label">
+                                    <i class="fas fa-users"></i> Team
+                                </label>
+                                <select id="edit_team_id" name="team_id[]" class="form-select" multiple disabled>
+                                    <option value="">Select a department first</option>
+                                </select>
+                                <small class="text-muted">Teams load based on selected department(s).</small>
+                            </div>
+                        </div>
+
+                        <!-- Target Audience -->
                         <div class="form-group">
                             <label class="form-label">
-                                <i class="fas fa-users"></i>
-                                Target Audience
+                                <i class="fas fa-user-check"></i> Target Audience
                             </label>
                             <div class="form-checkbox">
                                 <input type="checkbox" id="edit_all_employees" name="target_audience[]" value="all"
@@ -424,14 +556,13 @@
                             </div>
                         </div>
 
+                        <!-- Actions -->
                         <div class="form-actions">
                             <button type="button" class="btn btn-secondary" onclick="closeEditAnnouncementModal()">
-                                <i class="fas fa-times"></i>
-                                Cancel
+                                <i class="fas fa-times"></i> Cancel
                             </button>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i>
-                                Update Announcement
+                                <i class="fas fa-save"></i> Update Announcement
                             </button>
                         </div>
                     </div>
@@ -453,24 +584,24 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
+
             <div class="modal-body">
                 <div class="form-container">
                     <!-- Basic Information Row -->
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">
-                                <i class="fas fa-heading"></i>
-                                Title
+                                <i class="fas fa-heading"></i> Title
                             </label>
                             <div style="position: relative;">
                                 <i class="input-icon fas fa-heading"></i>
                                 <div class="view-field" id="view_title"></div>
                             </div>
                         </div>
+
                         <div class="form-group">
                             <label class="form-label">
-                                <i class="fas fa-flag"></i>
-                                Priority Level
+                                <i class="fas fa-flag"></i> Priority Level
                             </label>
                             <div style="position: relative;">
                                 <i class="input-icon fas fa-flag"></i>
@@ -479,22 +610,21 @@
                         </div>
                     </div>
 
-                    <!-- Category and Expiry Row -->
+                    <!-- Category and Expiry -->
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">
-                                <i class="fas fa-tag"></i>
-                                Category
+                                <i class="fas fa-tag"></i> Category
                             </label>
                             <div style="position: relative;">
                                 <i class="input-icon fas fa-tag"></i>
                                 <div class="view-field" id="view_category"></div>
                             </div>
                         </div>
+
                         <div class="form-group">
                             <label class="form-label">
-                                <i class="fas fa-calendar-alt"></i>
-                                Expires At
+                                <i class="fas fa-calendar-alt"></i> Expires At
                             </label>
                             <div style="position: relative;">
                                 <i class="input-icon fas fa-calendar-alt"></i>
@@ -506,8 +636,7 @@
                     <!-- Content -->
                     <div class="form-group">
                         <label class="form-label">
-                            <i class="fas fa-file-text"></i>
-                            Content
+                            <i class="fas fa-file-text"></i> Content
                         </label>
                         <div style="position: relative;">
                             <i class="input-icon fas fa-file-text"></i>
@@ -515,14 +644,36 @@
                         </div>
                     </div>
 
+                    <!-- Department & Team Visibility -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-building"></i> Department(s)
+                            </label>
+                            <div style="position: relative;">
+                                <i class="input-icon fas fa-building"></i>
+                                <div class="view-field" id="view_departments"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-users"></i> Team(s)
+                            </label>
+                            <div style="position: relative;">
+                                <i class="input-icon fas fa-users"></i>
+                                <div class="view-field" id="view_teams"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Target Audience -->
                     <div class="form-group">
                         <label class="form-label">
-                            <i class="fas fa-users"></i>
-                            Target Audience
+                            <i class="fas fa-bullseye"></i> Target Audience
                         </label>
                         <div style="position: relative;">
-                            <i class="input-icon fas fa-users"></i>
+                            <i class="input-icon fas fa-bullseye"></i>
                             <div class="view-field" id="view_target_audience"></div>
                         </div>
                     </div>
@@ -540,10 +691,85 @@
             </div>
         </div>
     </div>
+
 @endsection
 
 @push('scripts')
     <script>
+        document.getElementById('department_id').addEventListener('change', async function() {
+            const selectedDepartments = Array.from(this.selectedOptions).map(o => o.value);
+            console.log(selectedDepartments);
+
+            const teamSelect = document.getElementById('team_id');
+            teamSelect.innerHTML = ''; // Clear old options
+
+            // Handle "All Departments" or none selected
+            if (selectedDepartments.includes('all') || selectedDepartments.length === 0) {
+                teamSelect.innerHTML = '<option value="all">All Teams</option>';
+                teamSelect.disabled = true;
+                return;
+            }
+
+            teamSelect.disabled = false;
+
+            // Fetch teams for each selected department
+            for (const deptId of selectedDepartments) {
+                const response = await fetch(`/admin/departments/${deptId}/teams`);
+                const result = await response.json();
+                console.log('Teams result:', result);
+
+                const teams = result.data || [];
+
+                if (Array.isArray(teams) && teams.length > 0) {
+                    teams.forEach(team => {
+                        const opt = document.createElement('option');
+                        opt.value = team.team_id;
+                        opt.textContent = team.team_name;
+                        teamSelect.appendChild(opt);
+                    });
+                }
+            }
+
+            // Add "All Teams" option
+            const allOpt = document.createElement('option');
+            allOpt.value = 'all';
+            allOpt.textContent = 'All Teams';
+            teamSelect.insertBefore(allOpt, teamSelect.firstChild);
+        });
+        document.getElementById('department_id').addEventListener('change', async function() {
+            const selectedDepartments = Array.from(this.selectedOptions).map(o => o.value);
+            console.log(selectedDepartments);
+
+            const teamSelect = document.getElementById('team_id');
+            teamSelect.innerHTML = ''; // clear old options
+
+            if (selectedDepartments.includes('all') || selectedDepartments.length === 0) {
+                teamSelect.innerHTML = '<option value="all">All Teams</option>';
+                teamSelect.disabled = true;
+                return;
+            }
+
+            teamSelect.disabled = false;
+
+            // Fetch teams for each department
+            for (const deptId of selectedDepartments) {
+                const response = await fetch(`/admin/departments/${deptId}/teams`);
+                const teams = await response.json();
+
+                teams.forEach(team => {
+                    const opt = document.createElement('option');
+                    opt.value = team.team_id;
+                    opt.textContent = team.team_name;
+                    teamSelect.appendChild(opt);
+                });
+            }
+
+            // Add "All Teams" option
+            const allOpt = document.createElement('option');
+            allOpt.value = 'all';
+            allOpt.textContent = 'All Teams';
+            teamSelect.insertBefore(allOpt, teamSelect.firstChild);
+        });
         // Modal Functions
         function openAnnouncementModal() {
             const modal = document.getElementById('announcementModal');
@@ -555,6 +781,37 @@
                 document.getElementById('title').focus();
             }, 300);
         }
+
+        document.getElementById('edit_department_id').addEventListener('change', async function() {
+            const selectedDepartments = Array.from(this.selectedOptions).map(o => o.value);
+            const teamSelect = document.getElementById('edit_team_id');
+            teamSelect.innerHTML = '';
+
+            if (selectedDepartments.includes('all') || selectedDepartments.length === 0) {
+                teamSelect.innerHTML = '<option value="all">All Teams</option>';
+                teamSelect.disabled = true;
+                return;
+            }
+
+            teamSelect.disabled = false;
+
+            for (const deptId of selectedDepartments) {
+                const response = await fetch(`/admin/departments/${deptId}/teams`);
+                const teams = await response.json();
+
+                teams.forEach(team => {
+                    const opt = document.createElement('option');
+                    opt.value = team.team_id;
+                    opt.textContent = team.team_name;
+                    teamSelect.appendChild(opt);
+                });
+            }
+
+            const allOpt = document.createElement('option');
+            allOpt.value = 'all';
+            allOpt.textContent = 'All Teams';
+            teamSelect.insertBefore(allOpt, teamSelect.firstChild);
+        });
 
         function closeAnnouncementModal() {
             const modal = document.getElementById('announcementModal');
@@ -571,7 +828,17 @@
         }
 
         // Edit Modal Functions
-        function openEditAnnouncementModal(id, title, priority, category, content, expiresAt, targetAudience) {
+        function openEditAnnouncementModal(
+            id,
+            title,
+            priority,
+            category,
+            content,
+            expiresAt,
+            targetAudience,
+            departmentId,
+            teamId
+        ) {
             console.log('Opening edit modal with data:', {
                 id,
                 title,
@@ -579,37 +846,38 @@
                 category,
                 content,
                 expiresAt,
-                targetAudience
+                targetAudience,
+                departmentId,
+                teamId
             });
 
             const modal = document.getElementById('editAnnouncementModal');
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
 
-            // Update form action with the announcement ID
             const form = document.getElementById('editAnnouncementForm');
-            form.action = form.action.replace(':id', id);
+            form.action = `/admin/announcements/${id}`;
 
-            // Populate form fields
+            // Fill inputs
             document.getElementById('edit_title').value = title || '';
             document.getElementById('edit_priority').value = priority || '';
             document.getElementById('edit_category').value = category || '';
             document.getElementById('edit_content').value = content || '';
-            document.getElementById('edit_expires_at').value = expiresAt || '';
+            document.getElementById('edit_expires_at').value = expiresAt ? expiresAt.replace(' ', 'T') : '';
 
-            // Handle target audience checkboxes
+            // Handle checkboxes
             const allEmployees = document.getElementById('edit_all_employees');
             const managers = document.getElementById('edit_managers');
             const departmentHeads = document.getElementById('edit_department_heads');
 
-            // Reset all checkboxes first
             allEmployees.checked = false;
             managers.checked = false;
             departmentHeads.checked = false;
 
-            // Set checkboxes based on target audience
             if (targetAudience) {
-                const audiences = Array.isArray(targetAudience) ? targetAudience : targetAudience.split(',');
+                const audiences = Array.isArray(targetAudience) ?
+                    targetAudience :
+                    targetAudience.split(',');
                 audiences.forEach(audience => {
                     switch (audience.trim()) {
                         case 'all':
@@ -624,11 +892,64 @@
                     }
                 });
             }
-            // Focus on first input
-            setTimeout(() => {
-                document.getElementById('edit_title').focus();
-            }, 300);
+
+            // Department
+            const deptSelect = document.getElementById('edit_department_id');
+            deptSelect.value = departmentId || '';
+
+            // Load teams dynamically for that department
+            loadTeamsForEdit(departmentId, teamId);
+
+            // Focus title
+            setTimeout(() => document.getElementById('edit_title').focus(), 300);
         }
+
+        // Helper to load teams dynamically
+        function loadTeamsForEdit(departmentId, selectedTeamId = '') {
+            const teamSelect = document.getElementById('edit_team_id');
+            teamSelect.innerHTML = '<option value="">Loading...</option>';
+
+            if (!departmentId || departmentId === 'all') {
+                teamSelect.innerHTML = '<option value="all" selected>All Teams</option>';
+                return;
+            }
+
+            fetch(`/admin/departments/${departmentId}/teams`)
+                .then(response => response.json())
+                .then(data => {
+                    teamSelect.innerHTML = '';
+
+                    if (data.status === 'success' && Array.isArray(data.data)) {
+                        if (data.data.length === 0) {
+                            teamSelect.innerHTML = '<option value="">No teams found</option>';
+                        } else {
+                            data.data.forEach(team => {
+                                const opt = document.createElement('option');
+                                opt.value = team.team_id;
+                                opt.textContent = team.team_name;
+                                if (selectedTeamId && selectedTeamId == team.team_id) {
+                                    opt.selected = true;
+                                }
+                                teamSelect.appendChild(opt);
+                            });
+                        }
+                    } else {
+                        teamSelect.innerHTML = '<option value="">No teams found</option>';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching teams:', err);
+                    teamSelect.innerHTML = '<option value="">Error loading teams</option>';
+                });
+        }
+
+        // When user changes department manually
+        document.getElementById('edit_department_id')?.addEventListener('change', function() {
+            const deptId = this.value;
+            loadTeamsForEdit(deptId);
+        });
+
+
 
         function closeEditAnnouncementModal() {
             const modal = document.getElementById('editAnnouncementModal');
@@ -645,7 +966,17 @@
         }
 
         // View Modal Functions
-        function openViewAnnouncementModal(id, title, priority, category, content, expiresAt, targetAudience) {
+        function openViewAnnouncementModal(
+            id,
+            title,
+            priority,
+            category,
+            content,
+            expiresAt,
+            targetAudience,
+            departments = [],
+            teams = []
+        ) {
             console.log('Opening view modal with data:', {
                 id,
                 title,
@@ -653,17 +984,19 @@
                 category,
                 content,
                 expiresAt,
-                targetAudience
+                targetAudience,
+                departments,
+                teams
             });
 
             const modal = document.getElementById('viewAnnouncementModal');
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
 
-            // Populate view fields
+            // Title
             document.getElementById('view_title').textContent = title || 'N/A';
 
-            // Format priority display
+            // Priority formatting
             let priorityDisplay = priority || 'N/A';
             switch (priority) {
                 case 'low':
@@ -681,7 +1014,7 @@
             }
             document.getElementById('view_priority').textContent = priorityDisplay;
 
-            // Format category display
+            // Category formatting
             let categoryDisplay = category || 'N/A';
             switch (category) {
                 case 'general':
@@ -708,22 +1041,40 @@
             }
             document.getElementById('view_category').textContent = categoryDisplay;
 
+            // Content
             document.getElementById('view_content').textContent = content || 'N/A';
 
-            // Format expiry date
-            document.getElementById('view_expires_at').textContent = expiresAt ? new Date(expiresAt).toLocaleDateString(
-                'en-US', {
+            // Expiry date
+            document.getElementById('view_expires_at').textContent = expiresAt ?
+                new Date(expiresAt).toLocaleString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
                     hour: '2-digit',
                     minute: '2-digit'
-                }) : 'No expiry date';
+                }) :
+                'No expiry date';
 
-            // Format target audience
-            let audienceDisplay = 'N/A';
+            // Departments
+            let deptDisplay = 'All Departments';
+            if (Array.isArray(departments) && departments.length > 0 && !departments.includes('all')) {
+                deptDisplay = departments.join(', ');
+            }
+            document.getElementById('view_departments').textContent = deptDisplay;
+
+            // Teams
+            let teamDisplay = 'All Teams';
+            if (Array.isArray(teams) && teams.length > 0 && !teams.includes('all')) {
+                teamDisplay = teams.join(', ');
+            }
+            document.getElementById('view_teams').textContent = teamDisplay;
+
+            // Target Audience
+            let audienceDisplay = 'All Employees';
             if (targetAudience) {
-                const audiences = Array.isArray(targetAudience) ? targetAudience : targetAudience.split(',');
+                const audiences = Array.isArray(targetAudience) ?
+                    targetAudience :
+                    targetAudience.split(',');
                 const audienceLabels = audiences.map(audience => {
                     switch (audience.trim()) {
                         case 'all':
@@ -740,7 +1091,7 @@
             }
             document.getElementById('view_target_audience').textContent = audienceDisplay;
 
-            // Store data for potential edit modal opening
+            // Store for editing later
             window.currentAnnouncementData = {
                 id,
                 title,
@@ -748,123 +1099,12 @@
                 category,
                 content,
                 expiresAt,
-                targetAudience
+                targetAudience,
+                departments,
+                teams
             };
         }
 
-        function closeViewAnnouncementModal() {
-            const modal = document.getElementById('viewAnnouncementModal');
-            modal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-
-        // View Modal Functions
-        function openViewAnnouncementModal(id, title, priority, category, content, expiresAt, targetAudience) {
-            console.log('Opening view modal with data:', {
-                id,
-                title,
-                priority,
-                category,
-                content,
-                expiresAt,
-                targetAudience
-            });
-
-            const modal = document.getElementById('viewAnnouncementModal');
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-
-            // Populate view fields
-            document.getElementById('view_title').textContent = title || 'N/A';
-
-            // Format priority display
-            let priorityDisplay = priority || 'N/A';
-            switch (priority) {
-                case 'low':
-                    priorityDisplay = '🟢 Low';
-                    break;
-                case 'medium':
-                    priorityDisplay = '🟡 Medium';
-                    break;
-                case 'high':
-                    priorityDisplay = '🔴 High';
-                    break;
-                case 'urgent':
-                    priorityDisplay = '⚠️ Urgent';
-                    break;
-            }
-            document.getElementById('view_priority').textContent = priorityDisplay;
-
-            // Format category display
-            let categoryDisplay = category || 'N/A';
-            switch (category) {
-                case 'general':
-                    categoryDisplay = '📢 General';
-                    break;
-                case 'hr':
-                    categoryDisplay = '👥 HR Updates';
-                    break;
-                case 'policy':
-                    categoryDisplay = '📋 Policy Changes';
-                    break;
-                case 'events':
-                    categoryDisplay = '🎉 Events';
-                    break;
-                case 'system':
-                    categoryDisplay = '💻 System Updates';
-                    break;
-                case 'finance':
-                    categoryDisplay = '💰 Finance';
-                    break;
-                case 'operations':
-                    categoryDisplay = '⚙️ Operations';
-                    break;
-            }
-            document.getElementById('view_category').textContent = categoryDisplay;
-
-            document.getElementById('view_content').textContent = content || 'N/A';
-
-            // Format expiry date
-            document.getElementById('view_expires_at').textContent = expiresAt ? new Date(expiresAt).toLocaleDateString(
-                'en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }) : 'No expiry date';
-
-            // Format target audience
-            let audienceDisplay = 'N/A';
-            if (targetAudience) {
-                const audiences = Array.isArray(targetAudience) ? targetAudience : targetAudience.split(',');
-                const audienceLabels = audiences.map(audience => {
-                    switch (audience.trim()) {
-                        case 'all':
-                            return 'All Employees';
-                        case 'managers':
-                            return 'Managers Only';
-                        case 'department_heads':
-                            return 'Department Heads';
-                        default:
-                            return audience.trim();
-                    }
-                });
-                audienceDisplay = audienceLabels.join(', ');
-            }
-            document.getElementById('view_target_audience').textContent = audienceDisplay;
-
-            // Store data for potential edit modal opening
-            window.currentAnnouncementData = {
-                id,
-                title,
-                priority,
-                category,
-                content,
-                expiresAt,
-                targetAudience
-            };
-        }
 
         function closeViewAnnouncementModal() {
             const modal = document.getElementById('viewAnnouncementModal');

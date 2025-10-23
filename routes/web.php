@@ -12,7 +12,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-
+use App\Http\Controllers\Employee\EmployeeAnnouncementController;
 use App\Http\Controllers\Employee\EmployeeAttendanceController;
 use App\Http\Controllers\Employee\EmployeeLeaveController;
 use App\Http\Controllers\Employee\EmployeeOverviewController;
@@ -49,7 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/dashboard', function () {
         $employees = Employee::with(['department', 'projects', 'leaves'])->get();
         $projects = Project::with(['employees', 'team'])->get();
-        $leaves = Leave::with(['employee'])->get();
+        $leaves = Leave::with(['user'])->get();
 
         $todayMeetings = \App\Models\Meeting::getTodayMeetings();
         if ($todayMeetings->count() == 0) {
@@ -119,7 +119,8 @@ Route::middleware('auth')->group(function () {
 
     //employee leaves managment
     Route::get('/employees/leaves', [EmployeeLeaveController::class, 'index'])->name('employee.leaves.index');
-    Route::post('/employees/leaves', [EmployeeLeaveController::class, 'store'])->name('employee.leaves.create');
+    Route::post('/employees/leaves', [EmployeeLeaveController::class, 'store'])
+        ->name('employee.leaves.store');
     Route::get('/employees/leaves/{leave}', [EmployeeLeaveController::class, 'show'])->name('employee.leaves.show');
     Route::put('/employees/leaves/{leave}', [EmployeeLeaveController::class, 'update'])->name('employee.leaves.update');
     Route::delete('/employees/leaves/{leave}', [EmployeeLeaveController::class, 'destroy'])->name('employee.leaves.destroy');
@@ -161,6 +162,12 @@ Route::middleware('auth')->group(function () {
         Route::put('/attendance/emergency/end', [EmployeeAttendanceController::class, 'endEmergency'])->name('employee.attendance.emergency.end');
         Route::get('/attendance/emergency/status', [EmployeeAttendanceController::class, 'getEmergencyStatus'])->name('employee.attendance.getEmergencyStatus');
     });
+
+    // Employee Announcement
+    Route::get('/employee/announcements', [EmployeeAnnouncementController::class, 'index'])->name('employee.announcements.index');
+    Route::get('/employee/announcements/{id}', [EmployeeAnnouncementController::class, 'show']);
+    Route::post('/employee/announcements/{id}/read', [EmployeeAnnouncementController::class, 'markAsRead']);
+    Route::post('/employee/announcements/{id}/unread', [EmployeeAnnouncementController::class, 'markAsUnread']);
 
     // Employee ratings routes
     Route::resource('employees/ratings', EmployeeEmployeeRatingController::class)
@@ -226,16 +233,10 @@ Route::middleware('auth')->group(function () {
 
         Route::match(['put', 'patch'], '/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
 
-
         Route::get('/projects', function () {
             $employees = Employee::select('employee_id', 'employee_name')->get();
             return view('admin.projects.index', compact('employees'));
         })->name('projects');
-
-
-        // Route::get('/projects', function () {
-        //     return view('admin.projects.index');
-        // })->name('projects');
 
         // Leave Management
         Route::put('/leaves/{leave}/status', [AdminsLeaveController::class, 'updateLeaveStatus'])->name('leaves.updateLeaveStatus');
@@ -245,22 +246,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/leaves/{leave}', [AdminsLeaveController::class, 'show'])->name('leaves.show');
         Route::delete('/leaves/{leave}', [AdminsLeaveController::class, 'destroy'])->name('leaves.destroy');
 
-        // Reports & Analytics with enhanced data
-        //        Route::get('/reports', function () {
-        //            $reportData = [
-        //                'totalRevenue' => '$2.4M',
-        //                'activeProjects' => 47,
-        //                'employeeCount' => 156,
-        //                'efficiency' => '94.2%'
-        //            ];
-        //            return view('admin.reports.index', $reportData);
-        //        })->name('reports');
-
         // Announcements
+        Route::get('/announcements', [AdminAnnouncementsController::class, 'index'])->name('announcements');
         Route::post('/announcements', [AdminAnnouncementsController::class, 'store'])->name('announcements.store');
         Route::put('/announcements/{id}', [AdminAnnouncementsController::class, 'update'])->name('announcements.update');
         Route::delete('/announcements/{id}', [AdminAnnouncementsController::class, 'destroy'])->name('announcements.destroy');
-        Route::get('/announcements', [AdminAnnouncementsController::class, 'index'])->name('announcements');
+        Route::get('/announcements/{id}', [EmployeeAnnouncementController::class, 'show']);
+        Route::post('/employee/announcements/{id}/read', [EmployeeAnnouncementController::class, 'markAsRead']);
+
+
+
+        // Dynamic team loading by department
+        Route::get('/departments/{id}/teams', [AdminAnnouncementsController::class, 'getTeamsByDepartment'])
+            ->name('departments.teams');
 
         // Administration (alias for management)
         Route::get('/administration', function () {
@@ -355,7 +353,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/meetings/today', [MeetingController::class, 'getTodayMeeting'])->name('meetings.today');
     Route::patch('/meetings/{meeting}/status', [MeetingController::class, 'updateStatus'])->name('meetings.update-status');
 });
-
 // Employee-specific routes
 Route::middleware('auth')->prefix('employee')->name('employee.')->group(function () {
     // Leave Management
@@ -416,7 +413,6 @@ Route::middleware('auth')->prefix('employee')->name('employee.')->group(function
     Route::delete('/notifications/{id}', [EmployeeNotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::get('/notifications/latest', [EmployeeNotificationController::class, 'latest'])->name('notifications.latest');
 });
-
 //department Management
 Route::get('/admin/department', [DepartmentController::class, 'index'])->name('admin.departments.index');
 Route::get('/admin/create', [ProjectController::class, 'create'])->name('admin.departments.create');

@@ -196,12 +196,12 @@
                             @if ($leave->status === 'rejected')
                                 <div class="detail-item">
                                     <span class="label">Rejected by:</span>
-                                    <span class="value">{{ $leave->approved_by ?? 'N/A' }}</span> {{-- Assuming 'approved_by' column exists --}}
+                                    <span class="value">{{ $leave->rejectedBy->admin_name ?? 'N/A' }}</span>
                                 </div>
                             @elseif ($leave->status === 'approved')
                                 <div class="detail-item">
                                     <span class="label">Approved by:</span>
-                                    <span class="value">{{ $leave->approved_by ?? 'N/A' }}</span> {{-- Assuming 'approved_by' column exists --}}
+                                    <span class="value">{{ $leave->approvedBy->admin_name ?? 'N/A' }}</span>
                                 </div>
                             @endif
                             <div class="detail-item">
@@ -232,14 +232,12 @@
                                     @csrf
                                     @method('DELETE')
                                 </form>
-                            @elseif ($leave->status === 'approved')
-                                <button class="action-btn download"
-                                    onclick="downloadCertificate('{{ $leave->leave_id }}')" title="Download Certificate">
-                                    <i class="fas fa-certificate"></i>
-                                </button>
                             @elseif ($leave->status === 'rejected')
-                                <button class="action-btn reapply" onclick="reapplyLeave('{{ $leave->leave_id }}')"
-                                    title="Reapply Leave">
+                                <button class="action-btn reapply" onclick="reapplyLeave(this)" title="Reapply Leave"
+                                    data-id="{{ $leave->leave_id }}" data-type="{{ $leave->leave_type }}"
+                                    data-start="{{ $leave->start_date }}" data-end="{{ $leave->end_date }}"
+                                    data-reason="{{ $leave->reason }}" data-contact="{{ $leave->contact_number }}"
+                                    data-doc="{{ $leave->supporting_doc ? asset('storage/leaves/' . $leave->supporting_doc) : '' }}">
                                     <i class="fas fa-redo"></i>
                                 </button>
                             @endif
@@ -284,7 +282,7 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <form id="editLeaveForm" method="POST" action="{{ route('employee.leaves.update', $leave ?? 0) }}">
+                <form id="editLeaveForm" method="POST" action="">
                     @csrf
                     @method('PUT')
                     <div class="modal-body">
@@ -347,7 +345,9 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <form id="leaveApplicationForm" method="POST" action="{{ route('employee.leaves.create') }}">
+                <form id="leaveApplicationForm" method="POST" action="{{ route('employee.leaves.store') }}"
+                    enctype="multipart/form-data">
+
                     @csrf
                     <div class="modal-body">
                         <div class="form-section">
@@ -427,51 +427,66 @@
                 </div>
                 <div class="modal-body">
                     <div class="balance-details">
+                        <!-- Annual Leave -->
                         <div class="balance-item">
                             <div class="balance-type">
                                 <i class="fas fa-calendar-check"></i>
                                 <span>Annual Leave</span>
                             </div>
                             <div class="balance-info">
+                                @php
+                                    $annualPercent = $annualTotal > 0 ? round(($annualUsed / $annualTotal) * 100) : 0;
+                                @endphp
                                 <div class="balance-bar">
-                                    <div class="balance-progress" style="width: 57%"></div>
+                                    <div class="balance-progress" style="width: {{ $annualPercent }}%"></div>
                                 </div>
                                 <div class="balance-numbers">
-                                    <span>Used: 12 days</span>
-                                    <span>Remaining: 9 days</span>
-                                    <span>Total: 21 days</span>
+                                    <span>Used: {{ $annualUsed }} days</span>
+                                    <span>Remaining: {{ $annualTotal - $annualUsed }} days</span>
+                                    <span>Total: {{ $annualTotal }} days</span>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Sick Leave -->
                         <div class="balance-item">
                             <div class="balance-type">
                                 <i class="fas fa-thermometer-half"></i>
                                 <span>Sick Leave</span>
                             </div>
                             <div class="balance-info">
+                                @php
+                                    $sickPercent = $sickTotal > 0 ? round(($sickUsed / $sickTotal) * 100) : 0;
+                                @endphp
                                 <div class="balance-bar">
-                                    <div class="balance-progress" style="width: 30%"></div>
+                                    <div class="balance-progress" style="width: {{ $sickPercent }}%"></div>
                                 </div>
                                 <div class="balance-numbers">
-                                    <span>Used: 3 days</span>
-                                    <span>Remaining: 7 days</span>
-                                    <span>Total: 10 days</span>
+                                    <span>Used: {{ $sickUsed }} days</span>
+                                    <span>Remaining: {{ $sickTotal - $sickUsed }} days</span>
+                                    <span>Total: {{ $sickTotal }} days</span>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Personal Leave -->
                         <div class="balance-item">
                             <div class="balance-type">
                                 <i class="fas fa-user-clock"></i>
                                 <span>Personal Leave</span>
                             </div>
                             <div class="balance-info">
+                                @php
+                                    $personalPercent =
+                                        $personalTotal > 0 ? round(($personalUsed / $personalTotal) * 100) : 0;
+                                @endphp
                                 <div class="balance-bar">
-                                    <div class="balance-progress" style="width: 40%"></div>
+                                    <div class="balance-progress" style="width: {{ $personalPercent }}%"></div>
                                 </div>
                                 <div class="balance-numbers">
-                                    <span>Used: 2 days</span>
-                                    <span>Remaining: 3 days</span>
-                                    <span>Total: 5 days</span>
+                                    <span>Used: {{ $personalUsed }} days</span>
+                                    <span>Remaining: {{ $personalTotal - $personalUsed }} days</span>
+                                    <span>Total: {{ $personalTotal }} days</span>
                                 </div>
                             </div>
                         </div>
@@ -482,6 +497,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 
     <script>
@@ -559,8 +575,8 @@
                     endDateDisplay: '{{ \Carbon\Carbon::parse($leave->end_date)->format('M d, Y') }}',
                     duration: {{ \Carbon\Carbon::parse($leave->start_date)->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1 }},
                     appliedDateDisplay: '{{ \Carbon\Carbon::parse($leave->created_at)->format('M d, Y') }}',
-                    contactInfo: '{{ $leave->contact_info ?? 'N/A' }}',
-                    approver: '{{ $leave->approver ?? 'Pending' }}',
+                    contactInfo: '{{ $leave->contact_number ?? 'N/A' }}',
+                    approver: '{{ $leave->approvedBy ? $leave->approvedBy->admin_name : 'Admin' }}',
                     approvedDate: '{{ $leave->approved_at }}',
                     approvedDateDisplay: '{{ $leave->approved_at ? \Carbon\Carbon::parse($leave->approved_at)->format('M d, Y') : '' }}',
                     rejectedDate: '{{ $leave->rejected_at }}',
@@ -568,11 +584,10 @@
                     reason: '{{ addslashes($leave->reason) }}',
                     comments: '{{ addslashes($leave->comments ?? '') }}',
 
-                    // For form inputs in edit modal (raw values)
                     leaveType: '{{ $leave->leave_type }}',
                     type: '{{ $leave->leave_type }}',
-                    startDate: '{{ \Carbon\Carbon::parse($leave->start_date)->format('Y-m-d') }}', // Ensure Y-m-d format
-                    endDate: '{{ \Carbon\Carbon::parse($leave->end_date)->format('Y-m-d') }}', // Ensure Y-m-d format
+                    startDate: '{{ \Carbon\Carbon::parse($leave->start_date)->format('Y-m-d') }}',
+                    endDate: '{{ \Carbon\Carbon::parse($leave->end_date)->format('Y-m-d') }}',
 
                 },
             @endforeach
@@ -580,6 +595,8 @@
         // Action functions
         function viewLeaveRequest(id) {
             const request = leaveRequests[id];
+            console.log(id);
+
             if (!request) {
                 showMessage('Leave request not found', 'error');
                 return;
@@ -642,17 +659,17 @@
                             <span class="value">${request.approver}</span>
                         </div>
                         ${request.approvedDate ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="detail-row">
-                                                                                                                                                                                                                                                                                                                                                                                                                                        <span class="label">Approved Date:</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                        <span class="value">${request.approvedDateDisplay}</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                    ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="detail-row">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="label">Approved Date:</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="value">${request.approvedDateDisplay}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ` : ''}
                         ${request.rejectedDate ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="detail-row">
-                                                                                                                                                                                                                                                                                                                                                                                                                                        <span class="label">Rejected Date:</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                        <span class="value">${request.rejectedDateDisplay}</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                    ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="detail-row">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="label">Rejected Date:</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="value">${request.rejectedDateDisplay}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ` : ''}
                     </div>
                 </div>
 
@@ -662,11 +679,11 @@
                 </div>
 
                 ${request.comments ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="detail-section full-width">
-                                                                                                                                                                                                                                                                                                                                                                                                                                <h4><i class="fas fa-comments"></i> Comments</h4>
-                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="comments-text">${request.comments}</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                            ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="detail-section full-width">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <h4><i class="fas fa-comments"></i> Comments</h4>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="comments-text">${request.comments}</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ` : ''}
             </div>
         `;
 
@@ -685,17 +702,6 @@
             const modal = document.getElementById('editLeaveModal');
             modal.style.display = 'none';
             document.body.style.overflow = 'auto';
-        }
-
-        function editFromView() {
-            const viewModal = document.getElementById('viewLeaveModal');
-            const editBtn = document.getElementById('editFromViewBtn');
-            const requestId = editBtn.onclick.toString().match(/editLeaveRequest\('([^']+)'\)/)?.[1];
-
-            if (requestId) {
-                closeViewLeaveModal();
-                editLeaveRequest(requestId);
-            }
         }
 
         function updateLeaveCard(requestId) {
@@ -769,17 +775,17 @@
                             <span class="value">${request.approver}</span>
                         </div>
                         ${request.approvedDate ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="detail-row">
-                                                                                                                                                                                                                                                                                                                                                                                                                                        <span class="label">Approved Date:</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                        <span class="value">${request.approvedDateDisplay}</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                    ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="detail-row">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="label">Approved Date:</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="value">${request.approvedDateDisplay}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ` : ''}
                         ${request.rejectedDate ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="detail-row">
-                                                                                                                                                                                                                                                                                                                                                                                                                                        <span class="label">Rejected Date:</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                        <span class="value">${request.rejectedDateDisplay}</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                    ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="detail-row">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="label">Rejected Date:</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="value">${request.rejectedDateDisplay}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ` : ''}
                     </div>
                 </div>
 
@@ -789,11 +795,11 @@
                 </div>
 
                 ${request.comments ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="detail-section full-width">
-                                                                                                                                                                                                                                                                                                                                                                                                                                <h4><i class="fas fa-comments"></i> Comments</h4>
-                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="comments-text">${request.comments}</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                            ` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="detail-section full-width">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <h4><i class="fas fa-comments"></i> Comments</h4>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="comments-text">${request.comments}</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ` : ''}
             </div>
         `;
 
@@ -816,14 +822,14 @@
             const modal = document.getElementById('editLeaveModal');
             const form = document.getElementById('editLeaveForm');
 
-            // Populate form with existing data
+            form.action = `{{ url('/employees/leaves') }}/${id}`;
+
             document.getElementById('editLeaveType').value = request.type;
             document.getElementById('editStartDate').value = request.startDate;
             document.getElementById('editEndDate').value = request.endDate;
             document.getElementById('editReason').value = request.reason;
-            document.getElementById('editContactInfo').value = request.contactInfo;
+            document.getElementById('editContactInfo').value = request.contactInfo ?? '';
 
-            // Store request ID for form submission
             form.dataset.requestId = id;
 
             modal.style.display = 'flex';
@@ -841,10 +847,68 @@
             showMessage(`Downloading certificate for ${id}`, 'info');
         }
 
-        function reapplyLeave(id) {
-            showMessage(`Reapplying leave based on ${id}`, 'info');
+        function reapplyLeave(button) {
+            // Get old data from button attributes
+            const id = button.getAttribute('data-id');
+            const type = button.getAttribute('data-type');
+            const start = button.getAttribute('data-start');
+            const end = button.getAttribute('data-end');
+            const reason = button.getAttribute('data-reason');
+            const contact = button.getAttribute('data-contact');
+            const doc = button.getAttribute('data-doc');
+
+            showMessage(`Reapplying leave request: ${id}`, 'info');
+
+            // Open modal
             openApplyLeaveModal();
+
+            // Prefill fields
+            document.getElementById('leaveType').value = type;
+            document.getElementById('startDate').value = start;
+            document.getElementById('endDate').value = end;
+            document.getElementById('reason').value = reason;
+            document.getElementById('contactNumber').value = contact;
+
+            // Calculate duration automatically if needed
+            updateDuration();
+
+            // Show previous document (if any)
+            let docPreview = document.getElementById('previousDocPreview');
+            if (!docPreview) {
+                const docContainer = document.createElement('div');
+                docContainer.id = 'previousDocPreview';
+                docContainer.classList.add('form-group');
+                document
+                    .getElementById('supportingDoc')
+                    .insertAdjacentElement('afterend', docContainer);
+                docPreview = docContainer;
+            }
+
+            if (doc) {
+                docPreview.innerHTML = `
+            <small>Previously uploaded document:</small><br>
+            <a href="${doc}" target="_blank" class="btn-link">View Supporting Document</a>
+        `;
+            } else {
+                docPreview.innerHTML = `<small>No previous document attached.</small>`;
+            }
+
+            // Switch form to update mode (PUT)
+            const form = document.getElementById('leaveApplicationForm');
+            form.action = `/employee/leaves/${id}`; // adjust if route prefix differs
+            let methodInput = form.querySelector('input[name="_method"]');
+            if (!methodInput) {
+                methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                form.appendChild(methodInput);
+            }
+            methodInput.value = 'PUT';
+            // Change submit button text
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = `<i class="fas fa-sync"></i> Reapply Leave`;
         }
+
 
         function viewLeaveHistory() {
             showMessage('Redirecting to leave history...', 'info');

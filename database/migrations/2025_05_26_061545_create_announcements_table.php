@@ -18,15 +18,9 @@ return new class extends Migration
             $table->string('category'); // hr, policy, events etc.
             $table->text('content');
             $table->dateTime('expires_at')->nullable();
-            $table->json('target_audience')->nullable(); // stores ["all","managers"]
+            $table->json('target_audience')->nullable(); // e.g. ["all", "managers"]
             $table->enum('status', ['scheduled', 'published'])->default('published');
-            $table->unsignedBigInteger('department_id')->nullable();
-            $table->timestamps();
-
-            $table->foreign('department_id')
-                ->references('department_id')
-                ->on('departments')
-                ->onDelete('set null');
+            $table->timestamps(); // created_at and updated_at
         });
     }
 

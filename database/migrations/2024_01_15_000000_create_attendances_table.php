@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->string('employee_id');
+            $table->unsignedBigInteger('user_id'); // ✅ changed
             $table->date('date');
             $table->timestamp('check_in_time')->nullable();
             $table->timestamp('check_out_time')->nullable();
@@ -23,27 +23,27 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->timestamps();
 
-            // Add indexes
-            $table->index('employee_id');
+            $table->index('user_id');
             $table->index('date');
             $table->index('status');
+            $table->unique(['user_id', 'date']);
 
-            // Ensure unique attendance per employee per date
-            $table->unique(['employee_id', 'date']);
-
-            // Regular break tracking
+            // Break tracking
             $table->timestamp('break_start_time')->nullable();
             $table->timestamp('break_end_time')->nullable();
             $table->decimal('break_duration', 8, 2)->default(0);
             $table->boolean('is_on_break')->default(false);
 
-            // Emergency break tracking
+            // Emergency tracking
             $table->boolean('is_on_emergency')->default(false);
             $table->string('emergency_type')->nullable();
             $table->text('emergency_description')->nullable();
             $table->timestamp('emergency_start_time')->nullable();
             $table->timestamp('emergency_end_time')->nullable();
             $table->decimal('emergency_duration', 8, 2)->default(0);
+
+            // ✅ optional foreign key
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
