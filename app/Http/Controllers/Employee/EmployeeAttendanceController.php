@@ -140,12 +140,12 @@ class EmployeeAttendanceController extends Controller
     public function clockIn()
     {
         $user = Auth::user();
-        $employeeId = $user->employee_id;
 
-        if (!$employeeId) {
-            return response()->json(['success' => false, 'message' => 'Employee not found.']);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not authenticated.']);
         }
 
+        $userId = $user->id;
         $now = Carbon::now('Asia/Colombo');
 
         if ($now->greaterThan(Carbon::createFromTime(17, 0, 0, 'Asia/Colombo'))) {
@@ -157,7 +157,7 @@ class EmployeeAttendanceController extends Controller
 
         $today = $now->toDateString();
 
-        $attendance = Attendance::where('employee_id', $employeeId)
+        $attendance = Attendance::where('user_id', $userId)
             ->whereDate('date', $today)
             ->first();
 
@@ -166,7 +166,7 @@ class EmployeeAttendanceController extends Controller
         }
 
         Attendance::updateOrCreate(
-            ['employee_id' => $employeeId, 'date' => $today],
+            ['user_id' => $userId, 'date' => $today],
             [
                 'check_in_time' => $now,
                 'status' => 'present',
@@ -178,6 +178,7 @@ class EmployeeAttendanceController extends Controller
             'message' => 'Clock-in successful.'
         ]);
     }
+
 
 
     public function clockOut()
