@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAnnouncementsController;
+use App\Http\Controllers\Admin\AdminAttendanceController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AdminsLeaveController;
@@ -254,6 +255,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/announcements/{id}', [EmployeeAnnouncementController::class, 'show']);
         Route::post('/employee/announcements/{id}/read', [EmployeeAnnouncementController::class, 'markAsRead']);
 
+        // Attendance
+        Route::get('/attendances', [AdminAttendanceController::class, 'index'])->name('admin.attendance.index');
 
 
         // Dynamic team loading by department
@@ -364,46 +367,7 @@ Route::middleware('auth')->prefix('employee')->name('employee.')->group(function
     Route::get('/dashboard', [EmployeeOverviewController::class, 'index'])->name('dashboard');
 
     // Announcements
-    Route::get('/announcements', function () {
 
-        $announcements = collect([
-            (object) [
-                'announcement_id' => 'ann_001',
-                'title' => 'System Maintenance - December 1st',
-                'content' => 'Scheduled system maintenance will take place on Sunday, December 1st, from 2:00 AM to 4:00 AM.',
-                'priority' => 'urgent',
-                'category' => 'system',
-                'author' => 'IT Department',
-                'created_at' => now()->subDays(2),
-                'expires_at' => now()->addDays(3),
-                'target_audience' => 'All Employees',
-                'is_read' => false,
-                'views' => 127,
-                'likes' => 23
-            ],
-            (object) [
-                'announcement_id' => 'ann_002',
-                'title' => 'New Employee Onboarding Process',
-                'content' => 'We have updated our employee onboarding process to make it more streamlined and efficient.',
-                'priority' => 'high',
-                'category' => 'hr',
-                'author' => 'HR Department',
-                'created_at' => now()->subDays(5),
-                'expires_at' => null,
-                'target_audience' => 'All Employees',
-                'is_read' => true,
-                'views' => 89,
-                'likes' => 34
-            ]
-        ]);
-
-        return view('employees.announcements.index', [
-            'announcements' => $announcements,
-            'totalAnnouncements' => 8,
-            'unreadAnnouncements' => 3,
-            'urgentAnnouncements' => 2
-        ]);
-    })->name('announcements');
 
     // Notifications for employees
     Route::get('/notifications', [EmployeeNotificationController::class, 'index'])->name('notifications');
