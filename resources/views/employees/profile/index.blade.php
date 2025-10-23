@@ -1,5 +1,5 @@
 @extends('layouts.employee')
-
+<link rel="stylesheet" href="{{ asset('css/Employee/myProfile.css') }}">
 @section('title', 'My Profile')
 
 @section('content')
@@ -1479,7 +1479,7 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message-toast ${type}`;
             messageDiv.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 
+            <i class="fas fa-${type === 'success' ? 'check-circle' :
                                 type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
             ${message}
         `;
@@ -1488,7 +1488,7 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            background: ${type === 'success' ? '#22c55e' : 
+            background: ${type === 'success' ? '#22c55e' :
                         type === 'error' ? '#ef4444' : '#3b82f6'};
             color: white;
             padding: 1rem 1.5rem;
@@ -1619,7 +1619,7 @@
                 opacity: 1;
             }
         }
-        
+
         @keyframes slideInFromRight {
             from {
                 transform: translateX(100%);
@@ -1630,7 +1630,7 @@
                 opacity: 1;
             }
         }
-        
+
         @keyframes slideOutToRight {
             from {
                 transform: translateX(0);
