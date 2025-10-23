@@ -426,9 +426,19 @@ Route::get('/dashboard', function () {
 Route::get('/admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile.index');
 Route::post('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
 
-Route::prefix('employees')->name('employees.')->group(function () {
-    Route::get('/documents', [EmployeeDocumentController::class, 'index'])->name('documents.index');
+
+Route::prefix('employee')->name('employee.')->middleware(['auth'])->group(function () {
+    Route::get('/documents', [EmployeeDocumentController::class, 'index'])->name('documents');
     Route::post('/documents', [EmployeeDocumentController::class, 'store'])->name('documents.store');
+    Route::get('/employee-documents/download/{id}', [EmployeeDocumentController::class, 'download'])
+        ->name('documents.download');
+    // Make sure this matches your controller
+    Route::get('/employee-documents/share/{id}', [EmployeeDocumentController::class, 'share'])
+        ->name('documents.share');
+
+
+
+
 });
 
 

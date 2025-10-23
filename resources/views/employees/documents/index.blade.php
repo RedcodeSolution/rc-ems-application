@@ -32,34 +32,71 @@
                 <i class="fas fa-file-alt"></i>
             </div>
             <div class="stat-info">
-                <h3>24</h3>
+                <h3>{{$documents->count()}}</h3>
                 <p>Total Documents</p>
             </div>
         </div>
+
+        @php
+        // Sum all file_size in bytes
+        $totalSizeBytes = $documents->sum('file_size');
+
+        // Convert bytes to human-readable format
+        function formatBytes($bytes, $precision = 2) {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= pow(1024, $pow);
+        return round($bytes, $precision) . ' ' . $units[$pow];
+        }
+
+        $totalStorage = formatBytes($totalSizeBytes);
+        @endphp
         <div class="stat-card">
             <div class="stat-icon">
                 <i class="fas fa-cloud-upload-alt"></i>
             </div>
             <div class="stat-info">
-                <h3>2.4 GB</h3>
+                <h3> {{ $totalStorage }}</h3>
                 <p>Storage Used</p>
             </div>
         </div>
+
+        @php
+        use Carbon\Carbon;
+
+        // Define recent period (e.g., last 7 days)
+        $recentDays = 7;
+        $recentUploadsCount = $documents->filter(function($doc) use ($recentDays) {
+        return $doc->created_at >= Carbon::now()->subDays($recentDays);
+        })->count();
+        @endphp
+
         <div class="stat-card">
             <div class="stat-icon">
                 <i class="fas fa-clock"></i>
             </div>
             <div class="stat-info">
-                <h3>3</h3>
+                <h3>{{ $recentUploadsCount }}</h3>
                 <p>Recent Uploads</p>
             </div>
         </div>
+
+        @php
+        // Ensure $documents is a Collection
+        $documentsCollection = $documents instanceof \Illuminate\Support\Collection ? $documents : collect($documents);
+
+        // Count shared files (assuming 'is_shared' = 1 means shared)
+        $sharedFilesCount = $documentsCollection->where('is_shared', 1)->count();
+        @endphp
+
         <div class="stat-card">
             <div class="stat-icon">
                 <i class="fas fa-share-alt"></i>
             </div>
             <div class="stat-info">
-                <h3>5</h3>
+                <h3>{{ $sharedFilesCount }}</h3>
                 <p>Shared Files</p>
             </div>
         </div>
@@ -69,40 +106,60 @@
     <div class="document-categories">
         <h2>Document Categories</h2>
         <div class="categories-grid">
-            <div class="category-card" data-category="personal">
+
+            @php
+            $categoryName = 'personal'; // the category you want to count
+            $categoryCount = $documents->where('category', $categoryName)->count();
+            @endphp
+            <div class="category-card" data-category="{{ $categoryName }}">
                 <div class="category-icon">
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="category-info">
                     <h3>Personal Documents</h3>
-                    <p>12 files</p>
+                    <p>{{ $categoryCount }} files</p>
                 </div>
             </div>
-            <div class="category-card" data-category="contracts">
+
+            @php
+            $categoryName = 'contracts'; // the category you want to count
+            $categoryCount = $documents->where('category', $categoryName)->count();
+            @endphp
+            <div class="category-card" data-category="{{ $categoryName }}">
                 <div class="category-icon">
                     <i class="fas fa-file-contract"></i>
                 </div>
                 <div class="category-info">
                     <h3>Contracts & Agreements</h3>
-                    <p>5 files</p>
+                    <p>{{ $categoryCount }}  files</p>
                 </div>
             </div>
-            <div class="category-card" data-category="certificates">
+
+            @php
+            $categoryName = 'certificates'; // the category you want to count
+            $categoryCount = $documents->where('category', $categoryName)->count();
+            @endphp
+            <div class="category-card" data-category="{{ $categoryName }}">
                 <div class="category-icon">
                     <i class="fas fa-certificate"></i>
                 </div>
                 <div class="category-info">
                     <h3>Certificates</h3>
-                    <p>4 files</p>
+                    <p>{{ $categoryCount }} files</p>
                 </div>
             </div>
-            <div class="category-card" data-category="reports">
+
+            @php
+            $categoryName = 'reports'; // the category you want to count
+            $categoryCount = $documents->where('category', $categoryName)->count();
+            @endphp
+            <div class="category-card" data-category="{{ $categoryName }}">
                 <div class="category-icon">
                     <i class="fas fa-chart-line"></i>
                 </div>
                 <div class="category-info">
                     <h3>Reports</h3>
-                    <p>3 files</p>
+                    <p>{{ $categoryCount }} files</p>
                 </div>
             </div>
         </div>
@@ -211,15 +268,20 @@
                 </div>
 
                 <div class="document-actions">
-                    <button class="action-btn" onclick="viewDocument('Resume_2024.docx')">
+                    <button class="action-btn" onclick="viewDocument('{{ asset($document->file_path) }}')"
+                            title="View Document">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="action-btn" onclick="downloadDocument('Resume_2024.docx')">
+                    <button class="action-btn"   onclick="window.location='{{ route('employee.documents.download', $document->id) }}';"
+                            title="Download File">
                         <i class="fas fa-download"></i>
                     </button>
-                    <button class="action-btn" onclick="shareDocument('Resume_2024.docx')">
+                    <button class="action-btn"
+                            onclick="window.open('{{ route('employee.documents.share', $document->id) }}', '_blank');"
+                            title="Share Document">
                         <i class="fas fa-share"></i>
                     </button>
+
 
                 </div>
 
@@ -277,7 +339,7 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form id="uploadDocumentForm" method="POST"  action="{{ route('eemployee.documents.store') }}" enctype="multipart/form-data">
+            <form id="uploadDocumentForm" method="POST"  action="{{ route('employee.documents.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     <div class="form-group">
@@ -1198,17 +1260,32 @@
     }
 
 
-    function viewDocument(filename) {
-        showMessage(`Opening ${filename}...`, 'info');
+    function viewDocument(fileUrl) {
+        // Open the document in a new browser tab
+        window.open(fileUrl, '_blank');
     }
 
-    function downloadDocument(filename) {
-        showMessage(`Downloading ${filename}...`, 'info');
-    }
-
-    function shareDocument(filename) {
-        showMessage(`Sharing ${filename}...`, 'info');
-    }
+    // function shareDocument(documentId) {
+    //     fetch(`/employee-documents/share/${documentId}`, {
+    //         method: 'GET',
+    //         credentials: 'same-origin',
+    //         headers: { 'Accept': 'application/json' }
+    //     })
+    //         .then(response => {
+    //             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    //             return response.json();
+    //         })
+    //         .then(data => {
+    //             const shareUrl = data.share_url;
+    //             navigator.clipboard.writeText(shareUrl)
+    //                 .then(() => alert(`Share link copied:\n${shareUrl}`))
+    //                 .catch(() => alert(`Share link: ${shareUrl}`));
+    //         })
+    //         .catch(err => {
+    //             console.error(err);
+    //             alert('Failed to generate share link. Check console.');
+    //         });
+    // }
 
     function showMessage(message, type) {
         const messageDiv = document.createElement('div');
@@ -1287,24 +1364,24 @@
     });
 
     // Drag and drop functionality
-    const uploadArea = document.getElementById('uploadArea');
+    // const uploadArea = document.getElementById('uploadArea');
 
-    uploadArea.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        this.classList.add('dragover');
-    });
-
-    uploadArea.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        this.classList.remove('dragover');
-    });
-
-    uploadArea.addEventListener('drop', function(e) {
-        e.preventDefault();
-        this.classList.remove('dragover');
-        const files = e.dataTransfer.files;
-        document.getElementById('fileInput').files = files;
-    });
+    // uploadArea.addEventListener('dragover', function(e) {
+    //     e.preventDefault();
+    //     this.classList.add('dragover');
+    // });
+    //
+    // uploadArea.addEventListener('dragleave', function(e) {
+    //     e.preventDefault();
+    //     this.classList.remove('dragover');
+    // });
+    //
+    // uploadArea.addEventListener('drop', function(e) {
+    //     e.preventDefault();
+    //     this.classList.remove('dragover');
+    //     const files = e.dataTransfer.files;
+    //     document.getElementById('fileInput').files = files;
+    // });
 
     // Close modal when clicking outside
     document.getElementById('uploadModal').addEventListener('click', function(e) {

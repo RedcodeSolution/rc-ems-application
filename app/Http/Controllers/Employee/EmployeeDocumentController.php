@@ -11,7 +11,7 @@ class EmployeeDocumentController extends Controller
     public function index()
     {
         $documents = EmployeeDocument::where('employee_id', auth()->user()->employee_id)
-            ->paginate(10);
+            ->paginate(6);
 
         return view('employees.documents.index', compact('documents'));
     }
@@ -19,7 +19,6 @@ class EmployeeDocumentController extends Controller
 
     public function store(Request $request)
     {
-        // Validate request
         $request->validate([
             'files' => 'required',
             'files.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png,xlsx,xls|max:10240',
@@ -32,13 +31,12 @@ class EmployeeDocumentController extends Controller
 
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
-                // Generate unique filename
+
                 $originalFileName = $file->getClientOriginalName();
 
-                // Store file in 'public/employee_documents'
                 $filePath = $file->storeAs('employee_documents', $originalFileName, 'public');
 
-                // Save in DB
+
                 $doc = EmployeeDocument::create([
                     'employee_id' => $employeeId,
                     'category' => $request->category,
@@ -52,12 +50,37 @@ class EmployeeDocumentController extends Controller
                 $uploadedFiles[] = $doc;
             }
         }
-
-        return redirect()->back()->with('success', count($uploadedFiles) . ' file(s) uploaded successfully!');
+        return redirect()->route('employee.documents')->with('success', count($uploadedFiles) . ' file(s) uploaded successfully!');
     }
 
 
+    public function download($id)
+    {
+        $document = EmployeeDocument::findOrFail($id);
 
+        $relativePath = preg_replace('/^storage\//', '', $document->file_path);
 
+        $filePath = storage_path('app/public/' . $relativePath);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found.');
+        }
+
+        $fileName = $document->file_name ?? basename($filePath);
+
+        return response()->download($filePath, $fileName);
+    }
+
+    public function share($id)
+    {
+
+        $document = EmployeeDocument::findOrFail($id);
+
+        $relativePath = preg_replace('/^storage\//', '', $document->file_path);
+
+        $url = asset('storage/' . $relativePath);
+
+        return redirect($url);
+    }
 
 }

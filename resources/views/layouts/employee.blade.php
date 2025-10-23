@@ -50,7 +50,7 @@
                     <i class="fas fa-user"></i>
                     <span>My Profile</span>
                 </a>
-                <a href="{{ route('employees.documents.index') }}"
+                <a href="{{ route('employee.documents') }}"
                     class="sidebar-menu-item {{ request()->routeIs('employee.documents') ? 'active' : '' }}">
                     <i class="fas fa-file-alt"></i>
                     <span>My Documents</span>
