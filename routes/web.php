@@ -297,6 +297,19 @@ Route::middleware('auth')->group(function () {
         })->name('other');
 
 
+        // Admin Attendance Count page (blade view) - required by sidebar links
+        Route::get('/attendance', function () {
+            return view('admin.attendance.index');
+        })->name('attendance.index');
+
+        Route::get('/attendances', function () {
+            $attendances = [];
+            if (class_exists(\App\Models\Attendance::class)) {
+                $attendances = \App\Models\Attendance::with('employee')->get();
+            }
+            return response()->json($attendances);
+        })->name('attendances.index');
+
         Route::resource('employeeRatings', \App\Http\Controllers\Admin\EmployeeRatingsController::class);
     });
 
@@ -440,6 +453,19 @@ Route::prefix('super-admin')->name('super_admin.')->group(function () {
     Route::put('/admins/{adminId}', [AdminController::class, 'update'])->name('update');
     Route::get('/{adminId}/show', [AdminController::class, 'show'])->name('show');
     Route::delete('/admins/{adminId}', [AdminController::class, 'destroy'])->name('destroy');
+
+    // Super Admin Attendance Count page (blade view)
+    Route::get('/attendance', function () {
+        return view('super_admin.attendance.index');
+    })->name('attendance.index');
+
+    Route::get('/attendances', function () {
+        $attendances = [];
+        if (class_exists(\App\Models\Attendance::class)) {
+            $attendances = \App\Models\Attendance::with('employee')->latest()->get();
+        }
+        return response()->json($attendances);
+    })->name('attendances.index');
 });
 
 // Report Management

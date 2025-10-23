@@ -48,6 +48,11 @@
                         <i class="fas fa-building"></i>
                         <span>Departments</span>
                     </a>
+                    <a href="{{ route('admin.attendance.index') }}"
+                        class="sidebar-menu-item {{ request()->routeIs('admin.attendance.*') ? 'active' : '' }}">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Attendance Count</span>
+                    </a>
                     <a href="{{ route('admin.teams') }}"
                         class="sidebar-menu-item {{ request()->routeIs('admin.teams') ? 'active' : '' }}">
                         <i class="fas fa-users-cog"></i>
