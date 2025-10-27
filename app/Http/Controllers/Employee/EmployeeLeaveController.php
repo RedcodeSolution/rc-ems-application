@@ -76,7 +76,7 @@ class EmployeeLeaveController extends Controller
         $leave->load('user');
 
         // Example notification (adjust message)
-        (new \App\Services\NotificationService())->notify(
+        (new NotificationService())->notify(
             title: 'New Leave Request',
             message: $leave->user->name . ' applied for ' . $leave->leave_type . ' leave.',
             type: 'leave',
