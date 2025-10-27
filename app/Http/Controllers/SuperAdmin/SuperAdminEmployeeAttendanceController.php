@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Attendance;
-use App\Models\User;
+use Illuminate\Http\Request;
 use Carbon\Carbon;
 
-class AdminAttendanceController extends Controller
+class SuperAdminEmployeeAttendanceController extends Controller
 {
     public function index(Request $request)
     {
@@ -39,6 +38,6 @@ class AdminAttendanceController extends Controller
             return response()->json(['attendances' => $attendances]);
         }
 
-        return view('admin.attendance.index');
+        return view('super_admin.attendance.index');
     }
 }

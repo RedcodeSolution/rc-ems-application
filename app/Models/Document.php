@@ -16,18 +16,21 @@ class Document extends Model
         'description',
         'category',
         'department_id',
+        'project_id',
         'access_level',
         'tags',
         'file_path',
         'notify_users',
     ];
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_id', 'project_id');
+    }
+
     // Document.php
     public function department()
     {
         return $this->belongsTo(Department::class, 'department_id', 'department_id');
     }
-
-
 }
-

@@ -86,9 +86,9 @@
                     <span>Employee Ratings</span>
                 </a>
                 <a href="{{ route('super_admin.attendance.index') }}"
-                   class="sidebar-menu-item {{ request()->routeIs('super_admin.attendance.*') ? 'active' : '' }}">
-                   <i class="fas fa-calendar-check"></i>
-                   <span>Attendance Count</span>
+                    class="sidebar-menu-item {{ request()->routeIs('super_admin.attendance.*') ? 'active' : '' }}">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Attendance Count</span>
                 </a>
             </div>
         </div>

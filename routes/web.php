@@ -31,6 +31,7 @@ use App\Http\Controllers\SuperAdmin\AdminLeaveController;
 use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
 use App\Http\Controllers\SuperAdmin\EventController;
 use App\Http\Controllers\SuperAdmin\SuperAdminAccountsController;
+use App\Http\Controllers\SuperAdmin\SuperAdminEmployeeAttendanceController;
 use App\Models\Admin;
 use App\Models\Department;
 use App\Models\Employee;
@@ -256,7 +257,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/employee/announcements/{id}/read', [EmployeeAnnouncementController::class, 'markAsRead']);
 
         // Attendance
-        Route::get('/attendances', [AdminAttendanceController::class, 'index'])->name('admin.attendance.index');
+        Route::get('/attendances', [AdminAttendanceController::class, 'index'])->name('attendance.index');
 
 
         // Dynamic team loading by department
@@ -296,20 +297,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/other', function () {
             return view('admin.other.index');
         })->name('other');
-
-
-        // Admin Attendance Count page (blade view) - required by sidebar links
-        Route::get('/attendance', function () {
-            return view('admin.attendance.index');
-        })->name('attendance.index');
-
-        Route::get('/attendances', function () {
-            $attendances = [];
-            if (class_exists(\App\Models\Attendance::class)) {
-                $attendances = \App\Models\Attendance::with('employee')->get();
-            }
-            return response()->json($attendances);
-        })->name('attendances.index');
 
         Route::resource('employeeRatings', \App\Http\Controllers\Admin\EmployeeRatingsController::class);
     });
@@ -414,18 +401,8 @@ Route::prefix('super-admin')->name('super_admin.')->group(function () {
     Route::get('/{adminId}/show', [AdminController::class, 'show'])->name('show');
     Route::delete('/admins/{adminId}', [AdminController::class, 'destroy'])->name('destroy');
 
-    // Super Admin Attendance Count page (blade view)
-    Route::get('/attendance', function () {
-        return view('super_admin.attendance.index');
-    })->name('attendance.index');
-
-    Route::get('/attendances', function () {
-        $attendances = [];
-        if (class_exists(\App\Models\Attendance::class)) {
-            $attendances = \App\Models\Attendance::with('employee')->latest()->get();
-        }
-        return response()->json($attendances);
-    })->name('attendances.index');
+    //Attendance
+    Route::get('/attendances', [SuperAdminEmployeeAttendanceController::class, 'index'])->name('attendance.index');
 });
 
 // Report Management
@@ -443,6 +420,8 @@ Route::get('/admin/documents/{document_id}', [DocumentController::class, 'show']
 Route::get('/admin/documents/download/{document_id}', [DocumentController::class, 'download'])->name('admin.documents.download');
 Route::delete('/admin/documents/{document_id}', [DocumentController::class, 'destroy'])->name('admin.documents.destroy');
 Route::post('/admin/documents/increment-download/{id}', [DocumentController::class, 'incrementDownload'])->name('documents.increment');
+Route::get('/admin/departments/{department}/projects', [DocumentController::class, 'getProjectsByDepartment']);
+
 
 
 Route::get('/admin/employeeRatings/employee/{employeeId}', [App\Http\Controllers\Admin\EmployeeRatingsController::class, 'employeeRatingsJson']);
