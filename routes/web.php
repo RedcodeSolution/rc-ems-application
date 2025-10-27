@@ -403,7 +403,7 @@ Route::middleware('auth')->prefix('employee')->name('employee.')->group(function
             'unreadAnnouncements' => 3,
             'urgentAnnouncements' => 2
         ]);
-    })->name('announcements');
+    })->name('announcements.index');
 
     // Notifications for employees
     Route::get('/notifications', [EmployeeNotificationController::class, 'index'])->name('notifications');
