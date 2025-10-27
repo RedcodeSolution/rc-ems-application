@@ -45,7 +45,6 @@ class ProjectController extends Controller
             'milestone_info' => 'nullable|string',
         ]);
 
-        // Auto-generate project ID
         $lastProject = Project::orderBy('project_id', 'desc')->first();
         if ($lastProject) {
             $lastId = intval(substr($lastProject->project_id, 3));
@@ -54,7 +53,6 @@ class ProjectController extends Controller
             $newId = 'PRJ001';
         }
 
-        // Create project
         $project = Project::create([
             'project_id'     => $newId,
             'project_name'   => $request->project_name,
@@ -71,16 +69,28 @@ class ProjectController extends Controller
 
         if ($team && $team->employees->isNotEmpty()) {
             foreach ($team->employees as $employee) {
+
+                switch ($project->status) {
+                    case 'Planning': $progress = 10; break;
+                    case 'In Progress': $progress = 50; break;
+                    case 'On Hold': $progress = 30; break;
+                    case 'Testing': $progress = 70; break;
+                    case 'Completed': $progress = 100; break;
+                    case 'Cancelled': $progress = 0; break;
+                    default: $progress = 0;
+                }
+
+                $role = $employee->role ?? ($employee->employee_id == $team->team_lead ? 'Team Lead' : 'Member');
+
                 $project->employees()->attach($employee->employee_id, [
-                    'role' => $employee->employee_id == $team->team_lead ? 'Team Lead' : 'Member',
+                    'role' => $role,
                     'status' => 'Active',
                     'assigned_date' => now(),
-                    'progress' => 0,
+                    'progress' => $progress, // <-- progress according to project status
                     'deadline' => $request->end_date,
                 ]);
             }
         }
-
 
         return redirect()->route('admin.projects.index')->with('success', 'Project created successfully!');
     }
@@ -186,7 +196,6 @@ class ProjectController extends Controller
             return response()->json([]);
         }
 
-        // Fetch only the projects this employee is assigned to
         $projects = $employee->projects()
             ->with(['team'])
             ->get();

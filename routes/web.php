@@ -18,6 +18,7 @@ use App\Http\Controllers\Employee\EmployeeDocumentController;
 use App\Http\Controllers\Employee\EmployeeLeaveController;
 use App\Http\Controllers\Employee\EmployeeOverviewController;
 use App\Http\Controllers\Employee\EmployeeProfileController;
+use App\Http\Controllers\Employee\EmployeeProjectController;
 use App\Http\Controllers\Employee\EmployeeTaskController;
 use App\Http\Controllers\Employee\EmployeeRatingController as EmployeeEmployeeRatingController;
 use App\Http\Controllers\LeaveController;
@@ -345,7 +346,7 @@ Route::middleware('auth')->group(function () {
 
 //department Management
 Route::get('/admin/department', [DepartmentController::class, 'index'])->name('admin.departments.index');
-Route::get('/admin/create', [ProjectController::class, 'create'])->name('admin.departments.create');
+Route::get('/admin/create', [DepartmentController::class, 'create'])->name('admin.departments.create');
 Route::post('/admin/department', [DepartmentController::class, 'store'])->name('admin.departments.store');
 Route::get('/departments/{departmentId}/edit', [DepartmentController::class, 'edit'])->name('admin.departments.edit');
 Route::put('/departments/{departmentId}', [DepartmentController::class, 'update'])->name('admin.departments.update');
@@ -430,16 +431,17 @@ Route::post('/admin/profile/update', [AdminProfileController::class, 'update'])-
 Route::prefix('employee')->name('employee.')->middleware(['auth'])->group(function () {
     Route::get('/documents', [EmployeeDocumentController::class, 'index'])->name('documents');
     Route::post('/documents', [EmployeeDocumentController::class, 'store'])->name('documents.store');
-    Route::get('/employee-documents/download/{id}', [EmployeeDocumentController::class, 'download'])
-        ->name('documents.download');
-    // Make sure this matches your controller
-    Route::get('/employee-documents/share/{id}', [EmployeeDocumentController::class, 'share'])
-        ->name('documents.share');
-
-
-
+    Route::get('/employee-documents/download/{id}', [EmployeeDocumentController::class, 'download'])->name('documents.download');
+    Route::get('/employee-documents/share/{id}', [EmployeeDocumentController::class, 'share'])->name('documents.share');
 
 });
+
+// web.php
+Route::get('/employee/projects', [EmployeeProjectController::class, 'index'])->middleware('auth')->name('employee.projects');
+Route::get('/employee/projects/{project}', [EmployeeProjectController::class, 'show'])->name('employee.projects.show');
+
+
+
 
 
 require __DIR__ . '/auth.php';

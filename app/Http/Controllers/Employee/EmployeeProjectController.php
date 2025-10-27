@@ -1,164 +1,82 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Employee;
 
-use App\Http\Controllers\Controller;
-use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Project;
-use App\Models\Team;
-use App\Services\NotificationService;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
-class ProjectController extends Controller
+class EmployeeProjectController
 {
 
     public function index()
     {
-        $projects = Project::with(['team' => function ($q) {
-            $q->withCount('employees');
-        }])->get();
+        // Get the logged-in employee ID
+        $employeeId = Auth::user()?->employee_id;
 
-        $teams = Team::withCount('employees')->get();
-        $departments = Department::all();
-        $employees = Employee::with(['department', 'projects'])->get();
-        return view('admin.projects.index', compact('projects', 'teams', 'departments', 'employees'));
-    }
-
-
-    public function create()
-    {
-        $teams = Team::all();
-        return view('admin.projects.create', compact('teams'));
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'project_name'   => 'required|string|max:255',
-            'client'         => 'nullable|string|max:255',
-            'team_id'        => 'required|exists:teams,team_id',
-            'status'         => 'required|in:Planning,In Progress,On Hold,Testing,Completed,Cancelled',
-            'start_date'     => 'nullable|date',
-            'end_date'       => 'nullable|date|after_or_equal:start_date',
-            'description'    => 'nullable|string',
-            'milestone_info' => 'nullable|string',
-        ]);
-
-        // Auto-generate project ID
-        $lastProject = Project::orderBy('project_id', 'desc')->first();
-        if ($lastProject) {
-            $lastId = intval(substr($lastProject->project_id, 3));
-            $newId = 'PRJ' . str_pad($lastId + 1, 3, '0', STR_PAD_LEFT);
+        // If no employee ID, return empty collection
+        if (!$employeeId) {
+            $employeeProjects = collect(); // empty collection
         } else {
-            $newId = 'PRJ001';
+            // Fetch projects assigned to this employee with pivot info and team info
+            $employeeProjects = DB::table('employee_project')
+                ->join('projects', 'employee_project.project_id', '=', 'projects.project_id')
+                ->leftJoin('teams', 'projects.team_id', '=', 'teams.team_id')
+                ->where('employee_project.employee_id', $employeeId)
+                ->select(
+                    'employee_project.employee_id',
+                    'employee_project.project_id',
+                    'employee_project.role',
+                    'employee_project.status as pivot_status',
+                    'employee_project.progress',
+                    'employee_project.deadline',
+                    'projects.project_name',
+                    'projects.description',
+                    'projects.status as project_status',
+                    'projects.start_date',
+                    'projects.end_date',
+                    'teams.team_name'
+                )
+                ->get();
         }
 
-        // Create project
-        Project::create([
-            'project_id'     => $newId,
-            'project_name'   => $request->project_name,
-            'client'         => $request->client,
-            'team_id'        => $request->team_id,
-            'status'         => $request->status,
-            'start_date'     => $request->start_date,
-            'end_date'       => $request->end_date,
-            'description'    => $request->description,
-            'milestone_info' => $request->milestone_info,
-        ]);
-
-        return redirect()->route('admin.projects.index')->with('success', 'Project created successfully!');
+        // Pass data to Blade view
+        return view('employees.projects.index', compact('employeeProjects'));
     }
 
-
-    public function edit($project_id)
+    public function show($projectId)
     {
-        $project = Project::with('team')->find($project_id);
+        // Get project with team info
+        $project = Project::with('team')->where('project_id', $projectId)->first();
 
         if (!$project) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Project not found.'
-            ], 404);
+            return response()->json(['project' => null], 404);
         }
 
-        $teams = Team::all();
+        // Include pivot info if employee-specific (optional)
+        $pivotData = $project->employees()
+            ->where('employee_id', auth()->user()->employee_id)
+            ->first();
+
+        $role = $pivotData?->pivot->role ?? 'N/A';
+        $progress = $pivotData?->pivot->progress ?? 0;
+        $deadline = $pivotData?->pivot->deadline?->format('Y-m-d') ?? null;
 
         return response()->json([
-            'success' => true,
-            'project' => $project,
-            'teams' => $teams
+            'project' => [
+                'project_id' => $project->project_id,
+                'project_name' => $project->project_name,
+                'description' => $project->description,
+                'client' => $project->client,
+                'team' => [
+                    'team_name' => $project->team?->team_name ?? 'N/A'
+                ],
+                'role' => $role,
+                'progress' => $progress,
+                'deadline' => $deadline,
+                'status' => $project->status,
+            ]
         ]);
-    }
-
-
-    public function update(Request $request, $project_id)
-    {
-        $project = Project::find($project_id);
-
-        if (!$project) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Project not found.'
-            ], 404);
-        }
-
-        $validated = $request->validate([
-            'project_name'   => 'required|string|max:255',
-            'client'         => 'nullable|string|max:255',
-            'team_id'        => 'required|string',
-            'status'         => 'required|in:Planning,In Progress,On Hold,Testing,Completed,Cancelled',
-            'start_date'     => 'nullable|date',
-            'end_date'       => 'nullable|date|after_or_equal:start_date',
-            'description'    => 'nullable|string',
-            'milestone_info' => 'nullable|string',
-        ]);
-
-        $oldStatus = $project->status;
-
-        $project->update($validated);
-
-        if ($oldStatus !== 'Completed' && $project->status === 'Completed') {
-            $notify = new NotificationService();
-            $notify->notify(
-                title: 'Project Completed',
-                message: "The project '{$project->project_name}' has been marked as completed.",
-                type: 'project',
-                userId: null,
-                target: 'admin',
-                referenceId: $project->id
-            );
-        }
-
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Project updated successfully!',
-                'project' => $project
-            ]);
-        }
-
-        return redirect()->route('admin.projects.index')->with('success', 'Project updated successfully.');
-    }
-
-
-    public function show($id)
-    {
-
-        $project = Project::with('team')->findOrFail($id);
-
-        return response()->json([
-            'success' => true,
-            'project' => $project
-        ]);
-    }
-
-
-    public function destroy($id)
-    {
-        $project = Project::findOrFail($id);
-        $project->delete();
-
-        return redirect()->route('admin.projects.index')->with('success', 'Department deleted successfully!');
     }
 }
