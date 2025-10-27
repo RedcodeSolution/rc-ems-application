@@ -905,7 +905,6 @@ html {
     line-height: 1.6;
 }
 
-/* Professional Form Styles */
 .form-group {
     margin-bottom: var(--space-lg);
 }
@@ -941,7 +940,6 @@ html {
     color: var(--gray-400);
 }
 
-/* Professional CTA Section */
 .cta-section {
     background: var(--gradient-hero);
     position: relative;
@@ -1003,7 +1001,6 @@ html {
     font-weight: 500;
 }
 
-/* Professional Footer */
 .footer {
     background: var(--gray-900);
     color: white;
@@ -1130,7 +1127,6 @@ html {
     color: var(--primary-400);
 }
 
-/* Back to Top Button */
 .back-to-top {
     position: fixed;
     bottom: var(--space-xl);
@@ -1161,7 +1157,6 @@ html {
     box-shadow: var(--shadow-xl);
 }
 
-/* Mobile Menu */
 .mobile-menu {
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(20px);
@@ -1187,7 +1182,6 @@ html {
     border-bottom: none;
 }
 
-/* Scroll Reveal Animation */
 .reveal {
     opacity: 0;
     transform: translateY(40px);
@@ -1199,7 +1193,6 @@ html {
     transform: translateY(0);
 }
 
-/* Loading Animation */
 .loading-dots::after {
     content: '';
     animation: dots 2s infinite;
@@ -1229,7 +1222,6 @@ html {
     background: var(--primary-700);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .hero-title {
         font-size: 2.5rem !important;
@@ -1252,7 +1244,111 @@ html {
     }
 }
 
-/* Enhanced Hover Effects */
+@media (max-width: 480px) {
+    /* Reduce container padding and navbar height for small phones */
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .navbar .d-flex {
+        flex-wrap: wrap;
+        gap: 8px;
+        height: auto !important;
+        padding: 8px 0;
+    }
+
+    .navbar-brand {
+        font-size: 1.25rem;
+        gap: 8px;
+    }
+
+    .navbar-brand-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+
+    /* Ensure desktop nav hidden and mobile menu button visible */
+    .navbar-nav {
+        display: none !important;
+    }
+
+    #mobile-menu-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        background: transparent;
+        border-radius: 8px;
+    }
+
+    .d-flex.align-items-center.gap-3 {
+        gap: 8px;
+    }
+
+    /* Smaller buttons on very small screens */
+    .btn {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    .btn.btn-lg {
+        padding: 10px 14px;
+        font-size: 0.95rem;
+    }
+
+    /* Mobile menu full width under the navbar */
+    .mobile-menu {
+        display: block;
+        position: relative;
+        width: 100%;
+        box-shadow: none;
+        padding: 10px 8px;
+        border-top: 1px solid var(--border-light);
+    }
+
+    .mobile-menu-item {
+        padding: 10px 6px;
+        font-size: 0.95rem;
+    }
+
+    /* Reduce hero padding to account for smaller navbar */
+    .hero-section {
+        padding-top: 64px;
+    }
+}
+
+@media (max-width: 360px) {
+    .navbar-brand {
+        font-size: 1.05rem;
+    }
+    .navbar-brand-icon {
+        width: 32px;
+        height: 32px;
+    }
+    .btn {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
+    .hero-title {
+        font-size: 1.75rem !important;
+    }
+    .hero-subtitle {
+        font-size: 0.95rem;
+    }
+    .mobile-menu-item {
+        font-size: 0.9rem;
+        padding: 9px 6px;
+    }
+}
+
+/* Ensure mobile menu hidden when .d-none exists */
+.mobile-menu.d-none {
+    display: none !important;
+}
+
 .hover-lift {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -1261,7 +1357,6 @@ html {
     transform: translateY(-4px);
 }
 
-/* Gradient Border Animation */
 .gradient-border {
     position: relative;
     background: var(--surface);
@@ -1279,7 +1374,6 @@ html {
     mask-composite: exclude;
 }
 
-/* Professional Section Spacing */
 .section {
     padding: var(--space-4xl) 0;
 }
@@ -1292,7 +1386,6 @@ html {
     padding: var(--space-5xl) 0;
 }
 
-/* Professional Typography */
 .text-gradient {
     background: var(--gradient-primary);
     -webkit-background-clip: text;
@@ -1319,7 +1412,6 @@ html {
     line-height: 1.6;
 }
 
-/* Professional Grid System */
 .grid-auto-fit {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -1332,7 +1424,6 @@ html {
     gap: var(--space-xl);
 }
 
-/* Professional Utilities */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -1398,4 +1489,3 @@ html {
     .d-mobile-none { display: none; }
     .d-mobile-block { display: block; }
 }
-
