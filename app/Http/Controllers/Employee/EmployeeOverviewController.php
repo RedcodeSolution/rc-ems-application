@@ -25,18 +25,19 @@ class EmployeeOverviewController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $userId = $user->id;
         $employeeId = $user->employee_id;
         $today = Carbon::today();
 
         // --- Attendance Tracking ---
-        $todayAttendance = Attendance::where('employee_id', $employeeId)
+        $todayAttendance = Attendance::where('user_id', $userId)
             ->whereDate('date', $today)
             ->first();
 
         $todayHoursDecimal = $todayAttendance ? $todayAttendance->hours_worked : 0;
 
         $yesterday = Carbon::yesterday();
-        $yesterdayAttendance = Attendance::where('employee_id', $employeeId)
+        $yesterdayAttendance = Attendance::where('user_id', $userId)
             ->whereDate('date', $yesterday)
             ->first();
 
@@ -60,15 +61,15 @@ class EmployeeOverviewController extends Controller
         })->count();
 
         // --- Notifications ---
-        $unreadNotifications = Notification::where('user_id', $user->id)
+        $unreadNotifications = Notification::where('user_id', $userId)
             ->where('is_read', false)
             ->count();
 
         // --- Documents ---
         $documentCount = Document::where('employee_id', $employeeId)->count();
 
-        // --- Leaves (updated to use user_id) ---
-        $approvedLeaveCount = Leave::where('user_id', $user->id)
+        // --- Leaves (already uses user_id) ---
+        $approvedLeaveCount = Leave::where('user_id', $userId)
             ->where('status', 'approved')
             ->count();
 
@@ -80,7 +81,7 @@ class EmployeeOverviewController extends Controller
         $tasks = Tasks::whereIn('project_id', $projectIds)->get();
 
         // --- Announcements ---
-        $announcements = Announcement::whereJsonContains('target_audience', ["all"])
+        $announcements = Announcement::whereJsonContains('target_audience', ['all'])
             ->where('status', 'published')
             ->orderBy('priority', 'desc')
             ->orderBy('created_at', 'desc')
@@ -116,7 +117,7 @@ class EmployeeOverviewController extends Controller
                 $allDates = collect(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
         }
 
-        $attendanceData = Attendance::where('employee_id', $employeeId)
+        $attendanceData = Attendance::where('user_id', $userId)
             ->whereBetween('date', [$start, $end])
             ->get()
             ->groupBy(fn($a) => Carbon::parse($a->date)->format($format))
@@ -171,6 +172,7 @@ class EmployeeOverviewController extends Controller
             'total_days' => $totalDays,
         ]);
     }
+
 
 
     public function join(Meeting $meeting)

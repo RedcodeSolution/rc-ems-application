@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAnnouncementsController;
+use App\Http\Controllers\Admin\AdminAttendanceController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AdminsLeaveController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\SuperAdmin\AdminLeaveController;
 use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
 use App\Http\Controllers\SuperAdmin\EventController;
 use App\Http\Controllers\SuperAdmin\SuperAdminAccountsController;
+use App\Http\Controllers\SuperAdmin\SuperAdminEmployeeAttendanceController;
 use App\Models\Admin;
 use App\Models\Department;
 use App\Models\Employee;
@@ -254,6 +256,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/announcements/{id}', [EmployeeAnnouncementController::class, 'show']);
         Route::post('/employee/announcements/{id}/read', [EmployeeAnnouncementController::class, 'markAsRead']);
 
+        // Attendance
+        Route::get('/attendances', [AdminAttendanceController::class, 'index'])->name('attendance.index');
 
 
         // Dynamic team loading by department
@@ -293,20 +297,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/other', function () {
             return view('admin.other.index');
         })->name('other');
-
-
-        // Admin Attendance Count page (blade view) - required by sidebar links
-        Route::get('/attendance', function () {
-            return view('admin.attendance.index');
-        })->name('attendance.index');
-
-        Route::get('/attendances', function () {
-            $attendances = [];
-            if (class_exists(\App\Models\Attendance::class)) {
-                $attendances = \App\Models\Attendance::with('employee')->get();
-            }
-            return response()->json($attendances);
-        })->name('attendances.index');
 
         Route::resource('employeeRatings', \App\Http\Controllers\Admin\EmployeeRatingsController::class);
     });
@@ -364,46 +354,7 @@ Route::middleware('auth')->prefix('employee')->name('employee.')->group(function
     Route::get('/dashboard', [EmployeeOverviewController::class, 'index'])->name('dashboard');
 
     // Announcements
-    Route::get('/announcements', function () {
 
-        $announcements = collect([
-            (object) [
-                'announcement_id' => 'ann_001',
-                'title' => 'System Maintenance - December 1st',
-                'content' => 'Scheduled system maintenance will take place on Sunday, December 1st, from 2:00 AM to 4:00 AM.',
-                'priority' => 'urgent',
-                'category' => 'system',
-                'author' => 'IT Department',
-                'created_at' => now()->subDays(2),
-                'expires_at' => now()->addDays(3),
-                'target_audience' => 'All Employees',
-                'is_read' => false,
-                'views' => 127,
-                'likes' => 23
-            ],
-            (object) [
-                'announcement_id' => 'ann_002',
-                'title' => 'New Employee Onboarding Process',
-                'content' => 'We have updated our employee onboarding process to make it more streamlined and efficient.',
-                'priority' => 'high',
-                'category' => 'hr',
-                'author' => 'HR Department',
-                'created_at' => now()->subDays(5),
-                'expires_at' => null,
-                'target_audience' => 'All Employees',
-                'is_read' => true,
-                'views' => 89,
-                'likes' => 34
-            ]
-        ]);
-
-        return view('employees.announcements.index', [
-            'announcements' => $announcements,
-            'totalAnnouncements' => 8,
-            'unreadAnnouncements' => 3,
-            'urgentAnnouncements' => 2
-        ]);
-    })->name('announcements.index');
 
     // Notifications for employees
     Route::get('/notifications', [EmployeeNotificationController::class, 'index'])->name('notifications');
@@ -450,18 +401,8 @@ Route::prefix('super-admin')->name('super_admin.')->group(function () {
     Route::get('/{adminId}/show', [AdminController::class, 'show'])->name('show');
     Route::delete('/admins/{adminId}', [AdminController::class, 'destroy'])->name('destroy');
 
-    // Super Admin Attendance Count page (blade view)
-    Route::get('/attendance', function () {
-        return view('super_admin.attendance.index');
-    })->name('attendance.index');
-
-    Route::get('/attendances', function () {
-        $attendances = [];
-        if (class_exists(\App\Models\Attendance::class)) {
-            $attendances = \App\Models\Attendance::with('employee')->latest()->get();
-        }
-        return response()->json($attendances);
-    })->name('attendances.index');
+    //Attendance
+    Route::get('/attendances', [SuperAdminEmployeeAttendanceController::class, 'index'])->name('attendance.index');
 });
 
 // Report Management
@@ -479,11 +420,14 @@ Route::get('/admin/documents/{document_id}', [DocumentController::class, 'show']
 Route::get('/admin/documents/download/{document_id}', [DocumentController::class, 'download'])->name('admin.documents.download');
 Route::delete('/admin/documents/{document_id}', [DocumentController::class, 'destroy'])->name('admin.documents.destroy');
 Route::post('/admin/documents/increment-download/{id}', [DocumentController::class, 'incrementDownload'])->name('documents.increment');
+Route::get('/admin/departments/{department}/projects', [DocumentController::class, 'getProjectsByDepartment']);
+
 
 
 Route::get('/admin/employeeRatings/employee/{employeeId}', [App\Http\Controllers\Admin\EmployeeRatingsController::class, 'employeeRatingsJson']);
 Route::get('/super_admin/super_admin_accounts', [SuperAdminAccountsController::class, 'index'])->name('super_admin.super_admin_accounts');
 Route::post('/super_admin/super_admin_accounts', [SuperAdminAccountsController::class, 'store'])->name('super_admin_accounts.store');
+Route::put('/super_admin/super_admin_accounts/{id}/change-password', [SuperAdminAccountsController::class, 'changePassword'])->name('super_admin_accounts.changePassword');
 Route::get('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'show'])->name('super_admin_accounts.show');
 Route::put('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'update'])->name('super_admin_accounts.update');
 Route::delete('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'destroy'])->name('super_admin_accounts.destroy');

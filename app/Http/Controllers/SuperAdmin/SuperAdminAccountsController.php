@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\SuperAdmin;
 use App\Models\SuperAdminActivity;
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -125,15 +126,22 @@ class SuperAdminAccountsController extends Controller
             'lastLogin' => 'Never',
             'loginCount' => 0,
             'lastIp' => '',
-            'permissions' => collect(json_decode($user->permissions, true))->map(function($perm) {
+            'permissions' => collect(json_decode($user->permissions, true))->map(function ($perm) {
                 switch ($perm) {
-                    case 'user_management': return 'User Management';
-                    case 'system_settings': return 'System Settings';
-                    case 'security': return 'Security Settings';
-                    case 'reports': return 'Reports & Analytics';
-                    case 'backup': return 'Backup & Restore';
-                    case 'logs': return 'System Logs';
-                    default: return ucfirst(str_replace('_', ' ', $perm));
+                    case 'user_management':
+                        return 'User Management';
+                    case 'system_settings':
+                        return 'System Settings';
+                    case 'security':
+                        return 'Security Settings';
+                    case 'reports':
+                        return 'Reports & Analytics';
+                    case 'backup':
+                        return 'Backup & Restore';
+                    case 'logs':
+                        return 'System Logs';
+                    default:
+                        return ucfirst(str_replace('_', ' ', $perm));
                 }
             })->toArray()
         ];
@@ -203,34 +211,43 @@ class SuperAdminAccountsController extends Controller
         }
     }
 
-
     public function changePassword(Request $request, $id)
     {
-        $user = SuperAdmin::findOrFail($id);
+        $superAdmin = SuperAdmin::findOrFail($id);
 
         $validated = $request->validate([
             'current_password' => 'required|string',
             'new_password' => 'required|string|min:8|confirmed'
         ]);
 
-        if (!\Hash::check($validated['current_password'], $user->password)) {
+        // Check current password
+        if (!\Hash::check($validated['current_password'], $superAdmin->password)) {
             return response()->json(['success' => false, 'message' => 'Current password incorrect.'], 422);
         }
 
-        $user->password = \Hash::make($validated['new_password']);
-        $user->save();
+        // Update SuperAdmin password
+        $hashedPassword = \Hash::make($validated['new_password']);
+        $superAdmin->password = $hashedPassword;
+        $superAdmin->save();
 
+        $user = User::where('email', $superAdmin->super_admin_email)->first();
+        if ($user) {
+            $user->password = $hashedPassword;
+            $user->save();
+        }
 
+        // Log activity
         SuperAdminActivity::create([
-            'super_admin_id' => $user->super_admin_id,
+            'super_admin_id' => $superAdmin->super_admin_id,
             'type' => 'security',
             'icon' => 'fas fa-key',
             'action' => 'Password Changed',
-            'details' => "Password changed for: {$user->super_admin_name}"
+            'details' => "Password changed for: {$superAdmin->super_admin_name}"
         ]);
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => 'Password updated successfully.']);
     }
+
 
 
     public function destroy($id)
