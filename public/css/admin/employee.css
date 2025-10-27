@@ -13,8 +13,8 @@
     --redcode-yellow: #F59E0B; /* Alerts */
     --text-primary: #111827; /* Almost Black */
     --text-secondary: #6B7280; /* Medium Gray */
-    --text-light: #9CA3AF; /* Light Gray */
-    --text-white: #FFFFFF; /* White Text */
+    --text-light: #9CA3AF;
+    --text-white: #FFFFFF;
     --border-light: #E5E7EB;
     --border-medium: #D1D5DB;
     --border-dark: #6B7280;

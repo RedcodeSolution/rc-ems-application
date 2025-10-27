@@ -142,11 +142,15 @@ class EmployeeAttendanceController extends Controller
         $user = Auth::user();
 
         if (!$user) {
-            return response()->json(['success' => false, 'message' => 'User not authenticated.']);
+            return response()->json([
+                'success' => false,
+                'message' => 'User not authenticated.'
+            ]);
         }
 
         $userId = $user->id;
         $now = Carbon::now('Asia/Colombo');
+        $today = $now->toDateString();
 
         if ($now->greaterThan(Carbon::createFromTime(17, 0, 0, 'Asia/Colombo'))) {
             return response()->json([
@@ -155,31 +159,36 @@ class EmployeeAttendanceController extends Controller
             ]);
         }
 
-        $today = $now->toDateString();
-
         $attendance = Attendance::where('user_id', $userId)
             ->whereDate('date', $today)
             ->first();
 
         if ($attendance && $attendance->check_in_time) {
-            return response()->json(['success' => false, 'message' => 'Already clocked in today.']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Already clocked in today.'
+            ]);
         }
+
+        $nineAm = Carbon::createFromTime(9, 0, 0, 'Asia/Colombo');
+        $status = $now->greaterThan($nineAm) ? 'late' : 'present';
 
         Attendance::updateOrCreate(
             ['user_id' => $userId, 'date' => $today],
             [
                 'check_in_time' => $now,
-                'status' => 'present',
+                'status' => $status,
             ]
         );
 
         return response()->json([
             'success' => true,
-            'message' => 'Clock-in successful.'
+            'message' => $status === 'late'
+                ? 'Clock-in successful (marked as late).'
+                : 'Clock-in successful (on time).',
+            'status' => $status
         ]);
     }
-
-
 
     public function clockOut()
     {

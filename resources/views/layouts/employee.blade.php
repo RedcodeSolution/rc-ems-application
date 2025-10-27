@@ -17,7 +17,6 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!-- Fallback for when Vite is not running -->
     @if (!app()->environment('local'))
         <link rel="stylesheet" href="{{ asset('build/assets/app-CObZ5BOq.css') }}">
         <script type="module" src="{{ asset('build/assets/app-l0sNRNKZ.js') }}"></script>
@@ -92,6 +91,14 @@
                     <i class="fas fa-bullhorn"></i>
                     <span>Announcements</span>
                 </a>
+
+                <a href="{{ route('employee.notifications') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('employee.notifications*') ? 'active' : '' }}">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                    <span class="badge"
+                        style="margin-left:auto;background: rgba(255, 255, 255, 0.2);color:white;border-radius:10px;padding:2px 8px;">0</span>
+                </a>
             </div>
 
             <div class="sidebar-menu-section">
@@ -111,7 +118,6 @@
                 <i class="fas fa-bars"></i>
             </button>
             <script>
-                // Show/hide sidebar toggle button based on screen size
                 function handleSidebarToggleVisibility() {
                     const toggleBtn = document.querySelector('.sidebar-toggle');
                     if (window.innerWidth <= 1024) {
@@ -162,7 +168,6 @@
     </div>
 
     <script>
-        // Mobile menu toggle functionality
         function toggleSidebar() {
             const sidebar = document.querySelector('.sidebar');
             sidebar.classList.toggle('active');

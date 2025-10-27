@@ -5,16 +5,30 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Document;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
-    public function index(){
-         $documents = Document::latest()->paginate(10);
+    public function index()
+    {
+        $documents = Document::latest()->paginate(10);
         $departments = Department::all();
 
         return view('admin.documents.index', compact('documents', 'departments'));
+    }
+
+    public function getProjectsByDepartment($departmentId)
+    {
+        $projects = Project::whereHas('team', function ($q) use ($departmentId) {
+            $q->where('department_id', $departmentId);
+        })->select('project_id', 'project_name')->get();
+
+        return response()->json([
+            'success' => true,
+            'projects' => $projects
+        ]);
     }
 
     public function store(Request $request)
@@ -63,13 +77,18 @@ class DocumentController extends Controller
 
     public function edit($document_id)
     {
-        $document = Document::with('department')->findOrFail($document_id);
+        $document = Document::with(['department', 'project'])->findOrFail($document_id);
+        $departments = Department::all();
+        $projects = Project::all();
 
         return response()->json([
             'success' => true,
-            'document' => $document
+            'document' => $document,
+            'departments' => $departments,
+            'projects' => $projects
         ]);
     }
+
 
     public function update(Request $request, $document_id)
     {
@@ -80,35 +99,53 @@ class DocumentController extends Controller
             'description'   => 'nullable|string',
             'category'      => 'required|string|max:100',
             'department_id' => 'nullable|exists:departments,department_id',
+            'project_id'    => 'nullable|exists:projects,project_id',
             'access_level'  => 'required|in:public,department,admin,restricted',
             'tags'          => 'nullable|string',
-            'file'          => 'nullable|file|max:10240',
+            'file'          => 'nullable|file|max:10240|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar',
+            'notify_users'  => 'nullable|boolean',
         ]);
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('documents', $filename, 'public');
+            $filename = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $path = $file->storeAs('documents', $filename, 'public');
 
+            // Delete old file if it exists
             if ($document->file_path && \Storage::disk('public')->exists($document->file_path)) {
                 \Storage::disk('public')->delete($document->file_path);
             }
 
-            $validated['file_path'] = 'documents/' . $filename;
+            $validated['file_path'] = $path;
         }
 
-        $document->update($validated);
+        $document->update([
+            'title'         => $validated['title'],
+            'description'   => $validated['description'] ?? $document->description,
+            'category'      => $validated['category'],
+            'department_id' => $validated['department_id'] ?? null,
+            'project_id'    => $validated['project_id'] ?? null,
+            'access_level'  => $validated['access_level'],
+            'tags'          => $validated['tags'] ?? null,
+            'file_path'     => $validated['file_path'] ?? $document->file_path,
+            'notify_users'  => $request->has('notify_users') ? true : false,
+        ]);
+
+        if ($request->has('notify_users')) {
+        }
 
         if ($request->ajax()) {
             return response()->json([
-                'success' => true,
-                'message' => 'Document updated successfully!',
-                'document' => $document
+                'success'  => true,
+                'message'  => 'Document updated successfully!',
+                'document' => $document->fresh(['department']),
             ]);
         }
-
-        return redirect()->route('admin.documents.index')->with('success', 'Document updated successfully!');
+        return redirect()
+            ->route('admin.documents.index')
+            ->with('success', 'Document updated successfully!');
     }
+
 
     public function show($document_id)
     {
@@ -117,9 +154,9 @@ class DocumentController extends Controller
         return response()->json([
             'document' => [
                 'id'         => $document->id,
-                'document_id'=> $document->document_id,
+                'document_id' => $document->document_id,
                 'title'      => $document->title,
-                'description'=> $document->description,
+                'description' => $document->description,
                 'category'   => $document->category,
                 'department' => $document->department->department_name ?? 'N/A',
                 'access'     => $document->access_level,
@@ -133,7 +170,6 @@ class DocumentController extends Controller
                 'size' => !empty($document->file_path) && file_exists(storage_path('app/public/' . $document->file_path))
                     ? filesize(storage_path('app/public/' . $document->file_path))
                     : 0,
-
             ]
         ]);
     }
@@ -182,8 +218,4 @@ class DocumentController extends Controller
         $filename = $document->title . '.' . pathinfo($filePath, PATHINFO_EXTENSION);
         return response()->download($filePath, $filename);
     }
-
-
-
-
 }
