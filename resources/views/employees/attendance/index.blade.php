@@ -1242,15 +1242,27 @@
             }
 
             async function confirmClock() {
-                const notes = document.getElementById('clockNotes').value.trim();
-                const action = document.getElementById('confirmClockBtn').getAttribute('data-action');
+                const notes = document.getElementById('clockNotes')?.value.trim() || '';
+                const action = document.getElementById('confirmClockBtn')?.getAttribute('data-action');
 
-                // Get correct route based on action
+                // Determine the correct route
                 const url = action === 'clock-in' ?
                     "{{ route('employee.clockIn') }}" :
                     "{{ route('employee.clockOut') }}";
 
                 try {
+
+                    if (action === 'clock-in') {
+                        const now = new Date();
+                        const hours = now.getHours();
+                        const minutes = now.getMinutes();
+
+                        if (hours > 17 || (hours === 17 && minutes > 0)) {
+                            showMessage('⏰ You cannot clock in after 5:00 PM.', 'error');
+                            closeClockModal();
+                            return;
+                        }
+                    }
                     const response = await fetch(url, {
                         method: "POST",
                         headers: {
@@ -1260,7 +1272,7 @@
                         },
                         body: JSON.stringify({
                             notes
-                        })
+                        }),
                     });
 
                     const data = await response.json();
@@ -1269,19 +1281,23 @@
                     if (data.success) {
                         console.log(action);
 
+                        const clockInBtn = document.getElementById('clockInBtn');
+                        const clockOutBtn = document.getElementById('clockOutBtn');
+
                         if (action === 'clock-in') {
-                            // Hide Clock In and show Clock Out
-                            document.getElementById('clockInBtn').style.display = 'none';
-                            document.getElementById('clockOutBtn').style.display = 'inline-flex';
+                            if (clockInBtn) clockInBtn.style.display = 'none';
+                            if (clockOutBtn) clockOutBtn.style.display = 'inline-flex';
                             clockedIn = true;
-                            showMessage('Successfully clocked in!', 'success');
+                            showMessage('✅ Successfully clocked in!', 'success');
                         } else {
-                            // Hide Clock Out and show Clock In
-                            document.getElementById('clockOutBtn').style.display = 'none';
-                            document.getElementById('clockInBtn').style.display = 'inline-flex';
+                            if (clockOutBtn) clockOutBtn.style.display = 'none';
+                            if (clockInBtn) clockInBtn.style.display = 'inline-flex';
                             clockedIn = false;
-                            showMessage('Successfully clocked out!', 'success');
+                            showMessage('✅ Successfully clocked out!', 'success');
                         }
+
+                        // Optional but recommended: reload to re-render all UI states cleanly
+                        setTimeout(() => location.reload(), 800);
                     } else {
                         showMessage(data.message || 'Something went wrong.', 'error');
                     }
@@ -1292,6 +1308,7 @@
 
                 closeClockModal();
             }
+
 
             function showMessage(message, type = 'info') {
                 const alertBox = document.createElement('div');
@@ -1373,6 +1390,8 @@
 
                         // --- Handle break button logic ---
                         if (data.on_break) {
+                            console.log(data.on_break);
+
                             breakBtn.textContent = 'End Break';
                             breakBtn.disabled = false;
                             breakBtn.onclick = endBreak;
@@ -1382,14 +1401,6 @@
                             breakBtn.disabled = false;
                             breakBtn.onclick = startBreak;
                             breakInfo.querySelector('p').textContent = 'Not on break';
-                        }
-
-                        // --- Enable emergency button by default (only if checked in) ---
-                        if (emergencyBtn) {
-                            emergencyBtn.textContent = 'Report Emergency';
-                            emergencyBtn.disabled = false;
-                            emergencyBtn.classList.remove('btn-disabled');
-                            emergencyBtn.onclick = reportEmergency;
                         }
 
                         // --- Sync emergency status ---
@@ -1409,8 +1420,11 @@
                     })
                     .then(res => res.json())
                     .then(data => {
+                        console.log("startBreak() response:", data);
                         alert(data.message);
-                        if (data.success) checkBreakStatus();
+                        if (data.success) {
+                            setTimeout(checkBreakStatus, 1000);
+                        }
                     });
             }
 
@@ -1531,6 +1545,7 @@
                 }
             });
 
+
             function updateEmergencyStatus() {
                 const emergencyStatusElement = document.querySelector('.status-card:last-child .status-info p');
                 const emergencyActionsElement = document.querySelector('.emergency-actions');
@@ -1544,55 +1559,41 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.success) {
-                            const emergency = data.emergency;
-
-                            if (emergency.is_active) {
-                                // Emergency currently active
-                                emergencyStatusElement.textContent = `🚨 Emergency break active - ${emergency.reason}`;
-                                emergencyActionsElement.innerHTML = `
-                    <button class="btn-sm btn-emergency" onclick="endEmergencyBreak()">End Emergency Break</button>
-                `;
-
-                                // Disable Break Button
-                                if (breakBtn) {
-                                    breakBtn.textContent = 'Unavailable';
-                                    breakBtn.disabled = true;
-                                    breakBtn.classList.add('btn-disabled');
-                                }
-
-                            } else if (emergency && emergency.total > 0) {
-                                // Past emergencies recorded, no active emergency
-                                emergencyStatusElement.textContent = `${emergency.total} emergency break(s) recorded`;
-                                emergencyActionsElement.innerHTML = `
-                    <button class="btn-sm btn-emergency" onclick="reportEmergency()">Report Emergency</button>
-                `;
-
-                                // Enable Break Button
-                                if (breakBtn) {
-                                    breakBtn.textContent = 'Start Break';
-                                    breakBtn.disabled = false;
-                                    breakBtn.classList.remove('btn-disabled');
-                                    breakBtn.onclick = startBreak;
-                                }
-
-                            } else {
-                                // No emergencies at all
-                                emergencyStatusElement.textContent = 'No emergency breaks';
-                                emergencyActionsElement.innerHTML = `
-                    <button class="btn-sm btn-emergency" onclick="reportEmergency()">Report Emergency</button>
-                `;
-
-                                // Enable Break Button
-                                if (breakBtn) {
-                                    breakBtn.textContent = 'Start Break';
-                                    breakBtn.disabled = false;
-                                    breakBtn.classList.remove('btn-disabled');
-                                    breakBtn.onclick = startBreak;
-                                }
-                            }
-                        } else {
+                        if (!data.success) {
                             emergencyStatusElement.textContent = 'Error loading emergency status';
+                            return;
+                        }
+
+                        const emergency = data.emergency;
+
+                        if (emergency.is_active) {
+                            emergencyStatusElement.textContent = `🚨 Emergency break active - ${emergency.reason}`;
+                            emergencyActionsElement.innerHTML = `
+                <button class="btn-sm btn-emergency" onclick="endEmergencyBreak()">End Emergency Break</button>
+            `;
+
+                            // Disable normal break button
+                            if (breakBtn) {
+                                breakBtn.textContent = 'Unavailable';
+                                breakBtn.disabled = true;
+                                breakBtn.classList.add('btn-disabled');
+                            }
+                        } else if (emergency.ended_today) {
+                            emergencyStatusElement.textContent = '✅ Emergency break completed today';
+                            emergencyActionsElement.innerHTML = `
+        <button class="btn-sm btn-emergency btn-disabled" disabled>Emergency Already Taken</button>
+    `;
+
+
+                        } else {
+                            emergencyStatusElement.textContent = emergency.total > 0 ?
+                                `${emergency.total} emergency break(s) recorded` :
+                                'No emergency breaks today';
+
+                            emergencyActionsElement.innerHTML = `
+                <button class="btn-sm btn-emergency" onclick="reportEmergency()">Report Emergency</button>
+            `;
+
                         }
                     })
                     .catch(error => {
@@ -1603,6 +1604,7 @@
         `;
                     });
             }
+
 
             function viewAttendanceDetails(attendanceId) {
                 console.log("Loading attendance for ID:", attendanceId);

@@ -3,17 +3,50 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
+use App\Models\Document;
 use App\Models\EmployeeDocument;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeDocumentController extends Controller
 {
     public function index()
     {
+        $employeeId = Auth::user()?->employee_id;
+
+
         $documents = EmployeeDocument::where('employee_id', auth()->user()->employee_id)
             ->paginate(6);
 
-        return view('employees.documents.index', compact('documents'));
+        if (!$employeeId) {
+            $employeeDocuments = collect(); // empty collection
+        } else {
+            // Fetch documents assigned to this employee with department and project info
+            $employeeDocuments = DB::table('documents')
+                ->join('projects', 'documents.project_id', '=', 'projects.project_id')
+                ->join('employee_project', 'projects.project_id', '=', 'employee_project.project_id')
+                ->leftJoin('departments', 'documents.department_id', '=', 'departments.department_id')
+                ->select(
+                    'documents.document_id',
+                    'documents.title',
+                    'documents.description',
+                    'documents.category',
+                    'documents.department_id',
+                    'departments.department_name',
+                    'documents.project_id',
+                    'projects.project_name',
+                    'documents.file_path',
+                    'documents.access_level',
+                    'documents.downloads',
+                    'documents.created_at'
+                )
+                ->where('employee_project.employee_id', $employeeId)
+                ->get();
+
+        }
+
+        return view('employees.documents.index', compact('documents', 'employeeDocuments'));
     }
 
 

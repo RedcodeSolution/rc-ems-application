@@ -192,7 +192,8 @@
     </div>
 
     <!-- Documents Grid -->
-    <div class="documents-content">
+    <div class="documents-content" style="margin-bottom: 3rem;">
+        <h3 class="text-xl font-semibold mb-4">Personal Documents</h3>
         <div id="documentsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem;">
             @forelse($documents as $document)
             @php
@@ -282,7 +283,6 @@
                         <i class="fas fa-share"></i>
                     </button>
 
-
                 </div>
 
             </div>
@@ -325,8 +325,88 @@
                 </a>
             </div>
         </div>
-
     </div>
+
+
+    <div class="documents-content" style="margin-top: 3rem;">
+        <h3 class="text-xl font-semibold mb-4">Company Documents</h3>
+        <div class="documents-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:2rem;">
+            @forelse($employeeDocuments as $document)
+            @php
+            $ext = strtolower(pathinfo($document->file_path, PATHINFO_EXTENSION));
+            $icon = 'fas fa-file';
+            $iconColor = '#6b7280';
+            $bgColor = '#f3f4f6';
+
+            switch($ext){
+            case 'pdf': $icon='fas fa-file-pdf'; $iconColor='#ef4444'; $bgColor='#fee2e2'; break;
+            case 'doc': case 'docx': $icon='fas fa-file-word'; $iconColor='#2563eb'; $bgColor='#dbeafe'; break;
+            case 'xls': case 'xlsx': $icon='fas fa-file-excel'; $iconColor='#059669'; $bgColor='#d1fae5'; break;
+            case 'ppt': case 'pptx': $icon='fas fa-file-powerpoint'; $iconColor='#d97706'; $bgColor='#fef3c7'; break;
+            case 'csv': $icon='fas fa-file-csv'; $iconColor='#0891b2'; $bgColor='#cffafe'; break;
+            case 'txt': $icon='fas fa-file-alt'; $iconColor='#6b7280'; $bgColor='#f3f4f6'; break;
+            }
+
+            $categoryColors = [
+            'policies'=>['bg'=>'rgba(59,130,246,0.1)','text'=>'#3B82F6'],
+            'forms'=>['bg'=>'rgba(16,185,129,0.1)','text'=>'#10B981'],
+            'contracts'=>['bg'=>'rgba(234,179,8,0.1)','text'=>'#EAB308'],
+            'reports'=>['bg'=>'rgba(239,68,68,0.1)','text'=>'#EF4444'],
+            'training'=>['bg'=>'rgba(168,85,247,0.1)','text'=>'#A855F7'],
+            'templates'=>['bg'=>'rgba(6,182,212,0.1)','text'=>'#06B6D4'],
+            ];
+
+            $catKey = strtolower($document->category ?? '');
+            $catBg = $categoryColors[$catKey]['bg'] ?? 'rgba(156,163,175,0.1)';
+            $catText = $categoryColors[$catKey]['text'] ?? '#9CA3AF';
+            @endphp
+
+            <div class="document-card card p-4 border rounded">
+                <div class="card-header flex justify-between items-start mb-2">
+                    <div style="width:3rem;height:3rem;background:{{ $bgColor }};border-radius:0.5rem;display:flex;align-items:center;justify-content:center;color:{{ $iconColor }};">
+                        <i class="{{ $icon }}" style="font-size:1.25rem;"></i>
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+                    <h4 class="mb-2 font-semibold text-gray-800">{{ $document->title }}</h4>
+                    <p class="text-gray-600 mb-4">{{ $document->description }}</p>
+
+                    <div class="flex justify-between mb-4 items-center">
+                        <span class="badge" style="background: {{ $catBg }}; color: {{ $catText }}; padding:0.25rem 0.75rem;border-radius:1rem;font-size:0.75rem;">
+                            {{ $document->category }}
+                        </span>
+                    </div>
+
+                    <div class="text-gray-500 text-sm">
+                        <div>Department: {{ $document->department_name ?? 'N/A' }}</div>
+                        <div>Project: {{ $document->project_name ?? 'N/A' }}</div>
+                        <span><i class="fas fa-calendar"></i> {{ \Carbon\Carbon::parse($document->created_at)->format('M d, Y') }}</span>
+                    </div>
+                </div>
+
+                <div class="document-actions">
+                    <a href="{{ route('employee.documents.download', $document->document_id) }}" class="action-btn" title="Download">
+                        <i class="fas fa-download"></i>
+                    </a>
+                    <button class="action-btn"
+                            title="Share Document">
+                        <i class="fas fa-share"></i>
+                    </button>
+
+                </div>
+
+            </div>
+            @empty
+            <p class="text-gray-500">No documents assigned to you yet.</p>
+            @endforelse
+        </div>
+    </div>
+
+
+
+
 
 
 
@@ -785,9 +865,10 @@
 
     .documents-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2.5rem; /* Increased gap */
     }
+
 
     .document-card {
         background: var(--bg-primary);

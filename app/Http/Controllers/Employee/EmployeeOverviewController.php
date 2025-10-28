@@ -174,6 +174,7 @@ class EmployeeOverviewController extends Controller
     }
 
 
+
     public function join(Meeting $meeting)
     {
         if ($meeting->status === 'scheduled') {

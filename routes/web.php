@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAnnouncementsController;
+use App\Http\Controllers\Admin\AdminAttendanceController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AdminsLeaveController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\Employee\EmployeeProfileController;
 use App\Http\Controllers\Employee\EmployeeProjectController;
 use App\Http\Controllers\Employee\EmployeeTaskController;
 use App\Http\Controllers\Employee\EmployeeRatingController as EmployeeEmployeeRatingController;
+use App\Http\Controllers\Employee\EmployeeNotificationController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NotificationController;
@@ -31,6 +33,7 @@ use App\Http\Controllers\SuperAdmin\AdminLeaveController;
 use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
 use App\Http\Controllers\SuperAdmin\EventController;
 use App\Http\Controllers\SuperAdmin\SuperAdminAccountsController;
+use App\Http\Controllers\SuperAdmin\SuperAdminEmployeeAttendanceController;
 use App\Models\Admin;
 use App\Models\Department;
 use App\Models\Employee;
@@ -179,8 +182,8 @@ Route::middleware('auth')->group(function () {
         ->parameters(['ratings' => 'rating']);
 
     // Employee rating submission and data routes
-    Route::post('/employees/ratings', [EmployeeRatingController::class, 'store'])->name('employee.ratings.store');
-    Route::get('/employees/ratings/employee/{employeeId}', [EmployeeRatingController::class, 'getEmployeeRatings'])->name('employee.ratings.employee');
+    Route::post('/employees/ratings', [EmployeeEmployeeRatingController::class, 'store'])->name('employee.ratings.store');
+    Route::get('/employees/ratings/employee/{employeeId}', [EmployeeEmployeeRatingController::class, 'getEmployeeRatings'])->name('employee.ratings.employee');
 
     Route::get('/super_admin/dashboard', [SuperAdminController::class, 'dashboard'])->name('super_admin.dashboard');
     Route::get('/super_admin/system_stats', [SuperAdminController::class, 'systemStats'])->name('super_admin.system_stats');
@@ -255,6 +258,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/announcements/{id}', [EmployeeAnnouncementController::class, 'show']);
         Route::post('/employee/announcements/{id}/read', [EmployeeAnnouncementController::class, 'markAsRead']);
 
+        // Attendance
+        Route::get('/attendances', [AdminAttendanceController::class, 'index'])->name('attendance.index');
 
 
         // Dynamic team loading by department
@@ -294,7 +299,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/other', function () {
             return view('admin.other.index');
         })->name('other');
-
 
         Route::resource('employeeRatings', \App\Http\Controllers\Admin\EmployeeRatingsController::class);
     });
@@ -341,9 +345,27 @@ Route::middleware('auth')->group(function () {
     Route::get('/meetings/today', [MeetingController::class, 'getTodayMeeting'])->name('meetings.today');
     Route::patch('/meetings/{meeting}/status', [MeetingController::class, 'updateStatus'])->name('meetings.update-status');
 });
+// Employee-specific routes
+Route::middleware('auth')->prefix('employee')->name('employee.')->group(function () {
+    // Leave Management
+    // Route::get('/leaves', function () {
+    //     return view('employees.leaves.index');
+    // })->name('leaves.index');
+
+    // Dashboard
+    Route::get('/dashboard', [EmployeeOverviewController::class, 'index'])->name('dashboard');
+
+    // Announcements
 
 
-
+    // Notifications for employees
+    Route::get('/notifications', [EmployeeNotificationController::class, 'index'])->name('notifications');
+    Route::get('/notifications/{notifi_id}', [EmployeeNotificationController::class, 'show'])->name('notifications.show');
+    Route::post('/notifications/{id}/mark-as-read', [EmployeeNotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('/notifications/mark-all-as-read', [EmployeeNotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+    Route::delete('/notifications/{id}', [EmployeeNotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::get('/notifications/latest', [EmployeeNotificationController::class, 'latest'])->name('notifications.latest');
+});
 //department Management
 Route::get('/admin/department', [DepartmentController::class, 'index'])->name('admin.departments.index');
 Route::get('/admin/create', [DepartmentController::class, 'create'])->name('admin.departments.create');
@@ -380,6 +402,9 @@ Route::prefix('super-admin')->name('super_admin.')->group(function () {
     Route::put('/admins/{adminId}', [AdminController::class, 'update'])->name('update');
     Route::get('/{adminId}/show', [AdminController::class, 'show'])->name('show');
     Route::delete('/admins/{adminId}', [AdminController::class, 'destroy'])->name('destroy');
+
+    //Attendance
+    Route::get('/attendances', [SuperAdminEmployeeAttendanceController::class, 'index'])->name('attendance.index');
 });
 
 // Report Management
@@ -397,11 +422,14 @@ Route::get('/admin/documents/{document_id}', [DocumentController::class, 'show']
 Route::get('/admin/documents/download/{document_id}', [DocumentController::class, 'download'])->name('admin.documents.download');
 Route::delete('/admin/documents/{document_id}', [DocumentController::class, 'destroy'])->name('admin.documents.destroy');
 Route::post('/admin/documents/increment-download/{id}', [DocumentController::class, 'incrementDownload'])->name('documents.increment');
+Route::get('/admin/departments/{department}/projects', [DocumentController::class, 'getProjectsByDepartment']);
+
 
 
 Route::get('/admin/employeeRatings/employee/{employeeId}', [App\Http\Controllers\Admin\EmployeeRatingsController::class, 'employeeRatingsJson']);
 Route::get('/super_admin/super_admin_accounts', [SuperAdminAccountsController::class, 'index'])->name('super_admin.super_admin_accounts');
 Route::post('/super_admin/super_admin_accounts', [SuperAdminAccountsController::class, 'store'])->name('super_admin_accounts.store');
+Route::put('/super_admin/super_admin_accounts/{id}/change-password', [SuperAdminAccountsController::class, 'changePassword'])->name('super_admin_accounts.changePassword');
 Route::get('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'show'])->name('super_admin_accounts.show');
 Route::put('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'update'])->name('super_admin_accounts.update');
 Route::delete('/super_admin/super_admin_accounts/{id}', [SuperAdminAccountsController::class, 'destroy'])->name('super_admin_accounts.destroy');
@@ -429,14 +457,19 @@ Route::post('/admin/profile/update', [AdminProfileController::class, 'update'])-
 
 
 Route::prefix('employee')->name('employee.')->middleware(['auth'])->group(function () {
+    // List all documents assigned to the employee
     Route::get('/documents', [EmployeeDocumentController::class, 'index'])->name('documents');
-    Route::post('/documents', [EmployeeDocumentController::class, 'store'])->name('documents.store');
-    Route::get('/employee-documents/download/{id}', [EmployeeDocumentController::class, 'download'])->name('documents.download');
-    Route::get('/employee-documents/share/{id}', [EmployeeDocumentController::class, 'share'])->name('documents.share');
 
+    // Store/upload a new document (if employees are allowed to upload)
+    Route::post('/documents', [EmployeeDocumentController::class, 'store'])->name('documents.store');
+
+    // Download a document
+    Route::get('/documents/download/{id}', [EmployeeDocumentController::class, 'download'])->name('documents.download');
+
+    // Share a document
+    Route::get('/documents/share/{id}', [EmployeeDocumentController::class, 'share'])->name('documents.share');
 });
 
-// web.php
 Route::get('/employee/projects', [EmployeeProjectController::class, 'index'])->middleware('auth')->name('employee.projects');
 Route::get('/employee/projects/{project}', [EmployeeProjectController::class, 'show'])->name('employee.projects.show');
 
