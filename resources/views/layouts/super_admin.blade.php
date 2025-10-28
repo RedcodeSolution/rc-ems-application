@@ -7,23 +7,19 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'EMS') }} - @yield('title', 'Super Admin Dashboard')</title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/SuperAdmin/superAdmin.css') }}">
-    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 </head>
 
 <body>
-    <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-brand">
             <h2>RedCode Solutions</h2>
@@ -125,11 +121,11 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
 
-                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                <form method="POST" action="{{ route('logout') }}" class="nav-logout">
                     @csrf
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
+                    <button type="submit" class="btn btn-primary" aria-label="Logout">
+                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                        <span class="btn-text">Logout</span>
                     </button>
                 </form>
             </div>
@@ -146,7 +142,6 @@
             const sidebar = document.querySelector('.sidebar');
             sidebar.classList.toggle('active');
         }
-
 
         document.addEventListener('click', function(e) {
             const sidebar = document.querySelector('.sidebar');
