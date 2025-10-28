@@ -25,7 +25,6 @@
     </div>
 </div>
 
-<!-- Statistics Cards -->
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-icon total">
@@ -68,7 +67,6 @@
     </div>
 </div>
 
-<!-- Content Tabs -->
 <div class="content-tabs">
     <div class="tab-navigation">
         <button class="tab-button active" data-tab="all">
@@ -92,7 +90,6 @@
         </button>
     </div>
 
-    <!-- All Events Tab -->
     <div class="tab-panel active" id="all-panel">
         <div class="panel-header">
             <h3>All Events</h3>
@@ -180,7 +177,6 @@
         </div>
     </div>
 
-    <!-- Upcoming Events Tab -->
     <div class="tab-panel" id="upcoming-panel">
         <div class="panel-header">
             <h3>Upcoming Events</h3>
@@ -256,7 +252,6 @@
         </div>
     </div>
 
-    <!-- Completed Events Tab -->
     <div class="tab-panel" id="completed-panel">
         <div class="panel-header">
             <h3>Completed Events</h3>
@@ -328,7 +323,6 @@
         </div>
     </div>
 
-    <!-- Calendar View Tab -->
     <div class="tab-panel" id="calendar-panel">
         <div class="panel-header">
             <h3>Calendar View</h3>
@@ -354,13 +348,11 @@
                 <div class="calendar-day-header">Sat</div>
             </div>
             <div class="calendar-body" id="calendarBody">
-                <!-- Calendar will be populated by JavaScript -->
             </div>
         </div>
     </div>
 </div>
 
-<!-- Event Details Modal -->
 <div class="modal" id="eventDetailsModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -370,35 +362,28 @@
             </button>
         </div>
         <div class="modal-body" id="eventDetailsContent">
-            <!-- Content will be loaded here -->
         </div>
     </div>
 </div>
 
 <script>
-// Tab switching functionality
 document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
         const tabName = button.getAttribute('data-tab');
 
-        // Remove active class from all tabs and panels
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
 
-        // Add active class to clicked tab and corresponding panel
         button.classList.add('active');
         document.getElementById(tabName + '-panel').classList.add('active');
 
-        // Initialize calendar if calendar tab is selected
         if (tabName === 'calendar') {
             initializeCalendar();
         }
     });
 });
 
-// Event management functions
 function viewEvent(eventId) {
-    // Load event details via AJAX
     fetch(`/super_admin/events/${eventId}`)
         .then(response => response.text())
         .then(html => {
@@ -538,7 +523,21 @@ function nextMonth() {
     renderCalendar();
 }
 
-// Close modal when clicking outside
+document.addEventListener('DOMContentLoaded', function () {
+    const activeTab = document.querySelector('.tab-navigation .tab-button.active');
+    if (activeTab) {
+        activeTab.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
+    }
+
+    document.querySelectorAll('.tab-navigation .tab-button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            setTimeout(() => {
+                btn.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
+            }, 120);
+        });
+    });
+});
+
 window.onclick = function(event) {
     const modal = document.getElementById('eventDetailsModal');
     if (event.target === modal) {

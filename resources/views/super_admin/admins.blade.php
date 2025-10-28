@@ -188,8 +188,7 @@
                                     <button type="submit" class="action-btn delete-btn" title="Delete Admin"
                                             onclick="return confirm('Are you sure you want to delete this admin?');">
                                         <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                                    </form>
 
                             </div>
                         </td>
@@ -240,7 +239,6 @@
                 @csrf
                 <div class="form-container">
                     <div class="form-row">
-                        <!-- Admin Name -->
                         <div class="form-group">
                             <label for="admin_name" class="form-label">
                                 <i class="fas fa-user"></i> Full Name
@@ -333,7 +331,6 @@
 
                 <div class="form-container">
                     <div class="form-row">
-                        <!-- Admin Name -->
                         <div class="form-group">
                             <label for="edit_admin_name" class="form-label">
                                 <i class="fas fa-user"></i> Admin Name
@@ -341,7 +338,6 @@
                             <input type="text" id="edit_admin_name" name="admin_name" class="form-input" placeholder="Enter admin name" required>
                         </div>
 
-                        <!-- Role as Input Field -->
                         <div class="form-group">
                             <label for="edit_role" class="form-label">
                                 <i class="fas fa-user-shield"></i> Role
@@ -352,7 +348,6 @@
                     </div>
 
                     <div class="form-row">
-                        <!-- Email -->
                         <div class="form-group">
                             <label for="edit_email" class="form-label">
                                 <i class="fas fa-envelope"></i> Email
@@ -360,7 +355,6 @@
                             <input type="email" id="edit_email" name="email" class="form-input" placeholder="Enter email" required>
                         </div>
 
-                        <!-- Contact -->
                         <div class="form-group">
                             <label for="edit_contact_no" class="form-label">
                                 <i class="fas fa-phone"></i> Contact
@@ -370,17 +364,18 @@
                     </div>
 
                     <div class="form-row">
-                        <!-- Department -->
                         <div class="form-group">
                             <label for="edit_department_id" class="form-label">
                                 <i class="fas fa-building"></i> Department
                             </label>
                             <select id="edit_department_id" name="department_id" class="form-select" required>
                                 <option value="">Select Department</option>
+                                @foreach($departments as $department)
+                                    <option value="{{ $department->department_id }}">{{ $department->department_name }}</option>
+                                @endforeach
                             </select>
                         </div>
 
-                        <!-- Status -->
                         <div class="form-group">
                             <label for="edit_status" class="form-label">
                                 <i class="fas fa-toggle-on"></i> Status
@@ -408,363 +403,285 @@
     </div>
 </div>
 
-<!-- View Admin Modal -->
-<div id="viewAdminModal" class="modal">
+<div id="viewAdminModal" class="modal" role="dialog" aria-modal="true" aria-label="View Administrator">
     <div class="modal-content">
         <div class="modal-header">
-            <h3><i class="fas fa-eye"></i> View Admin Details</h3>
-            <button class="modal-close" onclick="closeViewAdminModal()">&times;</button>
+            <h3><i class="fas fa-eye"></i> Admin Details</h3>
+            <button class="modal-close" onclick="closeViewAdminModal()" aria-label="Close view dialog">&times;</button>
         </div>
 
         <div class="modal-body">
             <div class="profile-card">
-                <!-- Profile Section -->
                 <div class="profile-section">
-                    <div class="avatar" id="view_admin_initials"></div>
+                    <div class="avatar" id="view_admin_initials" aria-hidden="true">—</div>
                     <div class="profile-info">
-                        <h2 id="view_admin_name"></h2>
-                        <p class="admin-id" id="view_admin_id"></p>
-                        <p class="role-text" id="view_admin_role"></p>
+                        <h2 id="view_admin_name">—</h2>
+                        <div class="profile-sub">
+                            <span class="role-text" id="view_admin_role">—</span>
+                            <span class="profile-id" id="view_admin_id">—</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Details -->
                 <div class="details-container">
                     <div class="details-grid">
-
-                    <div class="detail-item">
-                        <div class="detail-header">
-                            <i class="fas fa-envelope detail-icon"></i>
-                            <span class="detail-label">Email</span>
+                        <div class="detail-item">
+                            <div class="detail-header">
+                                <i class="fas fa-envelope detail-icon"></i>
+                                <span class="detail-label">Email</span>
+                            </div>
+                            <div class="detail-value" id="view_admin_email">—</div>
                         </div>
-                        <div class="detail-value" id="view_admin_email"></div>
-                    </div>
 
-                    <div class="detail-item">
-                        <div class="detail-header">
-                            <i class="fas fa-phone detail-icon"></i>
-                            <span class="detail-label">Contact</span>
+                        <div class="detail-item">
+                            <div class="detail-header">
+                                <i class="fas fa-phone detail-icon"></i>
+                                <span class="detail-label">Contact</span>
+                            </div>
+                            <div class="detail-value" id="view_admin_contact">—</div>
                         </div>
-                        <div class="detail-value" id="view_admin_contact"></div>
-                    </div>
 
-                    <div class="detail-item">
-                        <div class="detail-header">
-                            <i class="fas fa-building detail-icon"></i>
-                            <span class="detail-label">Department</span>
+                        <div class="detail-item">
+                            <div class="detail-header">
+                                <i class="fas fa-building detail-icon"></i>
+                                <span class="detail-label">Department</span>
+                            </div>
+                            <div class="detail-value" id="view_admin_department">—</div>
                         </div>
-                        <div class="detail-value" id="view_admin_department"></div>
-                    </div>
 
-                    <div class="detail-item">
-                        <div class="detail-header">
-                            <i class="fas fa-clock detail-icon"></i>
-                            <span class="detail-label">Last Login</span>
+                        <div class="detail-item">
+                            <div class="detail-header">
+                                <i class="fas fa-toggle-on detail-icon"></i>
+                                <span class="detail-label">Status</span>
+                            </div>
+                            <div class="detail-value" id="view_admin_status">—</div>
                         </div>
-                        <div class="detail-value" id="view_admin_last_login">1 day ago</div>
-                    </div>
-
-                    <div class="detail-item">
-                        <div class="detail-header">
-                            <i class="fas fa-toggle-on detail-icon"></i>
-                            <span class="detail-label">Status</span>
-                        </div>
-                        <div class="detail-value status-active" id="view_admin_status"></div>
-                    </div>
 
                         <div class="detail-item">
                             <div class="detail-header">
                                 <i class="fas fa-calendar-plus detail-icon"></i>
                                 <span class="detail-label">Created</span>
                             </div>
-                            <div class="detail-value" id="view_admin_created">
-                                <div class="created-date">
-                                    <div class="date-primary" id="view_admin_created_date"></div>
-                                    <div class="date-secondary" id="view_admin_created_time"></div>
-                                </div>
+                            <div class="detail-value">
+                                <div id="view_admin_created_date">—</div>
+                                <div id="view_admin_created_time" class="muted small">—</div>
                             </div>
                         </div>
+
+                        <div class="detail-item">
+                            <div class="detail-header">
+                                <i class="fas fa-clock detail-icon"></i>
+                                <span class="detail-label">Last Login</span>
+                            </div>
+                            <div class="detail-value" id="view_admin_last_login">—</div>
+                        </div>
                     </div>
+                </div>
             </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="openEditAdminModal(document.getElementById('view_admin_id').textContent)">
+                <i class="fas fa-edit"></i> Edit
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="closeViewAdminModal()">
+                <i class="fas fa-times"></i> Close
+            </button>
         </div>
     </div>
 </div>
 
-
 <script>
     function viewAdmin(adminId) {
-        const modal = document.getElementById('viewAdminModal');
-        modal.classList.add('active');
-
-        // Fetch admin data from backend
-        fetch(`/super-admin/${adminId}/show`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json',
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const admin = data.admin;
-
-                    // Basic Information
-                    document.getElementById('view_admin_name').textContent = admin.admin_name || 'N/A';
-                    document.getElementById('view_admin_id').textContent = admin.admin_id || 'N/A';
-                    document.getElementById('view_admin_role').textContent = admin.role || 'N/A';
-
-                    // Initials for avatar
-                    const initials = admin.admin_name
-                        ? admin.admin_name.split(" ").map(n => n[0]).join("").toUpperCase()
-                        : "NA";
-                    document.getElementById('view_admin_initials').textContent = initials;
-
-                    // Contact & Email
-                    document.getElementById('view_admin_email').textContent = admin.email || 'N/A';
-                    document.getElementById('view_admin_contact').textContent = admin.contact_no || 'N/A';
-
-                    // Department
-                    document.getElementById('view_admin_department').textContent =
-                        admin.department?.department_name || 'Not Assigned';
-
-                    // Status
-                    const statusField = document.getElementById('view_admin_status');
-                    statusField.textContent = admin.status || 'N/A';
-                    statusField.className = 'detail-value font-medium'; // reset any previous classes
-
-                    if (admin.status) {
-                        const status = admin.status.toLowerCase();
-
-                        if (status === 'active') {
-                            statusField.classList.add('text-green-600'); // green
-                        } else if (status === 'inactive') {
-                            statusField.classList.add('text-gray-500'); // gray
-                        } else if (status.includes('leave')) {
-                            statusField.classList.add('text-yellow-600'); // yellow
-                        } else if (status.includes('terminated')) {
-                            statusField.classList.add('text-red-600'); // red
-                        }
-                    }
-
-                    if(admin.created_at) {
-                        const created = new Date(admin.created_at);
-                        document.getElementById('view_admin_created_date').textContent =
-                            created.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                        document.getElementById('view_admin_created_time').textContent =
-                            created.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
-                    } else {
-                        document.getElementById('view_admin_created_date').textContent = 'N/A';
-                        document.getElementById('view_admin_created_time').textContent = '';
-                    }
-
-
-                } else {
-                    throw new Error(data.message || 'Failed to fetch admin data');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error loading admin data: ' + error.message);
-                closeViewAdminModal();
-            });
-    }
-
-    function closeViewAdminModal() {
-        document.getElementById('viewAdminModal').classList.remove('active');
-    }
-
-
-
-    const modal = document.getElementById('editAdminModal');
-    const form = document.getElementById('editAdminForm');
-
-
-    function openEditAdminModal(adminId) {
         if (!adminId) return alert('Admin ID missing!');
+        const modal = document.getElementById('viewAdminModal');
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
 
-        const modal = document.getElementById('editAdminModal');
-        const form = document.getElementById('editAdminForm');
+        const fields = [
+            'view_admin_name','view_admin_id','view_admin_role','view_admin_initials',
+            'view_admin_email','view_admin_contact','view_admin_department','view_admin_status',
+            'view_admin_created_date','view_admin_created_time','view_admin_last_login'
+        ];
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = id === 'view_admin_name' ? 'Loading...' : '—';
+            el.className = el.className.replace(/\btext-(green|gray|yellow|red)-\d{3}\b/g, '');
+        });
 
-        // Reset form and set action
-        form.reset();
-        form.action = `/super-admin/admins/${adminId}`; // PUT route
-
-        // Show modal
-        modal.classList.add('active');
-
-        // Fetch admin data
-        fetch(`/super-admin/admins/${adminId}/edit`, {
+        fetch(`/super-admin/${adminId}/show`, {
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
         })
-            .then(res => res.json())
-            .then(data => {
-                if (!data.success) throw new Error('Failed to fetch admin data');
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) throw new Error(data.message || 'Failed to fetch admin data');
+            const admin = data.admin;
 
-                const admin = data.admin;
-                const departments = data.departments;
+            document.getElementById('view_admin_name').textContent = admin.admin_name || 'N/A';
+            document.getElementById('view_admin_id').textContent = admin.admin_id || 'N/A';
+            document.getElementById('view_admin_role').textContent = admin.role || 'N/A';
 
-                // Populate form fields
-                document.getElementById('edit_admin_name').value = admin.admin_name;
-                document.getElementById('edit_role').value = admin.role;
-                document.getElementById('edit_email').value = admin.email;
-                document.getElementById('edit_contact_no').value = admin.contact_no;
-                document.getElementById('edit_status').value = admin.status;
+            const initials = admin.admin_name
+                ? admin.admin_name.split(' ').map(n => n[0]).join('').toUpperCase()
+                : 'NA';
+            const avatar = document.getElementById('view_admin_initials');
+            if (avatar) avatar.textContent = initials;
 
-                // Populate department select
-                const deptSelect = document.getElementById('edit_department_id');
-                deptSelect.innerHTML = '<option value="">Select Department</option>';
-                departments.forEach(dep => {
-                    const option = document.createElement('option');
-                    option.value = dep.department_id;
-                    option.textContent = dep.department_name;
-                    if (dep.department_id === admin.department_id) option.selected = true;
-                    deptSelect.appendChild(option);
-                });
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Error loading admin data');
-                modal.classList.remove('active');
-            });
-    }
+            document.getElementById('view_admin_email').textContent = admin.email || 'N/A';
+            document.getElementById('view_admin_contact').textContent = admin.contact_no || 'N/A';
+            document.getElementById('view_admin_department').textContent = admin.department?.department_name || 'Not Assigned';
 
-    function closeEditAdminModal() {
-        const modal = document.getElementById('editAdminModal');
-        modal.classList.remove('active');
-    }
+            const statusField = document.getElementById('view_admin_status');
+            if (statusField) {
+                statusField.textContent = admin.status || 'N/A';
+                statusField.className = 'detail-value';
+                if (admin.status) {
+                    const s = admin.status.toLowerCase();
+                    if (s === 'active') statusField.classList.add('text-green-600');
+                    else if (s === 'inactive') statusField.classList.add('text-gray-500');
+                    else if (s.includes('leave')) statusField.classList.add('text-yellow-600');
+                    else if (s.includes('terminated')) statusField.classList.add('text-red-600');
+                }
+            }
 
-    // Search functionality
-    function initializeSearch() {
-        const searchInput = document.getElementById('adminSearch');
-        const statusFilter = document.getElementById('statusFilter');
-        const roleFilter = document.getElementById('roleFilter');
+            if (admin.created_at) {
+                const created = new Date(admin.created_at);
+                document.getElementById('view_admin_created_date').textContent =
+                    created.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                document.getElementById('view_admin_created_time').textContent =
+                    created.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+            } else {
+                document.getElementById('view_admin_created_date').textContent = 'N/A';
+                document.getElementById('view_admin_created_time').textContent = '';
+            }
 
-        function filterTable() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const statusValue = statusFilter.value.toLowerCase();
-            const roleValue = roleFilter.value.toLowerCase();
-
-            const rows = document.querySelectorAll('.admin-row');
-
-            rows.forEach(row => {
-                const adminName = row.querySelector('.name-primary').textContent.toLowerCase();
-                const adminId = row.querySelector('.id-text').textContent.toLowerCase();
-                const visible = adminName.includes(searchTerm) || adminId.includes(searchTerm);
-
-                row.style.display = visible ? 'table-row' : 'none';
-            });
-        }
-
-        searchInput.addEventListener('input', filterTable);
-        statusFilter.addEventListener('change', filterTable);
-        roleFilter.addEventListener('change', filterTable);
-    }
-
-    // Select all functionality
-    function toggleSelectAll() {
-        const selectAll = document.getElementById('selectAll');
-        const checkboxes = document.querySelectorAll('.admin-checkbox');
-
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = selectAll.checked;
+            document.getElementById('view_admin_last_login').textContent = admin.last_login
+                ? new Date(admin.last_login).toLocaleString()
+                : 'N/A';
+        })
+        .catch(err => {
+            console.error('Error loading admin data:', err);
+            alert('Error loading admin data.');
+            closeViewAdminModal();
         });
     }
 
-    // Modal functions
+    function closeViewAdminModal() {
+        const modal = document.getElementById('viewAdminModal');
+        if (!modal) return;
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
+
     function openAddAdminModal() {
-        document.getElementById('addAdminModal').classList.add('show');
+        const modal = document.getElementById('addAdminModal');
+        if (!modal) return console.warn('addAdminModal not found');
+        modal.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
 
     function closeAddAdminModal() {
-        document.getElementById('addAdminModal').classList.remove('show');
+        const modal = document.getElementById('addAdminModal');
+        if (!modal) return;
+        modal.classList.remove('show');
         document.body.style.overflow = 'auto';
-        document.getElementById('addAdminForm').reset();
+        const form = document.getElementById('addAdminForm');
+        if (form) form.reset();
     }
 
-    function submitAddAdminForm(event) {
-        event.preventDefault();
-
-        // Get form data
-        const formData = new FormData(event.target);
-        const adminData = Object.fromEntries(formData);
-
-        // Here you would normally send the data to your backend
-        console.log('Adding admin:', adminData);
-
-        // Show success message
-        showNotification('Admin added successfully!', 'success');
-
-        // Close modal
-        closeAddAdminModal();
-
-        // Refresh table (in a real app, you'd reload data from server)
-        // refreshAdminData();
-    }
-
-    // Action functions
-    // function viewAdmin(adminId) {
-    //     showNotification(`Viewing admin: ${adminId}`, 'info');
-    //     // Implement view functionality
-    // }
-
-    function editAdmin(adminId) {
-        showNotification(`Editing admin: ${adminId}`, 'info');
-        // Implement edit functionality
-    }
-
-    function deleteAdmin(adminId) {
-        if (confirm(`Are you sure you want to delete admin ${adminId}?`)) {
-            showNotification(`Admin ${adminId} deleted successfully!`, 'success');
-            // Implement delete functionality
+    document.addEventListener('DOMContentLoaded', function () {
+        const viewModal = document.getElementById('viewAdminModal');
+        if (viewModal) {
+            viewModal.addEventListener('click', function (e) {
+                if (e.target === this) closeViewAdminModal();
+            });
         }
-    }
 
-    function refreshAdminData() {
-        showNotification('Refreshing admin data...', 'info');
-        // Implement refresh functionality
-    }
+        const addModal = document.getElementById('addAdminModal');
+        if (addModal) {
+            addModal.addEventListener('click', function (e) {
+                if (e.target === this) closeAddAdminModal();
+            });
+        }
 
-    function exportAdminData() {
-        showNotification('Exporting admin data...', 'info');
-        // Implement export functionality
-    }
+        const editModal = document.getElementById('editAdminModal');
+        if (editModal) {
+            editModal.addEventListener('click', function (e) {
+                if (e.target === this) closeEditAdminModal();
+            });
+        }
 
-    // Notification function
-    function showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.textContent = message;
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem 1.5rem;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            z-index: 10000;
-            border-left: 4px solid ${type === 'success' ? '#10B981' : type === 'error' ? '#DC2626' : '#2563EB'};
-            font-weight: 500;
-        `;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
-    }
-
-    // Initialize when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeSearch();
-
-        // Close modal when clicking outside
-        document.getElementById('addAdminModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeAddAdminModal();
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' || e.key === 'Esc') {
+                closeViewAdminModal();
+                const add = document.getElementById('addAdminModal'); if (add) add.classList.remove('show');
+                const edit = document.getElementById('editAdminModal'); if (edit) edit.classList.remove('show');
+                document.body.style.overflow = 'auto';
             }
         });
     });
+
+    function openEditAdminModal(adminId) {
+        if (!adminId) return alert('Admin ID missing!');
+        const modal = document.getElementById('editAdminModal');
+        if (!modal) return console.warn('editAdminModal not found');
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+
+        const form = document.getElementById('editAdminForm');
+        if (form) {
+            form.action = `/super-admin/${adminId}`;
+        }
+
+        ['edit_admin_name','edit_role','edit_email','edit_contact_no','edit_status','edit_department_id'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (el.tagName === 'SELECT') el.value = '';
+                else el.value = '';
+            }
+        });
+
+        fetch(`/super-admin/${adminId}/show`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) throw new Error(data.message || 'Failed to fetch admin data');
+            const admin = data.admin;
+
+            document.getElementById('edit_admin_name').value = admin.admin_name || '';
+            document.getElementById('edit_role').value = admin.role || '';
+            document.getElementById('edit_email').value = admin.email || '';
+            document.getElementById('edit_contact_no').value = admin.contact_no || '';
+            if (admin.status) document.getElementById('edit_status').value = admin.status;
+
+            const deptSelect = document.getElementById('edit_department_id');
+            if (deptSelect) {
+                if (admin.department && admin.department.department_id) {
+                    const opt = deptSelect.querySelector(`option[value="${admin.department.department_id}"]`);
+                    if (opt) opt.selected = true;
+                    else deptSelect.value = admin.department.department_id;
+                } else {
+                    deptSelect.value = '';
+                }
+            }
+        })
+        .catch(err => {
+            console.error('Error loading admin for edit:', err);
+            alert('Error loading admin data.');
+            closeEditAdminModal();
+        });
+    }
+
+    function closeEditAdminModal() {
+        const modal = document.getElementById('editAdminModal');
+        if (!modal) return;
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+        const form = document.getElementById('editAdminForm');
+        if (form) form.reset();
+    }
 </script>
+
 @endsection
