@@ -1257,11 +1257,11 @@
                         const hours = now.getHours();
                         const minutes = now.getMinutes();
 
-                        if (hours > 17 || (hours === 17 && minutes > 0)) {
-                            showMessage('⏰ You cannot clock in after 5:00 PM.', 'error');
-                            closeClockModal();
-                            return;
-                        }
+                        // if (hours > 17 || (hours === 17 && minutes > 0)) {
+                        //     showMessage('⏰ You cannot clock in after 5:00 PM.', 'error');
+                        //     closeClockModal();
+                        //     return;
+                        // }
                     }
                     const response = await fetch(url, {
                         method: "POST",
@@ -1324,6 +1324,8 @@
                 updateEmergencyStatus();
             });
 
+            let breakStatusInterval = null; // to prevent multiple intervals
+
             function checkBreakStatus() {
                 fetch("{{ route('employee.attendance.getBreakStatus') }}")
                     .then(res => res.json())
@@ -1385,13 +1387,14 @@
                                 emergencyBtn.disabled = true;
                                 emergencyBtn.classList.add('btn-disabled');
                             }
+
+                            // Stop refreshing when checked out
+                            if (breakStatusInterval) clearInterval(breakStatusInterval);
                             return;
                         }
 
                         // --- Handle break button logic ---
                         if (data.on_break) {
-                            console.log(data.on_break);
-
                             breakBtn.textContent = 'End Break';
                             breakBtn.disabled = false;
                             breakBtn.onclick = endBreak;
@@ -1403,11 +1406,17 @@
                             breakInfo.querySelector('p').textContent = 'Not on break';
                         }
 
-                        // --- Sync emergency status ---
+                        // --- Optional: update emergency status here ---
                         // updateEmergencyStatus();
                     })
                     .catch(err => console.error('Error fetching break status:', err));
             }
+
+            // --- Auto-refresh every 1 minute ---
+            document.addEventListener('DOMContentLoaded', function() {
+                checkBreakStatus(); // initial load
+                breakStatusInterval = setInterval(checkBreakStatus, 60000); // every 60s
+            });
 
 
             function startBreak() {

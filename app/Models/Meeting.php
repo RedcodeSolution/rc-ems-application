@@ -34,11 +34,16 @@ class Meeting extends Model
     /**
      * Generate a Google Meet link
      */
+    // public static function generateMeetingLink()
+    // {
+    //     // Generate a unique meeting code
+    //     $meetingCode = strtoupper(substr(md5(uniqid()), 0, 8));
+    //     return "https://meet.google.com/{$meetingCode}";
+    // }
+
     public static function generateMeetingLink()
     {
-        // Generate a unique meeting code
-        $meetingCode = strtoupper(substr(md5(uniqid()), 0, 8));
-        return "https://meet.google.com/{$meetingCode}";
+        return config('app.default_meeting_link', env('DEFAULT_MEETING_LINK', 'https://meet.google.com/new'));
     }
 
     /**

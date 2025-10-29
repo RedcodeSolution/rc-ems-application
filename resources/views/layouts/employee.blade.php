@@ -92,7 +92,7 @@
                     <span>Announcements</span>
                 </a>
 
-                <a href="{{ route('employee.notifications') }}"
+                <a href="{{ route('employee.notifications.index') }}"
                     class="sidebar-menu-item {{ request()->routeIs('employee.notifications*') ? 'active' : '' }}">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>

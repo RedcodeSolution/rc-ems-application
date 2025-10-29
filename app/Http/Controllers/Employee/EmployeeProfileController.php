@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attendance;
+use App\Models\Document;
+use App\Models\EmployeeActivity;
 use App\Models\EmployeeSkill;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,24 +16,46 @@ class EmployeeProfileController extends Controller
     public function show()
     {
         $user = Auth::user();
-
+        $userId = $user->id;
         $employee = $user->employee()->with([
             'department.manager',
             'teams',
         ])->first();
 
+        $employeeId = $user->employee_id;
+
         $skills = $employee->employeeSkills ?? [];
+
+        $allLeaves = $user->employee->leaves;
+
+        $annualUsed   = $allLeaves->where('leave_type', 'annual')->where('status', 'approved')->sum('duration');
+
+        $annualTotal   = 21;
+
+        $leaveRemaining = $annualTotal - $annualUsed;
+
+        $projectCount = Project::whereHas('employees', function ($q) use ($employeeId) {
+            $q->where('employee_project.employee_id', $employeeId);
+        })->count();
+
+        $documentCount = Document::where('employee_id', $employeeId)->count();
+
+        $attendanceCount = Attendance::where('user_id', $userId)->count();
+
 
         if ($employee) {
             return view('employees.profile.index', [
                 'employee' => $employee,
                 'skills' => $skills,
+                'leaveRemaining' => $leaveRemaining,
+                'projectCount' => $projectCount,
+                'documentCount' => $documentCount,
+                'attendanceCount' => $attendanceCount
             ]);
         }
 
         return response()->json(['error' => 'Employee data not found for this user.'], 404);
     }
-
 
 
     public function update(Request $request)
@@ -43,9 +69,16 @@ class EmployeeProfileController extends Controller
 
         if ($user->employee) {
             $user->employee->update($validated);
-            // return ['employee' => $user->employee];
+
+            EmployeeActivity::create([
+                'employee_id' => $user->employee->employee_id,
+                'type'        => 'profile_update',
+                'icon'        => 'user-edit',
+                'action'      => 'Updated Profile',
+                'details'     => 'Profile details were updated successfully.',
+            ]);
+
             return redirect()->route('employee.profile');
-            // return response()->json(['message' => 'Employee profile updated successfully.'], 200);
         }
 
         return response()->json(['error' => 'Employee record not found.'], 404);

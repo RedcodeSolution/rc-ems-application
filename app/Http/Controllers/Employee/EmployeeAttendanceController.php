@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\EmployeeActivity;
 use App\Models\Leave;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -152,12 +153,12 @@ class EmployeeAttendanceController extends Controller
         $now = Carbon::now('Asia/Colombo');
         $today = $now->toDateString();
 
-        if ($now->greaterThan(Carbon::createFromTime(17, 0, 0, 'Asia/Colombo'))) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Clock-in is not allowed after 5:00 PM.'
-            ]);
-        }
+        // if ($now->greaterThan(Carbon::createFromTime(17, 0, 0, 'Asia/Colombo'))) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Clock-in is not allowed after 5:00 PM.'
+        //     ]);
+        // }
 
         $attendance = Attendance::where('user_id', $userId)
             ->whereDate('date', $today)
@@ -180,6 +181,17 @@ class EmployeeAttendanceController extends Controller
                 'status' => $status,
             ]
         );
+        $employee = $user->employee;
+        EmployeeActivity::create([
+            'employee_id' => $employee->employee_id,
+            'type'        => 'attendance',
+            'icon'        => 'sign-in-alt',
+            'action'      => 'Clocked In',
+            'details'     => $status === 'late'
+                ? 'Clocked in late at ' . $now->format('h:i A')
+                : 'Clocked in on time at ' . $now->format('h:i A'),
+        ]);
+
 
         return response()->json([
             'success' => true,
@@ -189,6 +201,8 @@ class EmployeeAttendanceController extends Controller
             'status' => $status
         ]);
     }
+
+
 
     public function clockOut()
     {
@@ -239,6 +253,17 @@ class EmployeeAttendanceController extends Controller
             'hours_worked' => $hoursWorked,
             'overtime_hours' => $overtime,
             'is_on_emergency' => false,
+        ]);
+        $employee = $user->employee;
+
+        EmployeeActivity::create([
+            'employee_id' => $employee->employee_id,
+            'type'        => 'attendance',
+            'icon'        => 'sign-out-alt',
+            'action'      => 'Clocked Out',
+            'details'     => 'Clocked out at ' . $now->format('h:i A') .
+                ' — Worked ' . $hoursWorked . ' hrs' .
+                ($overtime > 0 ? ' (+ ' . $overtime . ' hrs overtime)' : ''),
         ]);
 
         return response()->json([
@@ -564,6 +589,66 @@ class EmployeeAttendanceController extends Controller
                     ->format('g:i A')
                     : null,
             ],
+        ]);
+    }
+
+
+    public function calendar(Request $request)
+    {
+        $user = Auth::user();
+        $userId = $user->id;
+
+        $month = $request->query('month', now('Asia/Colombo')->format('Y-m'));
+        $start = Carbon::parse($month)->startOfMonth();
+        $end = Carbon::parse($month)->endOfMonth();
+
+        $records = Attendance::where('user_id', $userId)
+            ->whereDate('date', '>=', $start)
+            ->whereDate('date', '<=', $end)
+            ->get()
+            ->keyBy(fn($r) => Carbon::parse($r->date)->toDateString());
+
+        $days = [];
+
+        for ($date = $start->copy(); $date <= $end; $date->addDay()) {
+            $dateString = $date->toDateString();
+            $statusRaw = $records[$dateString]->status ?? 'none';
+            $status = strtolower(trim($statusRaw));
+
+            switch ($status) {
+                case 'p':
+                case 'present':
+                    $status = 'present';
+                    break;
+                case 'a':
+                case 'absent':
+                    $status = 'absent';
+                    break;
+                case 'l':
+                case 'late':
+                    $status = 'late';
+                    break;
+                case 'h':
+                case 'halfday':
+                case 'half-day':
+                case 'half day':
+                    $status = 'halfday';
+                    break;
+                default:
+                    $status = 'none';
+                    break;
+            }
+
+            $days[] = [
+                'date' => $dateString,
+                'day' => $date->format('j'),
+                'status' => $status,
+            ];
+        }
+
+        return response()->json([
+            'month' => $start->format('F Y'),
+            'days' => $days,
         ]);
     }
 }

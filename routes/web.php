@@ -163,6 +163,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/attendance/emergency/start', [EmployeeAttendanceController::class, 'startEmergency'])->name('employee.attendance.emergency.start');
         Route::put('/attendance/emergency/end', [EmployeeAttendanceController::class, 'endEmergency'])->name('employee.attendance.emergency.end');
         Route::get('/attendance/emergency/status', [EmployeeAttendanceController::class, 'getEmergencyStatus'])->name('employee.attendance.getEmergencyStatus');
+        Route::get('/employee/attendance/calendar', [EmployeeAttendanceController::class, 'calendar'])
+            ->name('employee.attendance.calendar');
     });
 
     // Employee Announcement
@@ -344,26 +346,41 @@ Route::middleware('auth')->group(function () {
     Route::patch('/meetings/{meeting}/status', [MeetingController::class, 'updateStatus'])->name('meetings.update-status');
 });
 // Employee-specific routes
-Route::middleware('auth')->prefix('employee')->name('employee.')->group(function () {
-    // Leave Management
-    // Route::get('/leaves', function () {
-    //     return view('employees.leaves.index');
-    // })->name('leaves.index');
+Route::middleware(['auth'])->prefix('employee')->name('employee.')->group(function () {
 
-    // Dashboard
+    //Dashboard
     Route::get('/dashboard', [EmployeeOverviewController::class, 'index'])->name('dashboard');
 
-    // Announcements
-
-
-    // Notifications for employees
-    Route::get('/notifications', [EmployeeNotificationController::class, 'index'])->name('notifications');
-    Route::get('/notifications/{notifi_id}', [EmployeeNotificationController::class, 'show'])->name('notifications.show');
-    Route::post('/notifications/{id}/mark-as-read', [EmployeeNotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
-    Route::post('/notifications/mark-all-as-read', [EmployeeNotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
-    Route::delete('/notifications/{id}', [EmployeeNotificationController::class, 'destroy'])->name('notifications.destroy');
-    Route::get('/notifications/latest', [EmployeeNotificationController::class, 'latest'])->name('notifications.latest');
+    //Notifications
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [EmployeeNotificationController::class, 'index'])->name('index');                     // List all notifications
+        Route::get('/latest', [EmployeeNotificationController::class, 'latest'])->name('latest');              // Get latest 3 notifications
+        Route::get('/{notifi_id}', [EmployeeNotificationController::class, 'show'])->name('show');                    // View single notification
+        Route::post('/{id}/mark-as-read', [EmployeeNotificationController::class, 'markAsRead'])->name('markAsRead'); // Mark one as read
+        Route::post('/mark-all-as-read', [EmployeeNotificationController::class, 'markAllAsRead'])->name('markAllAsRead'); // Mark all as read
+        Route::delete('/{id}', [EmployeeNotificationController::class, 'destroy'])->name('destroy');           // Delete notification
+    });
 });
+// Route::middleware('auth')->prefix('employee')->name('employee.')->group(function () {
+//     // Leave Management
+//     // Route::get('/leaves', function () {
+//     //     return view('employees.leaves.index');
+//     // })->name('leaves.index');
+
+//     // Dashboard
+//     Route::get('/dashboard', [EmployeeOverviewController::class, 'index'])->name('dashboard'); 
+
+//     // Announcements
+
+
+//     // Notifications for employees
+//     Route::get('/notifications', [EmployeeNotificationController::class, 'index'])->name('notifications');
+//     Route::get('/notifications/{notifi_id}', [EmployeeNotificationController::class, 'show'])->name('notifications.show');
+//     Route::post('/notifications/{id}/mark-as-read', [EmployeeNotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+//     Route::post('/notifications/mark-all-as-read', [EmployeeNotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+//     Route::delete('/notifications/{id}', [EmployeeNotificationController::class, 'destroy'])->name('notifications.destroy');
+//     Route::get('/notifications/latest', [EmployeeNotificationController::class, 'latest'])->name('notifications.latest');
+// });
 //department Management
 Route::get('/admin/department', [DepartmentController::class, 'index'])->name('admin.departments.index');
 Route::get('/admin/create', [ProjectController::class, 'create'])->name('admin.departments.create');
@@ -400,10 +417,9 @@ Route::prefix('super-admin')->name('super_admin.')->group(function () {
     Route::put('/admins/{adminId}', [AdminController::class, 'update'])->name('update');
     Route::get('/{adminId}/show', [AdminController::class, 'show'])->name('show');
     Route::delete('/admins/{adminId}', [AdminController::class, 'destroy'])->name('destroy');
-
-    //Attendance
-    Route::get('/attendances', [SuperAdminEmployeeAttendanceController::class, 'index'])->name('attendance.index');
 });
+//Attendance
+Route::get('super_admin/attendances', [SuperAdminEmployeeAttendanceController::class, 'index'])->name('super.attendance.index');
 
 // Report Management
 Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');

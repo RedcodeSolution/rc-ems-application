@@ -89,8 +89,6 @@ class EmployeeLeaveController extends Controller
             ->with('success', 'Leave request submitted successfully.');
     }
 
-
-
     /**
      * Display the specified resource.
      */

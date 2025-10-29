@@ -432,6 +432,31 @@ class AdminsLeaveController extends Controller
             $leave->approved_by   = null;
             $leave->approved_date = null;
         }
+        $notify = new NotificationService();
+
+        if ($leave->status === 'approved') {
+            $notify->notify(
+                title: 'Leave Approved',
+                message: 'Your ' . $leave->leave_type . ' leave from ' .
+                    $leave->start_date->format('M d, Y') . ' to ' .
+                    $leave->end_date->format('M d, Y') . ' has been approved.',
+                type: 'leave',
+                userId: $leave->user_id,
+                target: 'employee',
+                referenceId: $leave->leave_id
+            );
+        } elseif ($leave->status === 'rejected') {
+            $notify->notify(
+                title: 'Leave Rejected',
+                message: 'Your ' . $leave->leave_type . ' leave from ' .
+                    $leave->start_date->format('M d, Y') . ' to ' .
+                    $leave->end_date->format('M d, Y') . ' has been rejected.',
+                type: 'leave',
+                userId: $leave->user_id,
+                target: 'employee',
+                referenceId: $leave->leave_id
+            );
+        }
 
         $leave->save();
         return $request->ajax()

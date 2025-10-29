@@ -7,6 +7,7 @@ use App\Models\Announcement;
 use App\Models\Attendance;
 use App\Models\Document;
 use App\Models\Employee;
+use App\Models\EmployeeActivity;
 use App\Models\Leave;
 use App\Models\Meeting;
 use App\Models\Notification;
@@ -144,6 +145,11 @@ class EmployeeOverviewController extends Controller
         Meeting::createDailyStandup();
         $todayMeetings = Meeting::getTodayMeetings();
 
+        $recentActivities = EmployeeActivity::where('employee_id', $employee->employee_id)
+            ->latest()
+            ->take(5)
+            ->get();
+
         // --- Return to View ---
         return view('employees.dashboard', [
             'employee' => $user->name,
@@ -170,10 +176,10 @@ class EmployeeOverviewController extends Controller
             'total_late' => $totalLate,
             'total_halfday' => $totalHalfDay,
             'total_days' => $totalDays,
+
+            'recentActivities' => $recentActivities
         ]);
     }
-
-
 
     public function join(Meeting $meeting)
     {

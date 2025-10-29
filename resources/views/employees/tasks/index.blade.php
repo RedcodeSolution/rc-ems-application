@@ -114,7 +114,9 @@
                         <option value="in_progress">In Progress</option>
                         <option value="completed">Completed</option>
                         <option value="overdue">Overdue</option>
+                        <option value="on_hold">On Hold</option>
                     </select>
+
                     <select id="priorityFilter" class="filter-select">
                         <option value="">All Priority</option>
                         <option value="high">High Priority</option>
@@ -244,7 +246,7 @@
                         <div class="form-group">
                             <label for="taskProject">Project</label>
                             <select id="taskProject" class="form-control">
-                                <option value="">All Priority</option>
+                                <option value="">All Project</option>
                                 @foreach ($projects as $project)
                                     <option value="{{ $project->project_id }}">
                                         {{ $project->project_name }}
@@ -258,10 +260,15 @@
                             <label for="taskDueDate">Due Date</label>
                             <input type="datetime-local" id="taskDueDate" class="form-control">
                         </div>
-                        <div class="form-group">
+                        {{-- <div class="form-group">
                             <label for="taskAssignee">Assigned By</label>
                             <input type="text" id="taskAssignee" class="form-control" placeholder="Manager name...">
-                        </div>
+                        </div> --}}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskNotes">Personal Notes</label>
+                        <textarea id="taskNotes" class="form-control" rows="2" placeholder="Add personal notes or updates..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -329,10 +336,11 @@
                         <div class="form-group">
                             <label for="editTaskStatus">Status</label>
                             <select id="editTaskStatus" class="form-control">
-                                <option value="pending">Pending</option>
                                 <option value="todo">To Do</option>
                                 <option value="in_progress">In Progress</option>
                                 <option value="completed">Completed</option>
+                                <option value="overdue">Overdue</option>
+                                <option value="on_hold">On Hold</option>
                             </select>
                         </div>
 
@@ -361,7 +369,7 @@
                             <input type="datetime-local" id="editTaskDueDate" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="editTaskAssignee">Assigned By</label>
+                            <label for="editTaskAssignee">Created By</label>
                             <input type="text" id="editTaskAssignee" class="form-control"
                                 placeholder="Manager name..." readonly>
                         </div>
@@ -458,12 +466,15 @@
         }
 
         function createTask() {
-            const title = document.getElementById('taskTitle').value;
-            const description = document.getElementById('taskDescription').value;
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
             const priority = document.getElementById('taskPriority').value;
             const project_id = document.getElementById('taskProject').value;
             const due_date = document.getElementById('taskDueDate').value;
-            const assigned_by = document.getElementById('taskAssignee').value;
+            const personal_notes = document.getElementById('taskNotes').value.trim();
+            const assigned_by = document.getElementById('taskAssignee') ?
+                document.getElementById('taskAssignee').value :
+                null;
 
             if (!title || !due_date) {
                 alert('Please fill in all required fields.');
@@ -482,18 +493,21 @@
                         priority,
                         project_id,
                         due_date,
-                        assigned_by
+                        assigned_by,
+                        personal_notes
                     })
                 })
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error(`Server returned ${res.status}`);
+                    return res.json();
+                })
                 .then(data => {
                     if (data.success) {
                         showMessage(data.message, 'success');
                         closeCreateTaskModal();
-
-                        // Optionally refresh task list dynamically here
+                        location.reload(); // optional refresh
                     } else {
-                        showMessage('Something went wrong!', 'error');
+                        showMessage(data.message || 'Something went wrong!', 'error');
                     }
                 })
                 .catch(err => {
@@ -501,7 +515,6 @@
                     showMessage('Server error while creating task.', 'error');
                 });
         }
-
 
         async function updateTaskStatus(taskId, newStatus) {
             try {
@@ -557,10 +570,14 @@
             document.getElementById('editTaskAssignee').value = taskData.assignedBy || '';
             document.getElementById('editTaskNotes').value = taskData.personal_notes || '';
 
-            // Store the current task ID for updating
-            currentTaskId = taskId;
+            const projectSelect = document.getElementById('editTaskProject');
+            if (taskData.project_id) {
+                projectSelect.value = taskData.project_id;
+            } else {
+                projectSelect.selectedIndex = 0; // fallback
+            }
 
-            // Show the edit modal
+            currentTaskId = taskId;
             document.getElementById('editTaskModal').classList.add('active');
         }
 
@@ -653,10 +670,11 @@
                     title: task.title,
                     priority: task.priority,
                     status: task.status,
+                    project_id: task.project_id,
                     project: task.project || 'N/A',
                     assignedBy: task.assigned_by_employee || 'N/A',
                     dueDate: task.due_date,
-                    notes: task.personal_notes,
+                    personal_notes: task.personal_notes,
                     createdDate: task.created_at,
                     progress: task.progress || 0,
                     description: task.description || '<p>No description available.</p>',
@@ -677,15 +695,14 @@
             const modalTitle = document.getElementById('viewTaskTitle');
             const modalContent = document.getElementById('viewTaskContent');
 
-            // Wait for task data
             const taskData = await getTaskData(taskId);
-            console.log(taskData); // Now you'll see the actual object
+            console.log(taskData);
 
-            // Set modal title
             modalTitle.textContent = taskData.title || 'Task Details';
             const due = new Date(taskData.dueDate);
             const created = new Date(taskData.createdDate);
-            // Create detailed content
+
+            // Build task details
             modalContent.innerHTML = `
         <div class="task-view">
             <div class="task-view-header">
@@ -718,12 +735,18 @@
                     <div class="meta-item">
                         <i class="fas fa-calendar"></i>
                         <strong>Due Date:</strong>
-                        <span>${due.toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                        <span>${due.toLocaleString('en-US', {
+                            month: 'short', day: '2-digit', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                        })}</span>
                     </div>
                     <div class="meta-item">
                         <i class="fas fa-clock"></i>
                         <strong>Created:</strong>
-                        <span>${created.toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                        <span>${created.toLocaleString('en-US', {
+                            month: 'short', day: '2-digit', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                        })}</span>
                     </div>
                 </div>
             </div>
@@ -731,7 +754,14 @@
             <div class="task-description-view">
                 <h4>Description</h4>
                 <div class="description-text">
-                    ${taskData.description}
+                    ${taskData.description || '<em>No description provided.</em>'}
+                </div>
+            </div>
+
+            <div class="task-description-view">
+                <h4>Personal Notes</h4>
+                <div class="description-text">
+                    ${taskData.personal_notes || '<em>No Personal Notes provided.</em>'}
                 </div>
             </div>
 
@@ -749,38 +779,41 @@
             </div>
 
             ${taskData.additionalDetails ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="task-additional">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <h4>Additional Information</h4>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="additional-content">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ${taskData.additionalDetails}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ` : ''}
+                                                                                                    <div class="task-additional">
+                                                                                                        <h4>Additional Information</h4>
+                                                                                                        <div class="additional-content">
+                                                                                                            ${taskData.additionalDetails}
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                ` : ''}
 
-            ${taskData.comments && taskData.comments.length >= 0 ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="task-comments-view">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <h4>Recent Comments</h4>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="comments-list">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ${taskData.comments.map(comment =>{const commentDate = new Date(comment.created_at); return  `
-                            <div class="comment-item">
-                                <div class="comment-header">
-                                    <strong>${comment.employee.employee_name}</strong>
-                                    <span class="comment-date"> ${commentDate.toLocaleString('en-US', { 
-                                    month: 'short', 
-                                    day: '2-digit', 
-                                    year: 'numeric', 
-                                    hour: '2-digit', 
-                                    minute: '2-digit' 
-                                })}</span>
+            ${taskData.comments && taskData.comments.length > 0 ? `
+                                                                                                    <div class="task-comments-view">
+                                                                                                        <h4>Recent Comments</h4>
+                                                                                                        <div class="comments-list">
+                                                                                                            ${taskData.comments.map(comment => {
+                                                                                                                const commentDate = new Date(comment.created_at);
+                                                                                                                return `
+                                <div class="comment-item">
+                                    <div class="comment-header">
+                                        <strong>${comment.employee.employee_name}</strong>
+                                        <span class="comment-date">
+                                            ${commentDate.toLocaleString('en-US', {
+                                                month: 'short', day: '2-digit', year: 'numeric',
+                                                hour: '2-digit', minute: '2-digit'
+                                            })}
+                                        </span>
+                                    </div>
+                                    <div class="comment-text">${comment.comment}</div>
                                 </div>
-                                <div class="comment-text">${comment.comment}</div>
-                            </div>
-                        `}).join('')}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ` : ''}
+                            `;
+                                                                                                            }).join('')}
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                ` : ''}
         </div>
     `;
+
             // Show modal
             modal.classList.add('active');
             modal.dataset.currentTaskId = taskId;
@@ -788,15 +821,13 @@
             showMessage('Task details loaded!', 'success');
         }
 
-
-
-        // Helper functions
         function getStatusIcon(status) {
             const icons = {
                 'todo': 'hourglass-start',
                 'in_progress': 'spinner',
                 'completed': 'check-circle',
-                'overdue': 'exclamation-triangle'
+                'overdue': 'exclamation-triangle',
+                'on_hold': 'pause-circle'
             };
             return icons[status] || 'question-circle';
         }
@@ -806,10 +837,12 @@
                 'todo': 'To Do',
                 'in_progress': 'In Progress',
                 'completed': 'Completed',
-                'overdue': 'Overdue'
+                'overdue': 'Overdue',
+                'on_hold': 'On Hold'
             };
             return statusMap[status] || status;
         }
+
 
         function closeViewTaskModal() {
             document.getElementById('viewTaskModal').classList.remove('active');

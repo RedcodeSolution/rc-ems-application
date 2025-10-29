@@ -56,6 +56,9 @@ return [
 
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
 
+    'default_meeting_link' => env('DEFAULT_MEETING_LINK', 'https://meet.google.com/new'),
+
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

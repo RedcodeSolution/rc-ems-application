@@ -658,6 +658,200 @@
     color: var(--text-primary);
 }
 
+/* ===== Notification Modal ===== */
+#notificationModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(17, 24, 39, 0.6);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    transition: opacity 0.3s ease;
+}
+
+#notificationModal.show {
+    display: flex;
+    animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.notification-modal-content {
+    background: #fff;
+    color: #1f2937;
+    border-radius: 1rem;
+    width: 95%;
+    max-width: 650px;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+    position: relative;
+    overflow-y: auto;
+    max-height: 90vh;
+}
+
+.notification-modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+.notification-modal-content::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 10px;
+}
+
+/* ===== Header Section ===== */
+.notification-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1rem;
+}
+
+.detail-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+.detail-icon.red { background: #ef4444; }
+.detail-icon.blue { background: #3b82f6; }
+.detail-icon.green { background: #10b981; }
+.detail-icon.yellow { background: #f59e0b; }
+
+.detail-info h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #111827;
+}
+.detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+.detail-priority {
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    color: #fff;
+}
+.priority-high { background: #ef4444; }
+.priority-medium { background: #3b82f6; }
+.priority-low { background: #10b981; }
+
+.detail-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+.detail-status.read {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+.detail-status.unread {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+/* ===== Body Section ===== */
+.notification-detail-body {
+    margin-top: 1rem;
+}
+
+.detail-section {
+    margin-bottom: 1rem;
+}
+.detail-section label {
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+.detail-message {
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    color: #4b5563;
+    line-height: 1.5;
+}
+.detail-value {
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.95rem;
+    color: #374151;
+}
+.detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* ===== Actions ===== */
+.detail-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+.detail-actions .btn {
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.detail-actions .btn i { font-size: 0.9rem; }
+
+.btn-success { background: #10b981; color: #fff; }
+.btn-danger { background: #ef4444; color: #fff; }
+.btn-primary { background: #3b82f6; color: #fff; }
+
+.btn-success:hover { background: #059669; }
+.btn-danger:hover { background: #dc2626; }
+.btn-primary:hover { background: #2563eb; }
+
+/* ===== Close Button ===== */
+.close-modal-btn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    color: #6b7280;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.close-modal-btn:hover {
+    color: #111827;
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .notifications-container {
