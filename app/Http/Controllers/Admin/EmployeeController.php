@@ -239,7 +239,10 @@ class EmployeeController extends Controller
         $employee = Employee::findOrFail($employee_id);
         $employee->delete();
         return redirect()->route('admin.employees')->with('success', 'Employee deleted successfully.');
-    }
+
+        }
+
+
 
 
     public function search(Request $request)
@@ -255,4 +258,5 @@ class EmployeeController extends Controller
         // Always return JSON
         return response()->json($employees);
     }
+
 }

@@ -11,10 +11,6 @@
                 <p>Track your assigned projects and collaborate with teams</p>
             </div>
             <div class="header-actions">
-                <button class="btn btn-primary" onclick="openCreateProjectModal()">
-                    <i class="fas fa-plus"></i>
-                    Create Project
-                </button>
                 <button class="btn btn-secondary" onclick="toggleViewMode()">
                     <i class="fas fa-th-large" id="viewModeIcon"></i>
                     <span id="viewModeText">Grid View</span>
@@ -135,249 +131,62 @@
         </div>
     </div>
 
+
     <div class="projects-content">
         <div class="projects-grid" id="projectsGrid">
-            <div class="project-card" data-status="active" data-priority="high" data-team="development">
-                <div class="project-header">
-                    <div class="project-title">
-                        <h4>E-Commerce Platform</h4>
-                        <span class="priority-badge high">High Priority</span>
-                    </div>
-                    <div class="project-status active">
-                        <i class="fas fa-play"></i>
-                        Active
-                    </div>
-                </div>
-                <div class="project-info">
-                    <p>Building a comprehensive e-commerce solution with modern features and secure payment integration.</p>
-                    <div class="project-meta">
-                        <span><i class="fas fa-user"></i> Development Team</span>
-                        <span><i class="fas fa-calendar"></i> Due: Mar 15, 2024</span>
-                    </div>
-                </div>
-                <div class="project-progress">
-                    <div class="progress-info">
-                        <span>Progress</span>
-                        <span>75%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 75%"></div>
-                    </div>
-                </div>
-                <div class="project-actions">
-                    <button class="action-btn" onclick="viewProject('E-Commerce Platform')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="editProject('E-Commerce Platform')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareProject('E-Commerce Platform')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
-            </div>
+            @forelse($employeeProjects as $project)
+            @php
+            $progress = $project->progress ?? 0;
+            $priority = $progress >= 80 ? 'high' : ($progress >= 50 ? 'medium' : 'low');
+            $status = $project->pivot_status ?? 'Pending';
+            $deadline = $project->deadline ? \Carbon\Carbon::parse($project->deadline)->format('M d, Y') : 'No deadline';
+            $role = $project->role ?? 'N/A';
+            $teamName = $project->team_name ?? 'N/A';
+            @endphp
 
-            <div class="project-card" data-status="active" data-priority="medium" data-team="design">
+            <div class="project-card" data-status="{{ strtolower($status) }}" data-priority="{{ $priority }}" data-team="{{ strtolower($teamName) }}">
                 <div class="project-header">
                     <div class="project-title">
-                        <h4>Mobile App UI/UX</h4>
-                        <span class="priority-badge medium">Medium Priority</span>
+                        <h4>{{ $project->project_name }}</h4>
+                        <span class="priority-badge {{ $priority }}">{{ ucfirst($priority) }} Priority</span>
                     </div>
-                    <div class="project-status active">
-                        <i class="fas fa-play"></i>
-                        Active
-                    </div>
-                </div>
-                <div class="project-info">
-                    <p>Designing user interface and user experience for the new mobile application.</p>
-                    <div class="project-meta">
-                        <span><i class="fas fa-user"></i> Design Team</span>
-                        <span><i class="fas fa-calendar"></i> Due: Apr 10, 2024</span>
+                    <div class="project-status {{ strtolower($status) }}">
+                        @if($status == 'Active') <i class="fas fa-play"></i>
+                        @elseif($status == 'Completed') <i class="fas fa-check"></i>
+                        @elseif($status == 'On Hold') <i class="fas fa-pause"></i>
+                        @else <i class="fas fa-exclamation"></i>
+                        @endif
+                        {{ $status }}
                     </div>
                 </div>
-                <div class="project-progress">
-                    <div class="progress-info">
-                        <span>Progress</span>
-                        <span>60%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 60%"></div>
-                    </div>
-                </div>
-                <div class="project-actions">
-                    <button class="action-btn" onclick="viewProject('Mobile App UI/UX')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="editProject('Mobile App UI/UX')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareProject('Mobile App UI/UX')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
-            </div>
 
-            <div class="project-card" data-status="completed" data-priority="high" data-team="development">
-                <div class="project-header">
-                    <div class="project-title">
-                        <h4>Customer Portal</h4>
-                        <span class="priority-badge high">High Priority</span>
-                    </div>
-                    <div class="project-status completed">
-                        <i class="fas fa-check"></i>
-                        Completed
-                    </div>
-                </div>
                 <div class="project-info">
-                    <p>Developed a comprehensive customer portal for account management and support.</p>
+                    <p>{{ $project->description ?? 'No description available.' }}</p>
                     <div class="project-meta">
-                        <span><i class="fas fa-user"></i> Development Team</span>
-                        <span><i class="fas fa-calendar"></i> Completed: Feb 28, 2024</span>
+                        <span><i class="fas fa-user"></i> Role: {{ $role }}</span>
+                        <span><i class="fas fa-users"></i> Team: {{ $teamName }}</span>
+                        <span><i class="fas fa-calendar"></i> Due: {{ $deadline }}</span>
                     </div>
                 </div>
-                <div class="project-progress">
-                    <div class="progress-info">
-                        <span>Progress</span>
-                        <span>100%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill completed" style="width: 100%"></div>
                     </div>
                 </div>
-                <div class="project-actions">
-                    <button class="action-btn" onclick="viewProject('Customer Portal')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="editProject('Customer Portal')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareProject('Customer Portal')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
-            </div>
 
-            <div class="project-card" data-status="pending" data-priority="low" data-team="marketing">
-                <div class="project-header">
-                    <div class="project-title">
-                        <h4>Marketing Campaign</h4>
-                        <span class="priority-badge low">Low Priority</span>
-                    </div>
-                    <div class="project-status pending">
-                        <i class="fas fa-pause"></i>
-                        Pending
-                    </div>
-                </div>
-                <div class="project-info">
-                    <p>Planning and executing digital marketing campaign for product launch.</p>
-                    <div class="project-meta">
-                        <span><i class="fas fa-user"></i> Marketing Team</span>
-                        <span><i class="fas fa-calendar"></i> Due: May 20, 2024</span>
-                    </div>
-                </div>
-                <div class="project-progress">
-                    <div class="progress-info">
-                        <span>Progress</span>
-                        <span>25%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill pending" style="width: 25%"></div>
-                    </div>
-                </div>
-                <div class="project-actions">
-                    <button class="action-btn" onclick="viewProject('Marketing Campaign')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="editProject('Marketing Campaign')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareProject('Marketing Campaign')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
-            </div>
 
-            <div class="project-card" data-status="overdue" data-priority="high" data-team="qa">
-                <div class="project-header">
-                    <div class="project-title">
-                        <h4>Quality Assurance</h4>
-                        <span class="priority-badge high">High Priority</span>
-                    </div>
-                    <div class="project-status overdue">
-                        <i class="fas fa-exclamation"></i>
-                        Overdue
-                    </div>
-                </div>
-                <div class="project-info">
-                    <p>Comprehensive testing and quality assurance for the main application.</p>
-                    <div class="project-meta">
-                        <span><i class="fas fa-user"></i> QA Team</span>
-                        <span><i class="fas fa-calendar"></i> Due: Jan 30, 2024</span>
-                    </div>
-                </div>
-                <div class="project-progress">
-                    <div class="progress-info">
-                        <span>Progress</span>
-                        <span>85%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill overdue" style="width: 85%"></div>
-                    </div>
-                </div>
-                <div class="project-actions">
-                    <button class="action-btn" onclick="viewProject('Quality Assurance')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="editProject('Quality Assurance')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareProject('Quality Assurance')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
-            </div>
 
-            <div class="project-card" data-status="active" data-priority="medium" data-team="development">
-                <div class="project-header">
-                    <div class="project-title">
-                        <h4>API Integration</h4>
-                        <span class="priority-badge medium">Medium Priority</span>
-                    </div>
-                    <div class="project-status active">
-                        <i class="fas fa-play"></i>
-                        Active
-                    </div>
-                </div>
-                <div class="project-info">
-                    <p>Integrating third-party APIs for enhanced functionality and data synchronization.</p>
-                    <div class="project-meta">
-                        <span><i class="fas fa-user"></i> Development Team</span>
-                        <span><i class="fas fa-calendar"></i> Due: Apr 25, 2024</span>
-                    </div>
-                </div>
-                <div class="project-progress">
-                    <div class="progress-info">
-                        <span>Progress</span>
-                        <span>40%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 40%"></div>
-                    </div>
-                </div>
                 <div class="project-actions">
-                    <button class="action-btn" onclick="viewProject('API Integration')">
+                    <button class="action-btn" onclick="viewProject('{{ $project->project_id }}')" title="View Project">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="action-btn" onclick="editProject('API Integration')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareProject('API Integration')">
-                        <i class="fas fa-share"></i>
-                    </button>
+
+                    <button class="action-btn" onclick="shareProject('{{ $project->project_name }}')"><i class="fas fa-share"></i></button>
                 </div>
             </div>
+            @empty
+            <p>No projects assigned to you yet.</p>
+            @endforelse
         </div>
     </div>
+
 
     <div id="createProjectModal" class="modal">
         <div class="modal-content">
@@ -429,6 +238,39 @@
             </div>
         </div>
     </div>
+
+</div>
+
+
+<script>
+    let currentViewMode = 'grid';
+
+    function toggleViewMode() {
+        const grid = document.getElementById('projectsGrid');
+        const icon = document.getElementById('viewModeIcon');
+        const text = document.getElementById('viewModeText');
+
+        if (currentViewMode === 'grid') {
+            grid.classList.add('list-view');
+            icon.className = 'fas fa-th-list';
+            text.textContent = 'List View';
+            currentViewMode = 'list';
+        } else {
+            grid.classList.remove('list-view');
+            icon.className = 'fas fa-th-large';
+            text.textContent = 'Grid View';
+            currentViewMode = 'grid';
+        }
+    }
+
+
+
+
+    function showMessage(message, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = message message - $ {
+            type
+        };
 
     <div id="viewProjectModal" class="modal">
         <div class="modal-content">
@@ -611,6 +453,57 @@
 
         document.body.appendChild(messageDiv);
 
+
+        setTimeout(() => {
+            messageDiv.remove();
+        }, 3000);
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        filterProjects();
+    });
+
+    document.getElementById('statusFilter').addEventListener('change', filterProjects);
+    document.getElementById('priorityFilter').addEventListener('change', filterProjects);
+    document.getElementById('teamFilter').addEventListener('change', filterProjects);
+
+    function filterProjects() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value;
+        const priorityFilter = document.getElementById('priorityFilter').value;
+        const teamFilter = document.getElementById('teamFilter').value;
+        const projects = document.querySelectorAll('.project-card');
+
+        projects.forEach(project => {
+            const title = project.querySelector('h4').textContent.toLowerCase();
+            const status = project.dataset.status;
+            const priority = project.dataset.priority;
+            const team = project.dataset.team;
+
+            const matchesSearch = title.includes(searchTerm);
+            const matchesStatus = !statusFilter || status === statusFilter;
+            const matchesPriority = !priorityFilter || priority === priorityFilter;
+            const matchesTeam = !teamFilter || team === teamFilter;
+
+            if (matchesSearch && matchesStatus && matchesPriority && matchesTeam) {
+                project.style.display = 'block';
+            } else {
+                project.style.display = 'none';
+            }
+        });
+    }
+
+    document.querySelectorAll('.status-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const status = this.dataset.status;
+            document.getElementById('statusFilter').value = status;
+            filterProjects();
+
+
+            document.querySelectorAll('.status-card').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+
         setTimeout(() => {
             messageDiv.remove();
         }, 3000);
@@ -721,6 +614,7 @@
         const card = Array.from(document.querySelectorAll('.project-card')).find(c => {
             const h = c.querySelector('h4');
             return h && h.textContent.trim() === originalIdentifier;
+
         });
 
         if (!card) {
@@ -783,6 +677,7 @@
         }
     });
 
+
     document.getElementById('searchInput').addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase();
         filterProjects();
@@ -828,6 +723,7 @@
             this.classList.add('active');
         });
     });
+
 
     document.getElementById('createProjectModal').addEventListener('click', function(e) {
         if (e.target === this) {

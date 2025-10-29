@@ -380,8 +380,8 @@ class EmployeeAttendanceController extends Controller
 
         $checkInTimeFormatted = $attendance->check_in_time
             ? Carbon::parse($attendance->check_in_time)
-            ->timezone('Asia/Colombo')
-            ->format('g:i A')
+                ->timezone('Asia/Colombo')
+                ->format('g:i A')
             : null;
 
         $workingHoursNow = '0h 0m';

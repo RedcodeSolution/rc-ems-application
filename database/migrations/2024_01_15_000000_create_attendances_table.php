@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id'); // ✅ changed
+            $table->unsignedBigInteger('user_id');
             $table->date('date');
             $table->timestamp('check_in_time')->nullable();
             $table->timestamp('check_out_time')->nullable();
@@ -42,7 +42,7 @@ return new class extends Migration
             $table->timestamp('emergency_end_time')->nullable();
             $table->decimal('emergency_duration', 8, 2)->default(0);
 
-            // ✅ optional foreign key
+
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

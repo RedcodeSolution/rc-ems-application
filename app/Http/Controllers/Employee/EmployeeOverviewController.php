@@ -170,7 +170,7 @@ class EmployeeOverviewController extends Controller
             'total_late' => $totalLate,
             'total_halfday' => $totalHalfDay,
             'total_days' => $totalDays,
-        ]);
+            ]);
     }
 
 
