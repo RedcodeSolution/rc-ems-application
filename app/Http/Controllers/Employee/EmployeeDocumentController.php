@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ShareDocumentMail;
 use App\Models\Document;
 use App\Models\EmployeeDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class EmployeeDocumentController extends Controller
 {
@@ -89,31 +91,79 @@ class EmployeeDocumentController extends Controller
 
     public function download($id)
     {
-        $document = EmployeeDocument::findOrFail($id);
+        $document = DB::table('documents')->where('document_id', $id)->first();
 
-        $relativePath = preg_replace('/^storage\//', '', $document->file_path);
-
-        $filePath = storage_path('app/public/' . $relativePath);
-
-        if (!file_exists($filePath)) {
-            abort(404, 'File not found.');
+        if (!$document) {
+            return back()->with('error', 'Document not found.');
         }
 
-        $fileName = $document->file_name ?? basename($filePath);
+        $filePath = storage_path('app/public/' . preg_replace('/^storage\//', '', $document->file_path));
 
-        return response()->download($filePath, $fileName);
+        if (!file_exists($filePath)) {
+            return back()->with('error', 'File not found.');
+        }
+
+        return response()->download($filePath, basename($filePath));
+    }
+
+    // Download employee's personal document
+    public function downloadEmployeeDocument($id)
+    {
+        $employeeDoc = EmployeeDocument::find($id);
+
+        if (!$employeeDoc) {
+            return back()->with('error', 'Employee document not found.');
+        }
+
+        $filePath = storage_path('app/public/' . preg_replace('/^storage\//', '', $employeeDoc->file_path));
+
+        if (!file_exists($filePath)) {
+            return back()->with('error', 'File not found.');
+        }
+
+        return response()->download($filePath, basename($filePath));
     }
 
     public function share($id)
     {
-
         $document = EmployeeDocument::findOrFail($id);
+        $userEmail = auth()->user()->email; // recipient email
 
-        $relativePath = preg_replace('/^storage\//', '', $document->file_path);
+        Mail::to($userEmail)->send(new ShareDocumentMail($document));
 
-        $url = asset('storage/' . $relativePath);
-
-        return redirect($url);
+        return back()->with('success', 'Document sent successfully!');
     }
+
+
+    public function shareCompany($id)
+    {
+        // Find the document by ID
+        $document = DB::table('documents')->where('document_id', $id)->first();
+
+        if (!$document) {
+            return back()->with('error', 'Document not found.');
+        }
+
+        $filePath = storage_path('app/public/' . preg_replace('/^storage\//', '', $document->file_path));
+
+        if (!file_exists($filePath)) {
+            return back()->with('error', 'File not found.');
+        }
+
+        $employeeEmail = auth()->user()->email;
+
+        Mail::send('emails.share-document', ['document' => $document], function ($message) use ($employeeEmail, $document, $filePath) {
+            $message->to($employeeEmail)
+                ->subject('📄 Shared Company Document: ' . $document->title)
+                ->attach($filePath, [
+                    'as' => basename($filePath),
+                    'mime' => mime_content_type($filePath),
+                ]);
+        });
+
+        return back()->with('success', 'Document sent successfully to your email!');
+    }
+
+
 
 }

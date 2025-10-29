@@ -273,15 +273,16 @@
                             title="View Document">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="action-btn"   onclick="window.location='{{ route('employee.documents.download', $document->id) }}';"
-                            title="Download File">
+                    <a href="{{ route('employee.documents.downloadEmployeeDocument', $document->id) }}"
+                       class="action-btn" title="Download">
                         <i class="fas fa-download"></i>
-                    </button>
-                    <button class="action-btn"
-                            onclick="window.open('{{ route('employee.documents.share', $document->id) }}', '_blank');"
-                            title="Share Document">
-                        <i class="fas fa-share"></i>
-                    </button>
+                    </a>
+                    <form action="{{ route('employee.documents.share', $document->id) }}" method="POST" style="display:inline;">
+                        @csrf
+                        <button type="submit" class="action-btn" title="Share Document">
+                            <i class="fas fa-share"></i>
+                        </button>
+                    </form>
 
                 </div>
 
@@ -387,13 +388,17 @@
                 </div>
 
                 <div class="document-actions">
-                    <a href="{{ route('employee.documents.download', $document->document_id) }}" class="action-btn" title="Download">
+                    <a href="{{ route('employee.documents.download', $document->document_id) }}"
+                       class="action-btn" title="Download">
                         <i class="fas fa-download"></i>
                     </a>
-                    <button class="action-btn"
-                            title="Share Document">
-                        <i class="fas fa-share"></i>
-                    </button>
+
+                    <form action="{{ route('employee.documents.shareCompany', $document->document_id) }}" method="POST" style="display:inline;">
+                        @csrf
+                        <button type="submit" class="action-btn" title="Share Company Document">
+                            <i class="fas fa-share text-red-500 hover:text-red-600"></i>
+                        </button>
+                    </form>
 
                 </div>
 

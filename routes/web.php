@@ -457,17 +457,13 @@ Route::post('/admin/profile/update', [AdminProfileController::class, 'update'])-
 
 
 Route::prefix('employee')->name('employee.')->middleware(['auth'])->group(function () {
-    // List all documents assigned to the employee
     Route::get('/documents', [EmployeeDocumentController::class, 'index'])->name('documents');
-
-    // Store/upload a new document (if employees are allowed to upload)
     Route::post('/documents', [EmployeeDocumentController::class, 'store'])->name('documents.store');
-
-    // Download a document
+    Route::post('/documents/share/{id}', [EmployeeDocumentController::class, 'share'])->name('documents.share');
     Route::get('/documents/download/{id}', [EmployeeDocumentController::class, 'download'])->name('documents.download');
+    Route::get('/employee-documents/download/{id}', [EmployeeDocumentController::class, 'downloadEmployeeDocument'])->name('documents.downloadEmployeeDocument');
+    Route::post('/documents/share-company/{id}', [EmployeeDocumentController::class, 'shareCompany'])->name('documents.shareCompany');
 
-    // Share a document
-    Route::get('/documents/share/{id}', [EmployeeDocumentController::class, 'share'])->name('documents.share');
 });
 
 Route::get('/employee/projects', [EmployeeProjectController::class, 'index'])->middleware('auth')->name('employee.projects');
