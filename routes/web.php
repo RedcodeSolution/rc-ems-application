@@ -34,6 +34,7 @@ use App\Http\Controllers\SuperAdmin\EmployeeRatingController;
 use App\Http\Controllers\SuperAdmin\EventController;
 use App\Http\Controllers\SuperAdmin\SuperAdminAccountsController;
 use App\Http\Controllers\SuperAdmin\SuperAdminEmployeeAttendanceController;
+use App\Http\Controllers\SuperAdmin\SuperAdminOverviewController;
 use App\Models\Admin;
 use App\Models\Department;
 use App\Models\Employee;
@@ -469,6 +470,7 @@ Route::prefix('employee')->name('employee.')->middleware(['auth'])->group(functi
 Route::get('/employee/projects', [EmployeeProjectController::class, 'index'])->middleware('auth')->name('employee.projects');
 Route::get('/employee/projects/{project}', [EmployeeProjectController::class, 'show'])->name('employee.projects.show');
 
+Route::get('/super-admin/dashboard', [SuperAdminOverviewController::class, 'index'])->name('super_admin.dashboard');
 
 
 

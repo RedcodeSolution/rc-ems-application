@@ -588,7 +588,6 @@
         grid-template-columns: 1fr;
     }
 }
-
 /* Meeting Section Styles */
 .meeting-section {
     margin-bottom: 2rem;
@@ -609,7 +608,7 @@
 }
 
 .meeting-section-title i {
-    color: var(--redcode-primary);
+    color: var(--primary);
 }
 
 .meeting-section-subtitle {
@@ -627,15 +626,15 @@
 .meeting-card {
     background: white;
     border-radius: 1rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    padding: clamp(1rem, 3vw, 1.5rem);
-    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    border: 1px solid var(--divider);
     transition: all 0.3s ease;
 }
 
 .meeting-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-lg);
 }
 
 .meeting-header {
@@ -655,7 +654,7 @@
 }
 
 .meeting-title i {
-    color: var(--redcode-primary);
+    color: var(--primary);
 }
 
 .status-badge {
@@ -668,12 +667,12 @@
 }
 
 .status-badge.scheduled {
-    background: var(--redcode-yellow);
+    background: var(--warning);
     color: #92400e;
 }
 
 .status-badge.ongoing {
-    background: var(--redcode-green);
+    background: var(--success);
     color: white;
 }
 
@@ -690,7 +689,8 @@
     gap: 1rem;
 }
 
-.meeting-time, .meeting-duration {
+.meeting-time,
+.meeting-duration {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -698,8 +698,9 @@
     color: var(--text-secondary);
 }
 
-.meeting-time i, .meeting-duration i {
-    color: var(--redcode-primary);
+.meeting-time i,
+.meeting-duration i {
+    color: var(--primary);
     width: 1rem;
 }
 
@@ -718,17 +719,17 @@
 .meeting-link-input {
     flex: 1;
     padding: 0.75rem 1rem;
-    border: 2px solid var(--border-medium);
+    border: 2px solid var(--divider);
     border-radius: 0.5rem;
     font-size: 0.875rem;
-    background: var(--gray-50);
+    background: var(--bg-secondary);
     color: var(--text-primary);
     font-family: 'Courier New', monospace;
 }
 
 .copy-btn {
     padding: 0.75rem 1rem;
-    background: var(--gray-600);
+    background: var(--text-secondary);
     color: white;
     border: none;
     border-radius: 0.5rem;
@@ -742,13 +743,13 @@
 }
 
 .copy-btn:hover {
-    background: var(--gray-700);
+    background: var(--text-primary);
     transform: translateY(-1px);
 }
 
 .join-meeting-btn {
     padding: 1rem 1.5rem;
-    background: linear-gradient(135deg, var(--redcode-primary) 0%, var(--redcode-accent) 100%);
+    background: var(--gradient-primary);
     color: white;
     text-decoration: none;
     border-radius: 0.5rem;
@@ -759,12 +760,12 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+    box-shadow: var(--shadow);
 }
 
 .join-meeting-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+    box-shadow: var(--shadow-lg);
     color: white;
 }
 
@@ -901,3 +902,70 @@
     .chart-container { height: 280px; }
 }
 
+.chart-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.chart-tab {
+    padding: 6px 14px;
+    border: none;
+    background-color: #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.chart-tab.active {
+    background-color: #2563EB;
+    color: #fff;
+}
+
+.modal-overlay {
+    display: none; /* Hidden by default */
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-page {
+    background: #fff;
+    width: 90%;
+    max-width: 700px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.3s ease-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1f2937;
+    color: #fff;
+    padding: 15px 20px;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 26px;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
