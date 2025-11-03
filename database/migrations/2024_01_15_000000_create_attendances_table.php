@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id'); // ✅ changed
+            $table->unsignedBigInteger('user_id');
             $table->date('date');
             $table->timestamp('check_in_time')->nullable();
             $table->timestamp('check_out_time')->nullable();
             $table->enum('status', ['present', 'absent', 'late', 'half_day'])->default('present');
             $table->decimal('hours_worked', 8, 2)->nullable();
             $table->decimal('overtime_hours', 8, 2)->default(0);
-            $table->text('notes')->nullable();
+            $table->text('clock_in_note')->nullable();
+            $table->text('clock_out_note')->nullable();
             $table->timestamps();
 
             $table->index('user_id');
@@ -42,7 +43,7 @@ return new class extends Migration
             $table->timestamp('emergency_end_time')->nullable();
             $table->decimal('emergency_duration', 8, 2)->default(0);
 
-            // ✅ optional foreign key
+
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

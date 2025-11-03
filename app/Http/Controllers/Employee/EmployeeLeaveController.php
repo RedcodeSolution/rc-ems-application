@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class EmployeeLeaveController extends Controller
 {
@@ -35,7 +36,6 @@ class EmployeeLeaveController extends Controller
         $annualTotal   = 21;
         $sickTotal     = 10;
         $personalTotal = 5;
-
         return view('employees.leaves.index', [
             'leaves' => $allLeaves,
             'recentLeaves'  => $recentLeaves,
@@ -66,9 +66,12 @@ class EmployeeLeaveController extends Controller
         if ($request->hasFile('supporting_doc')) {
             $file = $request->file('supporting_doc');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/leaves', $filename);
+            $file->storeAs('leaves', $filename, 'public');
+
             $validated['supporting_doc'] = $filename;
         }
+
+
 
         $validated['user_id'] = $user->id;
 
@@ -105,36 +108,50 @@ class EmployeeLeaveController extends Controller
     /**
      * Update the specified resource in storage.
      */
+
     public function update(Request $request, Leave $leave)
     {
         if ($leave->status === 'approved') {
-            return response()->json(['error' => 'Cannot update an approved leave request.'], 403);
+            return back()->withErrors(['error' => 'Cannot update an approved leave request.']);
         }
+
         $validated = $request->validate([
             'leave_type' => 'required|string|in:annual,sick,personal,maternity,paternity,emergency',
             'reason' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'contact_info' => 'nullable|string',
-            'supporting_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'supporting_doc' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
         ]);
 
         $validated['contact_number'] = $validated['contact_info'] ?? null;
         unset($validated['contact_info']);
 
+        if ($request->hasFile('supporting_doc')) {
+            $file = $request->file('supporting_doc');
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            if ($leave->supporting_doc && Storage::disk('public')->exists('leaves/' . $leave->supporting_doc)) {
+                Storage::disk('public')->delete('leaves/' . $leave->supporting_doc);
+            }
+
+            $file->storeAs('leaves', $filename, 'public');
+            $validated['supporting_doc'] = $filename;
+        }
+
         $leave->update($validated);
-        return redirect()->route('employee.leaves.index');
+
+        return redirect()->route('employee.leaves.index')
+            ->with('success', 'Leave request updated successfully.');
     }
+
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Leave $leave)
     {
-        $user = Auth::user();
-        if ($leave->employee_id !== $user->employee->employee_id) {
-            return response()->json(['error' => 'You do not have permission to delete this leave.'], 403);
-        }
         if ($leave->status !== 'pending') {
             return response()->json(['error' => 'Cannot delete a ' . $leave->status . ' leave request.'], 403);
         }

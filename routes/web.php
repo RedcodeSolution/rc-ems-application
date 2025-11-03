@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminActivityController;
 use App\Http\Controllers\Admin\AdminAnnouncementsController;
 use App\Http\Controllers\Admin\AdminAttendanceController;
 use App\Http\Controllers\Admin\AdminNotificationController;
@@ -15,9 +16,11 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Employee\EmployeeAnnouncementController;
 use App\Http\Controllers\Employee\EmployeeAttendanceController;
+use App\Http\Controllers\Employee\EmployeeDocumentController;
 use App\Http\Controllers\Employee\EmployeeLeaveController;
 use App\Http\Controllers\Employee\EmployeeOverviewController;
 use App\Http\Controllers\Employee\EmployeeProfileController;
+use App\Http\Controllers\Employee\EmployeeProjectController;
 use App\Http\Controllers\Employee\EmployeeTaskController;
 use App\Http\Controllers\Employee\EmployeeRatingController as EmployeeEmployeeRatingController;
 use App\Http\Controllers\Employee\EmployeeNotificationController;
@@ -290,10 +293,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
         Route::get('/admin/notifications/latest', [AdminNotificationController::class, 'latest'])->name('notifications.latest');
 
-        // System Settings
-        Route::get('/system', function () {
-            return view('admin.system.index');
-        })->name('system');
 
         // Other/Miscellaneous
         Route::get('/other', function () {
@@ -306,6 +305,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
+
+Route::get('/admin/dashboard/data', [AdminActivityController::class, 'dashboardData'])
+    ->name('admin.dashboard.data');
 
 // Resource routes for CRUD operations
 Route::middleware('auth')->group(function () {
@@ -323,27 +325,18 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('projects', ProjectController::class);
 
-    Route::resource('leaves', LeaveController::class);
+
     // Report management
     Route::resource('reports', ReportController::class);
     Route::get('/admin/reports/download/{id}', [ReportController::class, 'download'])->name('reports.download');
 
-    // Announcement management
-    Route::resource('announcements', AnnouncementController::class);
 
-    // Notification management
-    Route::resource('notifications', NotificationController::class);
 
     // Document management
     Route::resource('documents', DocumentController::class);
 
     // Meeting management
-    Route::resource('meetings', MeetingController::class);
-    Route::get('/meetings/dashboard', [MeetingController::class, 'dashboard'])->name('meetings.dashboard');
-    Route::get('/meetings/generate-today', [MeetingController::class, 'generateTodayMeeting'])->name('meetings.generate-today');
-    Route::get('/meetings/{meeting}/join', [MeetingController::class, 'joinMeeting'])->name('meetings.join');
-    Route::get('/meetings/today', [MeetingController::class, 'getTodayMeeting'])->name('meetings.today');
-    Route::patch('/meetings/{meeting}/status', [MeetingController::class, 'updateStatus'])->name('meetings.update-status');
+    Route::get('/admin/meetings/{meeting}/join', [MeetingController::class, 'join'])->name('meetings.join');
 });
 // Employee-specific routes
 Route::middleware(['auth'])->prefix('employee')->name('employee.')->group(function () {
@@ -361,29 +354,10 @@ Route::middleware(['auth'])->prefix('employee')->name('employee.')->group(functi
         Route::delete('/{id}', [EmployeeNotificationController::class, 'destroy'])->name('destroy');           // Delete notification
     });
 });
-// Route::middleware('auth')->prefix('employee')->name('employee.')->group(function () {
-//     // Leave Management
-//     // Route::get('/leaves', function () {
-//     //     return view('employees.leaves.index');
-//     // })->name('leaves.index');
 
-//     // Dashboard
-//     Route::get('/dashboard', [EmployeeOverviewController::class, 'index'])->name('dashboard'); 
-
-//     // Announcements
-
-
-//     // Notifications for employees
-//     Route::get('/notifications', [EmployeeNotificationController::class, 'index'])->name('notifications');
-//     Route::get('/notifications/{notifi_id}', [EmployeeNotificationController::class, 'show'])->name('notifications.show');
-//     Route::post('/notifications/{id}/mark-as-read', [EmployeeNotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
-//     Route::post('/notifications/mark-all-as-read', [EmployeeNotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
-//     Route::delete('/notifications/{id}', [EmployeeNotificationController::class, 'destroy'])->name('notifications.destroy');
-//     Route::get('/notifications/latest', [EmployeeNotificationController::class, 'latest'])->name('notifications.latest');
-// });
 //department Management
 Route::get('/admin/department', [DepartmentController::class, 'index'])->name('admin.departments.index');
-Route::get('/admin/create', [ProjectController::class, 'create'])->name('admin.departments.create');
+Route::get('/admin/create', [DepartmentController::class, 'create'])->name('admin.departments.create');
 Route::post('/admin/department', [DepartmentController::class, 'store'])->name('admin.departments.store');
 Route::get('/departments/{departmentId}/edit', [DepartmentController::class, 'edit'])->name('admin.departments.edit');
 Route::put('/departments/{departmentId}', [DepartmentController::class, 'update'])->name('admin.departments.update');
@@ -468,5 +442,22 @@ Route::get('/dashboard', function () {
 })->name('dashboard');
 Route::get('/admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile.index');
 Route::post('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+
+
+Route::prefix('employee')->name('employee.')->middleware(['auth'])->group(function () {
+    Route::get('/documents', [EmployeeDocumentController::class, 'index'])->name('documents');
+    Route::post('/documents', [EmployeeDocumentController::class, 'store'])->name('documents.store');
+    Route::post('/documents/share/{id}', [EmployeeDocumentController::class, 'share'])->name('documents.share');
+    Route::get('/documents/download/{id}', [EmployeeDocumentController::class, 'download'])->name('documents.download');
+    Route::get('/employee-documents/download/{id}', [EmployeeDocumentController::class, 'downloadEmployeeDocument'])->name('documents.downloadEmployeeDocument');
+    Route::post('/documents/share-company/{id}', [EmployeeDocumentController::class, 'shareCompany'])->name('documents.shareCompany');
+});
+
+Route::get('/employee/projects', [EmployeeProjectController::class, 'index'])->middleware('auth')->name('employee.projects');
+Route::get('/employee/projects/{project}', [EmployeeProjectController::class, 'show'])->name('employee.projects.show');
+
+
+
+
 
 require __DIR__ . '/auth.php';

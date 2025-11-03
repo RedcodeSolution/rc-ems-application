@@ -431,8 +431,8 @@
                 <div class="detail-actions">
                     ${status === 'unread'
                         ? `<button class="btn btn-success btn-sm" onclick="markAsReadFromModal('${notificationId}')">
-                                    <i class="fas fa-check"></i> Mark as Read
-                                   </button>`
+                                                                        <i class="fas fa-check"></i> Mark as Read
+                                                                       </button>`
                         : `<span class="text-muted"><i class="fas fa-check-circle"></i> Already Read</span>`
                     }
                     <button class="btn btn-danger btn-sm" onclick="deleteFromModal('${notificationId}')">

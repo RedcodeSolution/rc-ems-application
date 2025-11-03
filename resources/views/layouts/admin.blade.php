@@ -189,46 +189,12 @@
         </div>
     </div>
 
-    {{-- <div id="notificationModal" class="modal-dropdown" style="display:none;">
+    <div id="notificationModalDrop" class="modal-dropdown" style="display:none;">
         <div class="modal-dropdown-bg"></div>
         <div class="modal-dropdown-content">
             <div class="modal-dropdown-header">
                 <h3><i class="fas fa-bell"></i> Notifications</h3>
-                <button class="modal-close" id="closeNotificationModal">&times;</button>
-            </div>
-            <div class="modal-dropdown-body">
-                <div class="notification-item">
-                    <div>
-                        <div class="notification-title">New Employee Registration</div>
-                        <div class="notification-desc">John Doe has registered and is pending approval.</div>
-                        <div class="notification-meta"><i class="fas fa-clock"></i> 5 min ago</div>
-                    </div>
-                    <div class="notification-actions">
-                        <button class="btn btn-success btn-sm">Approve</button>
-                        <button class="btn btn-danger btn-sm">Cancel</button>
-                    </div>
-                </div>
-
-                <div class="notification-item">
-                    <div>
-                        <div class="notification-title">System Maintenance</div>
-                        <div class="notification-desc">Scheduled for Sunday, 2:00 AM - 4:00 AM.</div>
-                        <div class="notification-meta"><i class="fas fa-clock"></i> 2 days ago</div>
-                    </div>
-                    <div class="notification-actions">
-                        <button class="btn btn-secondary btn-sm">OK</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> --}}
-
-    <div id="notificationModal" class="modal-dropdown" style="display:none;">
-        <div class="modal-dropdown-bg"></div>
-        <div class="modal-dropdown-content">
-            <div class="modal-dropdown-header">
-                <h3><i class="fas fa-bell"></i> Notifications</h3>
-                <button class="modal-close" id="closeNotificationModal">&times;</button>
+                <button class="modal-close" id="closenotificationModalDrop">&times;</button>
             </div>
             <div class="modal-dropdown-body" id="latestNotifications">
                 <p style="text-align:center; color: gray;">Loading...</p>
@@ -326,8 +292,8 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             var bellBtn = document.getElementById('navBellBtn');
-            var modal = document.getElementById('notificationModal');
-            var closeBtn = document.getElementById('closeNotificationModal');
+            var modal = document.getElementById('notificationModalDrop');
+            var closeBtn = document.getElementById('closenotificationModalDrop');
             var bg = modal ? modal.querySelector('.modal-dropdown-bg') : null;
             var body = modal ? modal.querySelector('.modal-dropdown-body') : null;
 
@@ -363,7 +329,6 @@
                             </div>
                             <div class="notification-actions">
                                 <a href="/admin/notifications"
-                                <a href="/admin/notifications"
                                    class="btn btn-info btn-sm">View</a>
                             </div>
                         </div>
@@ -383,7 +348,7 @@
                     // Toggle dropdown
                     if (modal.style.display === 'none' || modal.style.display === '') {
                         modal.style.display = 'flex';
-                        loadLatestNotifications(); // 🚀 load notifications on open
+                        loadLatestNotifications();
                     } else {
                         closeModal();
                     }
@@ -407,7 +372,6 @@
                 });
             }
         });
-        // ...existing code...
     </script>
 
     @stack('scripts')

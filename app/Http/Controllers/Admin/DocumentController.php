@@ -75,7 +75,7 @@ class DocumentController extends Controller
         ]);
 
         return redirect()->route('admin.documents.index')->with('success', 'Document uploaded successfully!');
-    }
+        }
 
     public function edit($document_id)
     {

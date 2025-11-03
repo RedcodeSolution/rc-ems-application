@@ -31,16 +31,6 @@ class Meeting extends Model
         'is_recurring' => 'boolean'
     ];
 
-    /**
-     * Generate a Google Meet link
-     */
-    // public static function generateMeetingLink()
-    // {
-    //     // Generate a unique meeting code
-    //     $meetingCode = strtoupper(substr(md5(uniqid()), 0, 8));
-    //     return "https://meet.google.com/{$meetingCode}";
-    // }
-
     public static function generateMeetingLink()
     {
         return config('app.default_meeting_link', env('DEFAULT_MEETING_LINK', 'https://meet.google.com/new'));
@@ -63,8 +53,6 @@ class Meeting extends Model
         }
 
         $meetings = [];
-
-        // Create morning meeting if it doesn't exist
         $morningMeeting = self::where('meeting_date', $today)
             ->where('type', 'daily_standup')
             ->where('start_time', '09:00:00')
@@ -86,7 +74,6 @@ class Meeting extends Model
             $meetings[] = $morningMeeting;
         }
 
-        // Create evening meeting if it doesn't exist
         $eveningMeeting = self::where('meeting_date', $today)
             ->where('type', 'daily_standup')
             ->where('start_time', '17:00:00')

@@ -9,8 +9,13 @@
         <div class="profile-header">
             <div class="profile-avatar-section">
                 <div class="profile-avatar-large">
-                    JD
+                    {{ strtoupper(substr($employee->employee_name, 0, 1)) }}
+                    @php
+                        $parts = explode(' ', trim($employee->employee_name));
+                        echo isset($parts[1]) ? strtoupper(substr($parts[1], 0, 1)) : '';
+                    @endphp
                 </div>
+
                 <div class="profile-header-info">
                     <h1>{{ $employee->employee_name }}</h1>
                     <p class="profile-role">{{ $employee->role }}</p>

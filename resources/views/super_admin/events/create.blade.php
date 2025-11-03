@@ -1,7 +1,7 @@
 @extends('layouts.super_admin')
 
 @section('title', 'Create Event')
-<link rel="stylesheet" href="{{ asset('css/SuperAdmin/Event/eventCreate.css') }}">
+<link rel="stylesheet" href="{{ asset('css/SuperAdmin/Event/eventEdit.css') }}">
 @section('content')
 <div class="page-header">
     <div class="header-content">

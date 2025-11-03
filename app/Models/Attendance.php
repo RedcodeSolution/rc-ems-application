@@ -17,13 +17,12 @@ class Attendance extends Model
         'status',
         'hours_worked',
         'overtime_hours',
-        'notes',
+        'clock_in_note',
+        'clock_out_note',
         'break_start_time',
         'break_end_time',
         'break_duration',
         'is_on_break',
-
-
         'is_on_emergency',
         'emergency_type',
         'emergency_description',
@@ -31,6 +30,7 @@ class Attendance extends Model
         'emergency_end_time',
         'emergency_duration',
     ];
+
 
     protected $casts = [
         'date' => 'date',

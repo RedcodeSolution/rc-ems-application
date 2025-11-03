@@ -138,37 +138,24 @@ class EmployeeAttendanceController extends Controller
         ));
     }
 
-    public function clockIn()
+    public function clockIn(Request $request)
     {
         $user = Auth::user();
 
         if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not authenticated.'
-            ]);
+            return response()->json(['success' => false, 'message' => 'User not authenticated.']);
         }
 
         $userId = $user->id;
         $now = Carbon::now('Asia/Colombo');
         $today = $now->toDateString();
 
-        // if ($now->greaterThan(Carbon::createFromTime(17, 0, 0, 'Asia/Colombo'))) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Clock-in is not allowed after 5:00 PM.'
-        //     ]);
-        // }
-
         $attendance = Attendance::where('user_id', $userId)
             ->whereDate('date', $today)
             ->first();
 
         if ($attendance && $attendance->check_in_time) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Already clocked in today.'
-            ]);
+            return response()->json(['success' => false, 'message' => 'Already clocked in today.']);
         }
 
         $nineAm = Carbon::createFromTime(9, 0, 0, 'Asia/Colombo');
@@ -179,8 +166,10 @@ class EmployeeAttendanceController extends Controller
             [
                 'check_in_time' => $now,
                 'status' => $status,
+                'clock_in_note' => $request->input('notes') ?? null,
             ]
         );
+
         $employee = $user->employee;
         EmployeeActivity::create([
             'employee_id' => $employee->employee_id,
@@ -192,7 +181,6 @@ class EmployeeAttendanceController extends Controller
                 : 'Clocked in on time at ' . $now->format('h:i A'),
         ]);
 
-
         return response()->json([
             'success' => true,
             'message' => $status === 'late'
@@ -202,9 +190,7 @@ class EmployeeAttendanceController extends Controller
         ]);
     }
 
-
-
-    public function clockOut()
+    public function clockOut(Request $request)
     {
         $user = Auth::user();
 
@@ -228,6 +214,7 @@ class EmployeeAttendanceController extends Controller
             return response()->json(['success' => false, 'message' => 'Already clocked out today.']);
         }
 
+        // Handle emergency tracking
         if ($attendance->is_on_emergency && $attendance->emergency_start_time) {
             $emergencyDuration = Carbon::parse($attendance->emergency_start_time)->diffInMinutes($now) / 60;
             $attendance->emergency_duration += $emergencyDuration;
@@ -236,24 +223,24 @@ class EmployeeAttendanceController extends Controller
         }
 
         $totalWorked = Carbon::parse($attendance->check_in_time)->diffInMinutes($now) / 60;
-
-        $hoursWorked = round(
-            $totalWorked - ($attendance->break_duration + $attendance->emergency_duration),
-            2
-        );
-
+        $hoursWorked = round($totalWorked - ($attendance->break_duration + $attendance->emergency_duration), 2);
         $hoursWorked = max($hoursWorked, 0);
-
-        // --- Overtime calculation ---
         $overtime = $hoursWorked > 8 ? round($hoursWorked - 8, 2) : 0;
+
+
+        $halfDayLimit = Carbon::createFromTime(12, 30, 0, 'Asia/Colombo');
+        $status = $now->lessThan($halfDayLimit) ? 'halfday' : $attendance->status;
 
         // --- Save attendance ---
         $attendance->update([
             'check_out_time' => $now,
             'hours_worked' => $hoursWorked,
             'overtime_hours' => $overtime,
+            'clock_out_note' => $request->input('notes') ?? null,
             'is_on_emergency' => false,
+            'status' => $status,
         ]);
+
         $employee = $user->employee;
 
         EmployeeActivity::create([
@@ -263,17 +250,20 @@ class EmployeeAttendanceController extends Controller
             'action'      => 'Clocked Out',
             'details'     => 'Clocked out at ' . $now->format('h:i A') .
                 ' — Worked ' . $hoursWorked . ' hrs' .
-                ($overtime > 0 ? ' (+ ' . $overtime . ' hrs overtime)' : ''),
+                ($overtime > 0 ? ' (+ ' . $overtime . ' hrs overtime)' : '') .
+                ($status === 'half_day' ? ' (Marked as Half Day)' : ''),
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Clock-out successful.',
+            'message' => $status === 'half_day'
+                ? 'Clock-out successful. Marked as half-day.'
+                : 'Clock-out successful.',
             'hours_worked' => $hoursWorked,
             'overtime_hours' => $overtime,
+            'status' => $status,
         ]);
     }
-
 
 
     public function getDetailsById($id)
@@ -304,10 +294,12 @@ class EmployeeAttendanceController extends Controller
                 'check_out_time' => $attendance->check_out_time,
                 'break_duration' => $attendance->break_duration,
                 'total_hours' => $attendance->hours_worked,
-                'notes' => $attendance->notes,
+                'clock_in_note' => $attendance->clock_in_note,
+                'clock_out_note' => $attendance->clock_out_note,
             ],
         ]);
     }
+
 
     public function startBreak()
     {

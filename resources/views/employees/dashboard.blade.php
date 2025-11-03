@@ -154,20 +154,27 @@
                                     </div>
                                 </div>
                                 <div class="meeting-link-section">
-                                    <div class="meeting-link-display">
-                                        <input type="text" value="{{ $meeting->meeting_link }}"
-                                            class="meeting-link-input" readonly>
-                                        <button onclick="copyToClipboard('{{ $meeting->meeting_link }}', event)"
-                                            class="copy-btn">
-                                            <i class="fas fa-copy"></i> Copy
-                                        </button>
-                                    </div>
-                                    <a href="{{ route('employee.meetings.join', $meeting) }}" class="join-meeting-btn"
-                                        target="_blank" rel="noopener noreferrer">
-                                        <i class="fas fa-external-link-alt"></i> Join Meeting
-                                    </a>
+                                    @if ($meeting->status === 'ongoing')
+                                        <div class="meeting-link-display">
+                                            <input type="text" value="{{ $meeting->meeting_link }}"
+                                                class="meeting-link-input" readonly>
+                                            <button onclick="copyToClipboard('{{ $meeting->meeting_link }}', event)"
+                                                class="copy-btn">
+                                                <i class="fas fa-copy"></i> Copy
+                                            </button>
+                                        </div>
 
+                                        <a href="{{ route('employee.meetings.join', $meeting) }}" class="join-meeting-btn"
+                                            target="_blank" rel="noopener noreferrer">
+                                            <i class="fas fa-external-link-alt"></i> Join Meeting
+                                        </a>
+                                    @else
+                                        <p class="meeting-upcoming-text">
+                                            <i class="fas fa-clock"></i> Meeting not started yet
+                                        </p>
+                                    @endif
                                 </div>
+
                             </div>
                         </div>
                     @endforeach
@@ -233,7 +240,6 @@
                 <div class="dashboard-card">
                     <div class="card-header">
                         <h3><i class="fas fa-history"></i> Recent Activity</h3>
-                        <a href="#" class="view-all">View All</a>
                     </div>
                     @foreach ($recentActivities as $activity)
                         <div class="activity-item">

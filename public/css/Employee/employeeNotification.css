@@ -31,7 +31,7 @@
 }
 
 /* Header */
-.notifications-header {
+.notifications-header { 
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -825,7 +825,7 @@
     align-items: center;
     gap: 0.4rem;
 }
-.detail-actions .btn i { font-size: 0.9rem; }
+.detail-actions .btn i { font-size: 0.9rem; } 
 
 .btn-success { background: #10b981; color: #fff; }
 .btn-danger { background: #ef4444; color: #fff; }

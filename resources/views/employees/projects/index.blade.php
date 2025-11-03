@@ -11,10 +11,6 @@
                     <p>Track your assigned projects and collaborate with teams</p>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-primary" onclick="openCreateProjectModal()">
-                        <i class="fas fa-plus"></i>
-                        Create Project
-                    </button>
                     <button class="btn btn-secondary" onclick="toggleViewMode()">
                         <i class="fas fa-th-large" id="viewModeIcon"></i>
                         <span id="viewModeText">Grid View</span>
@@ -22,140 +18,83 @@
                 </div>
             </div>
         </div>
-    </div>
+
         <div class="projects-stats">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-tasks"></i>
                 </div>
-                <div class="status-info">
-                    <h3>Active Projects</h3>
-                    <p>12 projects</p>
+                <div class="stat-info">
+                    <h3>12</h3>
+                    <p>Active Projects</p>
                 </div>
             </div>
-            <div class="status-card" data-status="completed">
-                <div class="status-icon">
-                    <i class="fas fa-check"></i>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
                 </div>
-                <div class="status-info">
-                    <h3>Completed</h3>
-                    <p>8 projects</p>
-                </div>
-            </div>
-            <div class="status-card" data-status="pending">
-                <div class="status-icon">
-                    <i class="fas fa-pause"></i>
-                </div>
-                <div class="status-info">
-                    <h3>Pending</h3>
-                    <p>3 projects</p>
+                <div class="stat-info">
+                    <h3>8</h3>
+                    <p>Completed</p>
                 </div>
             </div>
-            <div class="status-card" data-status="overdue">
-                <div class="status-icon">
-                    <i class="fas fa-exclamation"></i>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
                 </div>
-                <div class="status-info">
-                    <h3>Overdue</h3>
-                    <p>2 projects</p>
+                <div class="stat-info">
+                    <h3>3</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>2</h3>
+                    <p>Overdue</p>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="projects-controls">
-        <div class="search-section">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search projects..." id="searchInput">
-            </div>
-            <div class="filter-section">
-                <select id="statusFilter" class="filter-select">
-                    <option value="">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="completed">Completed</option>
-                    <option value="pending">Pending</option>
-                    <option value="overdue">Overdue</option>
-                </select>
-                <select id="priorityFilter" class="filter-select">
-                    <option value="">All Priority</option>
-                    <option value="high">High Priority</option>
-                    <option value="medium">Medium Priority</option>
-                    <option value="low">Low Priority</option>
-                </select>
-                <select id="teamFilter" class="filter-select">
-                    <option value="">All Teams</option>
-                    <option value="development">Development</option>
-                    <option value="design">Design</option>
-                    <option value="marketing">Marketing</option>
-                    <option value="qa">Quality Assurance</option>
-                </select>
-            </div>
-        </div>
-    </div>
         <div class="project-status-filter">
             <h2>Project Status</h2>
             <div class="status-grid">
                 <div class="status-card" data-status="active">
                     <div class="status-icon">
                         <i class="fas fa-play"></i>
-                        Active
+                    </div>
+                    <div class="status-info">
+                        <h3>Active Projects</h3>
+                        <p>12 projects</p>
                     </div>
                 </div>
-                <div class="project-info">
-                    <p>Building a comprehensive e-commerce solution with modern features and secure payment integration.</p>
-                    <div class="project-meta">
-                        <span><i class="fas fa-user"></i> Development Team</span>
-                        <span><i class="fas fa-calendar"></i> Due: Mar 15, 2024</span>
+                <div class="status-card" data-status="completed">
+                    <div class="status-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="status-info">
+                        <h3>Completed</h3>
+                        <p>8 projects</p>
                     </div>
                 </div>
-                <div class="project-progress">
-                    <div class="progress-info">
-                        <span>Progress</span>
-                        <span>75%</span>
+                <div class="status-card" data-status="pending">
+                    <div class="status-icon">
+                        <i class="fas fa-pause"></i>
                     </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 75%"></div>
-                    </div>
-                </div>
-                <div class="project-actions">
-                    <button class="action-btn" onclick="viewProject('E-Commerce Platform')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="editProject('E-Commerce Platform')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareProject('E-Commerce Platform')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="project-card" data-status="active" data-priority="medium" data-team="design">
-                <div class="project-header">
-                    <div class="project-title">
-                        <h4>Mobile App UI/UX</h4>
-                        <span class="priority-badge medium">Medium Priority</span>
-                    </div>
-                    <div class="project-status active">
-                        <i class="fas fa-play"></i>
-                        Active
+                    <div class="status-info">
+                        <h3>Pending</h3>
+                        <p>3 projects</p>
                     </div>
                 </div>
-                <div class="project-info">
-                    <p>Designing user interface and user experience for the new mobile application.</p>
-                    <div class="project-meta">
-                        <span><i class="fas fa-user"></i> Design Team</span>
-                        <span><i class="fas fa-calendar"></i> Due: Apr 10, 2024</span>
+                <div class="status-card" data-status="overdue">
+                    <div class="status-icon">
+                        <i class="fas fa-exclamation"></i>
                     </div>
-                </div>
-                <div class="project-progress">
-                    <div class="progress-info">
-                        <span>Progress</span>
-                        <span>60%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 60%"></div>
+                    <div class="status-info">
+                        <h3>Overdue</h3>
+                        <p>2 projects</p>
                     </div>
                 </div>
             </div>
@@ -190,211 +129,87 @@
                     </select>
                 </div>
             </div>
+        </div>
+
+
         <div class="projects-content">
             <div class="projects-grid" id="projectsGrid">
-                <div class="project-card" data-status="active" data-priority="high" data-team="development">
-                    <div class="project-header">
-                        <div class="project-title">
-                            <h4>E-Commerce Platform</h4>
-                            <span class="priority-badge high">High Priority</span>
-                        </div>
-                        <div class="project-status active">
-                            <i class="fas fa-play"></i>
-                            Active
-                        </div>
-                    </div>
-                    <div class="project-info">
-                        <p>Building a comprehensive e-commerce solution with modern features and secure payment integration.
-                        </p>
-                        <div class="project-meta">
-                            <span><i class="fas fa-user"></i> Development Team</span>
-                            <span><i class="fas fa-calendar"></i> Due: Mar 15, 2024</span>
-                        </div>
-                    </div>
-                    <div class="project-progress">
-                        <div class="progress-info">
-                            <span>Progress</span>
-                            <span>75%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 75%"></div>
-                        </div>
-                    </div>
-                    <div class="project-status completed">
-                        <i class="fas fa-check"></i>
-                        Completed
-                    </div>
-                </div>
-                <div class="project-info">
-                    <p>Developed a comprehensive customer portal for account management and support.</p>
-                    <div class="project-meta">
-                        <span><i class="fas fa-user"></i> Development Team</span>
-                        <span><i class="fas fa-calendar"></i> Completed: Feb 28, 2024</span>
-                    </div>
-                </div>
-                <div class="project-progress">
-                    <div class="progress-info">
-                        <span>Progress</span>
-                        <span>100%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill completed" style="width: 100%"></div>
-                    </div>
-                </div>
-                <div class="project-actions">
-                    <button class="action-btn" onclick="viewProject('Customer Portal')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="editProject('Customer Portal')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareProject('Customer Portal')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
-            </div>
-                <div class="project-card" data-status="completed" data-priority="high" data-team="development">
-                    <div class="project-header">
-                        <div class="project-title">
-                            <h4>Customer Portal</h4>
-                            <span class="priority-badge high">High Priority</span>
-                        </div>
-                        <div class="project-status completed">
-                            <i class="fas fa-check"></i>
-                            Completed
-                        </div>
-                    </div>
-                    <div class="project-info">
-                        <p>Developed a comprehensive customer portal for account management and support.</p>
-                        <div class="project-meta">
-                            <span><i class="fas fa-user"></i> Development Team</span>
-                            <span><i class="fas fa-calendar"></i> Completed: Feb 28, 2024</span>
-                        </div>
-                    </div>
-                    <div class="project-status pending">
-                        <i class="fas fa-pause"></i>
-                        Pending
-                    </div>
-                </div>
-                <div class="project-card" data-status="pending" data-priority="low" data-team="marketing">
-                    <div class="project-header">
-                        <div class="project-title">
-                            <h4>Marketing Campaign</h4>
-                            <span class="priority-badge low">Low Priority</span>
-                        </div>
-                        <div class="project-status pending">
-                            <i class="fas fa-pause"></i>
-                            Pending
-                        </div>
-                    </div>
-                </div>
-                <div class="project-progress">
-                    <div class="progress-info">
-                        <span>Progress</span>
-                        <span>25%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill pending" style="width: 25%"></div>
-                    </div>
-                </div>
-                <div class="project-actions">
-                    <button class="action-btn" onclick="viewProject('Marketing Campaign')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="editProject('Marketing Campaign')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareProject('Marketing Campaign')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
-            </div>
-                <div class="project-card" data-status="overdue" data-priority="high" data-team="qa">
-                    <div class="project-header">
-                        <div class="project-title">
-                            <h4>Quality Assurance</h4>
-                            <span class="priority-badge high">High Priority</span>
-                        </div>
-                        <div class="project-status overdue">
-                            <i class="fas fa-exclamation"></i>
-                            Overdue
-                        </div>
-                    </div>
-                    <div class="project-status overdue">
-                        <i class="fas fa-exclamation"></i>
-                        Overdue
-                    </div>
-                </div>
-                <div class="project-info">
-                    <p>Comprehensive testing and quality assurance for the main application.</p>
-                    <div class="project-meta">
-                        <span><i class="fas fa-user"></i> QA Team</span>
-                        <span><i class="fas fa-calendar"></i> Due: Jan 30, 2024</span>
-                    </div>
-                </div>
-                <div class="project-progress">
-                    <div class="progress-info">
-                        <span>Progress</span>
-                        <span>85%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill overdue" style="width: 85%"></div>
-                    </div>
-                </div>
-                <div class="project-actions">
-                    <button class="action-btn" onclick="viewProject('Quality Assurance')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="editProject('Quality Assurance')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareProject('Quality Assurance')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
-            </div>
+                @forelse($employeeProjects as $project)
+                    @php
+                        $progress = $project->progress ?? 0;
+                        $priority = $progress >= 80 ? 'high' : ($progress >= 50 ? 'medium' : 'low');
+                        $status = $project->pivot_status ?? 'Pending';
+                        $deadline = $project->deadline
+                            ? \Carbon\Carbon::parse($project->deadline)->format('M d, Y')
+                            : 'No deadline';
+                        $role = $project->role ?? 'N/A';
+                        $teamName = $project->team_name ?? 'N/A';
+                    @endphp
 
-            <div class="project-card" data-status="active" data-priority="medium" data-team="development">
-                <div class="project-header">
-                    <div class="project-title">
-                        <h4>API Integration</h4>
-                        <span class="priority-badge medium">Medium Priority</span>
+                    <div class="project-card" data-status="{{ strtolower($status) }}" data-priority="{{ $priority }}"
+                        data-team="{{ strtolower($teamName) }}">
+                        <div class="project-header">
+                            <div class="project-title">
+                                <h4>{{ $project->project_name }}</h4>
+                                <span class="priority-badge {{ $priority }}">{{ ucfirst($priority) }} Priority</span>
+                            </div>
+                            <div class="project-status {{ strtolower($status) }}">
+                                @if ($status == 'Active')
+                                    <i class="fas fa-play"></i>
+                                @elseif($status == 'Completed')
+                                    <i class="fas fa-check"></i>
+                                @elseif($status == 'On Hold')
+                                    <i class="fas fa-pause"></i>
+                                @else
+                                    <i class="fas fa-exclamation"></i>
+                                @endif
+                                {{ $status }}
+                            </div>
+                        </div>
+
+                        <div class="project-info">
+                            <p>{{ $project->description ?? 'No description available.' }}</p>
+                            <div class="project-meta">
+                                <span><i class="fas fa-user"></i> Role: {{ $role }}</span>
+                                <span><i class="fas fa-users"></i> Team: {{ $teamName }}</span>
+                                <span><i class="fas fa-calendar"></i> Due: {{ $deadline }}</span>
+                            </div>
+                        </div>
+
+                        <div style="margin: 1rem 0;">
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                                Progress
+                            </div>
+                            <div style="background: var(--gray-200); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div
+                                    style="background: linear-gradient(90deg, var(--primary), var(--secondary)); height: 100%; width: {{ $progress }}%; transition: width 0.3s ease;">
+                                </div>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                {{ $progress }}%
+                            </div>
+                        </div>
+
+
+                        <div class="project-actions">
+                            <button class="action-btn" onclick="viewProject('{{ $project->project_name }}')"
+                                title="View Project">
+                                <i class="fas fa-eye"></i>
+                            </button>
+
+                            <button class="action-btn" onclick="editProject('E-Commerce Platform')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="project-status active">
-                        <i class="fas fa-play"></i>
-                        Active
-                    </div>
-                </div>
-                <div class="project-info">
-                    <p>Integrating third-party APIs for enhanced functionality and data synchronization.</p>
-                    <div class="project-meta">
-                        <span><i class="fas fa-user"></i> Development Team</span>
-                        <span><i class="fas fa-calendar"></i> Due: Apr 25, 2024</span>
-                    </div>
-                </div>
-                <div class="project-progress">
-                    <div class="progress-info">
-                        <span>Progress</span>
-                        <span>40%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 40%"></div>
-                    </div>
-                </div>
-                <div class="project-actions">
-                    <button class="action-btn" onclick="viewProject('API Integration')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn" onclick="editProject('API Integration')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-btn" onclick="shareProject('API Integration')">
-                        <i class="fas fa-share"></i>
-                    </button>
-                </div>
+                @empty
+                    <p>No projects assigned to you yet.</p>
+                @endforelse
             </div>
         </div>
-    </div>
+
+
+
         <div id="createProjectModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -403,43 +218,161 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="form-group">
-                    <label for="projectDescription">Description</label>
-                    <textarea id="projectDescription" class="form-control" rows="3" placeholder="Enter project description..."></textarea>
-                </div>
-                <div class="form-row">
+                <div class="modal-body">
                     <div class="form-group">
-                        <label for="projectPriority">Priority</label>
-                        <select id="projectPriority" class="form-control">
-                            <option value="high">High Priority</option>
-                            <option value="medium">Medium Priority</option>
-                            <option value="low">Low Priority</option>
-                        </select>
+                        <label for="projectName">Project Name</label>
+                        <input type="text" id="projectName" class="form-control" placeholder="Enter project name...">
                     </div>
                     <div class="form-group">
-                        <label for="projectTeam">Team</label>
-                        <select id="projectTeam" class="form-control">
-                            <option value="development">Development</option>
-                            <option value="design">Design</option>
-                            <option value="marketing">Marketing</option>
-                            <option value="qa">Quality Assurance</option>
-                        </select>
+                        <label for="projectDescription">Description</label>
+                        <textarea id="projectDescription" class="form-control" rows="3" placeholder="Enter project description..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="projectPriority">Priority</label>
+                            <select id="projectPriority" class="form-control">
+                                <option value="high">High Priority</option>
+                                <option value="medium">Medium Priority</option>
+                                <option value="low">Low Priority</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="projectTeam">Team</label>
+                            <select id="projectTeam" class="form-control">
+                                <option value="development">Development</option>
+                                <option value="design">Design</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="qa">Quality Assurance</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectDeadline">Deadline</label>
+                        <input type="date" id="projectDeadline" class="form-control">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="projectDeadline">Deadline</label>
-                    <input type="date" id="projectDeadline" class="form-control">
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeCreateProjectModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="createProject()">
+                        <i class="fas fa-plus"></i>
+                        Create Project
+                    </button>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeCreateProjectModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="createProject()">
-                    <i class="fas fa-plus"></i>
-                    Create Project
-                </button>
             </div>
         </div>
+
+        <div id="viewProjectModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-eye"></i> <span id="viewProjectTitle">Project Title</span></h3>
+                    <button class="close-btn" onclick="closeViewProjectModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="viewProjectDescription"></p>
+                    <div class="project-meta" style="margin-top:1rem;">
+                        <span><i class="fas fa-user"></i> <strong id="viewProjectTeam">Team</strong></span>
+                        <span style="display:block;margin-top:.5rem;"><i class="fas fa-calendar"></i> <strong
+                                id="viewProjectDeadline">Due: --</strong></span>
+                        <span style="display:block;margin-top:.5rem;"><i class="fas fa-flag"></i> <strong
+                                id="viewProjectPriority">Priority</strong></span>
+                    </div>
+                    <div style="margin-top:1rem;">
+                        <div class="progress-info">
+                            <span>Progress</span>
+                            <span id="viewProjectProgressText">0%</span>
+                        </div>
+                        <div class="progress-bar" style="height:10px;">
+                            <div id="viewProjectProgressFill" class="progress-fill" style="width:0%; height:100%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeViewProjectModal()">Close</button>
+                    <button class="btn btn-primary" onclick="openEditFromView()">
+                        <i class="fas fa-edit"></i>
+                        Edit Project
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="editProjectModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-edit"></i> Edit Project</h3>
+                    <button class="close-btn" onclick="closeEditProjectModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editProjectIdentifier">
+                    <div class="form-group">
+                        <label for="editProjectName">Project Name</label>
+                        <input type="text" id="editProjectName" class="form-control"
+                            placeholder="Enter project name...">
+                    </div>
+                    <div class="form-group">
+                        <label for="editProjectDescription">Description</label>
+                        <textarea id="editProjectDescription" class="form-control" rows="3"
+                            placeholder="Enter project description..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editProjectPriority">Priority</label>
+                            <select id="editProjectPriority" class="form-control">
+                                <option value="high">High Priority</option>
+                                <option value="medium">Medium Priority</option>
+                                <option value="low">Low Priority</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProjectTeam">Team</label>
+                            <select id="editProjectTeam" class="form-control">
+                                <option value="development">Development</option>
+                                <option value="design">Design</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="qa">Quality Assurance</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editProjectDeadline">Deadline</label>
+                        <input type="date" id="editProjectDeadline" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editProjectProgress">Progress (%)</label>
+                        <div class="range-wrapper" title="Scroll while hovering to change value">
+                            <input type="range" id="editProjectProgress" class="form-control range-input"
+                                min="0" max="100" step="1" value="0" />
+                            <span id="editProjectProgressLabel" class="range-label">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editProjectStatus">Status</label>
+                        <select id="editProjectStatus" class="form-control">
+                            <option value="active">Active</option>
+                            <option value="completed">Completed</option>
+                            <option value="pending">Pending</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeEditProjectModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveProjectEdits()">
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
+
     <script>
         let currentViewMode = 'grid';
 
@@ -484,40 +417,19 @@
             showMessage('Project created successfully!', 'success');
             closeCreateProjectModal();
 
-
             document.getElementById('projectName').value = '';
             document.getElementById('projectDescription').value = '';
             document.getElementById('projectDeadline').value = '';
         }
 
-        function viewProject(projectName) {
-            showMessage(Opening $ {
-                projectName
-            }..., 'info');
-        }
-
-        function editProject(projectName) {
-            showMessage(Editing $ {
-                projectName
-            }..., 'info');
-        }
-
-        function shareProject(projectName) {
-            showMessage(Sharing $ {
-                projectName
-            }..., 'info');
-        }
-
         function showMessage(message, type) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = message message - $ {
-                type
-            };
+            messageDiv.className = `message message-${type}`;
             messageDiv.innerHTML = `
             <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
             ${message}
         `;
-        messageDiv.style.cssText = `
+            messageDiv.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
@@ -532,6 +444,7 @@
             align-items: center;
             gap: 0.5rem;
         `;
+
             document.body.appendChild(messageDiv);
 
             setTimeout(() => {
@@ -539,11 +452,188 @@
             }, 3000);
         }
 
+        function viewProject(projectName) {
+            const card = Array.from(document.querySelectorAll('.project-card')).find(c => {
+                const h = c.querySelector('h4');
+                return h && h.textContent.trim() === projectName;
+            });
+
+            if (!card) {
+                showMessage(`Project "${projectName}" not found.`, 'info');
+                return;
+            }
+
+            document.getElementById('viewProjectTitle').textContent = projectName;
+            const desc = card.querySelector('.project-info p') ? card.querySelector('.project-info p').textContent.trim() :
+                '';
+            document.getElementById('viewProjectDescription').textContent = desc;
+
+            document.getElementById('viewProjectTeam').textContent = (card.dataset.team || '').replace(/^\w/, c => c
+                .toUpperCase());
+            const deadlineSpan = Array.from(card.querySelectorAll('.project-meta span')).find(s => s.textContent
+                .toLowerCase().includes('due') || s.textContent.toLowerCase().includes('completed'));
+            document.getElementById('viewProjectDeadline').textContent = deadlineSpan ? deadlineSpan.textContent :
+            'Due: --';
+
+            const priorityBadge = card.querySelector('.priority-badge');
+            document.getElementById('viewProjectPriority').textContent = priorityBadge ? priorityBadge.textContent.trim() :
+                '';
+
+            const progressText = card.querySelector('.progress-info span:nth-child(2)');
+            const progressValue = progressText ? progressText.textContent.replace('%', '').trim() : '0';
+            document.getElementById('viewProjectProgressText').textContent = progressValue + '%';
+            const fill = document.getElementById('viewProjectProgressFill');
+            fill.style.width = `${progressValue}%`;
+
+            document.getElementById('editProjectIdentifier').value = projectName;
+
+            document.getElementById('viewProjectModal').classList.add('active');
+        }
+
+        function closeViewProjectModal() {
+            document.getElementById('viewProjectModal').classList.remove('active');
+        }
+
+        function editProject(projectName) {
+            const card = Array.from(document.querySelectorAll('.project-card')).find(c => {
+                const h = c.querySelector('h4');
+                return h && h.textContent.trim() === projectName;
+            });
+
+            if (!card) {
+                showMessage(`Project "${projectName}" not found.`, 'info');
+                return;
+            }
+
+            populateEditModalFromCard(card);
+            document.getElementById('editProjectModal').classList.add('active');
+        }
+
+        function openEditFromView() {
+            const id = document.getElementById('editProjectIdentifier').value;
+            closeViewProjectModal();
+            if (id) {
+                editProject(id);
+            }
+        }
+
+        function populateEditModalFromCard(card) {
+            const title = card.querySelector('h4') ? card.querySelector('h4').textContent.trim() : '';
+            const desc = card.querySelector('.project-info p') ? card.querySelector('.project-info p').textContent.trim() :
+                '';
+            const priority = card.dataset.priority || '';
+            const team = card.dataset.team || '';
+            const progressText = card.querySelector('.progress-info span:nth-child(2)');
+            const progressValue = progressText ? parseInt(progressText.textContent.replace('%', '').trim()) : 0;
+            const status = card.dataset.status || '';
+            const deadlineSpan = Array.from(card.querySelectorAll('.project-meta span')).find(s => s.textContent
+                .toLowerCase().includes('due') || s.textContent.toLowerCase().includes('completed'));
+            let deadlineVal = '';
+            if (deadlineSpan) {
+                const m = deadlineSpan.textContent.match(/(\w+\s+\d{1,2},\s*\d{4})/);
+                if (m) {
+                    deadlineVal = '';
+                }
+            }
+
+            document.getElementById('editProjectIdentifier').value = title;
+            document.getElementById('editProjectName').value = title;
+            document.getElementById('editProjectDescription').value = desc;
+            document.getElementById('editProjectPriority').value = priority;
+            document.getElementById('editProjectTeam').value = team;
+            document.getElementById('editProjectProgress').value = progressValue;
+            document.getElementById('editProjectStatus').value = status;
+            document.getElementById('editProjectDeadline').value = deadlineVal;
+        }
+
+        function saveProjectEdits() {
+            const originalIdentifier = document.getElementById('editProjectIdentifier').value;
+            const newName = document.getElementById('editProjectName').value.trim();
+            const newDesc = document.getElementById('editProjectDescription').value.trim();
+            const newPriority = document.getElementById('editProjectPriority').value;
+            const newTeam = document.getElementById('editProjectTeam').value;
+            const newDeadline = document.getElementById('editProjectDeadline').value;
+            const newProgress = Math.min(100, Math.max(0, parseInt(document.getElementById('editProjectProgress').value ||
+                0)));
+            const newStatus = document.getElementById('editProjectStatus').value;
+
+            if (!newName) {
+                alert('Project name is required.');
+                return;
+            }
+
+            const card = Array.from(document.querySelectorAll('.project-card')).find(c => {
+                const h = c.querySelector('h4');
+                return h && h.textContent.trim() === originalIdentifier;
+            });
+
+            if (!card) {
+                showMessage('Original project card not found.', 'info');
+                closeEditProjectModal();
+                return;
+            }
+
+            if (card.querySelector('h4')) card.querySelector('h4').textContent = newName;
+            if (card.querySelector('.project-info p')) card.querySelector('.project-info p').textContent = newDesc;
+
+            const badge = card.querySelector('.priority-badge');
+            if (badge) {
+                badge.classList.remove('high', 'medium', 'low');
+                badge.classList.add(newPriority);
+                badge.textContent = `${newPriority.charAt(0).toUpperCase() + newPriority.slice(1)} Priority`;
+            }
+
+            card.dataset.priority = newPriority;
+            card.dataset.team = newTeam;
+            card.dataset.status = newStatus;
+
+            const statusEl = card.querySelector('.project-status');
+            if (statusEl) {
+                statusEl.className = 'project-status ' + newStatus;
+                const iconClass = newStatus === 'active' ? 'fa-play' : newStatus === 'completed' ? 'fa-check' :
+                    newStatus === 'pending' ? 'fa-pause' : 'fa-exclamation';
+                statusEl.innerHTML =
+                    `<i class="fas ${iconClass}"></i> ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`;
+            }
+
+            const metaSpans = Array.from(card.querySelectorAll('.project-meta span'));
+            if (metaSpans.length >= 2) {
+                metaSpans[1].innerHTML =
+                    `<i class="fas fa-calendar"></i> ${ newDeadline ? ('Due: ' + new Date(newDeadline).toLocaleDateString()) : 'Due: --' }`;
+            }
+
+            const progressText = card.querySelector('.progress-info span:nth-child(2)');
+            if (progressText) progressText.textContent = `${newProgress}%`;
+            const fill = card.querySelector('.progress-fill');
+            if (fill) fill.style.width = `${newProgress}%`;
+
+            showMessage('Project updated successfully!', 'success');
+            closeEditProjectModal();
+        }
+
+        function closeEditProjectModal() {
+            document.getElementById('editProjectModal').classList.remove('active');
+        }
+
+        function shareProject(projectName) {
+            showMessage(`Sharing ${projectName}...`, 'info');
+        }
+
+        ['viewProjectModal', 'editProjectModal', 'createProjectModal'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            }
+        });
+
         document.getElementById('searchInput').addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase();
             filterProjects();
         });
-    }
 
         document.getElementById('statusFilter').addEventListener('change', filterProjects);
         document.getElementById('priorityFilter').addEventListener('change', filterProjects);
@@ -581,12 +671,11 @@
                 document.getElementById('statusFilter').value = status;
                 filterProjects();
 
-
                 document.querySelectorAll('.status-card').forEach(c => c.classList.remove('active'));
                 this.classList.add('active');
             });
         });
-    });
+
         document.getElementById('createProjectModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeCreateProjectModal();
@@ -633,6 +722,49 @@
             flex-shrink: 0;
         }
     `;
-    document.head.appendChild(style);
-</script>
+        document.head.appendChild(style);
+
+        (function() {
+            const slider = document.getElementById('editProjectProgress');
+            const label = document.getElementById('editProjectProgressLabel');
+
+            function setLabel(v) {
+                if (label) label.textContent = `${v}%`;
+            }
+
+            if (slider) {
+                slider.addEventListener('input', function(e) {
+                    setLabel(e.target.value);
+                });
+
+                slider.addEventListener('wheel', function(e) {
+                    e.preventDefault();
+                    const step = e.shiftKey ? 10 : 1;
+                    const delta = e.deltaY > 0 ? -step : step;
+                    let val = parseInt(slider.value || 0, 10);
+                    val = Math.min(100, Math.max(0, val + delta));
+                    slider.value = val;
+                    setLabel(val);
+                    slider.dispatchEvent(new Event('input', {
+                        bubbles: true
+                    }));
+                });
+
+                slider.addEventListener('change', function(e) {
+                    setLabel(e.target.value);
+                });
+            }
+
+            const origPopulate = window.populateEditModalFromCard;
+            if (typeof origPopulate === 'function') {
+                window.populateEditModalFromCard = function(card) {
+                    origPopulate(card);
+                    const v = document.getElementById('editProjectProgress') ? document.getElementById(
+                        'editProjectProgress').value : 0;
+                    setLabel(v);
+                };
+            }
+
+        })();
+    </script>
 @endsection

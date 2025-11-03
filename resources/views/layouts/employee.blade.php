@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
+    <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @if (!app()->environment('local'))
@@ -97,7 +97,7 @@
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
                     <span class="badge"
-                        style="margin-left:auto;background: rgba(255, 255, 255, 0.2);color:white;border-radius:10px;padding:2px 8px;">0</span>
+                        style="margin-left:auto;background: rgba(255, 255, 255, 0.2);color:white;border-radius:10px;padding:2px 8px;">{{ $notificationStats['unread'] ?? 0 }}</span>
                 </a>
             </div>
 
@@ -134,11 +134,12 @@
                 @yield('title', 'Employee Dashboard')
             </div>
             <div class="nav-actions">
-                <a href="#" class="nav-bell">
-                    <div class="nav-bell-icon">
+                <a href="{{ route('employee.notifications.latest') }}" class="nav-bell" title="Notifications"
+                    id="navBellBtn" type="button">
+                    <span class="nav-bell-icon">
                         <i class="fas fa-bell"></i>
                         <span class="nav-bell-dot"></span>
-                    </div>
+                    </span>
                 </a>
 
                 <div class="user-menu">
@@ -160,11 +161,25 @@
                     </button>
                 </form>
             </div>
+
         </div>
 
         <div class="content-area">
             @yield('content')
         </div>
+        <div id="notificationModalDrop" class="modal-dropdown" style="display:none;">
+            <div class="modal-dropdown-bg"></div>
+            <div class="modal-dropdown-content">
+                <div class="modal-dropdown-header">
+                    <h3><i class="fas fa-bell"></i> Notifications</h3>
+                    <button class="modal-close" id="closenotificationModalDrop">&times;</button>
+                </div>
+                <div class="modal-dropdown-body" id="latestNotifications">
+                    <p style="text-align:center; color: gray;">Loading...</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -181,7 +196,92 @@
                 sidebar.classList.remove('active');
             }
         });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var bellBtn = document.getElementById('navBellBtn');
+            var modal = document.getElementById('notificationModalDrop');
+            var closeBtn = document.getElementById('closenotificationModalDrop');
+            var bg = modal ? modal.querySelector('.modal-dropdown-bg') : null;
+            var body = modal ? modal.querySelector('.modal-dropdown-body') : null;
+
+            function closeModal() {
+                if (modal) modal.style.display = 'none';
+            }
+
+            function loadLatestNotifications() {
+                if (!body) return;
+
+                body.innerHTML = `<p style="padding:10px;">Loading...</p>`; // loader
+
+                fetch("{{ route('employee.notifications.latest') }}")
+                    .then(res => res.json())
+                    .then(data => {
+                        body.innerHTML = "";
+
+                        if (!data.length) {
+                            body.innerHTML = `<p style="padding:10px;">No notifications</p>`;
+                            return;
+                        }
+
+                        data.forEach(n => {
+                            body.innerHTML += `
+                        <div class="notification-item">
+                            <div>
+                                <div class="notification-title">${n.type ?? 'Notification'}</div>
+                                <div class="notification-desc">${n.message ?? ''}</div>
+                                <div class="notification-meta">
+                                    <i class="fas fa-clock"></i>
+                                    ${new Date(n.created_at).toLocaleString()}
+                                </div>
+                            </div>
+                            <div class="notification-actions">
+                                <a href="/employee/notifications"
+                                   class="btn btn-info btn-sm">View</a>
+                            </div>
+                        </div>
+                    `;
+                        });
+                    })
+                    .catch(err => {
+                        console.error("Error fetching notifications:", err);
+                        body.innerHTML = `<p style="padding:10px; color:red;">Error loading notifications</p>`;
+                    });
+            }
+
+            if (bellBtn && modal && closeBtn) {
+                bellBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Toggle dropdown
+                    if (modal.style.display === 'none' || modal.style.display === '') {
+                        modal.style.display = 'flex';
+                        loadLatestNotifications();
+                    } else {
+                        closeModal();
+                    }
+                });
+
+                closeBtn.addEventListener('click', closeModal);
+
+                if (bg) {
+                    bg.addEventListener('click', closeModal);
+                }
+
+                document.addEventListener('mousedown', function(e) {
+                    if (
+                        modal.style.display === 'flex' &&
+                        !modal.querySelector('.modal-dropdown-content').contains(e.target) &&
+                        e.target !== bellBtn &&
+                        !bellBtn.contains(e.target)
+                    ) {
+                        closeModal();
+                    }
+                });
+            }
+        });
     </script>
+    @stack('scripts')
 </body>
 
 </html>

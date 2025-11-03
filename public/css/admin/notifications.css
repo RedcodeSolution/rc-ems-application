@@ -400,7 +400,7 @@ a.btn, button.btn {
 
 /* Toast Notifications */
 .toast {
-    position: fixed;
+    position: fixed; 
     top: 20px;
     right: 20px;
     background: var(--success);

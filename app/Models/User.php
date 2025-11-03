@@ -52,13 +52,21 @@ class User extends Authenticatable
     /**
      * Get the employee associated with this user.
      */
-    public function employee()
-    {
-        return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
-    }
+//    public function employee()
+//    {
+//        return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
+//    }
 
     public function leaves()
     {
         return $this->hasMany(Leave::class, 'user_id');
     }
+
+    public function employee()
+    {
+        return $this->hasOne(Employee::class, 'employee_id', 'employee_id');
+    }
+
+
+
 }
