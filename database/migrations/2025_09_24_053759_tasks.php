@@ -18,10 +18,10 @@ return new class extends Migration
             $table->enum('priority', ['low', 'medium', 'high'])->default('medium');
             $table->date('due_date')->nullable();
             $table->unsignedBigInteger('assigned_by')->nullable();
-
             $table->string('project_id');
 
-            $table->enum('status', ['pending', 'in_progress', 'completed', 'on_hold'])->default('pending');
+            $table->enum('status', ['todo', 'in_progress', 'completed', 'overdue', 'on_hold'])->default('todo');
+
             $table->integer('progress')->default(0);
             $table->text('personal_notes')->nullable();
             $table->timestamps();

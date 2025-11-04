@@ -38,7 +38,8 @@
                 </div>
                 <div class="stat-content">
                     <h3>Unread</h3>
-                    <div class="stat-number">{{ $notificationStats['unread'] ?? $notifications->where('is_read', false)->count() }}</div>
+                    <div class="stat-number">
+                        {{ $notificationStats['unread'] ?? $notifications->where('is_read', false)->count() }}</div>
                     <p>Require attention</p>
                 </div>
                 <div class="stat-trend urgent">
@@ -52,7 +53,8 @@
                 </div>
                 <div class="stat-content">
                     <h3>Read</h3>
-                    <div class="stat-number">{{ $notificationStats['read'] ?? $notifications->where('is_read', true)->count() }}</div>
+                    <div class="stat-number">
+                        {{ $notificationStats['read'] ?? $notifications->where('is_read', true)->count() }}</div>
                 </div>
             </div>
         </div>
@@ -156,8 +158,8 @@
                                 <i class="fas fa-check"></i>
                             </button>
                         @endif
-                        <button class="btn-action btn-view"
-                            onclick="viewNotification('{{ $notification['notifi_id'] }}')" title="View Details">
+                        <button class="btn-action btn-view" onclick="viewNotification('{{ $notification->notifi_id }}')"
+                            title="View Details">
                             <i class="fas fa-eye"></i>
                         </button>
                         <button class="btn-action btn-delete"
@@ -178,7 +180,8 @@
 
     <div class="notifications-pagination">
         <div class="pagination-info">
-            Showing {{ $notifications->count() }} of {{ $notificationStats['total'] ?? $notifications->count() }} notifications
+            Showing {{ $notifications->count() }} of {{ $notificationStats['total'] ?? $notifications->count() }}
+            notifications
         </div>
         <div class="pagination-controls">
             <button class="btn btn-secondary" disabled>
@@ -192,7 +195,7 @@
     </div>
 
     <!-- Single Shared Notification Details Modal -->
-    <div id="notificationModal" class="modal">
+    {{-- <div id="notificationModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2><i class="fas fa-bell"></i> Notification Details</h2>
@@ -205,16 +208,28 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeNotificationModal()">Close</button>
-                <button id="modalMarkReadBtn" class="btn btn-primary" style="display: none;" onclick="markAsReadFromModal()">
+                <button id="modalMarkReadBtn" class="btn btn-primary" style="display: none;"
+                    onclick="markAsReadFromModal()">
                     <i class="fas fa-check"></i> Mark as Read
                 </button>
             </div>
         </div>
+    </div> --}}
+
+    <div id="notificationModal">
+        <div class="notification-modal-content">
+            <button class="close-modal-btn" onclick="closeNotificationModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="notificationDetails">
+                <!-- Dynamic content will be injected here by JS -->
+            </div>
+        </div>
     </div>
+
 
     {{-- JavaScript copied/adapted from super_admin notifications view so interactions match --}}
     <script>
-
         function filterNotifications() {
             const typeFilter = document.getElementById('type-filter').value;
             const priorityFilter = document.getElementById('priority-filter').value;
@@ -290,14 +305,15 @@
                     },
                 })
                 .catch(() => {
-                    fetch('{{ route('employee.notifications.markAsRead', ['id' => '__dummy__']) }}'.replace('notifications/__dummy__/mark-as-read', 'notifications/mark-all-as-read'), {
+                    fetch('{{ route('employee.notifications.markAsRead', ['id' => '__dummy__']) }}'.replace(
+                        'notifications/__dummy__/mark-as-read', 'notifications/mark-all-as-read'), {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                'content'),
                             'Content-Type': 'application/json',
                         }
-                    }).catch(() => {
-                    });
+                    }).catch(() => {});
                 });
         }
 
@@ -342,97 +358,108 @@
                 });
         }
 
-        function viewNotification(notificationId) {
-            const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
-            if (!notificationElement) {
-                showNotification('Notification not found!', 'error');
-                return;
+        async function viewNotification(notificationId) {
+            console.log("Viewing notification:", notificationId);
+
+            try {
+                const response = await fetch(`/employee/notifications/${notificationId}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                console.log("Notification data:", data);
+
+                // fallback defaults if fields are missing
+                const title = data.title || 'No Title';
+                const message = data.message || 'No message available.';
+                const type = data.type || 'general';
+                const priority = data.priority || 'medium';
+                const status = data.is_read ? 'read' : 'unread';
+                const from = data.sender_name || 'System';
+                const time = new Date(data.created_at).toLocaleString();
+                const icon = 'fas fa-bell'; // or use from backend if available
+                const color = priority === 'high' ? 'red' : priority === 'low' ? 'green' : 'blue';
+
+                const modalContent = `
+        <div class="notification-detail-header">
+            <div class="detail-icon ${color}">
+                <i class="${icon}"></i>
+            </div>
+            <div class="detail-info">
+                <h3>${title}</h3>
+                <div class="detail-meta">
+                    <span class="detail-priority priority-${priority}">
+                        <i class="fas fa-flag"></i> ${priority.toUpperCase()} PRIORITY
+                    </span>
+                    <span class="detail-status ${status}">
+                        <i class="fas fa-${status === 'read' ? 'check-circle' : 'envelope'}"></i>
+                        ${status.toUpperCase()}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="notification-detail-body">
+            <div class="detail-section">
+                <label><i class="fas fa-comment-alt"></i> Message</label>
+                <div class="detail-message">${message}</div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-section">
+                    <label><i class="fas fa-user"></i> From</label>
+                    <div class="detail-value">${from}</div>
+                </div>
+                <div class="detail-section">
+                    <label><i class="fas fa-tag"></i> Type</label>
+                    <div class="detail-value">${type}</div>
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-section">
+                    <label><i class="fas fa-clock"></i> Received</label>
+                    <div class="detail-value">${time}</div>
+                </div>
+                <div class="detail-section">
+                    <label><i class="fas fa-hashtag"></i> ID</label>
+                    <div class="detail-value">#${notificationId}</div>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <label><i class="fas fa-cogs"></i> Actions Available</label>
+                <div class="detail-actions">
+                    ${status === 'unread'
+                        ? `<button class="btn btn-success btn-sm" onclick="markAsReadFromModal('${notificationId}')">
+                                                                        <i class="fas fa-check"></i> Mark as Read
+                                                                       </button>`
+                        : `<span class="text-muted"><i class="fas fa-check-circle"></i> Already Read</span>`
+                    }
+                    <button class="btn btn-danger btn-sm" onclick="deleteFromModal('${notificationId}')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                    <button class="btn btn-primary btn-sm" onclick="shareNotification('${notificationId}')">
+                        <i class="fas fa-share"></i> Share
+                    </button>
+                </div>
+            </div>
+        </div>`;
+
+                // Inject HTML into modal container
+                document.getElementById('notificationDetails').innerHTML = modalContent;
+
+                // Show modal
+                document.getElementById('notificationModal').classList.add('show');
+
+                // Mark as read if unread
+                if (!data.is_read) {
+                    await markAsRead(notificationId);
+                }
+
+            } catch (error) {
+                console.error("Error viewing notification:", error);
+                showNotification("Failed to load notification details.", "error");
             }
-
-            const notificationData = {
-                id: notificationId,
-                type: notificationElement.dataset.type,
-                priority: notificationElement.dataset.priority,
-                status: notificationElement.dataset.status,
-                title: notificationElement.querySelector('.notification-title')?.textContent || '',
-                message: notificationElement.querySelector('.notification-message')?.textContent || '',
-                from: notificationElement.querySelector('.notification-from')?.textContent || '',
-                typeDisplay: notificationElement.querySelector('.notification-type')?.textContent || '',
-                time: notificationElement.querySelector('.notification-time')?.textContent || '',
-                icon: notificationElement.querySelector('.notification-icon i')?.className || 'fas fa-bell',
-                color: notificationElement.querySelector('.notification-icon')?.className.split(' ').find(cls => cls !== 'notification-icon') || 'gray'
-            };
-
-            const modalContent = `
-            <div class="notification-detail-header">
-                <div class="detail-icon ${notificationData.color}">
-                    <i class="${notificationData.icon}"></i>
-                </div>
-                <div class="detail-info">
-                    <h3>${notificationData.title}</h3>
-                    <div class="detail-meta">
-                        <span class="detail-priority priority-${notificationData.priority}">
-                            <i class="fas fa-flag"></i> ${notificationData.priority.toUpperCase()} PRIORITY
-                        </span>
-                        <span class="detail-status ${notificationData.status}">
-                            <i class="fas fa-${notificationData.status === 'read' ? 'check-circle' : 'envelope'}"></i>
-                            ${notificationData.status.toUpperCase()}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="notification-detail-body">
-                <div class="detail-section">
-                    <label><i class="fas fa-comment-alt"></i> Message</label>
-                    <div class="detail-message">${notificationData.message}</div>
-                </div>
-
-                <div class="detail-row">
-                    <div class="detail-section">
-                        <label><i class="fas fa-user"></i> From</label>
-                        <div class="detail-value">${notificationData.from}</div>
-                    </div>
-                    <div class="detail-section">
-                        <label><i class="fas fa-tag"></i> Type</label>
-                        <div class="detail-value">${notificationData.typeDisplay}</div>
-                    </div>
-                </div>
-
-                <div class="detail-row">
-                    <div class="detail-section">
-                        <label><i class="fas fa-clock"></i> Received</label>
-                        <div class="detail-value">${notificationData.time}</div>
-                    </div>
-                    <div class="detail-section">
-                        <label><i class="fas fa-hashtag"></i> ID</label>
-                        <div class="detail-value">#${notificationData.id}</div>
-                    </div>
-                </div>
-
-                <div class="detail-section">
-                    <label><i class="fas fa-cogs"></i> Actions Available</label>
-                    <div class="detail-actions">
-                        ${notificationData.status == 'unread' ?
-                            '<button class="btn btn-success btn-sm" onclick="markAsReadFromModal(\\'' + notificationData.id + '\\')"><i class="fas fa-check"></i> Mark as Read</button>' :
-                            '<span class="text-muted"><i class="fas fa-check-circle"></i> Already Read</span>'
-                        }
-                        <button class="btn btn-danger btn-sm" onclick="deleteFromModal('${notificationData.id}')">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                        <button class="btn btn-primary btn-sm" onclick="shareNotification('${notificationData.id}')">
-                            <i class="fas fa-share"></i> Share
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-            document.getElementById('notificationDetails').innerHTML = modalContent;
-            document.getElementById('notificationModal').classList.add('show');
-
-            window.currentNotificationId = notificationId;
-            showNotification(`Viewing notification: ${notificationData.title}`, 'info');
         }
 
         function deleteNotification(notificationId) {
@@ -566,7 +593,10 @@
             const shareText = `Notification: ${title}\n\n${message}`;
 
             if (navigator.share) {
-                navigator.share({ title: 'Notification', text: shareText })
+                navigator.share({
+                        title: 'Notification',
+                        text: shareText
+                    })
                     .then(() => showNotification('Notification shared successfully!', 'success'))
                     .catch(() => fallbackShare(shareText));
             } else {

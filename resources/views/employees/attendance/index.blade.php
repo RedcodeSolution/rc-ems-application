@@ -144,7 +144,7 @@
                         <option value="present">Present</option>
                         <option value="absent">Absent</option>
                         <option value="late">Late</option>
-                        <option value="early_leave">Early Leave</option>
+                        <option value="halfday">Half day</option>
                     </select>
                 </div>
             </div>
@@ -224,7 +224,7 @@
                                     @break
 
                                     @case('early_leave')
-                                        <i class="fas fa-sign-out-alt"></i> Early Leave
+                                        <i class="fas fa-sign-out-alt"></i> Half Day
                                     @break
 
                                     @case('overtime')
@@ -256,9 +256,24 @@
                                     <span class="time-value">{{ $hoursWorked }}</span>
                                 </div>
                             </div>
-                            <div class="attendance-notes">
+                            {{-- <div class="attendance-notes">
                                 <p><i class="fas fa-sticky-note"></i> {{ $notes }}</p>
+                            </div> --}}
+                            <div class="attendance-notes">
+                                <p><i class="fas fa-sticky-note"></i>
+                                    @if ($attendance->clock_in_note || $attendance->clock_out_note)
+                                        @if ($attendance->clock_in_note)
+                                            <strong>In:</strong> {{ $attendance->clock_in_note }}
+                                        @endif
+                                        @if ($attendance->clock_out_note)
+                                            <strong> | Out:</strong> {{ $attendance->clock_out_note }}
+                                        @endif
+                                    @else
+                                        No notes added.
+                                    @endif
+                                </p>
                             </div>
+
                         </div>
 
                         <div class="attendance-actions">
@@ -1296,7 +1311,6 @@
                             showMessage('✅ Successfully clocked out!', 'success');
                         }
 
-                        // Optional but recommended: reload to re-render all UI states cleanly
                         setTimeout(() => location.reload(), 800);
                     } else {
                         showMessage(data.message || 'Something went wrong.', 'error');
@@ -1323,6 +1337,8 @@
                 checkBreakStatus();
                 updateEmergencyStatus();
             });
+
+            let breakStatusInterval = null; // to prevent multiple intervals
 
             function checkBreakStatus() {
                 fetch("{{ route('employee.attendance.getBreakStatus') }}")
@@ -1385,13 +1401,14 @@
                                 emergencyBtn.disabled = true;
                                 emergencyBtn.classList.add('btn-disabled');
                             }
+
+                            // Stop refreshing when checked out
+                            if (breakStatusInterval) clearInterval(breakStatusInterval);
                             return;
                         }
 
                         // --- Handle break button logic ---
                         if (data.on_break) {
-                            console.log(data.on_break);
-
                             breakBtn.textContent = 'End Break';
                             breakBtn.disabled = false;
                             breakBtn.onclick = endBreak;
@@ -1402,12 +1419,15 @@
                             breakBtn.onclick = startBreak;
                             breakInfo.querySelector('p').textContent = 'Not on break';
                         }
-
-                        // --- Sync emergency status ---
-                        // updateEmergencyStatus();
                     })
                     .catch(err => console.error('Error fetching break status:', err));
             }
+
+            // --- Auto-refresh every 1 minute ---
+            document.addEventListener('DOMContentLoaded', function() {
+                checkBreakStatus(); // initial load
+                breakStatusInterval = setInterval(checkBreakStatus, 60000); // every 60s
+            });
 
 
             function startBreak() {
@@ -1646,13 +1666,22 @@
                                 });
                             };
 
-                            function formatHours(totalHours) {
+                            const formatHours = (totalHours) => {
                                 if (!totalHours && totalHours !== 0) return '—';
                                 const hours = Math.floor(totalHours);
                                 const minutes = Math.round((totalHours - hours) * 60);
                                 return `${hours}h ${minutes}m`;
-                            }
+                            };
 
+                            // --- Notes section logic ---
+                            const notesHtml = (() => {
+                                const inNote = a.clock_in_note ?
+                                    `<li><strong>Clock In:</strong> ${a.clock_in_note}</li>` : '';
+                                const outNote = a.clock_out_note ?
+                                    `<li><strong>Clock Out:</strong> ${a.clock_out_note}</li>` : '';
+                                if (!inNote && !outNote) return `<p>No notes available.</p>`;
+                                return `<ul>${inNote}${outNote}</ul>`;
+                            })();
 
                             // --- Generate formatted summary ---
                             const summaryHtml = `
@@ -1673,16 +1702,16 @@
                     <span class="summary-value">${formatTime(a.check_out_time)}</span>
                 </div>
                 <div class="summary-item">
-    <span class="summary-label">☕ Break Duration:</span>
-    <span class="summary-value">${formatHours(a.break_duration)}</span>
-</div>
+                    <span class="summary-label">☕ Break Duration:</span>
+                    <span class="summary-value">${formatHours(a.break_duration)}</span>
+                </div>
                 <div class="summary-item">
                     <span class="summary-label">🕒 Total Hours:</span>
                     <span class="summary-value">${formatHours(a.total_hours)}</span>
                 </div>
                 <div class="summary-item">
                     <span class="summary-label">📋 Notes:</span>
-                    <span class="summary-value">${a.notes ?? 'No notes'}</span>
+                    <span class="summary-value">${notesHtml}</span>
                 </div>
             `;
 
@@ -1698,6 +1727,7 @@
                         summaryContainer.innerHTML = `<p class="error">Unable to load details. Please try again later.</p>`;
                     });
             }
+
 
             function closeAttendanceModal() {
                 document.getElementById('attendanceModal').classList.remove('active');

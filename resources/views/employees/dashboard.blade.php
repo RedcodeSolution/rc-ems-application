@@ -154,18 +154,27 @@
                                     </div>
                                 </div>
                                 <div class="meeting-link-section">
-                                    <div class="meeting-link-display">
-                                        <input type="text" value="{{ $meeting->meeting_link }}"
-                                            class="meeting-link-input" readonly>
-                                        <button onclick="copyToClipboard('{{ $meeting->meeting_link }}', event)"
-                                            class="copy-btn">
-                                            <i class="fas fa-copy"></i> Copy
-                                        </button>
-                                    </div>
-                                    <a href="{{ route('employee.meetings.join', $meeting) }}" class="join-meeting-btn">
-                                        <i class="fas fa-external-link-alt"></i> Join Meeting
-                                    </a>
+                                    @if ($meeting->status === 'ongoing')
+                                        <div class="meeting-link-display">
+                                            <input type="text" value="{{ $meeting->meeting_link }}"
+                                                class="meeting-link-input" readonly>
+                                            <button onclick="copyToClipboard('{{ $meeting->meeting_link }}', event)"
+                                                class="copy-btn">
+                                                <i class="fas fa-copy"></i> Copy
+                                            </button>
+                                        </div>
+
+                                        <a href="{{ route('employee.meetings.join', $meeting) }}" class="join-meeting-btn"
+                                            target="_blank" rel="noopener noreferrer">
+                                            <i class="fas fa-external-link-alt"></i> Join Meeting
+                                        </a>
+                                    @else
+                                        <p class="meeting-upcoming-text">
+                                            <i class="fas fa-clock"></i> Meeting not started yet
+                                        </p>
+                                    @endif
                                 </div>
+
                             </div>
                         </div>
                     @endforeach
@@ -231,55 +240,20 @@
                 <div class="dashboard-card">
                     <div class="card-header">
                         <h3><i class="fas fa-history"></i> Recent Activity</h3>
-                        <a href="#" class="view-all">View All</a>
                     </div>
-                    <div class="card-content">
-                        <div class="activity-list">
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-sign-in-alt"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Clocked In</h4>
-                                    <p>Started work at 9:00 AM</p>
-                                    <span class="activity-time">2 hours ago</span>
-                                </div>
+                    @foreach ($recentActivities as $activity)
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas {{ $activity->icon }}"></i>
                             </div>
-
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-check-circle"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Task Completed</h4>
-                                    <p>Frontend UI Update - Dashboard</p>
-                                    <span class="activity-time">4 hours ago</span>
-                                </div>
-                            </div>
-
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-file-alt"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Document Uploaded</h4>
-                                    <p>Monthly Report - October 2024</p>
-                                    <span class="activity-time">1 day ago</span>
-                                </div>
-                            </div>
-
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-calendar-check"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Leave Approved</h4>
-                                    <p>Vacation leave for Dec 25-27</p>
-                                    <span class="activity-time">2 days ago</span>
-                                </div>
+                            <div class="activity-content">
+                                <h4>{{ $activity->action }}</h4>
+                                <p>{{ $activity->details }}</p>
+                                <span class="activity-time">{{ $activity->created_at->diffForHumans() }}</span>
                             </div>
                         </div>
-                    </div>
+                    @endforeach
+
                 </div>
             </div>
 
@@ -380,23 +354,33 @@
             </div>
 
             <!-- Attendance Chart -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h3><i class="fas fa-chart-line"></i> Attendance Overview</h3>
-                    <div class="card-actions">
-                        <select id="periodSelector" class="period-selector">
-                            <option value="week" {{ $selected_period == 'week' ? 'selected' : '' }}>This Week</option>
-                            <option value="month" {{ $selected_period == 'month' ? 'selected' : '' }}>This Month</option>
-                            <option value="year" {{ $selected_period == 'year' ? 'selected' : '' }}>This Year</option>
-                        </select>
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <h3 id="calendarMonth">Loading...</h3>
+                    <div class="calendar-nav">
+                        <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                        <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
                     </div>
                 </div>
-                <div class="card-content">
-                    <div class="attendance-chart">
-                        <div class="chart-container">
-                            <canvas id="attendanceChart" style="height: 300px;"></canvas>
-                        </div>
-                    </div>
+
+                <div class="calendar-grid" id="attendanceCalendar"></div>
+
+                <div class="legend">
+                    <span>
+                        <div class="legend-box status-present"></div> Present
+                    </span>
+                    <span>
+                        <div class="legend-box status-absent"></div> Absent
+                    </span>
+                    <span>
+                        <div class="legend-box status-late"></div> Late
+                    </span>
+                    <span>
+                        <div class="legend-box status-halfday"></div> Half Day
+                    </span>
+                    <span>
+                        <div class="legend-box status-none"></div> No Record
+                    </span>
                 </div>
             </div>
         </div>
@@ -1040,6 +1024,114 @@
                 color: white;
             }
 
+
+            .calendar-container {
+                background: #fff;
+                border-radius: 10px;
+                padding: 15px;
+                max-width: 700px;
+                margin: 0 auto;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+                font-family: "Poppins", sans-serif;
+            }
+
+            .calendar-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .calendar-header h3 {
+                font-size: 18px;
+                font-weight: 600;
+                margin: 0;
+                color: #333;
+            }
+
+            .calendar-nav button {
+                background: #2563eb;
+                color: #fff;
+                border: none;
+                border-radius: 5px;
+                padding: 4px 8px;
+                font-size: 14px;
+                cursor: pointer;
+                transition: background 0.2s ease;
+            }
+
+            .calendar-nav button:hover {
+                background: #1e40af;
+            }
+
+            /* --- Calendar Grid --- */
+            .calendar-grid {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 4px;
+            }
+
+            .calendar-day {
+                aspect-ratio: 1 / 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-weight: 500;
+                font-size: 13px;
+                border-radius: 6px;
+                color: #fff;
+                cursor: default;
+                transition: transform 0.1s ease;
+            }
+
+            .calendar-day:hover {
+                transform: scale(1.05);
+            }
+
+            /* --- Color Codes --- */
+            .status-present {
+                background-color: #4caf50;
+            }
+
+            .status-absent {
+                background-color: #f44336;
+            }
+
+            .status-late {
+                background-color: #ff9800;
+            }
+
+            .status-halfday {
+                background-color: #2196f3;
+            }
+
+            .status-none {
+                background-color: #e5e7eb;
+                color: #444;
+            }
+
+            /* --- Legend --- */
+            .legend {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                justify-content: center;
+                margin-top: 10px;
+                font-size: 12px;
+            }
+
+            .legend span {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+            .legend-box {
+                width: 12px;
+                height: 12px;
+                border-radius: 2px;
+            }
+
             @media (max-width: 768px) {
                 .meeting-content {
                     grid-template-columns: 1fr;
@@ -1101,80 +1193,56 @@
                 });
             }
 
+            let currentMonth = new Date().toISOString().slice(0, 7);
 
-            let chartInstance;
+            async function loadCalendar(month = currentMonth) {
+                const response = await fetch(`{{ route('employee.attendance.calendar') }}?month=${month}`);
+                const data = await response.json();
+                console.log("Calendar Data:", data);
+                const container = document.getElementById('attendanceCalendar');
+                const monthLabel = document.getElementById('calendarMonth');
+                container.innerHTML = '';
+                monthLabel.textContent = data.month;
 
-            function renderAttendanceChart(labels, present, absent, late, halfday) {
-                const ctx = document.getElementById('attendanceChart').getContext('2d');
+                // Calculate the weekday of the 1st day
+                const firstDay = new Date(`${month}-01`).getDay();
+                const totalDays = data.days.length;
 
-                if (chartInstance) chartInstance.destroy();
+                // Empty cells before start
+                for (let i = 0; i < firstDay; i++) {
+                    const empty = document.createElement('div');
+                    empty.classList.add('calendar-day', 'status-none');
+                    container.appendChild(empty);
+                }
 
-                chartInstance = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                                label: 'Present',
-                                backgroundColor: '#4caf50',
-                                data: present
-                            },
-                            {
-                                label: 'Absent',
-                                backgroundColor: '#f44336',
-                                data: absent
-                            },
-                            {
-                                label: 'Late',
-                                backgroundColor: '#ff9800',
-                                data: late
-                            },
-                            {
-                                label: 'Half Day',
-                                backgroundColor: '#2196f3',
-                                data: halfday
-                            },
-                        ],
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'top'
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        },
-                    },
+                // Render days
+                data.days.forEach(day => {
+                    const div = document.createElement('div');
+                    let status = day.status ? day.status.toLowerCase() : 'none';
+                    if (!['present', 'absent', 'late', 'halfday'].includes(status)) status = 'none';
+                    div.classList.add('calendar-day', `status-${status}`);
+                    div.textContent = day.day;
+                    div.title =
+                        `${day.date} — ${status === 'none' ? 'No Record' : status.charAt(0).toUpperCase() + status.slice(1)}`;
+                    container.appendChild(div);
                 });
             }
 
-            // Initial load
-            renderAttendanceChart(
-                @json($attendance_labels),
-                @json($present_data),
-                @json($absent_data),
-                @json($late_data),
-                @json($halfday_data)
-            );
-
-            document.getElementById('periodSelector').addEventListener('change', function() {
-                const selectedPeriod = this.value;
-                fetch(`{{ route('employee.dashboard') }}?period=${selectedPeriod}`)
-                    .then(response => response.text())
-                    .then(html => {
-                        const parser = new DOMParser();
-                        const newDoc = parser.parseFromString(html, 'text/html');
-                        const newLabels = JSON.parse(newDoc.querySelector('#attendanceDataLabels').textContent);
-                        const newPresent = JSON.parse(newDoc.querySelector('#attendanceDataPresent').textContent);
-                        const newAbsent = JSON.parse(newDoc.querySelector('#attendanceDataAbsent').textContent);
-                        const newLate = JSON.parse(newDoc.querySelector('#attendanceDataLate').textContent);
-                        const newHalfday = JSON.parse(newDoc.querySelector('#attendanceDataHalfday').textContent);
-                        renderAttendanceChart(newLabels, newPresent, newAbsent, newLate, newHalfday);
-                    });
+            document.getElementById('prevMonth').addEventListener('click', () => {
+                const date = new Date(`${currentMonth}-01`);
+                date.setMonth(date.getMonth() - 1);
+                currentMonth = date.toISOString().slice(0, 7);
+                loadCalendar(currentMonth);
             });
+
+            document.getElementById('nextMonth').addEventListener('click', () => {
+                const date = new Date(`${currentMonth}-01`);
+                date.setMonth(date.getMonth() + 1);
+                currentMonth = date.toISOString().slice(0, 7);
+                loadCalendar(currentMonth);
+            });
+
+            loadCalendar();
         </script>
         <script type="application/json" id="attendanceDataLabels">@json($attendance_labels)</script>
         <script type="application/json" id="attendanceDataPresent">@json($present_data)</script>

@@ -9,8 +9,13 @@
         <div class="profile-header">
             <div class="profile-avatar-section">
                 <div class="profile-avatar-large">
-                    JD
+                    {{ strtoupper(substr($employee->employee_name, 0, 1)) }}
+                    @php
+                        $parts = explode(' ', trim($employee->employee_name));
+                        echo isset($parts[1]) ? strtoupper(substr($parts[1], 0, 1)) : '';
+                    @endphp
                 </div>
+
                 <div class="profile-header-info">
                     <h1>{{ $employee->employee_name }}</h1>
                     <p class="profile-role">{{ $employee->role }}</p>
@@ -79,15 +84,16 @@
 
                             <div class="form-group">
                                 <label for="joining_date">Joining Date</label>
-                                <input type="text" id="joining_date" value="{{ $employee->created_at->format('Y-m-d') }}"
-                                    class="form-control" readonly disabled>
+                                <input type="text" id="joining_date"
+                                    value="{{ $employee->created_at->format('Y-m-d') }}" class="form-control" readonly
+                                    disabled>
                             </div>
 
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 <label for="date_of_birth">Date of Birth</label>
                                 <input type="date" id="date_of_birth" name="date_of_birth"
                                     value="{{ $employee->created_at }}" class="form-control" readonly>
-                            </div>
+                            </div> --}}
                         </div>
 
                         <div class="form-actions" id="formActions" style="display: none;">
@@ -260,35 +266,25 @@
                 </div>
                 <div class="profile-card-body">
                     <div class="quick-actions">
-                        <a href="#" class="quick-action-btn">
+                        <a href="{{ route('employee.attendance') }}" class="quick-action-btn">
                             <i class="fas fa-calendar-check"></i>
                             <span>View Attendance</span>
-                            <div class="action-badge">12 days</div>
+                            <div class="action-badge">{{ $attendanceCount }} days</div>
                         </a>
-                        <a href="#" class="quick-action-btn">
+                        <a href="{{ url('/employees/leaves') }}" class="quick-action-btn">
                             <i class="fas fa-calendar-times"></i>
                             <span>Request Leave</span>
-                            <div class="action-badge">5 left</div>
+                            <div class="action-badge">{{ $leaveRemaining }} left</div>
                         </a>
-                        <a href="#" class="quick-action-btn">
+                        <a href="{{ route('employee.projects') }}" class="quick-action-btn">
                             <i class="fas fa-project-diagram"></i>
                             <span>My Projects</span>
-                            <div class="action-badge">3 active</div>
+                            <div class="action-badge">{{ $projectCount }} active</div>
                         </a>
-                        <a href="#" class="quick-action-btn">
+                        <a href="{{ route('employee.documents') }}" class="quick-action-btn">
                             <i class="fas fa-file-alt"></i>
                             <span>My Documents</span>
-                            <div class="action-badge">8 files</div>
-                        </a>
-                        <a href="#" class="quick-action-btn">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Performance</span>
-                            <div class="action-badge">94%</div>
-                        </a>
-                        <a href="#" class="quick-action-btn">
-                            <i class="fas fa-graduation-cap"></i>
-                            <span>Training</span>
-                            <div class="action-badge">2 new</div>
+                            <div class="action-badge">{{ $documentCount }} files</div>
                         </a>
                     </div>
                 </div>

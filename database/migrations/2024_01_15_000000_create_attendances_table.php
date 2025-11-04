@@ -20,7 +20,8 @@ return new class extends Migration
             $table->enum('status', ['present', 'absent', 'late', 'half_day'])->default('present');
             $table->decimal('hours_worked', 8, 2)->nullable();
             $table->decimal('overtime_hours', 8, 2)->default(0);
-            $table->text('notes')->nullable();
+            $table->text('clock_in_note')->nullable();
+            $table->text('clock_out_note')->nullable();
             $table->timestamps();
 
             $table->index('user_id');

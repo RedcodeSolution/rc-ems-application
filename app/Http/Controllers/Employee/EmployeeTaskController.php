@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use App\Models\EmployeeActivity;
 use App\Models\Project;
 use App\Models\TaskComment;
 use App\Models\Tasks;
@@ -20,48 +21,63 @@ class EmployeeTaskController extends Controller
     {
         $employee = Employee::where('employee_id', Auth::user()->employee_id)->firstOrFail();
 
+        // Get all team IDs for this employee
         $teamIds = $employee->teams->pluck('team_id');
 
-        // Fetch all projects related to those teams
+        // Get all projects belonging to those teams
         $projects = Project::whereIn('team_id', $teamIds)->get();
-
         $projectIds = $projects->pluck('project_id');
+
+        // Get all related tasks
         $tasks = Tasks::whereIn('project_id', $projectIds)->get();
 
-        $totalTasks   = $tasks->count();
-        $completed    = $tasks->where('status', 'completed')->count();
-        $inProgress   = $tasks->where('status', 'in_progress')->count();
-        $todo         = $tasks->where('status', 'todo')->count();
-        $pending      = $tasks->where('status', 'pending')->count();
-        $overdue      = $tasks->where('due_date', '<', now())->where('status', '!=', 'completed')->count();
+        // Count stats by status
+        $totalTasks = $tasks->count();
+        $todo       = $tasks->where('status', 'todo')->count();
+        $inProgress = $tasks->where('status', 'in_progress')->count();
+        $completed  = $tasks->where('status', 'completed')->count();
+        $overdue    = $tasks->where('due_date', '<', now())
+            ->where('status', '!=', 'completed')
+            ->count();
+        $onHold     = $tasks->where('status', 'on_hold')->count();
 
         return view('employees.tasks.index', compact(
             'tasks',
             'totalTasks',
-            'completed',
-            'inProgress',
             'todo',
-            'pending',
+            'inProgress',
+            'completed',
             'overdue',
+            'onHold',
             'projects'
         ));
     }
+
 
     public function store(Request $request)
     {
         $employee = Employee::where('employee_id', Auth::user()->employee_id)->firstOrFail();
 
         $validated = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'priority'    => 'required|in:low,medium,high',
-            'project_id'  => 'required|string|exists:projects,project_id',
-            'due_date'    => 'required|date',
+            'title'          => 'required|string|max:255',
+            'description'    => 'nullable|string',
+            'priority'       => 'required|in:low,medium,high',
+            'project_id'     => 'required|string|exists:projects,project_id',
+            'due_date'       => 'required|date',
+            'personal_notes' => 'nullable|string',
         ]);
 
         $task = Tasks::create([
             ...$validated,
             'assigned_by' => $employee->employee_id,
+        ]);
+
+        EmployeeActivity::create([
+            'employee_id' => $employee->employee_id,
+            'type'        => 'task',
+            'icon'        => 'fa-plus-circle',
+            'action'      => 'Created a new task',
+            'details'     => "Task '{$task->title}' was created successfully.",
         ]);
 
         return response()->json([
@@ -71,10 +87,9 @@ class EmployeeTaskController extends Controller
         ]);
     }
 
-
     public function show($id)
     {
-        $task = Tasks::with(['project', 'assignedBy'])->findOrFail($id);
+        $task = Tasks::with(['project', 'assignedBy', 'comments.employee'])->findOrFail($id);
 
         return response()->json([
             'id'          => $task->id,
@@ -85,20 +100,13 @@ class EmployeeTaskController extends Controller
             'created_at'  => $task->created_at,
             'description' => $task->description,
             'progress'    => $task->progress,
+            'personal_notes' => $task->personal_notes,
             'project'     => $task->project?->project_name ?? 'N/A',
             'assigned_by_employee' => $task->assignedBy?->employee_name ?? 'N/A',
             'comments'    => $task->comments ?? []
         ]);
     }
 
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
 
     /*
      * Update the specified resource in storage.
@@ -111,7 +119,7 @@ class EmployeeTaskController extends Controller
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
             'priority'    => 'required|in:low,medium,high',
-            'status'      => 'required|in:pending,todo,in_progress,completed',
+            'status'         => 'required|in:todo,in_progress,completed,overdue,on_hold',
             'project_id'  => 'required|string|exists:projects,project_id',
             'progress'    => 'nullable|integer|min:0|max:100',
             'due_date'    => 'required|date',
@@ -119,6 +127,15 @@ class EmployeeTaskController extends Controller
         ]);
 
         $task->update($validated);
+
+        EmployeeActivity::create([
+            'employee_id' => Auth::user()->employee_id,
+            'type'        => 'task',
+            'icon'        => 'fa-edit',
+            'action'      => 'Updated task details',
+            'details'     => "Task '{$task->title}' was updated.",
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Task updated successfully!',
@@ -131,15 +148,32 @@ class EmployeeTaskController extends Controller
         $task = Tasks::findOrFail($id);
 
         $validated = $request->validate([
-            'status' => 'required|in:todo,in_progress,completed',
+            'status'   => 'required|in:todo,in_progress,completed',
+            'progress' => 'nullable|integer|min:0|max:100',
         ]);
 
         $task->status = $validated['status'];
+
+        if ($validated['status'] === 'completed') {
+            $task->progress = 100;
+        } elseif (isset($validated['progress'])) {
+            $task->progress = $validated['progress'];
+        }
+
         $task->save();
+
+        EmployeeActivity::create([
+            'employee_id' => Auth::user()->employee_id,
+            'type'        => 'task',
+            'icon'        => 'fa-tasks',
+            'action'      => 'Updated task status',
+            'details'     => "Task '{$task->title}' marked as {$task->status}.",
+        ]);
+
 
         return response()->json([
             'success' => true,
-            'message' => 'Task status updated successfully!',
+            'message' => 'Task status and progress updated successfully!',
             'task'    => $task,
         ]);
     }
@@ -158,19 +192,18 @@ class EmployeeTaskController extends Controller
             'comment'    => $validated['comment'],
         ]);
 
+        EmployeeActivity::create([
+            'employee_id' => $employee->employee_id,
+            'type'        => 'comment',
+            'icon'        => 'fa-comment',
+            'action'      => 'Added a comment',
+            'details'     => "Commented on task ID #{$taskId}: '{$validated['comment']}'",
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Comment added successfully!',
             'comment' => $comment->load('employee'),
         ]);
-    }
-
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

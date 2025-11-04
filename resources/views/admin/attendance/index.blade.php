@@ -27,7 +27,7 @@
                         <option value="present">Present</option>
                         <option value="absent">Absent</option>
                         <option value="late">Late</option>
-                        <option value="early_leave">Early Leave</option>
+                        <option value="halfday">Half Day</option>
                         <option value="overtime">Overtime</option>
                     </select>
                     <button class="btn btn-secondary" id="reloadBtn"><i class="fas fa-sync"></i> Refresh</button>

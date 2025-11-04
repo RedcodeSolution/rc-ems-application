@@ -16,9 +16,9 @@ class EmployeeDocumentController extends Controller
     public function index()
     {
         $employeeId = Auth::user()?->employee_id;
+        $user = Auth::user();
 
-
-        $documents = EmployeeDocument::where('employee_id', auth()->user()->employee_id)
+        $documents = EmployeeDocument::where('employee_id', $user->employee_id)
             ->paginate(6);
 
         if (!$employeeId) {
@@ -45,9 +45,7 @@ class EmployeeDocumentController extends Controller
                 )
                 ->where('employee_project.employee_id', $employeeId)
                 ->get();
-
         }
-
         return view('employees.documents.index', compact('documents', 'employeeDocuments'));
     }
 
@@ -60,8 +58,8 @@ class EmployeeDocumentController extends Controller
             'category' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
-
-        $employeeId = auth()->user()->employee_id; // Get logged-in employee ID
+        $user = Auth::user();
+        $employeeId = $user->employee_id;
         $uploadedFiles = [];
 
         if ($request->hasFile('files')) {
@@ -127,7 +125,8 @@ class EmployeeDocumentController extends Controller
     public function share($id)
     {
         $document = EmployeeDocument::findOrFail($id);
-        $userEmail = auth()->user()->email; // recipient email
+        $user = Auth::user();
+        $userEmail = $user->email; // recipient email
 
         Mail::to($userEmail)->send(new ShareDocumentMail($document));
 
@@ -149,8 +148,8 @@ class EmployeeDocumentController extends Controller
         if (!file_exists($filePath)) {
             return back()->with('error', 'File not found.');
         }
-
-        $employeeEmail = auth()->user()->email;
+        $user = Auth::user();
+        $employeeEmail =  $user->email;
 
         Mail::send('emails.share-document', ['document' => $document], function ($message) use ($employeeEmail, $document, $filePath) {
             $message->to($employeeEmail)
@@ -163,7 +162,4 @@ class EmployeeDocumentController extends Controller
 
         return back()->with('success', 'Document sent successfully to your email!');
     }
-
-
-
 }

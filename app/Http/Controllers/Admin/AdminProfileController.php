@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Meeting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -10,9 +11,10 @@ use Illuminate\Validation\Rule;
 
 class AdminProfileController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         $user = Auth::user();
-        return view('admin.profile.index',compact('user'));
+        return view('admin.profile.index', compact('user'));
     }
 
     public function update(Request $request)
@@ -22,7 +24,7 @@ class AdminProfileController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => ['required','email', Rule::unique('users')->ignore($user->id)],
+            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'role' => 'required|in:Admin,HR Admin,Department Admin',
             'contact_no' => 'nullable|string|max:20',
             'current_password' => 'nullable|required_with:new_password|string|min:8',
@@ -55,5 +57,4 @@ class AdminProfileController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Profile updated successfully!');
     }
-
 }
