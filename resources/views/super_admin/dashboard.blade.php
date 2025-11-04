@@ -90,115 +90,126 @@
                     <i class="fas fa-exclamation"></i> Review
                 </div>
             </div>
-
-            <div class="stat-card alerts">
-                <div class="stat-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>System Alerts</h3>
-                    <div class="stat-number">{{ $dashboardStats['system_alerts'] ?? 0 }}</div>
-                    <p>Active alerts</p>
-                </div>
-                <div class="stat-trend warning">
-                    <i class="fas fa-bell"></i> Monitor
-                </div>
-            </div>
         </div>
 
+        <!-- Today's Meetings Section -->
         @if (isset($todayMeetings) && $todayMeetings->count() > 0)
-            <div class="meeting-section">
-                <div class="meeting-header-section">
-                    <h2 class="meeting-section-title">
-                        <i class="fas fa-video"></i>
-                        Today's Stand-up Meetings
-                    </h2>
-                    <p class="meeting-section-subtitle">Morning and Evening meetings for all team members</p>
-                </div>
+        <div class="meeting-section">
+            <div class="meeting-header-section">
+                <h2 class="meeting-section-title">
+                    <i class="fas fa-video"></i>
+                    Today's Stand-up Meetings
+                </h2>
+                <p class="meeting-section-subtitle">Morning and Evening meetings for all team members</p>
+            </div>
 
-                <div class="meetings-grid">
-                    @foreach ($todayMeetings as $meeting)
-                        <div class="meeting-card">
-                            <div class="meeting-header">
-                                <div class="meeting-title">
-                                    <i
-                                        class="fas fa-{{ str_contains(strtolower($meeting->title), 'morning') ? 'sun' : 'moon' }}"></i>
-                                    {{ $meeting->title }}
-                                </div>
-                                <div class="meeting-status">
+            <div class="meetings-grid">
+                @foreach ($todayMeetings as $meeting)
+                <div class="meeting-card">
+                    <div class="meeting-header">
+                        <div class="meeting-title">
+                            <i
+                                class="fas fa-{{ str_contains(strtolower($meeting->title), 'morning') ? 'sun' : 'moon' }}"></i>
+                            {{ $meeting->title }}
+                        </div>
+                        <div class="meeting-status">
                                     <span
                                         class="status-badge {{ $meeting->status === 'ongoing' ? 'ongoing' : 'scheduled' }}">
                                         {{ ucfirst($meeting->status) }}
                                     </span>
-                                </div>
+                        </div>
+                    </div>
+                    <div class="meeting-content">
+                        <div class="meeting-info">
+                            <div class="meeting-time">
+                                <i class="fas fa-clock"></i>
+                                {{ $meeting->getFormattedTime() }}
                             </div>
-                            <div class="meeting-content">
-                                <div class="meeting-info">
-                                    <div class="meeting-time">
-                                        <i class="fas fa-clock"></i>
-                                        {{ $meeting->getFormattedTime() }}
-                                    </div>
-                                    <div class="meeting-duration">
-                                        <i class="fas fa-hourglass-half"></i>
-                                        {{ $meeting->getDuration() }} minutes
-                                    </div>
-                                </div>
-                                <div class="meeting-link-section">
-                                    <div class="meeting-link-display">
-                                        <input type="text" value="{{ $meeting->meeting_link }}"
-                                            class="meeting-link-input" readonly>
-                                        <button onclick="copyToClipboard('{{ $meeting->meeting_link }}')" class="copy-btn">
-                                            <i class="fas fa-copy"></i> Copy
-                                        </button>
-                                    </div>
-                                    <a href="{{ route('meetings.join', $meeting) }}" class="join-meeting-btn">
-                                        <i class="fas fa-external-link-alt"></i>
-                                        Join Meeting
-                                    </a>
-                                </div>
+                            <div class="meeting-duration">
+                                <i class="fas fa-hourglass-half"></i>
+                                {{ $meeting->getDuration() }} minutes
                             </div>
                         </div>
-                    @endforeach
+                        <div class="meeting-link-section">
+                            <div class="meeting-link-display">
+                                <input type="text" value="{{ $meeting->meeting_link }}"
+                                       class="meeting-link-input" readonly>
+                                <button onclick="copyToClipboard('{{ $meeting->meeting_link }}', event)"
+                                        class="copy-btn">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                            </div>
+                            <a href="{{ route('employee.meetings.join', $meeting) }}" class="join-meeting-btn">
+                                <i class="fas fa-external-link-alt"></i> Join Meeting
+                            </a>
+                        </div>
+                    </div>
                 </div>
+                @endforeach
             </div>
+        </div>
         @endif
+
 
         <div class="dashboard-content">
             <div class="dashboard-left">
-                <div class="dashboard-card system-health">
-                    <div class="card-header">
-                        <h2><i class="fas fa-heartbeat"></i> System Health</h2>
-                        <span class="health-status excellent">Excellent</span>
-                    </div>
-                    <div class="card-content">
-                        <div class="health-metrics">
-                            <div class="health-metric">
-                                <span class="metric-label">Server Uptime</span>
-                                <span class="metric-value">{{ $systemHealth['server_uptime'] ?? 0 }}</span>
-                            </div>
-                            <div class="health-metric">
-                                <span class="metric-label">Database Health</span>
-                                <span class="metric-value">{{ $systemHealth['database_health'] ?? 0 }}</span>
-                            </div>
-                            <div class="health-metric">
-                                <span class="metric-label">Storage Usage</span>
-                                <span class="metric-value">{{ $systemHealth['storage_usage'] ?? 0 }}</span>
-                            </div>
-                            <div class="health-metric">
-                                <span class="metric-label">Active Sessions</span>
-                                <span class="metric-value">{{ $systemHealth['active_sessions'] ?? 0 }}</span>
-                            </div>
-                            <div class="health-metric">
-                                <span class="metric-label">Avg Response Time</span>
-                                <span class="metric-value">{{ $systemHealth['avg_response_time'] ?? 0 }}</span>
-                            </div>
-                            <div class="health-metric">
-                                <span class="metric-label">Error Rate</span>
-                                <span class="metric-value">{{ $systemHealth['error_rate'] ?? 0 }}</span>
+
+                    <div class="dashboard-card recent-activities">
+                        <div class="card-header">
+                            <h2><i class="fas fa-history"></i> Recent Activities</h2>
+                            <a href="#" class="view-all" onclick="openRecentActivities()">View All</a>
+
+                        </div>
+                        <div class="card-content">
+                            <div class="activities-list">
+                                @forelse ($recentActivities->take(3) as $activity) {{-- Show only latest 3 --}}
+                                <div class="activity-item activity-{{ $activity['type'] }}">
+                                    <div class="activity-icon">
+                                        <i class="{{ $activity['icon'] }}"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <div class="activity-title">{{ $activity['action'] }}</div>
+                                        <div class="activity-details">{{ $activity['details'] }}</div>
+                                        <div class="activity-time">{{ $activity['timestamp']->diffForHumans() }}</div>
+                                    </div>
+                                </div>
+                                @empty
+                                <p class="text-center text-gray-500 mt-4">No recent activities found.</p>
+                                @endforelse
                             </div>
                         </div>
                     </div>
-                </div>
+
+                    <!-- Modal (Hidden by Default) -->
+                    <div id="activitiesModal" class="modal-overlay" style="display: none;">
+                        <div class="modal-page">
+                            <div class="modal-header">
+                                <h2><i class="fas fa-history"></i> All Recent Activities</h2>
+                                <button class="close-modal" onclick="closeRecentActivities()">&times;</button>
+
+                            </div>
+
+                            <div class="modal-body">
+                                <div class="activities-list">
+                                    @forelse ($recentActivities as $activity)
+                                    <div class="activity-item activity-{{ $activity['type'] }}">
+                                        <div class="activity-icon">
+                                            <i class="{{ $activity['icon'] }}"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">{{ $activity['action'] }}</div>
+                                            <div class="activity-details">{{ $activity['details'] }}</div>
+                                            <div class="activity-time">{{ $activity['timestamp']->diffForHumans() }}</div>
+                                        </div>
+                                    </div>
+                                    @empty
+                                    <p class="text-center text-gray-500 mt-4">No activities found.</p>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                 <!-- Quick Actions Card -->
                 <div class="dashboard-card quick-actions">
@@ -211,67 +222,25 @@
                                 <i class="fas fa-user-plus"></i>
                                 <span>Add New Admin</span>
                             </a>
-                            {{-- <a href="{{ route('super_admin.system_alerts') }}" class="action-item">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <span>View Alerts</span>
-                            </a>
-                            <a href="{{ route('super_admin.settings') }}" class="action-item">
-                                <i class="fas fa-cogs"></i>
-                                <span>System Settings</span>
-                            </a>
-                            <a href="{{ route('super_admin.security_settings') }}" class="action-item">
-                                <i class="fas fa-shield-alt"></i>
-                                <span>Security</span>
-                            </a>
-                            <a href="{{ route('super_admin.database_settings') }}" class="action-item">
-                                <i class="fas fa-database"></i>
-                                <span>Database</span>
-                            </a>
-                            <a href="{{ route('super_admin.announcements') }}" class="action-item">
-                                <i class="fas fa-bullhorn"></i>
-                                <span>Announcements</span>
-                            </a> --}}
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="dashboard-right">
-                <div class="dashboard-card recent-activities">
-                    <div class="card-header">
-                        <h2><i class="fas fa-history"></i> Recent Activities</h2>
-                        <a href="#" class="view-all">View All</a>
-                    </div>
-                    <div class="card-content">
-                        <div class="activities-list">
-                            {{-- @foreach ($recentActivities as $activity)
-                                <div class="activity-item activity-{{ $activity['type'] }}">
-                                    <div class="activity-icon">
-                                        <i class="{{ $activity['icon'] }}"></i>
-                                    </div>
-                                    <div class="activity-content">
-                                        <div class="activity-title">{{ $activity['action'] }}</div>
-                                        <div class="activity-details">{{ $activity['details'] }}</div>
-                                        <div class="activity-time">{{ $activity['timestamp']->diffForHumans() }}</div>
-                                    </div>
-                                </div>
-                            @endforeach --}}
-                        </div>
-                    </div>
-                </div>
-
+                <!-- Performance Overview Card -->
                 <div class="dashboard-card charts">
                     <div class="card-header">
                         <h2><i class="fas fa-chart-line"></i> Performance Overview</h2>
                         <div class="chart-tabs">
-                            <button class="chart-tab active" onclick="showChart('registrations')">Registrations</button>
-                            <button class="chart-tab" onclick="showChart('leaves')">Leaves</button>
-                            <button class="chart-tab" onclick="showChart('projects')">Projects</button>
+                            <button class="chart-tab active" onclick="showChart('registrations', event)">Registrations</button>
+                            <button class="chart-tab" onclick="showChart('leaves', event)">Leaves</button>
+                            <button class="chart-tab" onclick="showChart('projects', event)">Projects</button>
                         </div>
                     </div>
                     <div class="card-content">
-                        <div class="chart-container">
-                            <canvas id="performanceChart" width="400" height="200"></canvas>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="performanceChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -335,6 +304,9 @@
         </div>
     </div>
 
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
@@ -342,11 +314,11 @@
             startRealTimeUpdates();
         });
 
-        // Chart data
+
         const chartData = {
-            registrations: {{ json_encode($chartData['monthly_registrations' ?? 0]) }},
-            leaves: {{ json_encode($chartData['leave_requests' ?? 0]) }},
-            projects: {{ json_encode($chartData['project_completion' ?? 0]) }}
+            registrations: @json($chartData['monthly_registrations'] ?? []),
+            leaves: @json($chartData['leave_requests'] ?? []),
+            projects: @json($chartData['project_completion'] ?? [])
         };
 
         let currentChart = null;
@@ -358,7 +330,7 @@
             }
         }
 
-        function showChart(type) {
+        function showChart(type, event = null) {
             // Update active tab
             document.querySelectorAll('.chart-tab').forEach(tab => tab.classList.remove('active'));
             event?.target?.classList.add('active');
@@ -366,12 +338,10 @@
             const ctx = document.getElementById('performanceChart');
             if (!ctx) return;
 
-            // Destroy existing chart
             if (currentChart) {
                 currentChart.destroy();
             }
 
-            // Chart configuration
             const config = {
                 type: 'line',
                 data: {
@@ -393,23 +363,10 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: '#E5E7EB'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                color: '#E5E7EB'
-                            }
-                        }
+                        y: { beginAtZero: true, grid: { color: '#E5E7EB' } },
+                        x: { grid: { color: '#E5E7EB' } }
                     }
                 }
             };
@@ -418,22 +375,22 @@
         }
 
         function getChartLabel(type) {
-            const labels = {
+            return {
                 registrations: 'Monthly Registrations',
                 leaves: 'Leave Requests',
                 projects: 'Project Completions'
-            };
-            return labels[type] || 'Data';
+            }[type] || 'Data';
         }
 
         function getChartColor(type) {
-            const colors = {
+            return {
                 registrations: '#2563EB',
                 leaves: '#F59E0B',
                 projects: '#10B981'
-            };
-            return colors[type] || '#DC2626';
+            }[type] || '#DC2626';
         }
+
+        document.addEventListener('DOMContentLoaded', initializeChart);
 
         // Dashboard functions
         function refreshDashboard() {
@@ -536,5 +493,24 @@
                 alert('Failed to copy meeting link. Please copy manually.');
             });
         }
+
+        function openRecentActivities() {
+            const modal = document.getElementById('activitiesModal');
+            modal.style.display = "flex";
+        }
+
+        function closeRecentActivities() {
+            const modal = document.getElementById('activitiesModal');
+            modal.style.display = "none";
+        }
+
+        // close when clicking outside
+        document.addEventListener("click", function(e) {
+            const modal = document.getElementById('activitiesModal');
+            if (e.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+
     </script>
 @endsection

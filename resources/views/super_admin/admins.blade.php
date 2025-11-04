@@ -682,6 +682,65 @@
         const form = document.getElementById('editAdminForm');
         if (form) form.reset();
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("adminSearch");
+        const statusFilter = document.getElementById("statusFilter");
+        const roleFilter = document.getElementById("roleFilter");
+        const tableBody = document.getElementById("adminsTableBody");
+
+        function filterAdmins() {
+            const searchValue = searchInput.value.toLowerCase().trim();
+            const selectedStatus = statusFilter.value.toLowerCase();
+            const selectedRole = roleFilter.value.toLowerCase();
+
+            const rows = tableBody.querySelectorAll(".admin-row");
+
+            rows.forEach(row => {
+                const adminId = row.querySelector("td[data-label='Admin ID'] .id-text")?.textContent.toLowerCase() || "";
+                const adminName = row.querySelector("td[data-label='Admin Name'] .name-primary")?.textContent.toLowerCase() || "";
+                const status = row.querySelector("td[data-label='Status'] .status-badge")?.textContent.toLowerCase() || "";
+                const role = row.querySelector("td[data-label='Admin Name'] .name-secondary")?.textContent.toLowerCase() || "";
+
+                const matchesSearch = adminName.includes(searchValue) || adminId.includes(searchValue);
+                const matchesStatus = !selectedStatus || status === selectedStatus;
+                const matchesRole = !selectedRole || role.includes(selectedRole);
+
+                // Show or hide row based on match
+                if (matchesSearch && matchesStatus && matchesRole) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            // Show "No results" message if nothing is visible
+            const visibleRows = Array.from(rows).some(row => row.style.display !== "none");
+            let noDataRow = tableBody.querySelector(".no-data-row");
+            if (!visibleRows) {
+                if (!noDataRow) {
+                    noDataRow = document.createElement("tr");
+                    noDataRow.classList.add("no-data-row");
+                    noDataRow.innerHTML = `
+                        <td colspan="7">
+                            <div class="no-data-message">
+                                <i class="fas fa-search"></i>
+                                <h3>No matching administrators found</h3>
+                                <p>Try adjusting your search or filters.</p>
+                            </div>
+                        </td>`;
+                    tableBody.appendChild(noDataRow);
+                }
+            } else {
+                if (noDataRow) noDataRow.remove();
+            }
+        }
+
+        // Attach listeners
+        searchInput.addEventListener("keyup", filterAdmins);
+        statusFilter.addEventListener("change", filterAdmins);
+        roleFilter.addEventListener("change", filterAdmins);
+    });
 </script>
 
 @endsection

@@ -19,45 +19,6 @@
         </div>
     </div>
 
-    <div class="projects-stats">
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-tasks"></i>
-            </div>
-            <div class="stat-info">
-                <h3>12</h3>
-                <p>Active Projects</p>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="stat-info">
-                <h3>8</h3>
-                <p>Completed</p>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-info">
-                <h3>3</h3>
-                <p>Pending</p>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <div class="stat-info">
-                <h3>2</h3>
-                <p>Overdue</p>
-            </div>
-        </div>
-    </div>
-
     <div class="project-status-filter">
         <h2>Project Status</h2>
         <div class="status-grid">
@@ -67,7 +28,7 @@
                 </div>
                 <div class="status-info">
                     <h3>Active Projects</h3>
-                    <p>12 projects</p>
+                    <p>{{ $activeCount }} project{{ $activeCount !== 1 ? 's' : '' }}</p>
                 </div>
             </div>
             <div class="status-card" data-status="completed">
@@ -76,7 +37,7 @@
                 </div>
                 <div class="status-info">
                     <h3>Completed</h3>
-                    <p>8 projects</p>
+                    <p>{{ $completedCount }} project{{ $completedCount !== 1 ? 's' : '' }}</p>
                 </div>
             </div>
             <div class="status-card" data-status="pending">
@@ -85,7 +46,7 @@
                 </div>
                 <div class="status-info">
                     <h3>Pending</h3>
-                    <p>3 projects</p>
+                    <p>{{ $onHoldCount }} project{{ $onHoldCount !== 1 ? 's' : '' }}</p>
                 </div>
             </div>
             <div class="status-card" data-status="overdue">
@@ -94,7 +55,7 @@
                 </div>
                 <div class="status-info">
                     <h3>Overdue</h3>
-                    <p>2 projects</p>
+                    <p>{{ $inProgressCount }} project{{ $inProgressCount !== 1 ? 's' : '' }}</p>
                 </div>
             </div>
         </div>
@@ -150,13 +111,18 @@
                         <h4>{{ $project->project_name }}</h4>
                         <span class="priority-badge {{ $priority }}">{{ ucfirst($priority) }} Priority</span>
                     </div>
-                    <div class="project-status {{ strtolower($status) }}">
-                        @if($status == 'Active') <i class="fas fa-play"></i>
-                        @elseif($status == 'Completed') <i class="fas fa-check"></i>
-                        @elseif($status == 'On Hold') <i class="fas fa-pause"></i>
-                        @else <i class="fas fa-exclamation"></i>
+                    @php
+                    $statusClass = strtolower(str_replace(' ', '-', $status));
+                    @endphp
+
+                    <div class="project-status {{ $statusClass }}">
+                        @if ($status === 'Active')<i class="fas fa-play"></i>
+                        @elseif ($status === 'Completed')<i class="fas fa-check"></i>
+                        @elseif ($status === 'On Hold')<i class="fas fa-pause"></i>
+                        @elseif ($status === 'In Progress')<i class="fas fa-spinner fa-spin"></i>
+                        @else<i class="fas fa-exclamation"></i>
                         @endif
-                        {{ $status }}
+                        <span>{{ $status }}</span>
                     </div>
                 </div>
 
