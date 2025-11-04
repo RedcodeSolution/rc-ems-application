@@ -17,7 +17,8 @@ class EmployeeProjectController
 
         // If no employee ID, return empty collection
         if (!$employeeId) {
-            $employeeProjects = collect(); // empty collection
+            $employeeProjects = collect();
+            $activeCount = $completedCount = $onHoldCount = $inProgressCount = 0;
         } else {
             // Fetch projects assigned to this employee with pivot info and team info
             $employeeProjects = DB::table('employee_project')
@@ -39,10 +40,21 @@ class EmployeeProjectController
                     'teams.team_name'
                 )
                 ->get();
+
+            $activeCount = $employeeProjects->where('pivot_status', 'Active')->count();
+            $completedCount = $employeeProjects->where('pivot_status', 'Completed')->count();
+            $onHoldCount = $employeeProjects->where('pivot_status', 'On Hold')->count();
+            $inProgressCount = $employeeProjects->where('pivot_status', 'In Progress')->count();
         }
 
         // Pass data to Blade view
-        return view('employees.projects.index', compact('employeeProjects'));
+        return view('employees.projects.index', compact(
+            'employeeProjects',
+            'activeCount',
+            'completedCount',
+            'onHoldCount',
+            'inProgressCount'
+        ));
     }
 
     public function show($projectId)

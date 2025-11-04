@@ -23,8 +23,7 @@ class Project extends Model
         'milestone_info',
     ];
 
-    public function team()
-    {
+    public function team() {
         return $this->belongsTo(Team::class, 'team_id', 'team_id');
     }
 
