@@ -181,62 +181,78 @@
         </div>
     </div>
 
-    <section class="meeting-section">
-        <div class="meeting-header-section">
-            <h2 class="meeting-section-title">
-                <i class="fas fa-video"></i> Today's Stand-up Meetings
-            </h2>
-            <p class="meeting-section-subtitle">Morning and Evening meetings for all team members</p>
-        </div>
-
-        <div id="meetings-grid" class="meetings-grid">
-            <div id="morning-meeting-card" class="meeting-card meeting-placeholder">
-                <div class="meeting-header">
-                    <div class="meeting-title"><i class="fas fa-sun"></i> Morning Stand-up Meeting</div>
-                    <span class="status-badge scheduled">Scheduled</span>
-                </div>
-                <div class="meeting-content">
-                    <div class="meeting-info">
-                        <div class="meeting-time"><i class="fas fa-clock"></i> - </div>
-                        <div class="meeting-duration"><i class="fas fa-hourglass-half"></i> - </div>
-                    </div>
-                    <div class="meeting-link-section">
-                        <div class="meeting-link-display">
-                            <input type="text" class="meeting-link-input" value="" readonly>
-                            <button class="copy-btn" onclick="copyToClipboard('', event)"><i class="fas fa-copy"></i>
-                                Copy</button>
-                        </div>
-                        <a href="#" class="join-meeting-btn" target="_blank">
-                            <i class="fas fa-external-link-alt"></i> Join Meeting
-                        </a>
-                    </div>
-                </div>
+    <!-- Today's Meetings Section -->
+    @if (isset($todayMeetings) && $todayMeetings->count() > 0)
+        <div class="meeting-section">
+            <div class="meeting-header-section">
+                <h2 class="meeting-section-title">
+                    <i class="fas fa-video"></i>
+                    Today's Stand-up Meetings
+                </h2>
+                <p class="meeting-section-subtitle">Morning and Evening meetings for all team members</p>
             </div>
 
-            <div id="evening-meeting-card" class="meeting-card meeting-placeholder">
-                <div class="meeting-header">
-                    <div class="meeting-title"><i class="fas fa-moon"></i> Evening Stand-up Meeting</div>
-                    <span class="status-badge scheduled">Scheduled</span>
-                </div>
-                <div class="meeting-content">
-                    <div class="meeting-info">
-                        <div class="meeting-time"><i class="fas fa-clock"></i> - </div>
-                        <div class="meeting-duration"><i class="fas fa-hourglass-half"></i> - </div>
-                    </div>
-                    <div class="meeting-link-section">
-                        <div class="meeting-link-display">
-                            <input type="text" class="meeting-link-input" value="" readonly>
-                            <button class="copy-btn" onclick="copyToClipboard('', event)"><i class="fas fa-copy"></i>
-                                Copy</button>
+            <div class="meetings-grid">
+                @foreach ($todayMeetings as $meeting)
+                    <div class="meeting-card">
+                        <div class="meeting-header">
+                            <div class="meeting-title">
+                                <i
+                                    class="fas fa-{{ str_contains(strtolower($meeting->title), 'morning') ? 'sun' : 'moon' }}"></i>
+                                {{ $meeting->title }}
+                            </div>
+                            <div class="meeting-status">
+                                <span class="status-badge {{ $meeting->status === 'ongoing' ? 'ongoing' : 'scheduled' }}">
+                                    {{ ucfirst($meeting->status) }}
+                                </span>
+                            </div>
                         </div>
-                        <a href="#" class="join-meeting-btn" target="_blank">
-                            <i class="fas fa-external-link-alt"></i> Join Meeting
-                        </a>
+                        <div class="meeting-content">
+                            <div class="meeting-info">
+                                <div class="meeting-time">
+                                    <i class="fas fa-clock"></i>
+                                    {{ $meeting->getFormattedTime() }}
+                                </div>
+                                <div class="meeting-duration">
+                                    <i class="fas fa-hourglass-half"></i>
+                                    {{ $meeting->getDuration() }} minutes
+                                </div>
+                            </div>
+                            <div class="meeting-link-section">
+                                @php
+                                    $isAdmin = Auth::user() && in_array(Auth::user()->role, ['admin', 'super_admin']);
+                                @endphp
+
+                                @if ($meeting->status === 'ongoing' || $isAdmin)
+                                    <div class="meeting-link-display">
+                                        <input type="text" value="{{ $meeting->meeting_link }}"
+                                            class="meeting-link-input" readonly>
+                                        <button onclick="copyToClipboard('{{ $meeting->meeting_link }}', event)"
+                                            class="copy-btn">
+                                            <i class="fas fa-copy"></i> Copy
+                                        </button>
+                                    </div>
+
+                                    <a href="{{ route('meetings.join', $meeting) }}" class="join-meeting-btn"
+                                        target="_blank" rel="noopener noreferrer">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        {{ $isAdmin && $meeting->status === 'scheduled' ? 'Start Meeting' : 'Join Meeting' }}
+                                    </a>
+                                @else
+                                    <p class="meeting-upcoming-text">
+                                        <i class="fas fa-clock"></i> Meeting not started yet
+                                    </p>
+                                @endif
+
+
+                            </div>
+
+                        </div>
                     </div>
-                </div>
+                @endforeach
             </div>
         </div>
-    </section>
+    @endif
 
     {{-- removed legacy copyLink helper; use copyToClipboard(text, event) for UI feedback --}}
 

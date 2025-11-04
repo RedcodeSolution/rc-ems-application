@@ -17,7 +17,7 @@ class SuperAdminOverviewController
     public function index()
     {
         $currentYear = now()->year;
-
+        Meeting::createDailyStandup();
         // --- Dashboard summary ---
         $dashboardStats = [
             'total_admins' => Admin::count(),
@@ -127,8 +127,4 @@ class SuperAdminOverviewController
             'todayMeetings'
         ));
     }
-
-
-
-
 }

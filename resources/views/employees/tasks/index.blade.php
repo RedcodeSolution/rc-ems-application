@@ -779,21 +779,21 @@
             </div>
 
             ${taskData.additionalDetails ? `
-                                                                                                    <div class="task-additional">
-                                                                                                        <h4>Additional Information</h4>
-                                                                                                        <div class="additional-content">
-                                                                                                            ${taskData.additionalDetails}
+                                                                                                        <div class="task-additional">
+                                                                                                            <h4>Additional Information</h4>
+                                                                                                            <div class="additional-content">
+                                                                                                                ${taskData.additionalDetails}
+                                                                                                            </div>
                                                                                                         </div>
-                                                                                                    </div>
-                                                                                                ` : ''}
+                                                                                                    ` : ''}
 
             ${taskData.comments && taskData.comments.length > 0 ? `
-                                                                                                    <div class="task-comments-view">
-                                                                                                        <h4>Recent Comments</h4>
-                                                                                                        <div class="comments-list">
-                                                                                                            ${taskData.comments.map(comment => {
-                                                                                                                const commentDate = new Date(comment.created_at);
-                                                                                                                return `
+                                                                                                        <div class="task-comments-view">
+                                                                                                            <h4>Recent Comments</h4>
+                                                                                                            <div class="comments-list">
+                                                                                                                ${taskData.comments.map(comment => {
+                                                                                                                    const commentDate = new Date(comment.created_at);
+                                                                                                                    return `
                                 <div class="comment-item">
                                     <div class="comment-header">
                                         <strong>${comment.employee.employee_name}</strong>
@@ -807,10 +807,10 @@
                                     <div class="comment-text">${comment.comment}</div>
                                 </div>
                             `;
-                                                                                                            }).join('')}
+                                                                                                                }).join('')}
+                                                                                                            </div>
                                                                                                         </div>
-                                                                                                    </div>
-                                                                                                ` : ''}
+                                                                                                    ` : ''}
         </div>
     `;
 

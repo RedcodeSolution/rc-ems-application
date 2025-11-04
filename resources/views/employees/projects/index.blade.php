@@ -83,10 +83,10 @@
                     </select>
                     <select id="teamFilter" class="filter-select">
                         <option value="">All Teams</option>
-                        <option value="development">Development</option>
-                        <option value="design">Design</option>
-                        <option value="marketing">Marketing</option>
-                        <option value="qa">Quality Assurance</option>
+                        @foreach ($teams as $team)
+                            <option value="{{ $team }}">{{ $team }}</option>
+                        @endforeach
+
                     </select>
                 </div>
             </div>
@@ -108,7 +108,7 @@
                     @endphp
 
                     <div class="project-card" data-status="{{ strtolower($status) }}" data-priority="{{ $priority }}"
-                        data-team="{{ strtolower($teamName) }}">
+                        data-progress="{{ $progress }}" data-team="{{ strtolower($teamName) }}">
                         <div class="project-header">
                             <div class="project-title">
                                 <h4>{{ $project->project_name }}</h4>
@@ -161,10 +161,6 @@
                             <button class="action-btn" onclick="viewProject('{{ $project->project_name }}')"
                                 title="View Project">
                                 <i class="fas fa-eye"></i>
-                            </button>
-
-                            <button class="action-btn" onclick="editProject('E-Commerce Platform')">
-                                <i class="fas fa-edit"></i>
                             </button>
                         </div>
                     </div>
@@ -256,10 +252,6 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" onclick="closeViewProjectModal()">Close</button>
-                    <button class="btn btn-primary" onclick="openEditFromView()">
-                        <i class="fas fa-edit"></i>
-                        Edit Project
-                    </button>
                 </div>
             </div>
         </div>
@@ -444,12 +436,13 @@
             const priorityBadge = card.querySelector('.priority-badge');
             document.getElementById('viewProjectPriority').textContent = priorityBadge ? priorityBadge.textContent.trim() :
                 '';
+            const progressValue = card.dataset.progress || '0';
+            document.getElementById('viewProjectProgressText').textContent = `${progressValue}%`;
+            document.getElementById('viewProjectProgressFill').style.width = `${progressValue}%`;
 
-            const progressText = card.querySelector('.progress-info span:nth-child(2)');
-            const progressValue = progressText ? progressText.textContent.replace('%', '').trim() : '0';
-            document.getElementById('viewProjectProgressText').textContent = progressValue + '%';
             const fill = document.getElementById('viewProjectProgressFill');
             fill.style.width = `${progressValue}%`;
+
 
             document.getElementById('editProjectIdentifier').value = projectName;
 
@@ -611,6 +604,7 @@
             const priorityFilter = document.getElementById('priorityFilter').value;
             const teamFilter = document.getElementById('teamFilter').value;
             const projects = document.querySelectorAll('.project-card');
+            console.log(teamFilter);
 
             projects.forEach(project => {
                 const title = project.querySelector('h4').textContent.toLowerCase();

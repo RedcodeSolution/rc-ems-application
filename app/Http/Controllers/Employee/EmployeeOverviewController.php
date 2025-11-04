@@ -142,7 +142,7 @@ class EmployeeOverviewController extends Controller
         $totalDays = $totalPresent + $totalAbsent + $totalLate + $totalHalfDay;
 
         // --- Meetings ---
-        Meeting::createDailyStandup();
+
         $todayMeetings = Meeting::getTodayMeetings();
 
         $recentActivities = EmployeeActivity::where('employee_id', $employee->employee_id)
