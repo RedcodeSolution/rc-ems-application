@@ -94,75 +94,94 @@
 
         <!-- Today's Meetings Section -->
         @if (isset($todayMeetings) && $todayMeetings->count() > 0)
-        <div class="meeting-section">
-            <div class="meeting-header-section">
-                <h2 class="meeting-section-title">
-                    <i class="fas fa-video"></i>
-                    Today's Stand-up Meetings
-                </h2>
-                <p class="meeting-section-subtitle">Morning and Evening meetings for all team members</p>
-            </div>
+            <div class="meeting-section">
+                <div class="meeting-header-section">
+                    <h2 class="meeting-section-title">
+                        <i class="fas fa-video"></i>
+                        Today's Stand-up Meetings
+                    </h2>
+                    <p class="meeting-section-subtitle">Morning and Evening meetings for all team members</p>
+                </div>
 
-            <div class="meetings-grid">
-                @foreach ($todayMeetings as $meeting)
-                <div class="meeting-card">
-                    <div class="meeting-header">
-                        <div class="meeting-title">
-                            <i
-                                class="fas fa-{{ str_contains(strtolower($meeting->title), 'morning') ? 'sun' : 'moon' }}"></i>
-                            {{ $meeting->title }}
-                        </div>
-                        <div class="meeting-status">
+                <div class="meetings-grid">
+                    @foreach ($todayMeetings as $meeting)
+                        <div class="meeting-card">
+                            <div class="meeting-header">
+                                <div class="meeting-title">
+                                    <i
+                                        class="fas fa-{{ str_contains(strtolower($meeting->title), 'morning') ? 'sun' : 'moon' }}"></i>
+                                    {{ $meeting->title }}
+                                </div>
+                                <div class="meeting-status">
                                     <span
                                         class="status-badge {{ $meeting->status === 'ongoing' ? 'ongoing' : 'scheduled' }}">
                                         {{ ucfirst($meeting->status) }}
                                     </span>
-                        </div>
-                    </div>
-                    <div class="meeting-content">
-                        <div class="meeting-info">
-                            <div class="meeting-time">
-                                <i class="fas fa-clock"></i>
-                                {{ $meeting->getFormattedTime() }}
+                                </div>
                             </div>
-                            <div class="meeting-duration">
-                                <i class="fas fa-hourglass-half"></i>
-                                {{ $meeting->getDuration() }} minutes
+                            <div class="meeting-content">
+                                <div class="meeting-info">
+                                    <div class="meeting-time">
+                                        <i class="fas fa-clock"></i>
+                                        {{ $meeting->getFormattedTime() }}
+                                    </div>
+                                    <div class="meeting-duration">
+                                        <i class="fas fa-hourglass-half"></i>
+                                        {{ $meeting->getDuration() }} minutes
+                                    </div>
+                                </div>
+                                <div class="meeting-link-section">
+                                    @php
+                                        $isAdmin =
+                                            Auth::user() && in_array(Auth::user()->role, ['admin', 'super_admin']);
+                                    @endphp
+
+                                    @if ($meeting->status === 'ongoing' || $isAdmin)
+                                        <div class="meeting-link-display">
+                                            <input type="text" value="{{ $meeting->meeting_link }}"
+                                                class="meeting-link-input" readonly>
+                                            <button onclick="copyToClipboard('{{ $meeting->meeting_link }}', event)"
+                                                class="copy-btn">
+                                                <i class="fas fa-copy"></i> Copy
+                                            </button>
+                                        </div>
+
+                                        <a href="{{ route('meetings.join', $meeting) }}" class="join-meeting-btn"
+                                            target="_blank" rel="noopener noreferrer">
+                                            <i class="fas fa-external-link-alt"></i>
+                                            {{ $isAdmin && $meeting->status === 'scheduled' ? 'Start Meeting' : 'Join Meeting' }}
+                                        </a>
+                                    @else
+                                        <p class="meeting-upcoming-text">
+                                            <i class="fas fa-clock"></i> Meeting not started yet
+                                        </p>
+                                    @endif
+
+
+                                </div>
+
                             </div>
                         </div>
-                        <div class="meeting-link-section">
-                            <div class="meeting-link-display">
-                                <input type="text" value="{{ $meeting->meeting_link }}"
-                                       class="meeting-link-input" readonly>
-                                <button onclick="copyToClipboard('{{ $meeting->meeting_link }}', event)"
-                                        class="copy-btn">
-                                    <i class="fas fa-copy"></i> Copy
-                                </button>
-                            </div>
-                            <a href="{{ route('employee.meetings.join', $meeting) }}" class="join-meeting-btn">
-                                <i class="fas fa-external-link-alt"></i> Join Meeting
-                            </a>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
-                @endforeach
             </div>
-        </div>
         @endif
+
 
 
         <div class="dashboard-content">
             <div class="dashboard-left">
 
-                    <div class="dashboard-card recent-activities">
-                        <div class="card-header">
-                            <h2><i class="fas fa-history"></i> Recent Activities</h2>
-                            <a href="#" class="view-all" onclick="openRecentActivities()">View All</a>
+                <div class="dashboard-card recent-activities">
+                    <div class="card-header">
+                        <h2><i class="fas fa-history"></i> Recent Activities</h2>
+                        <a href="#" class="view-all" onclick="openRecentActivities()">View All</a>
 
-                        </div>
-                        <div class="card-content">
-                            <div class="activities-list">
-                                @forelse ($recentActivities->take(3) as $activity) {{-- Show only latest 3 --}}
+                    </div>
+                    <div class="card-content">
+                        <div class="activities-list">
+                            @forelse ($recentActivities->take(3) as $activity)
+                                {{-- Show only latest 3 --}}
                                 <div class="activity-item activity-{{ $activity['type'] }}">
                                     <div class="activity-icon">
                                         <i class="{{ $activity['icon'] }}"></i>
@@ -173,25 +192,25 @@
                                         <div class="activity-time">{{ $activity['timestamp']->diffForHumans() }}</div>
                                     </div>
                                 </div>
-                                @empty
+                            @empty
                                 <p class="text-center text-gray-500 mt-4">No recent activities found.</p>
-                                @endforelse
-                            </div>
+                            @endforelse
                         </div>
                     </div>
+                </div>
 
-                    <!-- Modal (Hidden by Default) -->
-                    <div id="activitiesModal" class="modal-overlay" style="display: none;">
-                        <div class="modal-page">
-                            <div class="modal-header">
-                                <h2><i class="fas fa-history"></i> All Recent Activities</h2>
-                                <button class="close-modal" onclick="closeRecentActivities()">&times;</button>
+                <!-- Modal (Hidden by Default) -->
+                <div id="activitiesModal" class="modal-overlay" style="display: none;">
+                    <div class="modal-page">
+                        <div class="modal-header">
+                            <h2><i class="fas fa-history"></i> All Recent Activities</h2>
+                            <button class="close-modal" onclick="closeRecentActivities()">&times;</button>
 
-                            </div>
+                        </div>
 
-                            <div class="modal-body">
-                                <div class="activities-list">
-                                    @forelse ($recentActivities as $activity)
+                        <div class="modal-body">
+                            <div class="activities-list">
+                                @forelse ($recentActivities as $activity)
                                     <div class="activity-item activity-{{ $activity['type'] }}">
                                         <div class="activity-icon">
                                             <i class="{{ $activity['icon'] }}"></i>
@@ -202,13 +221,13 @@
                                             <div class="activity-time">{{ $activity['timestamp']->diffForHumans() }}</div>
                                         </div>
                                     </div>
-                                    @empty
+                                @empty
                                     <p class="text-center text-gray-500 mt-4">No activities found.</p>
-                                    @endforelse
-                                </div>
+                                @endforelse
                             </div>
                         </div>
                     </div>
+                </div>
 
 
                 <!-- Quick Actions Card -->
@@ -233,7 +252,8 @@
                     <div class="card-header">
                         <h2><i class="fas fa-chart-line"></i> Performance Overview</h2>
                         <div class="chart-tabs">
-                            <button class="chart-tab active" onclick="showChart('registrations', event)">Registrations</button>
+                            <button class="chart-tab active"
+                                onclick="showChart('registrations', event)">Registrations</button>
                             <button class="chart-tab" onclick="showChart('leaves', event)">Leaves</button>
                             <button class="chart-tab" onclick="showChart('projects', event)">Projects</button>
                         </div>
@@ -305,7 +325,7 @@
     </div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
         // Initialize dashboard
@@ -363,10 +383,23 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: '#E5E7EB' } },
-                        x: { grid: { color: '#E5E7EB' } }
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#E5E7EB'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: '#E5E7EB'
+                            }
+                        }
                     }
                 }
             };
@@ -379,7 +412,7 @@
                 registrations: 'Monthly Registrations',
                 leaves: 'Leave Requests',
                 projects: 'Project Completions'
-            }[type] || 'Data';
+            } [type] || 'Data';
         }
 
         function getChartColor(type) {
@@ -387,7 +420,7 @@
                 registrations: '#2563EB',
                 leaves: '#F59E0B',
                 projects: '#10B981'
-            }[type] || '#DC2626';
+            } [type] || '#DC2626';
         }
 
         document.addEventListener('DOMContentLoaded', initializeChart);
@@ -511,6 +544,5 @@
                 modal.style.display = "none";
             }
         });
-
     </script>
 @endsection

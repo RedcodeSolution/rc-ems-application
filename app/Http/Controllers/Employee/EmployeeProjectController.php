@@ -12,15 +12,14 @@ class EmployeeProjectController
 
     public function index()
     {
-        // Get the logged-in employee ID
+
         $employeeId = Auth::user()?->employee_id;
 
-        // If no employee ID, return empty collection
         if (!$employeeId) {
             $employeeProjects = collect();
             $activeCount = $completedCount = $onHoldCount = $inProgressCount = 0;
+            $teams = collect();
         } else {
-            // Fetch projects assigned to this employee with pivot info and team info
             $employeeProjects = DB::table('employee_project')
                 ->join('projects', 'employee_project.project_id', '=', 'projects.project_id')
                 ->leftJoin('teams', 'projects.team_id', '=', 'teams.team_id')
@@ -37,9 +36,12 @@ class EmployeeProjectController
                     'projects.status as project_status',
                     'projects.start_date',
                     'projects.end_date',
+                    'teams.team_id',
                     'teams.team_name'
                 )
                 ->get();
+
+            $teams = $employeeProjects->whereNotNull('team_name')->unique('team_name')->pluck('team_name');
 
             $activeCount = $employeeProjects->where('pivot_status', 'Active')->count();
             $completedCount = $employeeProjects->where('pivot_status', 'Completed')->count();
@@ -53,7 +55,8 @@ class EmployeeProjectController
             'activeCount',
             'completedCount',
             'onHoldCount',
-            'inProgressCount'
+            'inProgressCount',
+            'teams'
         ));
     }
 

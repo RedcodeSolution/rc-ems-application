@@ -43,6 +43,7 @@ use App\Models\Leave;
 use App\Models\Meeting;
 use App\Models\Project;
 use App\Models\Team;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 
@@ -57,7 +58,7 @@ Route::middleware('auth')->group(function () {
         $projects = Project::with(['employees', 'team'])->get();
         $leaves = Leave::with(['user'])->get();
 
-        $todayMeetings = \App\Models\Meeting::getTodayMeetings();
+        $todayMeetings = Meeting::getTodayMeetings();
         if ($todayMeetings->count() == 0) {
             Meeting::createDailyStandup();
             $todayMeetings = Meeting::getTodayMeetings();
@@ -189,7 +190,30 @@ Route::middleware('auth')->group(function () {
     Route::post('/employees/ratings', [EmployeeEmployeeRatingController::class, 'store'])->name('employee.ratings.store');
     Route::get('/employees/ratings/employee/{employeeId}', [EmployeeEmployeeRatingController::class, 'getEmployeeRatings'])->name('employee.ratings.employee');
 
-    Route::get('/super_admin/dashboard', [SuperAdminController::class, 'dashboard'])->name('super_admin.dashboard');
+    Route::middleware(['auth'])->group(function () {
+
+        // SUPER ADMIN DASHBOARD
+        Route::get('/super_admin/dashboard', function () {
+            $user = Auth::user();
+
+            if ($user->role === 'super_admin') {
+                $todayMeetings = Meeting::getTodayMeetings();
+
+                if ($todayMeetings->count() == 0) {
+                    // Create daily stand-up meetings for today
+                    Meeting::createDailyStandup();
+                    $todayMeetings = Meeting::getTodayMeetings();
+                }
+            } else {
+                // If not superadmin, just fetch existing meetings
+                $todayMeetings = Meeting::getTodayMeetings();
+            }
+
+            // You can add your own Super Admin dashboard data here
+            return view('super_admin.dashboard', compact('todayMeetings'));
+        })->name('super_admin.dashboard');
+    });
+    // Route::get('/super_admin/dashboard', [SuperAdminController::class, 'dashboard'])->name('super_admin.dashboard');
     Route::get('/super_admin/system_stats', [SuperAdminController::class, 'systemStats'])->name('super_admin.system_stats');
     Route::get('/super_admin/admins', [SuperAdminController::class, 'admins'])->name('super_admin.admins');
     Route::get('/super_admin/notifications', [SuperAdminController::class, 'notifications'])->name('super_admin.notifications');
