@@ -67,7 +67,7 @@
     animation: gradientShift 18s ease infinite;
     min-height: 100vh;
     position: relative;
-    overflow: hidden;
+    overflow: auto;
 }
 
 @keyframes gradientShift {
@@ -78,24 +78,25 @@
     100% { background-position: 0% 50%; }
 }
 
-.register-container::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background:
-        radial-gradient(circle at 25% 75%, rgba(220, 38, 38, 0.18) 0%, transparent 50%),
-        radial-gradient(circle at 75% 25%, rgba(31, 41, 55, 0.18) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, rgba(153, 27, 27, 0.10) 0%, transparent 50%);
-    animation: floatBackground 25s ease-in-out infinite;
-}
 
 @keyframes floatBackground {
     0%, 100% { transform: translateY(0px) rotate(0deg); }
     33% { transform: translateY(-20px) rotate(120deg); }
     66% { transform: translateY(10px) rotate(240deg); }
+}
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #6b7280;
+    font-size: 1rem;
+    z-index: 10;
+}
+
+.toggle-password:hover {
+    color: #111827;
 }
 
 .register-split {

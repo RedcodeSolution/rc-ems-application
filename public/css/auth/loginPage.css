@@ -163,6 +163,26 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.password-group {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #999;
+    font-size: 16px;
+    z-index: 20;
+}
+
+.toggle-password:hover {
+    color: #d10042;
+}
+
+
 .login-card::before {
     content: '';
     position: absolute;

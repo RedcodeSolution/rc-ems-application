@@ -383,6 +383,7 @@
                     </span>
                 </div>
             </div>
+
         </div>
 
         <style>
@@ -1144,6 +1145,7 @@
             }
         </style>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             // Update current time every second
             function updateTime() {
@@ -1249,4 +1251,20 @@
         <script type="application/json" id="attendanceDataAbsent">@json($absent_data)</script>
         <script type="application/json" id="attendanceDataLate">@json($late_data)</script>
         <script type="application/json" id="attendanceDataHalfday">@json($halfday_data)</script>
+        @if (session('success'))
+            <script>
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+
+                Toast.fire({
+                    icon: 'success',
+                    title: '{{ session('success') }}'
+                });
+            </script>
+        @endif
     @endsection

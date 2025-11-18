@@ -381,6 +381,7 @@
 
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             function updateTime() {
                 const now = new Date();
@@ -890,5 +891,21 @@
                             })();
                         });
         </script>
+        @if (session('success'))
+            <script script>
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+
+                Toast.fire({
+                    icon: 'success',
+                    title: '{{ session('success') }}'
+                });
+            </script>
+        @endif
     @endpush
 @endsection

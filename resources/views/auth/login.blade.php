@@ -10,12 +10,19 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/auth/loginPage.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="login-container">
     <div class="login-split">
+
         <!-- Left Side - Login Form -->
         <div class="login-form-section">
+            <a href="{{ url('/') }}"
+                class="fixed top-4 left-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 hover:bg-red-700 transition">
+                <i class="fas fa-arrow-left"></i>
+                Back
+            </a>
             <div class="login-card">
                 <!-- RedCode Logo -->
                 <div class="hrms-logo">
@@ -53,10 +60,14 @@
                         <i class="input-icon fas fa-envelope"></i>
                     </div>
                     <!-- Password Field -->
-                    <div class="form-group">
+                    <div class="form-group password-group">
                         <input id="password" type="password" name="password" required class="form-input"
                             placeholder="Enter your password">
                         <i class="input-icon fas fa-lock"></i>
+
+                        <span class="toggle-password" onclick="togglePassword()">
+                            <i id="toggleIcon" class="fas fa-eye"></i>
+                        </span>
                     </div>
                     <!-- Login Options -->
                     <div class="login-options">
@@ -172,6 +183,23 @@
             </div>
         </div>
     </div>
+    @if (session('success'))
+        <script>
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+            });
+
+            Toast.fire({
+                icon: 'success',
+                title: '{{ session('success') }}'
+            });
+        </script>
+    @endif
+
     <script>
         // Role tab functionality
         document.querySelectorAll('.role-tab').forEach(tab => {
@@ -195,7 +223,7 @@
                 const notification = document.createElement('div');
                 notification.className = 'error-message';
                 notification.innerHTML =
-                '<i class="fas fa-exclamation-triangle mr-2"></i>Please fill in all fields';
+                    '<i class="fas fa-exclamation-triangle mr-2"></i>Please fill in all fields';
                 // Insert after form
                 this.appendChild(notification);
                 // Remove after 3 seconds
@@ -215,6 +243,21 @@
                 this.parentElement.classList.remove('focused');
             });
         });
+
+        function togglePassword() {
+            const passInput = document.getElementById("password");
+            const toggleIcon = document.getElementById("toggleIcon");
+
+            if (passInput.type === "password") {
+                passInput.type = "text";
+                toggleIcon.classList.remove("fa-eye");
+                toggleIcon.classList.add("fa-eye-slash");
+            } else {
+                passInput.type = "password";
+                toggleIcon.classList.remove("fa-eye-slash");
+                toggleIcon.classList.add("fa-eye");
+            }
+        }
     </script>
 </body>
 

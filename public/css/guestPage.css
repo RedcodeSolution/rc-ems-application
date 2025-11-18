@@ -1440,6 +1440,373 @@ html {
     text-align: center;
 }
 
+/* 1. Define the Desktop Layouts (moved from inline HTML) */
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4xl);
+    align-items: center;
+    width: 100%;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4xl);
+    align-items: center;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-2xl);
+    margin-bottom: var(--space-2xl);
+}
+
+/* 2. Make them Responsive (Stack on Mobile) */
+@media (max-width: 992px) {
+    /* Tablet Adjustments */
+    .hero-grid,
+    .benefits-grid {
+        gap: var(--space-2xl);
+    }
+    
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns on tablet */
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile Adjustments - Stack everything */
+    .hero-grid {
+        grid-template-columns: 1fr; /* Stack vertically */
+        gap: var(--space-xl);
+        text-align: center; /* Center text on mobile */
+    }
+
+    .hero-grid > div:first-child {
+        order: 1; /* Ensure text comes first */
+    }
+    
+    .hero-grid > div:last-child {
+        order: 2; /* Image/Dashboard second */
+        margin-top: var(--space-xl);
+    }
+
+    .benefits-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-xl);
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr; /* 1 column on phone */
+        gap: var(--space-xl);
+        text-align: center;
+    }
+    
+    /* Fix Navbar button crowding */
+    .navbar .d-flex.align-items-center.gap-3 {
+        display: none !important; /* Hide 'Get Started' buttons on mobile */
+    }
+    
+    /* Center the footer text on mobile */
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+.stats-card {
+    padding: var(--space-lg) !important; /* Reduces padding to approx 24px */
+}
+
+/* 2. Make the number font responsive */
+/* Previously fixed at 3.5rem. Now it uses clamp() to resize automatically based on screen width. */
+.stats-number {
+    font-size: clamp(2rem, 4vw, 3rem) !important; 
+    margin-bottom: var(--space-xs);
+}
+
+/* 3. Ensure the grid doesn't squash columns too much */
+.grid-auto-fill {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+    gap: var(--space-lg);
+}
+
+/* 4. Optional: Ensure long numbers don't overflow */
+.stats-number {
+    white-space: nowrap; /* Keeps numbers on one line */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Adds '...' if it still really can't fit (rare) */
+}
+/* Add to the bottom of your CSS file */
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 columns by default */
+    gap: var(--space-4xl);
+    align-items: center;
+    width: 100%;
+}
+
+/* Mobile Responsive Rule */
+@media (max-width: 768px) {
+    .hero-grid {
+        grid-template-columns: 1fr; /* Stack into 1 column on mobile */
+        text-align: center; /* Center the text for better mobile look */
+        gap: var(--space-lg);
+    }
+    
+    /* Fix the order so image doesn't overlap text weirdly if needed */
+    .hero-content {
+        order: 1;
+    }
+}
+
+/* --- 1. PC & LAPTOP VIEW (Default) --- */
+/* Width: 1024px and up */
+.hero-grid,
+.benefits-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 Columns */
+    gap: var(--space-4xl);
+    align-items: center;
+    width: 100%;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 Columns */
+    gap: var(--space-2xl);
+    margin-bottom: var(--space-2xl);
+}
+
+/* --- 2. TABLET & SMALL LAPTOP VIEW --- */
+/* Width: 768px to 1024px */
+@media (max-width: 1024px) {
+    
+    /* Make gaps smaller so it doesn't look too spaced out */
+    .hero-grid,
+    .benefits-grid {
+        gap: var(--space-2xl);
+    }
+
+    /* Footer: Switch from 4 columns to 2 rows of 2 columns */
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr); 
+        gap: var(--space-xl);
+    }
+    
+    /* Adjust Hero Text Size for Tablets */
+    .hero-title {
+        font-size: 3rem; 
+    }
+}
+button:disabled {
+    opacity: 0.5;           /* Make it faded */
+    cursor: not-allowed;    /* Show a 'no' symbol on hover */
+    pointer-events: none;   /* Prevent clicking */
+    box-shadow: none;       /* Remove glowing shadow */
+    transform: none !important; /* Prevent hover movement */
+    filter: grayscale(100%); /* Make it grey */
+}
+
+/* --- 3. MOBILE VIEW --- */
+/* Width: 768px and below */
+@media (max-width: 768px) {
+    
+    /* Stack everything vertically */
+    .hero-grid,
+    .benefits-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: var(--space-xl);
+    }
+    
+    /* Footer: Stack to 1 column */
+    .footer-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+
+}
+
+/* 1. Icon Boxes Styling */
+.benefit-icon-box {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-md);
+    color: white;
+    font-size: 1.5rem;
+}
+
+/* Background Gradients for Icons */
+.bg-primary-gradient { background: var(--gradient-primary); }
+.bg-secondary-gradient { background: var(--gradient-secondary); }
+.bg-accent-gradient { background: var(--gradient-accent); }
+
+/* Text Styling */
+.benefit-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-sm);
+}
+
+.benefit-desc {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* 2. The Right-Side Stats Card (Restores the missing box) */
+.stats-highlight-card {
+    background: linear-gradient(135deg, var(--primary-50) 0%, var(--secondary-50) 100%);
+    border-radius: var(--radius-3xl);
+    padding: var(--space-2xl);
+    border: 1px solid var(--primary-200);
+}
+
+.stats-grid-inner {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xl);
+    margin-bottom: var(--space-2xl);
+}
+
+/* Stats Text Styling */
+.stat-big-text {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: var(--space-sm);
+    font-family: 'Poppins', sans-serif;
+}
+
+.stat-label-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+
+/* 1. The Layout Grid */
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 Columns on Desktop */
+    gap: var(--space-4xl);
+    align-items: start; /* Aligns tops of boxes */
+}
+
+/* 2. Make the Contact Info Box look solid */
+.contact-info-card {
+    background: var(--gray-50);
+    padding: var(--space-2xl);
+    border-radius: var(--radius-2xl);
+    border: 1px solid var(--border-color);
+    height: 100%;
+}
+
+/* 3. NEW: Style the Form Box (White Card) */
+.contact-form-card {
+    background: white;
+    padding: var(--space-2xl);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-lg); /* Adds the shadow "pop" */
+    border: 1px solid var(--border-color);
+}
+
+/* 4. Responsive Mobile View */
+@media (max-width: 992px) {
+    .contact-grid {
+        grid-template-columns: 1fr; /* Stack on Mobile/Tablets */
+        gap: var(--space-xl);
+    }
+    
+    .contact-form-card, 
+    .contact-info-card {
+        padding: var(--space-lg); /* Smaller padding on mobile */
+    }
+}
+
+/* Ensure Inputs are visible */
+.form-control {
+    background-color: var(--gray-50);
+    border: 1px solid var(--border-medium);
+}
+
+.form-control:focus {
+    background-color: white;
+    border-color: var(--primary-500);
+}
+
+
+/* 1. Force 4 Equal Columns on Desktop */
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* This '1fr' is key - it forces full width */
+    gap: var(--space-2xl);
+    margin-bottom: var(--space-2xl);
+    width: 100%;
+}
+
+/* 2. Ensure the Footer Links don't bunch up */
+.footer-section {
+    width: 100%;
+}
+
+/* 3. Bottom Bar Alignment (Left: Copyright, Right: Links) */
+.footer-bottom {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; /* Pushes content to edges */
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: var(--space-xl);
+    margin-top: var(--space-2xl);
+    text-align: left;
+}
+
+/* 4. Mobile Responsive Protection (Keeps mobile view fine) */
+@media (max-width: 992px) {
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns on tablets */
+        gap: var(--space-xl);
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-grid {
+        grid-template-columns: 1fr; /* 1 column on mobile */
+        text-align: center;
+    }
+    
+    .footer-brand {
+        justify-content: center;
+    }
+    
+    .footer-social {
+        justify-content: center;
+    }
+
+    .footer-bottom {
+        flex-direction: column; /* Stack bottom bar on mobile */
+        gap: var(--space-md);
+        text-align: center;
+    }
+}
+
+/* Helper Classes */
+.text-center { text-align: center; }
+.text-primary { color: var(--primary-600); }
+.text-secondary { color: var(--secondary-600); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.mt-6 { margin-top: var(--space-2xl); }
+
 .mb-0 { margin-bottom: 0; }
 .mb-1 { margin-bottom: var(--space-xs); }
 .mb-2 { margin-bottom: var(--space-sm); }
