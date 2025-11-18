@@ -22,7 +22,7 @@ class RegistrationController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'required|email:rfc,dns|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'contact_no' => 'required|string|max:15',
             'role' => 'required|string|in:employee,admin,super_admin',
@@ -76,15 +76,6 @@ class RegistrationController extends Controller
             $user->employee_id = $newEmployee->employee_id;
             $user->save();
         }
-
-        Auth::login($user);
-
-        if ($user->role === 'super_admin') {
-            return redirect()->route('super_admin.dashboard');
-        } elseif ($user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
-        } else {
-            return redirect()->route('employee.dashboard');
-        }
+        return redirect()->route('login')->with('success', 'Account created successfully! Please log in.');
     }
 }

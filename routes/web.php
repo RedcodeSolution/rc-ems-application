@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TeamController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Employee\EmployeeAnnouncementController;
 use App\Http\Controllers\Employee\EmployeeAttendanceController;
 use App\Http\Controllers\Employee\EmployeeDocumentController;
@@ -483,7 +484,7 @@ Route::get('/employee/projects/{project}', [EmployeeProjectController::class, 's
 
 Route::get('/super-admin/dashboard', [SuperAdminOverviewController::class, 'index'])->name('super_admin.dashboard');
 
-
+Route::post('/contact-submit', [ContactController::class, 'submit'])->name('contact.submit');
 
 
 require __DIR__ . '/auth.php';

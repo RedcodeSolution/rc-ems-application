@@ -1,19 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RedCode Solutions - Create Account</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/auth/registerPage.css') }}">
 </head>
+
 <body class="register-container">
+
     <div class="register-split">
+
         <!-- Left Side - Registration Form -->
         <div class="register-form-section">
+            <a href="{{ route('login') }}" class="back-to-login-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <style>
+                .back-to-login-btn {
+                    position: fixed;
+                    top: 20px;
+                    left: 20px;
+                    background: #dc2626;
+                    /* Red-600 */
+                    color: #ffffff;
+                    /* White text */
+                    padding: 10px 18px;
+                    border-radius: 10px;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    text-decoration: none;
+                    box-shadow: 0 2px 12px rgba(220, 38, 38, 0.3);
+                    z-index: 9999;
+                    transition: 0.25s ease;
+                }
+
+                .back-to-login-btn:hover {
+                    background: #b91c1c;
+                    /* Darker red */
+                    box-shadow: 0 4px 14px rgba(185, 28, 28, 0.4);
+                    transform: translateX(-2px);
+                }
+
+                .back-to-login-btn i {
+                    font-size: 14px;
+                }
+            </style>
+
             <div class="register-card">
+
                 <!-- RedCode Logo -->
                 <div class="hrms-logo">
                     <h1 class="hrms-title">RedCode</h1>
@@ -41,15 +83,8 @@
                                 <i class="fas fa-user mr-1"></i>Full Name
                             </label>
                             <div class="relative">
-                                <input
-                                    id="name"
-                                    type="text"
-                                    name="name"
-                                    required
-                                    value="{{ old('name') }}"
-                                    class="form-input"
-                                    placeholder="Enter your full name"
-                                >
+                                <input id="name" type="text" name="name" required value="{{ old('name') }}"
+                                    class="form-input" placeholder="Enter your full name">
                                 <i class="input-icon fas fa-user"></i>
                             </div>
                         </div>
@@ -60,15 +95,8 @@
                                 <i class="fas fa-envelope mr-1"></i>Email Address
                             </label>
                             <div class="relative">
-                                <input
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    required
-                                    value="{{ old('email') }}"
-                                    class="form-input"
-                                    placeholder="Enter your email address"
-                                >
+                                <input id="email" type="email" name="email" required value="{{ old('email') }}"
+                                    class="form-input" placeholder="Enter your email address">
                                 <i class="input-icon fas fa-envelope"></i>
                             </div>
                         </div>
@@ -81,16 +109,9 @@
                                 <i class="fas fa-phone mr-1"></i>Contact Number
                             </label>
                             <div class="relative">
-                                <input
-                                    id="contact_no"
-                                    type="tel"
-                                    name="contact_no"
-                                    required
-                                    value="{{ old('contact_no') }}"
-                                    class="form-input"
-                                    placeholder="Enter your contact number"
-                                    pattern="[0-9]{10,15}"
-                                >
+                                <input id="contact_no" type="tel" name="contact_no" required
+                                    value="{{ old('contact_no') }}" class="form-input"
+                                    placeholder="Enter your contact number" pattern="[0-9]{10,15}">
                                 <i class="input-icon fas fa-phone"></i>
                             </div>
                         </div>
@@ -100,12 +121,7 @@
                             <label for="role" class="form-label">
                                 <i class="fas fa-user-tag mr-1"></i>Role
                             </label>
-                            <select
-                                id="role"
-                                name="role"
-                                required
-                                class="form-select"
-                            >
+                            <select id="role" name="role" required class="form-select">
                                 <option value="" disabled selected>Select your role</option>
                                 <option value="employee" {{ old('role') == 'employee' ? 'selected' : '' }}>
                                     <i class="fas fa-user"></i> Employee - Basic Access
@@ -128,18 +144,13 @@
                                 <i class="fas fa-lock mr-1"></i>Password
                             </label>
                             <div class="relative">
-                                <input
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                    required
-                                    class="form-input"
-                                    placeholder="Create password"
-                                    minlength="8"
-                                >
+                                <input id="password" type="password" name="password" required class="form-input"
+                                    placeholder="Create password" minlength="8">
                                 <i class="input-icon fas fa-lock"></i>
+                                <i class="toggle-password fas fa-eye" data-target="password"></i>
                             </div>
                             <div id="passwordStrength" class="password-strength" style="display: none;"></div>
+
                         </div>
 
                         <!-- Confirm Password Field -->
@@ -148,15 +159,10 @@
                                 <i class="fas fa-check-circle mr-1"></i>Confirm Password
                             </label>
                             <div class="relative">
-                                <input
-                                    id="password_confirmation"
-                                    type="password"
-                                    name="password_confirmation"
-                                    required
-                                    class="form-input"
-                                    placeholder="Confirm password"
-                                >
+                                <input id="password_confirmation" type="password" name="password_confirmation"
+                                    required class="form-input" placeholder="Confirm password">
                                 <i class="input-icon fas fa-check-circle"></i>
+                                <i class="toggle-password fas fa-eye" data-target="password_confirmation"></i>
                             </div>
                         </div>
                     </div>
@@ -189,6 +195,7 @@
                     </div>
                 @endif
 
+
                 <!-- Footer -->
                 <div class="footer-text">
                     <p>© 2024 HRMS. All rights reserved.</p>
@@ -214,7 +221,8 @@
                             <i class="fas fa-users text-white text-xl"></i>
                         </div>
                         <h4 class="feature-title">Team Management</h4>
-                        <p class="feature-description">Organize and manage your workforce efficiently with advanced tools</p>
+                        <p class="feature-description">Organize and manage your workforce efficiently with advanced
+                            tools</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">
@@ -280,10 +288,12 @@
             // Update strength display
             if (strength < 3) {
                 strengthDiv.className = 'password-strength strength-weak';
-                strengthDiv.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i>Weak password. Need: ' + feedback.slice(0, 2).join(', ');
+                strengthDiv.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i>Weak password. Need: ' +
+                    feedback.slice(0, 2).join(', ');
             } else if (strength < 5) {
                 strengthDiv.className = 'password-strength strength-medium';
-                strengthDiv.innerHTML = '<i class="fas fa-shield-alt mr-1"></i>Medium strength. Consider: ' + feedback.slice(0, 1).join(', ');
+                strengthDiv.innerHTML = '<i class="fas fa-shield-alt mr-1"></i>Medium strength. Consider: ' +
+                    feedback.slice(0, 1).join(', ');
             } else {
                 strengthDiv.className = 'password-strength strength-strong';
                 strengthDiv.innerHTML = '<i class="fas fa-check-circle mr-1"></i>Strong password!';
@@ -361,8 +371,10 @@
         // Notification system
         function showNotification(message, type) {
             const notification = document.createElement('div');
-            notification.className = `error-message ${type === 'success' ? 'bg-green-100 border-green-200 text-green-700' : ''}`;
-            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} mr-2"></i>${message}`;
+            notification.className =
+                `error-message ${type === 'success' ? 'bg-green-100 border-green-200 text-green-700' : ''}`;
+            notification.innerHTML =
+                `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} mr-2"></i>${message}`;
 
             // Insert after form
             document.getElementById('registerForm').appendChild(notification);
@@ -386,6 +398,25 @@
                 this.style.background = 'rgba(34, 197, 94, 0.05)';
             }
         });
+
+        // Toggle Password Visibility
+        document.querySelectorAll('.toggle-password').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+
+                if (input.type === "password") {
+                    input.type = "text";
+                    this.classList.remove('fa-eye');
+                    this.classList.add('fa-eye-slash');
+                } else {
+                    input.type = "password";
+                    this.classList.remove('fa-eye-slash');
+                    this.classList.add('fa-eye');
+                }
+            });
+        });
     </script>
 </body>
+
 </html>
