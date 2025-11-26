@@ -377,7 +377,7 @@ Route::middleware(['auth'])->prefix('employee')->name('employee.')->group(functi
         Route::get('/{notifi_id}', [EmployeeNotificationController::class, 'show'])->name('show');                    // View single notification
         Route::post('/{id}/mark-as-read', [EmployeeNotificationController::class, 'markAsRead'])->name('markAsRead'); // Mark one as read
         Route::post('/mark-all-as-read', [EmployeeNotificationController::class, 'markAllAsRead'])->name('markAllAsRead'); // Mark all as read
-        Route::delete('/{id}', [EmployeeNotificationController::class, 'destroy'])->name('destroy');           // Delete notification
+        Route::delete('/{id}', [EmployeeNotificationController::class, 'destroy'])->name('destroy');           // Delete notification     // Delete notification
     });
 });
 

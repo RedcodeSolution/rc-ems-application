@@ -89,11 +89,7 @@
                                     disabled>
                             </div>
 
-                            {{-- <div class="form-group">
-                                <label for="date_of_birth">Date of Birth</label>
-                                <input type="date" id="date_of_birth" name="date_of_birth"
-                                    value="{{ $employee->created_at }}" class="form-control" readonly>
-                            </div> --}}
+
                         </div>
 
                         <div class="form-actions" id="formActions" style="display: none;">
@@ -1566,42 +1562,122 @@
             document.getElementById('date_of_birth').value = '{{ $employee->date_of_birth }}';
         }
 
+        function showError(message) {
+            const existingSuccess = document.querySelector('.success-message');
+            if (existingSuccess) {
+                existingSuccess.remove();
+            }
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'error-message';
+            errorMessage.innerHTML = `
+        <i class="fas fa-exclamation-triangle"></i>
+        ${message}
+    `;
+            errorMessage.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #dc3545; /* Bootstrap Red */
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    `;
+
+            document.body.appendChild(errorMessage);
+
+            setTimeout(() => {
+                errorMessage.remove();
+            }, 5000);
+        }
+
+
         function saveProfile() {
-            // Show success message
             const form = document.getElementById('profileForm');
+
+            // Get input elements and their trimmed values
+            const nameInput = document.getElementById('employee_name');
+            const nameValue = nameInput.value.trim();
+
+            const emailInput = document.getElementById('email');
+            const emailValue = emailInput.value.trim();
+
+            const contactNoInput = document.getElementById('contact_no');
+            const contactNoValue = contactNoInput.value.trim();
+
+            // 1. Employee Name Validation (Must not be empty)
+            if (nameValue === '') {
+                showError('Full Name cannot be empty.');
+                nameInput.focus();
+                return; // Stop submission
+            }
+
+
+            // 2. Email Validation (Must not be empty and must be a valid format)
+            if (emailValue === '') {
+                showError('Email Address cannot be empty.');
+                emailInput.focus();
+                return; // Stop submission
+            }
+
+            // Regex for basic email format (user@domain.ext)
+            // This is a simple check; server-side is always more robust.
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!emailRegex.test(emailValue)) {
+                showError('Please enter a valid email address.');
+                emailInput.focus();
+                return; // Stop submission
+            }
+
+            // 3. Contact Number Validation (Must not be empty and must be a valid format)
+            if (contactNoValue === '') {
+                showError('Contact Number cannot be empty.');
+                contactNoInput.focus();
+                return; // Stop submission
+            }
+
+            const phoneRegex = /^[0-9\s\-\(\)]{10,20}$/;
+
+            if (!phoneRegex.test(contactNoValue)) {
+                showError('Please enter a valid contact number (10-20 characters, digits only).');
+                contactNoInput.focus();
+                return; // Stop submission
+            }
+
+            // Show success message (Your original code)
             const successMessage = document.createElement('div');
             successMessage.className = 'success-message';
-            successMessage.innerHTML = `
-            <i class="fas fa-check-circle"></i>
-            Profile updated successfully!
-        `;
+            successMessage.innerHTML = `<i class="fas fa-check-circle"></i> Profile updated successfully!`;
+            // ... (rest of successMessage CSS) ...
             successMessage.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--redcode-green);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: var(--shadow-lg);
-            z-index: 1000;
-            animation: slideIn 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        `;
-
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: var(--redcode-green);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-lg);
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    `;
             document.body.appendChild(successMessage);
-            // Auto remove after 3 seconds
 
+            // Submit form after a brief delay
             setTimeout(() => {
                 form.submit();
                 successMessage.remove();
-            }, 3000);
-
-            // Exit edit mode
+            }, 300);
         }
-
         // Add keyframe animation for success message
         const style = document.createElement('style');
         style.textContent = `
