@@ -18,13 +18,17 @@ class EmployeeDocumentController extends Controller
         $employeeId = Auth::user()?->employee_id;
         $user = Auth::user();
 
+        // All personal documents (used for statistics)
+        $allDocuments = EmployeeDocument::where('employee_id', $user->employee_id)->get();
+
+        // Paginated personal documents (used for grid display)
         $documents = EmployeeDocument::where('employee_id', $user->employee_id)
             ->paginate(6);
 
+        // Company documents assigned to employee
         if (!$employeeId) {
             $employeeDocuments = collect(); // empty collection
         } else {
-            // Fetch documents assigned to this employee with department and project info
             $employeeDocuments = DB::table('documents')
                 ->join('projects', 'documents.project_id', '=', 'projects.project_id')
                 ->join('employee_project', 'projects.project_id', '=', 'employee_project.project_id')
@@ -46,7 +50,12 @@ class EmployeeDocumentController extends Controller
                 ->where('employee_project.employee_id', $employeeId)
                 ->get();
         }
-        return view('employees.documents.index', compact('documents', 'employeeDocuments'));
+
+        return view('employees.documents.index', compact(
+            'documents',          // paginated
+            'employeeDocuments',  // company docs
+            'allDocuments'        // all personal docs for stats
+        ));
     }
 
 
@@ -130,7 +139,8 @@ class EmployeeDocumentController extends Controller
 
         Mail::to($userEmail)->send(new ShareDocumentMail($document));
 
-        return back()->with('success', 'Document sent successfully!');
+        return redirect()->route('employee.documents')
+            ->with('success', 'Document sent successfully!');
     }
 
 

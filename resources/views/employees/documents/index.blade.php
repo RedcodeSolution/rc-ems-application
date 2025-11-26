@@ -27,21 +27,22 @@
 
         <!-- Documents Statistics -->
         <div class="documents-stats">
+
+            {{-- Total Documents --}}
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-file-alt"></i>
                 </div>
                 <div class="stat-info">
-                    <h3>{{ $documents->count() }}</h3>
+                    <h3>{{ $allDocuments->count() }}</h3>
                     <p>Total Documents</p>
                 </div>
             </div>
 
             @php
-                // Sum all file_size in bytes
-                $totalSizeBytes = $documents->sum('file_size');
+                // Total storage
+                $totalSizeBytes = $allDocuments->sum('file_size');
 
-                // Convert bytes to human-readable format
                 function formatBytes($bytes, $precision = 2)
                 {
                     $units = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -54,12 +55,14 @@
 
                 $totalStorage = formatBytes($totalSizeBytes);
             @endphp
+
+            {{-- Storage Used --}}
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-cloud-upload-alt"></i>
                 </div>
                 <div class="stat-info">
-                    <h3> {{ $totalStorage }}</h3>
+                    <h3>{{ $totalStorage }}</h3>
                     <p>Storage Used</p>
                 </div>
             </div>
@@ -67,15 +70,16 @@
             @php
                 use Carbon\Carbon;
 
-                // Define recent period (e.g., last 7 days)
+                // Recent 7 days uploads
                 $recentDays = 7;
-                $recentUploadsCount = $documents
+                $recentUploadsCount = $allDocuments
                     ->filter(function ($doc) use ($recentDays) {
                         return $doc->created_at >= Carbon::now()->subDays($recentDays);
                     })
                     ->count();
             @endphp
 
+            {{-- Recent Uploads --}}
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-clock"></i>
@@ -87,14 +91,11 @@
             </div>
 
             @php
-                // Ensure $documents is a Collection
-                $documentsCollection =
-                    $documents instanceof \Illuminate\Support\Collection ? $documents : collect($documents);
-
-                // Count shared files (assuming 'is_shared' = 1 means shared)
-                $sharedFilesCount = $documentsCollection->where('is_shared', 1)->count();
+                // Shared files
+                $sharedFilesCount = $allDocuments->where('is_shared', 1)->count();
             @endphp
 
+            {{-- Shared Files --}}
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-share-alt"></i>
@@ -111,9 +112,10 @@
             <h2>Document Categories</h2>
             <div class="categories-grid">
 
+                {{-- Personal --}}
                 @php
-                    $categoryName = 'personal'; // the category you want to count
-                    $categoryCount = $documents->where('category', $categoryName)->count();
+                    $categoryName = 'personal';
+                    $categoryCount = $allDocuments->where('category', $categoryName)->count();
                 @endphp
                 <div class="category-card" data-category="{{ $categoryName }}">
                     <div class="category-icon">
@@ -125,9 +127,10 @@
                     </div>
                 </div>
 
+                {{-- Contracts --}}
                 @php
-                    $categoryName = 'contracts'; // the category you want to count
-                    $categoryCount = $documents->where('category', $categoryName)->count();
+                    $categoryName = 'contracts';
+                    $categoryCount = $allDocuments->where('category', $categoryName)->count();
                 @endphp
                 <div class="category-card" data-category="{{ $categoryName }}">
                     <div class="category-icon">
@@ -139,9 +142,10 @@
                     </div>
                 </div>
 
+                {{-- Certificates --}}
                 @php
-                    $categoryName = 'certificates'; // the category you want to count
-                    $categoryCount = $documents->where('category', $categoryName)->count();
+                    $categoryName = 'certificates';
+                    $categoryCount = $allDocuments->where('category', $categoryName)->count();
                 @endphp
                 <div class="category-card" data-category="{{ $categoryName }}">
                     <div class="category-icon">
@@ -153,9 +157,10 @@
                     </div>
                 </div>
 
+                {{-- Reports --}}
                 @php
-                    $categoryName = 'reports'; // the category you want to count
-                    $categoryCount = $documents->where('category', $categoryName)->count();
+                    $categoryName = 'reports';
+                    $categoryCount = $allDocuments->where('category', $categoryName)->count();
                 @endphp
                 <div class="category-card" data-category="{{ $categoryName }}">
                     <div class="category-icon">
@@ -166,8 +171,10 @@
                         <p>{{ $categoryCount }} files</p>
                     </div>
                 </div>
+
             </div>
         </div>
+
 
         <!-- Search and Filter -->
         <div class="documents-controls">
@@ -187,10 +194,15 @@
                     <select id="typeFilter" class="filter-select">
                         <option value="">All Types</option>
                         <option value="pdf">PDF</option>
-                        <option value="doc">Word Document</option>
-                        <option value="img">Image</option>
-                        <option value="xls">Excel</option>
+                        <option value="doc">DOC</option>
+                        <option value="docx">DOCX</option>
+                        <option value="xls">XLS</option>
+                        <option value="xlsx">XLSX</option>
+                        <option value="jpg">JPG</option>
+                        <option value="jpeg">JPEG</option>
+                        <option value="png">PNG</option>
                     </select>
+
                 </div>
             </div>
         </div>
@@ -1331,8 +1343,49 @@
                 grid-template-columns: 1fr;
             }
         }
-    </style>
 
+        /* LIST VIEW FIX */
+        #documentsGrid.list-view {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 1rem !important;
+        }
+
+        /* Make cards horizontal */
+        #documentsGrid.list-view .document-card {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 1rem !important;
+            width: 100% !important;
+        }
+
+        /* File icon box */
+        #documentsGrid.list-view .document-card>div:first-child {
+            margin-right: 1rem;
+        }
+
+        /* Title + info in a row */
+        #documentsGrid.list-view .document-info {
+            flex: 1 !important;
+            text-align: left !important;
+        }
+
+        /* Meta arranged horizontally */
+        #documentsGrid.list-view .document-meta {
+            display: flex !important;
+            gap: 1.5rem !important;
+            margin: 0 !important;
+        }
+
+        /* Actions right-aligned */
+        #documentsGrid.list-view .document-actions {
+            display: flex !important;
+            gap: 0.75rem;
+            margin-left: 1rem;
+        }
+    </style>
     <script>
         let currentViewMode = 'grid';
 
@@ -1341,16 +1394,14 @@
             const icon = document.getElementById('viewModeIcon');
             const text = document.getElementById('viewModeText');
 
-            if (currentViewMode === 'grid') {
-                grid.classList.add('list-view');
-                icon.className = 'fas fa-th-list';
-                text.textContent = 'List View';
-                currentViewMode = 'list';
-            } else {
+            if (grid.classList.contains('list-view')) {
                 grid.classList.remove('list-view');
                 icon.className = 'fas fa-th-large';
                 text.textContent = 'Grid View';
-                currentViewMode = 'grid';
+            } else {
+                grid.classList.add('list-view');
+                icon.className = 'fas fa-th-list';
+                text.textContent = 'List View';
             }
         }
 
@@ -1362,57 +1413,6 @@
             document.getElementById('uploadModal').classList.remove('active');
         }
 
-        // function uploadDocument() {
-        //     // Get selected files and input values
-        //     let files = document.getElementById('fileInput').files;
-        //     let category = document.getElementById('documentCategory').value;
-        //     let description = document.getElementById('documentDescription').value;
-        //
-        //     if (files.length === 0) {
-        //         alert('Please select at least one file.');
-        //         return;
-        //     }
-        //
-        //     // Create FormData object
-        //     let formData = new FormData();
-        //
-        //     for (let i = 0; i < files.length; i++) {
-        //         formData.append('files[]', files[i]); // multiple files
-        //     }
-        //
-        //     formData.append('category', category);
-        //     formData.append('description', description);
-        //     formData.append('employee_id', document.querySelector('meta[name="user-id"]').content); // use meta tag for dynamic user id
-        //
-        //     // Send AJAX request to backend
-        //     fetch('/employees/documents/store', { // adjust URL if different
-        //         method: 'POST',
-        //         headers: {
-        //             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        //         },
-        //         body: formData
-        //     })
-        //         .then(async response => {
-        //             if (!response.ok) {
-        //                 const errText = await response.text();
-        //                 throw new Error(errText);
-        //             }
-        //             return response.json();
-        //         })
-        //         .then(data => {
-        //             if (data.success) {
-        //                 alert(data.message);
-        //                 closeUploadModal(); // close the modal
-        //                 location.reload();  // reload page to show new documents
-        //             } else {
-        //                 alert(data.message || 'Upload failed.');
-        //             }
-        //         })
-        //         .catch(err => {
-        //             console.error('Upload error:', err);
-        //             alert('An error occurred while uploading. Check console for details.');
-        //         });
-        // }
 
         document.getElementById('document_file').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -1466,28 +1466,6 @@
             // Open the document in a new browser tab
             window.open(fileUrl, '_blank');
         }
-
-        // function shareDocument(documentId) {
-        //     fetch(`/employee-documents/share/${documentId}`, {
-        //         method: 'GET',
-        //         credentials: 'same-origin',
-        //         headers: { 'Accept': 'application/json' }
-        //     })
-        //         .then(response => {
-        //             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        //             return response.json();
-        //         })
-        //         .then(data => {
-        //             const shareUrl = data.share_url;
-        //             navigator.clipboard.writeText(shareUrl)
-        //                 .then(() => alert(`Share link copied:\n${shareUrl}`))
-        //                 .catch(() => alert(`Share link: ${shareUrl}`));
-        //         })
-        //         .catch(err => {
-        //             console.error(err);
-        //             alert('Failed to generate share link. Check console.');
-        //         });
-        // }
 
         function showMessage(message, type) {
             const messageDiv = document.createElement('div');
@@ -1565,25 +1543,6 @@
             });
         });
 
-        // Drag and drop functionality
-        // const uploadArea = document.getElementById('uploadArea');
-
-        // uploadArea.addEventListener('dragover', function(e) {
-        //     e.preventDefault();
-        //     this.classList.add('dragover');
-        // });
-        //
-        // uploadArea.addEventListener('dragleave', function(e) {
-        //     e.preventDefault();
-        //     this.classList.remove('dragover');
-        // });
-        //
-        // uploadArea.addEventListener('drop', function(e) {
-        //     e.preventDefault();
-        //     this.classList.remove('dragover');
-        //     const files = e.dataTransfer.files;
-        //     document.getElementById('fileInput').files = files;
-        // });
 
         // Close modal when clicking outside
         document.getElementById('uploadModal').addEventListener('click', function(e) {
@@ -1639,4 +1598,23 @@
     `;
         document.head.appendChild(style);
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            @if (session('success'))
+                Swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    icon: "success",
+                    title: "{{ session('success') }}",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            @endif
+        });
+    </script>
+
 @endsection
