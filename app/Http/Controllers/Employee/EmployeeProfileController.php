@@ -62,9 +62,26 @@ class EmployeeProfileController extends Controller
     {
         $user = Auth::user();
         $validated = $request->validate([
-            'employee_name' => 'nullable|string|max:255',
-            'contact_no' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'employee_name' => 'required|string|max:255',
+            'contact_no' => [
+                'required',
+                'nullable',
+                'string',
+                'max:20',
+                'regex:/^[0-9\s\-\(\)]+$/',
+                'min:10',
+            ],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+            ]
+        ]);
+
+        $user->update([
+            'name'       => $validated['employee_name'],
+            'email'      => $validated['email'],
+            'contact_no' => $validated['contact_no'],
         ]);
 
         if ($user->employee) {

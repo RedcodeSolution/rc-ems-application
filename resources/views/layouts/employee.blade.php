@@ -24,6 +24,7 @@
 
     <link rel="stylesheet" href="{{ asset('build/assets/app-CObZ5BOq.css') }}">
     <link rel="stylesheet" href="{{ asset('css/Employee/employee_side_bar.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -142,7 +143,8 @@
                     </span>
                 </a>
 
-                <div class="user-menu">
+                <a href="{{ route('employee.profile') }}" class="user-menu"
+                    style="text-decoration: none; color: inherit;">
                     <div class="user-avatar">
                         {{ strtoupper(substr(auth()->user()?->name ?? 'E', 0, 1)) }}
                     </div>
@@ -150,12 +152,12 @@
                         <h4>{{ auth()->user()?->name ?? 'Employee' }}</h4>
                         <p>{{ auth()->user()?->email ?? 'employee@company.com' }}</p>
                     </div>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
+                </a>
 
-                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+
+                <form method="POST" action="{{ route('logout') }}" style="display: inline;" id="logoutForm">
                     @csrf
-                    <button type="submit" class="btn btn-primary">
+                    <button type="button" class="btn btn-primary" onclick="confirmLogout()">
                         <i class="fas fa-sign-out-alt"></i>
                         Logout
                     </button>
@@ -173,6 +175,9 @@
                 <div class="modal-dropdown-header">
                     <h3><i class="fas fa-bell"></i> Notifications</h3>
                     <button class="modal-close" id="closenotificationModalDrop">&times;</button>
+                    <button id="markAllBtn" class="btn btn-warning btn-sm" style="float:right;">
+                        Mark All as Read
+                    </button>
                 </div>
                 <div class="modal-dropdown-body" id="latestNotifications">
                     <p style="text-align:center; color: gray;">Loading...</p>
@@ -183,104 +188,224 @@
     </div>
 
     <script>
+        /* ============================
+                                                           SIDEBAR TOGGLE
+                                                        ============================ */
         function toggleSidebar() {
             const sidebar = document.querySelector('.sidebar');
             sidebar.classList.toggle('active');
         }
-        // Close sidebar when clicking outside on mobile
+
         document.addEventListener('click', function(e) {
             const sidebar = document.querySelector('.sidebar');
             const toggleButton = document.querySelector('.sidebar-toggle');
 
-            if (window.innerWidth <= 1024 && !sidebar.contains(e.target) && !toggleButton?.contains(e.target)) {
+            if (window.innerWidth <= 1024 &&
+                !sidebar.contains(e.target) &&
+                !toggleButton?.contains(e.target)) {
                 sidebar.classList.remove('active');
             }
         });
 
 
-        document.addEventListener('DOMContentLoaded', function() {
-            var bellBtn = document.getElementById('navBellBtn');
-            var modal = document.getElementById('notificationModalDrop');
-            var closeBtn = document.getElementById('closenotificationModalDrop');
-            var bg = modal ? modal.querySelector('.modal-dropdown-bg') : null;
-            var body = modal ? modal.querySelector('.modal-dropdown-body') : null;
+        // Load unread notifications
+        function loadLatestNotifications() {
+            let modal = document.getElementById('notificationModalDrop');
+            let body = modal.querySelector('.modal-dropdown-body');
 
-            function closeModal() {
-                if (modal) modal.style.display = 'none';
-            }
+            body.innerHTML = `<p style="padding:10px;">Loading...</p>`;
 
-            function loadLatestNotifications() {
-                if (!body) return;
+            fetch("{{ route('employee.notifications.latest') }}")
+                .then(res => res.json())
+                .then(data => {
+                    body.innerHTML = "";
 
-                body.innerHTML = `<p style="padding:10px;">Loading...</p>`; // loader
+                    if (!data.length) {
+                        body.innerHTML =
+                            `<p style="padding:10px; text-align:center; color:gray;">No unread notifications</p>`;
+                        document.querySelector(".nav-bell-dot").style.display = "none";
+                        return;
+                    }
 
-                fetch("{{ route('employee.notifications.latest') }}")
-                    .then(res => res.json())
-                    .then(data => {
-                        body.innerHTML = "";
+                    document.querySelector(".nav-bell-dot").style.display = "block";
 
-                        if (!data.length) {
-                            body.innerHTML = `<p style="padding:10px;">No notifications</p>`;
-                            return;
-                        }
-
-                        data.forEach(n => {
-                            body.innerHTML += `
-                        <div class="notification-item">
+                    data.forEach(n => {
+                        body.innerHTML += `
+                        <div class="notification-item unread" data-id="${n.notifi_id}">
                             <div>
-                                <div class="notification-title">${n.type ?? 'Notification'}</div>
-                                <div class="notification-desc">${n.message ?? ''}</div>
+                                <div class="notification-title">${n.type}</div>
+                                <div class="notification-desc">${n.message}</div>
                                 <div class="notification-meta">
-                                    <i class="fas fa-clock"></i>
+                                    <i class="fas fa-clock"></i> 
                                     ${new Date(n.created_at).toLocaleString()}
                                 </div>
                             </div>
+
                             <div class="notification-actions">
-                                <a href="/employee/notifications"
-                                   class="btn btn-info btn-sm">View</a>
+                                <button class="icon-btn mark-btn" title="Mark as Read"
+                                    onclick="markAsRead('${n.notifi_id}')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+
+                                <button class="icon-btn delete-btn" title="Delete"
+                                   onclick="deleteNotification('${n.notifi_id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </div>
                     `;
-                        });
-                    })
-                    .catch(err => {
-                        console.error("Error fetching notifications:", err);
-                        body.innerHTML = `<p style="padding:10px; color:red;">Error loading notifications</p>`;
                     });
-            }
-
-            if (bellBtn && modal && closeBtn) {
-                bellBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-
-                    // Toggle dropdown
-                    if (modal.style.display === 'none' || modal.style.display === '') {
-                        modal.style.display = 'flex';
-                        loadLatestNotifications();
-                    } else {
-                        closeModal();
-                    }
                 });
+        }
 
-                closeBtn.addEventListener('click', closeModal);
 
-                if (bg) {
-                    bg.addEventListener('click', closeModal);
+        // Mark one notification as read
+        function markAsRead(id) {
+            fetch(`/employee/notifications/${id}/mark-as-read`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    }
+                })
+                .then(() => {
+                    loadLatestNotifications();
+                    refreshBellDot();
+                })
+                .catch(err => console.error("Mark as read error:", err));
+        }
+
+
+        // Delete notification
+        function deleteNotification(id) {
+
+            document.getElementById('notificationModalDrop').style.display = "none";
+
+            Swal.fire({
+                title: "Delete Notification?",
+                text: "This action cannot be undone.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DC2626",
+                cancelButtonColor: "#6B7280",
+                confirmButtonText: "Yes, Delete",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    fetch(`/employee/notifications/${id}`, {
+                            method: "DELETE",
+                            headers: {
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(() => {
+
+                            loadLatestNotifications();
+                            refreshBellDot();
+
+                            Swal.fire({
+                                icon: "success",
+                                title: "Deleted!",
+                                text: "Notification has been deleted.",
+                                timer: 1200,
+                                showConfirmButton: false
+                            });
+                        });
                 }
+            });
+        }
 
-                document.addEventListener('mousedown', function(e) {
-                    if (
-                        modal.style.display === 'flex' &&
-                        !modal.querySelector('.modal-dropdown-content').contains(e.target) &&
-                        e.target !== bellBtn &&
-                        !bellBtn.contains(e.target)
-                    ) {
-                        closeModal();
-                    }
+
+
+
+        // Update bell dot
+        function refreshBellDot() {
+            fetch("{{ route('employee.notifications.latest') }}")
+                .then(res => res.json())
+                .then(data => {
+                    const dot = document.querySelector(".nav-bell-dot");
+                    dot.style.display = data.length > 0 ? "block" : "none";
                 });
-            }
+        }
+
+        setInterval(refreshBellDot, 8000); // auto refresh
+
+
+
+        /* ============================
+           DOM READY EVENT
+        ============================ */
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Notification icon click
+            const bellBtn = document.getElementById('navBellBtn');
+            const modal = document.getElementById('notificationModalDrop');
+            const closeBtn = document.getElementById('closenotificationModalDrop');
+
+            bellBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                if (modal.style.display === "flex") {
+                    modal.style.display = "none";
+                } else {
+                    modal.style.display = "flex";
+                    loadLatestNotifications();
+                }
+            });
+
+            closeBtn.addEventListener("click", () => modal.style.display = "none");
+
+            // Outside click close
+            modal.addEventListener("click", function(e) {
+                if (e.target.classList.contains("modal-dropdown-bg")) {
+                    modal.style.display = "none";
+                }
+            });
+
+            refreshBellDot();
         });
+
+
+
+        /* ============================
+           MARK ALL READ
+        ============================ */
+        document.getElementById("markAllBtn")?.addEventListener("click", function() {
+            fetch("{{ route('employee.notifications.markAllAsRead') }}", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                }
+            }).then(() => {
+                loadLatestNotifications();
+                refreshBellDot();
+            });
+        });
+
+
+
+        /* ============================
+           LOGOUT CONFIRMATION
+        ============================ */
+        function confirmLogout() {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You will be logged out.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DC2626",
+                cancelButtonColor: "#6B7280",
+                confirmButtonText: "Logout",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logoutForm').submit();
+                }
+            });
+        }
     </script>
+
     @stack('scripts')
 </body>
 

@@ -943,7 +943,7 @@
                 <button class="modal-close" onclick="closeApplyLeaveModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="applyLeaveForm" method="POST" action="{{ route('leaves.store') }}"
+                <form id="applyLeaveForm" method="POST" action="{{ route('admin.leaves.create') }}"
                     enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="_method" id="formMethod" value="POST">

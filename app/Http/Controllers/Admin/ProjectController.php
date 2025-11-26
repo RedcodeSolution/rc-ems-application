@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Employee;
+use App\Models\Notification;
 use App\Models\Project;
 use App\Models\Team;
 use App\Services\NotificationService;
@@ -25,12 +26,6 @@ class ProjectController extends Controller
         return view('admin.projects.index', compact('projects', 'teams', 'departments', 'employees'));
     }
 
-
-    public function create()
-    {
-        $teams = Team::all();
-        return view('admin.projects.create', compact('teams'));
-    }
 
     public function store(Request $request)
     {
@@ -71,13 +66,26 @@ class ProjectController extends Controller
             foreach ($team->employees as $employee) {
 
                 switch ($project->status) {
-                    case 'Planning': $progress = 10; break;
-                    case 'In Progress': $progress = 50; break;
-                    case 'On Hold': $progress = 30; break;
-                    case 'Testing': $progress = 70; break;
-                    case 'Completed': $progress = 100; break;
-                    case 'Cancelled': $progress = 0; break;
-                    default: $progress = 0;
+                    case 'Planning':
+                        $progress = 10;
+                        break;
+                    case 'In Progress':
+                        $progress = 50;
+                        break;
+                    case 'On Hold':
+                        $progress = 30;
+                        break;
+                    case 'Testing':
+                        $progress = 70;
+                        break;
+                    case 'Completed':
+                        $progress = 100;
+                        break;
+                    case 'Cancelled':
+                        $progress = 0;
+                        break;
+                    default:
+                        $progress = 0;
                 }
 
                 $role = $employee->role ?? ($employee->employee_id == $team->team_lead ? 'Team Lead' : 'Member');
@@ -91,6 +99,30 @@ class ProjectController extends Controller
                 ]);
             }
         }
+
+        // --- Send Notifications to Employees in Team ---
+        foreach ($team->employees as $employee) {
+
+            // Generate Notification ID
+            $lastNotification = Notification::orderBy('notifi_id', 'desc')->first();
+            if ($lastNotification) {
+                $num = intval(substr($lastNotification->notifi_id, 5));
+                $newNotiId = 'NOTI-' . str_pad($num + 1, 5, '0', STR_PAD_LEFT);
+            } else {
+                $newNotiId = 'NOTI-00001';
+            }
+
+            Notification::create([
+                'notifi_id' => $newNotiId,
+                'user_id'   => $employee->user_id,
+                'title'     => 'New Project Assigned',
+                'message'   => "You have been assigned to the project: {$project->project_name}.",
+                'type'      => 'project',
+                'is_read'   => 0,
+                'target' => 'empoyee'
+            ]);
+        }
+
 
         return redirect()->route('admin.projects.index')->with('success', 'Project created successfully!');
     }

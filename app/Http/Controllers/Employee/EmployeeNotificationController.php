@@ -125,7 +125,9 @@ class EmployeeNotificationController extends Controller
     public function latest()
     {
         $user = Auth::user();
+
         $latestNotifications = Notification::where('target', 'employee')
+            ->where('is_read', 0) // 0 = unread
             ->where(function ($query) use ($user) {
                 $query->whereNull('user_id')
                     ->orWhere('user_id', $user->id);
@@ -136,6 +138,7 @@ class EmployeeNotificationController extends Controller
 
         return response()->json($latestNotifications);
     }
+
 
     /**
      * Delete a notification
@@ -163,5 +166,20 @@ class EmployeeNotificationController extends Controller
             'success' => true,
             'message' => 'Notification deleted successfully'
         ]);
+    }
+
+    public function unread()
+    {
+        $user = Auth::user();
+
+        $unreadNotifications = Notification::where('target', 'employee')
+            ->where('is_read', false)
+            ->where(function ($q) use ($user) {
+                $q->whereNull('user_id')->orWhere('user_id', $user->id);
+            })
+            ->latest()
+            ->get();
+
+        return response()->json($unreadNotifications);
     }
 }

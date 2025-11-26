@@ -17,6 +17,7 @@ use App\Models\Team;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeOverviewController extends Controller
 {
@@ -82,12 +83,25 @@ class EmployeeOverviewController extends Controller
         $tasks = Tasks::whereIn('project_id', $projectIds)->get();
 
         // --- Announcements ---
-        $announcements = Announcement::whereJsonContains('target_audience', ['all'])
-            ->where('status', 'published')
+        $details = DB::table('employee_announcement_details')
+            ->where('employee_id', $employeeId)
+            ->select('announcement_id', 'is_read')
+            ->get();
+
+        $announcementIds = $details->pluck('announcement_id');
+
+        $announcements = Announcement::whereIn('announcement_id', $announcementIds)
             ->orderBy('priority', 'desc')
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
+
+        // attach read flag
+        $announcements->map(function ($a) use ($details) {
+            $detail = $details->firstWhere('announcement_id', $a->announcement_id);
+            $a->is_read = $detail ? $detail->is_read : 0;
+            return $a;
+        });
 
         // --- Attendance Chart Data ---
         $attendanceData = collect();
