@@ -1231,7 +1231,7 @@ body {
 
     .table tbody td {
         display: table-cell;
-        padding: 1.25rem 1.5rem;
+        padding: 1.25rem 1.4rem;
         font-size: 1.05rem;
         align-items: center;
         border: none;
@@ -1245,7 +1245,7 @@ body {
 
     /* Fix actions column visibility and icon/button scaling */
     .table tbody td[data-label="Actions"] {
-        min-width: 140px;
+        min-width: 200px;
     }
 
     .table tbody td[data-label="Actions"] .btn {

@@ -8,20 +8,18 @@
     <div class="card">
         <div class="card-header">
             <h2><i class="fas fa-calendar-check"></i> Attendance Count</h2>
-            <div class="flex gap-2">
-                <a href="#" class="btn btn-secondary" id="exportAttendanceBtn"><i class="fas fa-download"></i> Export</a>
-            </div>
         </div>
 
         <div class="card-body" style="padding:1rem;">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1rem;">
-                <div>
-                    <p style="margin:0;color:var(--text-secondary);">Admin view — name, check in, check out, status, total
-                        hours, date</p>
+            <div class="admin-header">
+                <div class="admin-header-left">
+                    <p>Admin view hours, date</p>
                 </div>
-                <div style="display:flex;gap:0.5rem;align-items:center;">
+
+                <div class="admin-header-right">
                     <input id="adminSearch" class="form-control" placeholder="Search name or date..."
                         style="min-width:220px;">
+
                     <select id="adminStatus" class="filter-select">
                         <option value="">All Status</option>
                         <option value="present">Present</option>
@@ -30,9 +28,13 @@
                         <option value="halfday">Half Day</option>
                         <option value="overtime">Overtime</option>
                     </select>
-                    <button class="btn btn-secondary" id="reloadBtn"><i class="fas fa-sync"></i> Refresh</button>
+
+                    <button class="btn btn-secondary" id="reloadBtn">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
                 </div>
             </div>
+
 
             <div style="overflow:auto;">
                 <table class="table" id="attendanceTable" style="width:100%; border-collapse:collapse; min-width:900px;">
@@ -198,30 +200,49 @@
                     });
                 }
 
+
                 window.openAdminDetails = function(id) {
-                    const row = Array.from(document.querySelectorAll('#attendanceTbody tr')).find(r => r.style
-                        .display !== 'none' && (id === '' || r.innerHTML.includes(id)));
+                    const row = Array.from(document.querySelectorAll('#attendanceTbody tr'))
+                        .find(r => r.style.display !== 'none' && (id === '' || r.innerHTML.includes(id)));
+
                     if (row) {
                         const cells = row.querySelectorAll('td');
                         const html = `
-                <div class="summary-item"><span class="summary-label">Name:</span><span class="summary-value">${escapeHtml(cells[0].innerText)}</span></div>
-                <div class="summary-item"><span class="summary-label">Check In:</span><span class="summary-value">${escapeHtml(cells[1].innerText)}</span></div>
-                <div class="summary-item"><span class="summary-label">Check Out:</span><span class="summary-value">${escapeHtml(cells[2].innerText)}</span></div>
-                <div class="summary-item"><span class="summary-label">Status:</span><span class="summary-value">${escapeHtml(cells[3].innerText)}</span></div>
-                <div class="summary-item"><span class="summary-label">Total Hours:</span><span class="summary-value">${escapeHtml(cells[4].innerText)}</span></div>
-                <div class="summary-item"><span class="summary-label">Date:</span><span class="summary-value">${escapeHtml(cells[5].innerText)}</span></div>
-            `;
+            <div class="summary-item"><span class="summary-label">Name:</span><span class="summary-value">${escapeHtml(cells[0].innerText)}</span></div>
+            <div class="summary-item"><span class="summary-label">Check In:</span><span class="summary-value">${escapeHtml(cells[1].innerText)}</span></div>
+            <div class="summary-item"><span class="summary-label">Check Out:</span><span class="summary-value">${escapeHtml(cells[2].innerText)}</span></div>
+            <div class="summary-item"><span class="summary-label">Status:</span><span class="summary-value">${escapeHtml(cells[3].innerText)}</span></div>
+            <div class="summary-item"><span class="summary-label">Total Hours:</span><span class="summary-value">${escapeHtml(cells[4].innerText)}</span></div>
+            <div class="summary-item"><span class="summary-label">Date:</span><span class="summary-value">${escapeHtml(cells[5].innerText)}</span></div>
+        `;
                         document.getElementById('adminModalBody').innerHTML = html;
                     } else {
                         document.getElementById('adminModalBody').innerHTML =
-                            `<p style="color:var(--text-secondary)">No details available locally. Implement backend detail endpoint to load full details.</p>`;
+                            `<p style="color:var(--text-secondary)">No details available locally.</p>`;
                     }
-                    document.getElementById('adminAttendanceModal').classList.add('active');
+
+                    const modal = document.getElementById('adminAttendanceModal');
+
+                    // FIX: ensure modal is displayed
+                    modal.style.display = "flex";
+
+                    // allow CSS transition to apply
+                    setTimeout(() => {
+                        modal.classList.add('active');
+                    }, 10);
                 };
 
+
+
                 window.closeAdminModal = function() {
-                    document.getElementById('adminAttendanceModal').classList.remove('active');
+                    const modal = document.getElementById('adminAttendanceModal');
+                    modal.classList.remove('active');
+
+                    setTimeout(() => {
+                        modal.style.display = "none";
+                    }, 250);
                 };
+
 
                 searchEl.addEventListener('input', applyFilters);
                 statusEl.addEventListener('change', applyFilters);

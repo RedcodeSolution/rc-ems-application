@@ -12,10 +12,6 @@
                     <i class="fas fa-plus"></i>
                     New Project
                 </button>
-                {{-- <button class="btn btn-secondary">
-                    <i class="fas fa-download"></i>
-                    Export
-                </button> --}}
             </div>
         </div>
         <div class="card-body">
@@ -529,223 +525,84 @@
 
         </div>
 
-        <!-- Project Creation Modal -->
-        <div id="projectModal" class="modal-overlay">
-            <div class="modal-container">
-                <div class="modal-header">
-                    <div class="modal-title">
-                        <i class="fas fa-project-diagram"></i>
-                        Add New Project
-                    </div>
-                    <div class="modal-subtitle">Fill in the project details below</div>
-                    <button class="modal-close" onclick="closeModal()">
+    </div>
+
+    <!-- Project Creation Modal -->
+    <div id="projectModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-project-diagram"></i>
+                    Add New Project
+                </div>
+                <div class="modal-subtitle">Fill in the project details below</div>
+                {{-- <button class="modal-close" onclick="closeModal()">
                         <i class="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <div class="modal-body">
-                    <form action="{{ route('admin.projects.store') }}" method="POST" id="projectForm">
-                        @csrf
-                        <div class="form-container">
-                            <!-- Basic Information Row -->
-                            <div class="form-row">
-
-                                <div class="form-group">
-                                    <label for="project_name" class="form-label">
-                                        <i class="fas fa-project-diagram"></i>Project Name
-                                    </label>
-                                    <div style="position: relative;">
-
-                                        <input type="text" id="project_name" name="project_name" class="form-input"
-                                            placeholder="Enter project name" required>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Client and Team Row -->
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="client" class="form-label">
-                                        <i class="fas fa-user-tie"></i>Client
-                                    </label>
-                                    <div style="position: relative;">
-
-                                        <input type="text" id="client" name="client" class="form-input"
-                                            placeholder="Enter client name">
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="team_id" class="form-label">
-                                        <i class="fas fa-users"></i>Assigned Team
-                                    </label>
-                                    <div style="position: relative;">
-
-                                        <select id="team_id" name="team_id" class="form-select" required>
-                                            <option value="">Select Team</option>
-                                            @if (isset($teams))
-                                                @foreach ($teams as $team)
-                                                    <option value="{{ $team->team_id }}">{{ $team->team_name }}</option>
-                                                @endforeach
-                                            @endif
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <!-- Status Row -->
-                            <div class="form-group">
-                                <label for="status" class="form-label">
-                                    <i class="fas fa-tasks"></i>Project Status
-                                </label>
-                                <div style="position: relative;">
-                                    <select id="status" name="status" class="form-select" required>
-                                        <option value="">Select status</option>
-                                        <option value="Planning">Planning</option>
-                                        <option value="In Progress">In Progress</option>
-                                        <option value="On Hold">On Hold</option>
-                                        <option value="Testing">Testing</option>
-                                        <option value="Completed">Completed</option>
-                                        <option value="Cancelled">Cancelled</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Date Range Row -->
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="start_date" class="form-label">
-                                        <i class="fas fa-calendar-plus"></i>Start Date
-                                    </label>
-                                    <div style="position: relative;">
-                                        <input type="date" id="start_date" name="start_date" class="form-input">
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="end_date" class="form-label">
-                                        <i class="fas fa-calendar-check"></i>End Date
-                                    </label>
-                                    <div style="position: relative;">
-                                        <input type="date" id="end_date" name="end_date" class="form-input">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Description -->
-                            <div class="form-group">
-                                <label for="description" class="form-label">
-                                    <i class="fas fa-file-alt"></i>Project Description
-                                </label>
-                                <div style="position: relative;">
-
-                                    <textarea id="description" name="description" class="form-textarea" placeholder="Enter project description"></textarea>
-                                </div>
-                            </div>
-
-                            <!-- Milestone Info -->
-                            <div class="form-group">
-                                <label for="milestone_info" class="form-label">
-                                    <i class="fas fa-flag"></i>Milestone Information
-                                </label>
-                                <div style="position: relative;">
-
-                                    <textarea id="milestone_info" name="milestone_info" class="form-textarea" placeholder="Enter milestone details"></textarea>
-                                </div>
-                            </div>
-
-                            <!-- Form Actions -->
-                            <div class="form-actions">
-                                <button type="button" class="btn btn-secondary" onclick="closeModal()">
-                                    <i class="fas fa-times"></i> Cancel
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Create Project
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                    </button> --}}
             </div>
-        </div>
 
-        <!-- Project Edit Modal -->
-        <div id="editProjectModal" class="modal-overlay">
-            <div class="modal-container">
-                <div class="modal-header">
-                    <div class="modal-title">
-                        <i class="fas fa-edit"></i>
-                        Edit Project
-                    </div>
-                    <div class="modal-subtitle">Update the project details below</div>
-                    <button class="modal-close" onclick="closeEditModal()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+            <div class="modal-body">
+                <form action="{{ route('admin.projects.store') }}" method="POST" id="projectForm">
+                    @csrf
+                    <div class="form-container">
+                        <button class="modal-close-btn" onclick="closeModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
 
-                <div class="modal-body">
-                    <form action="#" method="POST" id="editProjectForm">
-                        @csrf
-                        @method('PUT')
-                        <div class="form-container">
-                            <!-- Basic Information Row -->
-                            <div class="form-row">
+                        <!-- Basic Information Row -->
+                        <div class="form-row">
 
-                                <div class="form-group">
-                                    <label for="edit_project_id" class="form-label">
-                                        <i class="fas fa-hashtag"></i>Project ID
-                                    </label>
-                                    <div style="position: relative;">
-                                        <i class="input-icon fas fa-hashtag"></i>
-                                        <input type="text" id="edit_project_id" name="project_id" class="form-input"
-                                            placeholder="Enter project ID" required readonly>
-                                    </div>
+                            <div class="form-group">
+                                <label for="project_name" class="form-label">
+                                    <i class="fas fa-project-diagram"></i>Project Name
+                                </label>
+                                <div style="position: relative;">
+
+                                    <input type="text" id="project_name" name="project_name" class="form-input"
+                                        placeholder="Enter project name" required>
                                 </div>
+                            </div>
+                        </div>
 
-                                <div class="form-group">
-                                    <label for="edit_project_name" class="form-label">
-                                        <i class="fas fa-project-diagram"></i>Project Name
-                                    </label>
-                                    <div style="position: relative;">
-                                        <i class="input-icon fas fa-project-diagram"></i>
-                                        <input type="text" id="edit_project_name" name="project_name"
-                                            class="form-input" placeholder="Enter project name" required>
-                                    </div>
+                        <!-- Client and Team Row -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="client" class="form-label">
+                                    <i class="fas fa-user-tie"></i>Client
+                                </label>
+                                <div style="position: relative;">
+
+                                    <input type="text" id="client" name="client" class="form-input"
+                                        placeholder="Enter client name">
                                 </div>
                             </div>
 
-
                             <div class="form-group">
-                                <label for="edit_team_id" class="form-label">
-                                    <i class="fas fa-users"></i> Assigned Team
+                                <label for="team_id" class="form-label">
+                                    <i class="fas fa-users"></i>Assigned Team
                                 </label>
                                 <div style="position: relative;">
-                                    <i class="input-icon fas fa-users"></i>
-                                    <select id="edit_team_id" name="team_id" class="form-select" required>
+
+                                    <select id="team_id" name="team_id" class="form-select" required>
                                         <option value="">Select Team</option>
-                                        @foreach ($teams as $team)
-                                            <option value="{{ $team->team_id }}"
-                                                {{ (int) old('team_id', $project->team_id ?? null) === (int) $team->team_id ? 'selected' : '' }}>
-                                                {{ $team->team_name }}
-                                            </option>
-                                        @endforeach
+                                        @if (isset($teams))
+                                            @foreach ($teams as $team)
+                                                <option value="{{ $team->team_id }}">{{ $team->team_name }}</option>
+                                            @endforeach
+                                        @endif
                                     </select>
                                 </div>
                             </div>
-
-
-
                         </div>
+
 
                         <!-- Status Row -->
                         <div class="form-group">
-                            <label for="edit_status" class="form-label">
+                            <label for="status" class="form-label">
                                 <i class="fas fa-tasks"></i>Project Status
                             </label>
                             <div style="position: relative;">
-                                <i class="input-icon fas fa-tasks"></i>
-                                <select id="edit_status" name="status" class="form-select" required>
+                                <select id="status" name="status" class="form-select" required>
                                     <option value="">Select status</option>
                                     <option value="Planning">Planning</option>
                                     <option value="In Progress">In Progress</option>
@@ -760,61 +617,210 @@
                         <!-- Date Range Row -->
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="edit_start_date" class="form-label">
+                                <label for="start_date" class="form-label">
                                     <i class="fas fa-calendar-plus"></i>Start Date
                                 </label>
                                 <div style="position: relative;">
-                                    <i class="input-icon fas fa-calendar-plus"></i>
-                                    <input type="date" id="edit_start_date" name="start_date" class="form-input">
+                                    <input type="date" id="start_date" name="start_date" class="form-input">
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="edit_end_date" class="form-label">
+                                <label for="end_date" class="form-label">
                                     <i class="fas fa-calendar-check"></i>End Date
                                 </label>
                                 <div style="position: relative;">
-                                    <i class="input-icon fas fa-calendar-check"></i>
-                                    <input type="date" id="edit_end_date" name="end_date" class="form-input">
+                                    <input type="date" id="end_date" name="end_date" class="form-input">
                                 </div>
                             </div>
                         </div>
 
                         <!-- Description -->
                         <div class="form-group">
-                            <label for="edit_description" class="form-label">
+                            <label for="description" class="form-label">
                                 <i class="fas fa-file-alt"></i>Project Description
                             </label>
                             <div style="position: relative;">
-                                <i class="input-icon fas fa-file-alt"></i>
-                                <textarea id="edit_description" name="description" class="form-textarea" placeholder="Enter project description"></textarea>
+
+                                <textarea id="description" name="description" class="form-textarea" placeholder="Enter project description"></textarea>
                             </div>
                         </div>
 
                         <!-- Milestone Info -->
                         <div class="form-group">
-                            <label for="edit_milestone_info" class="form-label">
+                            <label for="milestone_info" class="form-label">
                                 <i class="fas fa-flag"></i>Milestone Information
                             </label>
                             <div style="position: relative;">
-                                <i class="input-icon fas fa-flag"></i>
-                                <textarea id="edit_milestone_info" name="milestone_info" class="form-textarea"
-                                    placeholder="Enter milestone details"></textarea>
+
+                                <textarea id="milestone_info" name="milestone_info" class="form-textarea" placeholder="Enter milestone details"></textarea>
                             </div>
                         </div>
 
                         <!-- Form Actions -->
                         <div class="form-actions">
-                            <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">
                                 <i class="fas fa-times"></i> Cancel
                             </button>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Update Project
+                                <i class="fas fa-save"></i> Create Project
                             </button>
                         </div>
-                </div>
+                    </div>
                 </form>
             </div>
+        </div>
+    </div>
+
+    <!-- Project Edit Modal -->
+    <div id="editProjectModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-edit"></i>
+                    Edit Project
+                </div>
+                <div class="modal-subtitle">Update the project details below</div>
+                <button class="modal-close-btn" onclick="closeEditModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form action="#" method="POST" id="editProjectForm">
+                    @csrf
+                    @method('PUT')
+                    <div class="form-container">
+                        <!-- Basic Information Row -->
+                        <div class="form-row">
+
+                            <div class="form-group">
+                                <label for="edit_project_id" class="form-label">
+                                    <i class="fas fa-hashtag"></i>Project ID
+                                </label>
+                                <div style="position: relative;">
+                                    <i class="input-icon fas fa-hashtag"></i>
+                                    <input style="padding-left: 50px" type="text" id="edit_project_id"
+                                        name="project_id" class="form-input" placeholder="Enter project ID" required
+                                        readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_project_name" class="form-label">
+                                    <i class="fas fa-project-diagram"></i> Project Name
+                                </label>
+                                <div style="position: relative;">
+                                    <i class="input-icon fas fa-project-diagram"></i>
+                                    <input style="padding-left: 50px" type="text" id="edit_project_name"
+                                        name="project_name" class="form-input" placeholder="Enter project name" required>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="edit_team_id" class="form-label">
+                                <i class="fas fa-users"></i> Assigned Team
+                            </label>
+                            <div style="position: relative;">
+                                <i class="input-icon fas fa-users"></i>
+                                <select style="padding-left: 50px" id="edit_team_id" name="team_id" class="form-select"
+                                    required>
+                                    <option value="">Select Team</option>
+                                    @foreach ($teams as $team)
+                                        <option value="{{ $team->team_id }}"
+                                            {{ (int) old('team_id', $project->team_id ?? null) === (int) $team->team_id ? 'selected' : '' }}>
+                                            {{ $team->team_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+                    <!-- Status Row -->
+                    <div class="form-group">
+                        <label for="edit_status" class="form-label">
+                            <i class="fas fa-tasks"></i>Project Status
+                        </label>
+                        <div style="position: relative;">
+                            <i class="input-icon fas fa-tasks"></i>
+                            <select style="padding-left: 50px" id="edit_status" name="status" class="form-select"
+                                required>
+                                <option value="">Select status</option>
+                                <option value="Planning">Planning</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="On Hold">On Hold</option>
+                                <option value="Testing">Testing</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Date Range Row -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit_start_date" class="form-label">
+                                <i class="fas fa-calendar-plus"></i>Start Date
+                            </label>
+                            <div style="position: relative;">
+                                <i class="input-icon fas fa-calendar-plus"></i>
+                                <input style="padding-left: 50px" type="date" id="edit_start_date" name="start_date"
+                                    class="form-input">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit_end_date" class="form-label">
+                                <i class="fas fa-calendar-check"></i>End Date
+                            </label>
+                            <div style="position: relative;">
+                                <i class="input-icon fas fa-calendar-check"></i>
+                                <input style="padding-left: 50px" type="date" id="edit_end_date" name="end_date"
+                                    class="form-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="edit_description" class="form-label">
+                            <i class="fas fa-file-alt"></i>Project Description
+                        </label>
+                        <div style="position: relative;">
+                            <i class="input-icon fas fa-file-alt"></i>
+                            <textarea id="edit_description" name="description" class="form-textarea" placeholder="Enter project description"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Milestone Info -->
+                    <div class="form-group">
+                        <label for="edit_milestone_info" class="form-label">
+                            <i class="fas fa-flag"></i>Milestone Information
+                        </label>
+                        <div style="position: relative;">
+                            <i class="input-icon fas fa-flag"></i>
+                            <textarea id="edit_milestone_info" name="milestone_info" class="form-textarea"
+                                placeholder="Enter milestone details"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Project
+                        </button>
+                    </div>
+            </div>
+            </form>
         </div>
     </div>
 
@@ -827,7 +833,7 @@
                     Project Details
                 </div>
                 <div class="modal-subtitle">View complete project information</div>
-                <button class="modal-close" onclick="closeViewModal()">
+                <button class="modal-close-btn" onclick="closeViewModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -947,6 +953,22 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                toast: true,
+                icon: "success",
+                title: "{{ session('success') }}",
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 2500
+            });
+        </script>
+    @endif
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -1369,7 +1391,7 @@
             const form = this;
             let isValid = true;
 
-            // Basic required field validation
+            // Validate required fields
             form.querySelectorAll('[required]').forEach(field => {
                 if (!field.value.trim()) {
                     isValid = false;
@@ -1381,41 +1403,81 @@
                 }
             });
 
-            if (!isValid) return alert('Please fill in all required fields.');
-
-            const formData = new FormData(form);
-            const submitBtn = form.querySelector('[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Updating...';
-
-            fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': formData.get('_token')
-                    }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Update Project';
-
-                    if (data.success) {
-                        closeEditModal();
-                        alert(data.message);
-                        location.reload(); // Or update DOM dynamically
-                    } else {
-                        alert(data.message || 'Failed to update project.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Update Project';
-                    alert('Error updating project. Please try again.');
+            if (!isValid) {
+                return Swal.fire({
+                    icon: 'warning',
+                    title: 'Missing Required Fields',
+                    text: 'Please fill in all required fields before submitting.',
+                    confirmButtonColor: '#d33'
                 });
+            }
+
+            // Confirmation before update
+            Swal.fire({
+                title: "Update Project?",
+                text: "Are you sure you want to update this project?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Update",
+                cancelButtonText: "Cancel",
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33"
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+
+                const formData = new FormData(form);
+                const submitBtn = form.querySelector('[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Updating...';
+
+                fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': formData.get('_token')
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Update Project';
+
+                        if (data.success) {
+                            closeEditModal();
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Updated Successfully',
+                                text: data.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Update Failed',
+                                text: data.message || 'Could not update project.'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Update Project';
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Something went wrong while updating the project.'
+                        });
+                    });
+            });
         });
+
 
         // Date validation - ensure end date is after start date
         document.getElementById('end_date').addEventListener('change', function() {
@@ -1997,31 +2059,31 @@
 
             <!-- Project Manager -->
         ${project.team && project.team.team_lead ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div style="margin-bottom: 1rem;">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Project Manager</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="font-weight: 600;">${project.team.team_lead}</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>` : `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div style="margin-bottom: 1rem;">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Project Manager</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="font-weight: 600; color: #aaa;">Not Assigned</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>`}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="margin-bottom: 1rem;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Project Manager</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div style="font-weight: 600;">${project.team.team_lead}</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>` : `
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="margin-bottom: 1rem;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Project Manager</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div style="font-weight: 600; color: #aaa;">Not Assigned</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>`}
 
                     ${project.status ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="margin-bottom: 1rem;">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Progress</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div style="background: var(--gray-200); height: 8px; border-radius: 4px; overflow: hidden;">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div style="background: linear-gradient(90deg, var(--primary), var(--secondary)); height: 100%; width: ${progress}%; transition: width 0.3s ease;"></div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ${progress}% Complete
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div style="margin-bottom: 1rem;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Progress</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="background: var(--gray-200); height: 8px; border-radius: 4px; overflow: hidden;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div style="background: linear-gradient(90deg, var(--primary), var(--secondary)); height: 100%; width: ${progress}%; transition: width 0.3s ease;"></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ${progress}% Complete
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>` : ''}
 
                     ${project.deadline ? `
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="margin-bottom: 1rem;">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Deadline</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div style="font-weight: 600;">${project.deadline}</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div style="margin-bottom: 1rem;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Deadline</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div style="font-weight: 600;">${project.deadline}</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>` : ''}
 
                     <div class="flex justify-between items-center">
                         <span class="badge" style="background: ${statusBg}; color: var(--${statusClass}); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">
@@ -2041,40 +2103,60 @@
 
         // Delete project Function
         function confirmDeleteProject(projectId, projectName) {
-            if (confirm(
-                    `Are you sure you want to delete the project "${projectName}" (ID: ${projectId})?\n\nThis action cannot be undone and will affect all employees in this project.`
-                )) {
-                // Create a form and submit it for deletion
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `/projects/${projectId}`;
+            Swal.fire({
+                title: "Delete Project?",
+                html: `
+            <strong>${projectName}</strong><br>
+            (ID: ${projectId})<br><br>
+            This action <b>cannot be undone</b> and will affect all employees assigned to this project.
+        `,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
 
-                const csrfToken = document.querySelector('meta[name="csrf-token"]');
-                if (csrfToken) {
-                    const csrfInput = document.createElement('input');
-                    csrfInput.type = 'hidden';
-                    csrfInput.name = '_token';
-                    csrfInput.value = csrfToken.getAttribute('content');
-                    form.appendChild(csrfInput);
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/projects/${projectId}`;
+
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+                    form.innerHTML = `
+                <input type="hidden" name="_token" value="${csrfToken}">
+                <input type="hidden" name="_method" value="DELETE">
+            `;
+
+                    document.body.appendChild(form);
+                    form.submit();
                 }
-
-                const methodInput = document.createElement('input');
-                methodInput.type = 'hidden';
-                methodInput.name = '_method';
-                methodInput.value = 'DELETE';
-                form.appendChild(methodInput);
-
-                document.body.appendChild(form);
-                form.submit();
-            }
+            });
         }
 
+
         function openEditProjectModal(projectId) {
-            if (!projectId) return alert('Project ID missing!');
+            if (!projectId) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Invalid Project",
+                    text: "Project ID is missing!"
+                });
+                return;
+            }
 
             const modal = document.getElementById('editProjectModal');
             const form = document.getElementById('editProjectForm');
-            if (!modal || !form) return alert('Modal or form not found!');
+            if (!modal || !form) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Modal Not Found",
+                    text: "Edit modal or its form is missing!"
+                });
+                return;
+            }
 
             modal.classList.add('active');
             form.reset();
@@ -2087,13 +2169,14 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    // If your backend doesn't return 'success', skip this check
-                    if (data.success === false) throw new Error(data.message || 'Failed to fetch project data');
+
+                    if (data.success === false) throw new Error(data.message);
 
                     const project = data.project;
+
+                    // Update form action
                     form.action = `/projects/${projectId}`;
 
-                    // Safely set values only if elements exist
                     const fields = {
                         'edit_project_id': project.project_id,
                         'edit_project_name': project.project_name,
@@ -2111,17 +2194,39 @@
                         if (el) el.value = fields[id] || '';
                     }
 
-                    // Focus project name if exists
                     const nameInput = document.getElementById('edit_project_name');
                     if (nameInput) nameInput.focus();
-
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error loading project data: ' + error.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed to Load Project',
+                        text: error.message,
+                        confirmButtonColor: '#d33'
+                    });
+
                     if (typeof closeEditModal === 'function') closeEditModal();
                 });
         }
+
+        document.getElementById('editProjectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: "Update Project?",
+                text: "Are you sure you want to update this project?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Update",
+                cancelButtonText: "Cancel",
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.submit();
+                }
+            });
+        });
 
 
         function closeEditProjectModal() {
@@ -2129,38 +2234,6 @@
             modal.classList.remove('active');
         }
 
-        // function sortProjects() {
-        //     const sortValue = document.getElementById('projectSort').value;
-        //     const container = document.getElementById('projectsGrid');
-        //     const cards = Array.from(container.querySelectorAll('.card'));
-
-        //     let sorted = [...cards];
-
-        //     switch (sortValue) {
-        //         case 'name_asc':
-        //             sorted.sort((a, b) => a.dataset.name.localeCompare(b.dataset.name));
-        //             break;
-        //         case 'name_desc':
-        //             sorted.sort((a, b) => b.dataset.name.localeCompare(a.dataset.name));
-        //             break;
-        //         case 'progress_asc':
-        //             sorted.sort((a, b) => getProgress(a) - getProgress(b));
-        //             break;
-        //         case 'progress_desc':
-        //             sorted.sort((a, b) => getProgress(b) - getProgress(a));
-        //             break;
-        //         default:
-        //             return;
-        //     }
-
-        //     container.innerHTML = '';
-        //     sorted.forEach(card => container.appendChild(card));
-        // }
-
-        // function getProgress(card) {
-        //     const progressText = card.innerHTML.match(/(\d+)% Complete/);
-        //     return progressText ? parseInt(progressText[1]) : 0;
-        // }
 
         function sortProjects() {
             const sortValue = document.getElementById('projectSort')?.value;

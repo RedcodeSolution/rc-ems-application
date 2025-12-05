@@ -447,3 +447,55 @@
         padding: 0.75rem 1.5rem;
     }
 }
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap; /* IMPORTANT */
+}
+
+.admin-header-left p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.admin-header-right {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap; /* IMPORTANT */
+}
+
+/* Make inputs full width on small screens */
+@media (max-width: 768px) {
+    .admin-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .admin-header-right {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .admin-header-right input,
+    .admin-header-right select,
+    .admin-header-right button {
+        width: 100%; /* Makes refresh button visible */
+    }
+}
+#adminAttendanceModal {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+#adminAttendanceModal.active {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+}

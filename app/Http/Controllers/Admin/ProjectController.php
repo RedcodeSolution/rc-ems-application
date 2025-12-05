@@ -100,17 +100,15 @@ class ProjectController extends Controller
             }
         }
 
-        // --- Send Notifications to Employees in Team ---
+        // Generate base notification ID only once
+        $lastNotification = Notification::orderBy('notifi_id', 'desc')->first();
+        $lastNum = $lastNotification ? intval(substr($lastNotification->notifi_id, 5)) : 0;
+
         foreach ($team->employees as $employee) {
 
-            // Generate Notification ID
-            $lastNotification = Notification::orderBy('notifi_id', 'desc')->first();
-            if ($lastNotification) {
-                $num = intval(substr($lastNotification->notifi_id, 5));
-                $newNotiId = 'NOTI-' . str_pad($num + 1, 5, '0', STR_PAD_LEFT);
-            } else {
-                $newNotiId = 'NOTI-00001';
-            }
+            // Increment for each employee
+            $lastNum++;
+            $newNotiId = 'NOTI-' . str_pad($lastNum, 5, '0', STR_PAD_LEFT);
 
             Notification::create([
                 'notifi_id' => $newNotiId,
@@ -119,9 +117,10 @@ class ProjectController extends Controller
                 'message'   => "You have been assigned to the project: {$project->project_name}.",
                 'type'      => 'project',
                 'is_read'   => 0,
-                'target' => 'empoyee'
+                'target'    => 'employee'
             ]);
         }
+
 
 
         return redirect()->route('admin.projects.index')->with('success', 'Project created successfully!');

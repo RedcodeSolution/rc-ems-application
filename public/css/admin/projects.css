@@ -188,14 +188,15 @@
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
+
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .modal-overlay.active {
@@ -852,3 +853,25 @@
 .btn {
     font-size: clamp(0.85rem, 0.9rem + 0.1vw, 1rem);
 }
+.modal-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+background: rgba(175, 175, 175, 0.05);
+    border: none;
+    font-size: 1.4rem;
+    color: black;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    transition: 0.2s ease-in-out;
+}
+
+.modal-close-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--danger);
+    transform: scale(1.1);
+}
+
+
+
