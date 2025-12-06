@@ -1,8 +1,112 @@
 @extends('layouts.admin')
 
 @section('title', 'Admin Dashboard')
-<link rel="stylesheet" href="{{ asset('css/admin/dashboard.css') }}">
 @section('content')
+    <link rel="stylesheet" href="{{ asset('css/admin/dashboard.css') }}">
+    <style>
+        .team-distribution-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            align-items: flex-start;
+            padding: 10px;
+        }
+        .team-chart-container {
+            flex: 1;
+            min-width: 280px;
+            height: 300px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .team-list-container {
+            flex: 1;
+            min-width: 280px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        .team-list-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .team-list-container::-webkit-scrollbar-track {
+            background: #f8fafc;
+            border-radius: 3px;
+        }
+        .team-list-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .team-list-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .team-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            margin-bottom: 8px;
+            background: #fff;
+            border: 1px solid #f1f5f9;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+        .team-list-item:hover {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .team-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .team-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.8);
+        }
+        .team-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .team-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+        .team-projects {
+            font-size: 0.8rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .team-count {
+            text-align: right;
+            padding-left: 16px;
+            border-left: 1px solid #f1f5f9;
+        }
+        .team-count-number {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+        .team-count-label {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+    </style>
     <div class="dashboard-container">
         <div class="dashboard-content">
             <div class="dashboard-header animate-fade-in-up">
@@ -20,52 +124,15 @@
             </div>
         </div>
 
-        {{-- Revenue metric (populated from controller / dashboardData) --}}
-        <div class="stat-card stat-card-revenue animate-fade-in-up" style="animation-delay: 0.4s">
-            <div class="stat-card-header">
-                <div>
-                    <div class="stat-card-title">Revenue</div>
-                    <div id="metric-revenue" class="stat-card-value">{{ $revenue ?? '$847K' }}</div>
-                    <div class="stat-card-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>Performance vs last period</span>
-                    </div>
-                </div>
-                <div class="stat-card-icon">
-                    <i class="fas fa-dollar-sign"></i>
-                </div>
-            </div>
-            <div class="stat-card-progress">
-                <div class="stat-card-progress-bar" style="width: 72%"></div>
-            </div>
-        </div>
 
-        {{-- Efficiency metric (populated from controller / dashboardData) --}}
-        <div class="stat-card stat-card-efficiency animate-fade-in-up" style="animation-delay: 0.5s">
-            <div class="stat-card-header">
-                <div>
-                    <div class="stat-card-title">Overall Efficiency</div>
-                    <div id="metric-efficiency" class="stat-card-value">{{ $efficiency ?? '94.2%' }}</div>
-                    <div class="stat-card-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>+2.4% improvement</span>
-                    </div>
-                </div>
-                <div class="stat-card-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-            </div>
-            <div class="stat-card-progress">
-                <div class="stat-card-progress-bar" style="width: 80%"></div>
-            </div>
-        </div>
 
+        <div class="stats-grid">
         <div class="stat-card stat-card-departments animate-fade-in-up" style="animation-delay: 0.6s">
             <div class="stat-card-header">
                 <div>
                     <div class="stat-card-title">Departments</div>
-                    <div class="stat-card-value counter" id="metric-departments"
-                        data-target="{{ $departmentsCount ?? 12 }}">0</div>
+                    <div class="stat-card-value counter" id="metric-departments" data-target="{{ $departmentsCount ?? 0 }}">
+                        {{ $departmentsCount ?? 0 }}</div>
                     <div class="stat-card-change positive">
                         <i class="fas fa-arrow-up"></i>
                         <span>+2 new departments</span>
@@ -105,7 +172,7 @@
             <div class="stat-card-header">
                 <div>
                     <div class="stat-card-title">Admin Staff</div>
-                    <div class="stat-card-value counter" id="metric-admins" data-target="{{ $adminsCount ?? 8 }}">0</div>
+                    <div class="stat-card-value counter" id="metric-admins" data-target="{{ $adminsCount ?? 0 }}">{{ $adminsCount ?? 0 }}</div>
                     <div class="stat-card-change positive">
                         <i class="fas fa-arrow-up"></i>
                         <span>Active admins</span>
@@ -257,31 +324,175 @@
     {{-- removed legacy copyLink helper; use copyToClipboard(text, event) for UI feedback --}}
 
     <div class="charts-grid">
-        <div class="chart-card animate-fade-in-up" style="animation-delay: 0.8s">
-            <div class="chart-header">
-                <div class="chart-title">Performance Analytics</div>
-                <div class="chart-controls">
-                    <button class="chart-control-btn active">6M</button>
-                    <button class="chart-control-btn">1Y</button>
-                    <button class="chart-control-btn">All</button>
-                </div>
-            </div>
-            <div style="height: 400px;">
-                <canvas id="performanceChart"></canvas>
-            </div>
-        </div>
+
 
         <div class="chart-card animate-fade-in-up" style="animation-delay: 0.9s">
             <div class="chart-header">
                 <div class="chart-title">Team Distribution</div>
             </div>
-            <div style="height: 400px;">
-                <canvas id="teamChart"></canvas>
+            <div class="table-container" style="box-shadow: none; border: none; overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Team Name</th>
+                            <th>Active Projects</th>
+                            <th>Members</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if(isset($teams_details) && count($teams_details) > 0)
+                            @foreach($teams_details as $index => $team)
+                                @php
+                                    $colors = ['#667eea', '#764ba2', '#f59e0b', '#ef4444', '#10b981', '#3b82f6'];
+                                    $color = $colors[$index % count($colors)];
+                                    $bgSoft = $color . '20'; // 20 is hex opacity ~12%
+                                    $pNames = !empty($team['project_names']) ? implode(', ', $team['project_names']) : 'No active projects';
+                                    if ($team['projects_count'] > count($team['project_names'])) {
+                                        $pNames .= ' (+' . ($team['projects_count'] - count($team['project_names'])) . ')';
+                                    }
+                                @endphp
+                                <tr style="transition: background-color 0.2s;">
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div style="width: 36px; height: 36px; border-radius: 10px; background: {{ $bgSoft }}; color: {{ $color }}; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">
+                                                {{ substr($team['name'], 0, 1) }}
+                                            </div>
+                                            <div style="font-weight: 600; color: #1e293b; font-size: 0.95rem;">
+                                                {{ $team['name'] }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #f1f5f9; border-radius: 50%; color: #64748b;">
+                                                <i class="fas fa-project-diagram" style="font-size: 0.75rem;"></i>
+                                            </span>
+                                            <span style="font-size: 0.875rem; color: #475569;">{{ $pNames }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span style="display: inline-block; padding: 4px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 20px; font-weight: 600; color: #334155; font-size: 0.85rem;">
+                                            {{ $team['employees_count'] }} Members
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="3" class="text-center" style="padding: 3rem; color: #9ca3af;">
+                                    <div style="width: 48px; height: 48px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                                        <i class="fas fa-users-slash" style="font-size: 1.2rem; color: #cbd5e1;"></i>
+                                    </div>
+                                    <div style="font-weight: 500;">No team data available</div>
+                                </td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="activity-card animate-fade-in-up" style="animation-delay: 1.1s">
+            <div class="chart-header">
+                <div class="chart-title">Quick Actions</div>
+            </div>
+            <div class="quick-actions">
+                <a href="{{ route('employees.create') }}" class="quick-action">
+                    <div class="quick-action-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="quick-action-title">Add Employee</div>
+                    <div class="quick-action-description">Create new employee profile</div>
+                </a>
+
+                <a href="{{ route('admin.projects', ['action' => 'create']) }}" class="quick-action">
+                    <div class="quick-action-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="quick-action-title">New Project</div>
+                    <div class="quick-action-description">Start a new project</div>
+                </a>
+
+                <a href="{{ route('admin.leaves.index') }}" class="quick-action">
+                    <div class="quick-action-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="quick-action-title">Review Leaves</div>
+                    <div class="quick-action-description">Approve/Reject requests</div>
+                </a>
+
+                <a href="{{ route('admin.reports.index') }}" class="quick-action">
+                    <div class="quick-action-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="quick-action-title">View Reports</div>
+                    <div class="quick-action-description">Analytics & insights</div>
+                </a>
             </div>
         </div>
     </div>
 
-    <div class="activity-section">
+    <div class="activity-section" style="margin-bottom: 2rem;">
+        <div class="chart-card animate-fade-in-up" style="animation-delay: 0.95s; width: 100%;">
+            <div class="chart-header">
+                <div class="chart-title">Top performing Employees</div>
+            </div>
+            <div class="table-container" style="box-shadow: none; border: none;">
+                <table class="table" id="topPerformersTable">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Role</th>
+                            <th>Performance Score</th>
+                            <th>Projects Completed</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if(isset($topPerformers) && count($topPerformers) > 0)
+                            @foreach($topPerformers as $p)
+                                <tr>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                                            <div style="width:32px;height:32px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#64748b;">
+                                                {{ substr($p['name'], 0, 1) }}
+                                            </div>
+                                            <div>
+                                                <div style="font-weight:600;color:var(--text-primary);">{{ $p['name'] }}</div>
+                                                <div style="font-size:0.75rem;color:var(--text-secondary);">{{ $p['email'] }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ $p['role'] }}</td>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                                            <div style="flex:1;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;width:80px;">
+                                                <div style="width:{{ $p['score'] }}%;height:100%;background:{{ $p['score'] >= 80 ? '#22c55e' : ($p['score'] >= 60 ? '#eab308' : '#ef4444') }};"></div>
+                                            </div>
+                                            <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                                                <span style="font-weight:600;font-size:0.875rem;">{{ $p['score'] }}%</span>
+                                                <span style="font-size:0.7rem;color:#64748b;">{{ $p['rating'] }} / 5</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ $p['projects_count'] }}</td>
+                                    <td>
+                                        <span class="status-badge {{ $p['status'] === 'active' ? 'ongoing' : 'scheduled' }}" style="font-size:0.75rem;padding:0.25rem 0.5rem;">
+                                            {{ ucfirst($p['status']) }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="5" class="text-center">No data available</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="activity-card animate-fade-in-up" style="animation-delay: 1.0s">
             <div class="chart-header">
                 <div class="chart-title">Recent Activities</div>
@@ -338,44 +549,7 @@
             </div>
         </div>
 
-        <div class="activity-card animate-fade-in-up" style="animation-delay: 1.1s">
-            <div class="chart-header">
-                <div class="chart-title">Quick Actions</div>
-            </div>
-            <div class="quick-actions">
-                <a href="{{ route('employees.create') }}" class="quick-action">
-                    <div class="quick-action-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
-                        <i class="fas fa-user-plus"></i>
-                    </div>
-                    <div class="quick-action-title">Add Employee</div>
-                    <div class="quick-action-description">Create new employee profile</div>
-                </a>
 
-                <a href="{{ route('admin.projects.create') }}" class="quick-action">
-                    <div class="quick-action-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
-                        <i class="fas fa-project-diagram"></i>
-                    </div>
-                    <div class="quick-action-title">New Project</div>
-                    <div class="quick-action-description">Start a new project</div>
-                </a>
-
-                <a href="{{ route('admin.leaves.index') }}" class="quick-action">
-                    <div class="quick-action-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="quick-action-title">Review Leaves</div>
-                    <div class="quick-action-description">Approve/Reject requests</div>
-                </a>
-
-                <a href="{{ route('admin.reports.index') }}" class="quick-action">
-                    <div class="quick-action-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)">
-                        <i class="fas fa-chart-bar"></i>
-                    </div>
-                    <div class="quick-action-title">View Reports</div>
-                    <div class="quick-action-description">Analytics & insights</div>
-                </a>
-            </div>
-        </div>
     </div>
 
 
@@ -383,6 +557,8 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
+
+
             function updateTime() {
                 const now = new Date();
                 const timeElement = document.getElementById('currentTime');
@@ -421,93 +597,7 @@
                 setTimeout(animateCounters, 500);
             });
 
-            // --- Performance chart: initialize and keep reference to update from backend ---
-            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
-            const performanceGradient = performanceCtx.createLinearGradient(0, 0, 0, 400);
-            performanceGradient.addColorStop(0, 'rgba(220, 38, 38, 0.3)');
-            performanceGradient.addColorStop(1, 'rgba(220, 38, 38, 0.05)');
-
-            const performanceGradient2 = performanceCtx.createLinearGradient(0, 0, 0, 400);
-            performanceGradient2.addColorStop(0, 'rgba(37, 99, 235, 0.3)');
-            performanceGradient2.addColorStop(1, 'rgba(37, 99, 235, 0.05)');
-
-            // create chart instance that we will update when backend data arrives
-            const performanceChart = new Chart(performanceCtx, {
-                type: 'line',
-                data: {
-                    labels: [], // will be filled from backend
-                    datasets: []
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20,
-                                font: {
-                                    size: 14,
-                                    weight: '600'
-                                }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                            titleColor: '#1e293b',
-                            bodyColor: '#64748b',
-                            borderColor: '#e2e8f0',
-                            borderWidth: 1,
-                            cornerRadius: 12,
-                            displayColors: true,
-                            titleFont: {
-                                size: 14,
-                                weight: 'bold'
-                            },
-                            bodyFont: {
-                                size: 13
-                            },
-                            padding: 12
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            suggestedMax: 100,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)',
-                                drawBorder: false
-                            },
-                            ticks: {
-                                padding: 10,
-                                font: {
-                                    size: 12
-                                },
-                                callback: function(value) {
-                                    return value + '%';
-                                }
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false,
-                                drawBorder: false
-                            },
-                            ticks: {
-                                padding: 10,
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+            // Performance chart removed
 
             const teamCtx = document.getElementById('teamChart').getContext('2d');
 
@@ -580,8 +670,6 @@
 
                             (function() {
                                 const apiUrl = "{{ route('admin.dashboard.data') }}";
-                                const elRevenue = document.getElementById('metric-revenue');
-                                const elEfficiency = document.getElementById('metric-efficiency');
                                 const elDepartments = document.getElementById('metric-departments');
                                 const elAdmins = document.getElementById('metric-admins');
                                 const elNotifications = document.getElementById('metric-notifications');
@@ -593,228 +681,265 @@
                                 const eveningSlot = document.getElementById('evening-meeting-card');
                                 const listEl = document.getElementById('admin-activity-list');
                                 const loadingEl = document.getElementById('admin-activity-loading');
+                                const topPerformersBody = document.querySelector('#topPerformersTable tbody');
 
-                                fetch(apiUrl, {
-                                        headers: {
-                                            'Accept': 'application/json'
-                                        },
-                                        credentials: 'same-origin'
-                                    })
-                                    .then(resp => {
-                                        if (!resp.ok) throw new Error('Network response was not ok');
-                                        return resp.json();
-                                    })
-                                    .then(payload => {
-                                        const metrics = payload.metrics || {};
-                                        const meetings = payload.meetings || [];
+                                function fetchData(range = '1M') {
+                                    fetch(`${apiUrl}?range=${range}`, {
+                                            headers: {
+                                                'Accept': 'application/json'
+                                            },
+                                            credentials: 'same-origin'
+                                        })
+                                        .then(resp => {
+                                            if (!resp.ok) throw new Error('Network response was not ok');
+                                            return resp.json();
+                                        })
+                                        .then(payload => {
+                                            const metrics = payload.metrics || {};
+                                            const meetings = payload.meetings || [];
 
-                                        if (elRevenue && metrics.revenue) elRevenue.textContent = metrics.revenue;
-                                        if (elEfficiency && metrics.efficiency) elEfficiency.textContent = metrics
-                                            .efficiency;
-                                        if (elDepartments && typeof metrics.departments !== 'undefined') elDepartments
-                                            .setAttribute('data-target', metrics.departments);
-                                        if (elAdmins && typeof metrics.admins !== 'undefined') elAdmins.setAttribute(
-                                            'data-target', metrics.admins);
-                                        if (elNotifications && typeof metrics.notifications !== 'undefined') {
-                                            elNotifications.setAttribute('data-target', metrics.notifications);
-                                            elNotifications.textContent = metrics.notifications;
-                                            if (elNotificationsUnread) {
-                                                const unread = typeof metrics.notifications_unread !== 'undefined' ?
-                                                    metrics.notifications_unread : metrics.notifications;
-                                                elNotificationsUnread.textContent = `${unread} unread`;
+                                            if (elDepartments && typeof metrics.departments !== 'undefined') {
+                                                elDepartments.setAttribute('data-target', metrics.departments);
+                                                elDepartments.textContent = metrics.departments;
                                             }
-                                        }
-                                        if (elJoinings) {
-                                            const daily = typeof metrics.dailyJoinings !== 'undefined' ? metrics
-                                                .dailyJoinings : metrics.newJoinings;
-                                            elJoinings.setAttribute('data-target', daily ?? 0);
-                                            elJoinings.textContent = daily ?? 0;
-                                        }
-                                        if (elEmployees && typeof metrics.employees !== 'undefined') {
-                                            elEmployees.setAttribute('data-target', metrics.employees);
-                                            elEmployees.textContent = metrics.employees;
-                                        }
+                                            if (elAdmins && typeof metrics.admins !== 'undefined') {
+                                                elAdmins.setAttribute('data-target', metrics.admins);
+                                                elAdmins.textContent = metrics.admins;
+                                            }
+                                            if (elNotifications && typeof metrics.notifications !== 'undefined') {
+                                                elNotifications.setAttribute('data-target', metrics.notifications);
+                                                elNotifications.textContent = metrics.notifications;
+                                                if (elNotificationsUnread) {
+                                                    const unread = typeof metrics.notifications_unread !== 'undefined' ?
+                                                        metrics.notifications_unread : metrics.notifications;
+                                                    elNotificationsUnread.textContent = `${unread} unread`;
+                                                }
+                                            }
+                                            if (elJoinings) {
+                                                const daily = typeof metrics.dailyJoinings !== 'undefined' ? metrics
+                                                    .dailyJoinings : metrics.newJoinings;
+                                                elJoinings.setAttribute('data-target', daily ?? 0);
+                                                elJoinings.textContent = daily ?? 0;
+                                            }
+                                            if (elEmployees && typeof metrics.employees !== 'undefined') {
+                                                elEmployees.setAttribute('data-target', metrics.employees);
+                                                elEmployees.textContent = metrics.employees;
+                                            }
 
-                                        if ((morningSlot || eveningSlot) && Array.isArray(meetings)) {
-                                            const lowerTitle = s => (s || '').toString().toLowerCase();
-                                            let morning = meetings.find(m => lowerTitle(m.title).includes('morning')) ||
-                                                null;
-                                            let evening = meetings.find(m => lowerTitle(m.title).includes('evening')) ||
-                                                null;
-                                            if (!morning && meetings.length > 0) morning = meetings[0];
-                                            if (!evening && meetings.length > 1) evening = meetings[1];
+                                            if ((morningSlot || eveningSlot) && Array.isArray(meetings)) {
+                                                const lowerTitle = s => (s || '').toString().toLowerCase();
+                                                let morning = meetings.find(m => lowerTitle(m.title).includes('morning')) ||
+                                                    null;
+                                                let evening = meetings.find(m => lowerTitle(m.title).includes('evening')) ||
+                                                    null;
+                                                if (!morning && meetings.length > 0) morning = meetings[0];
+                                                if (!evening && meetings.length > 1) evening = meetings[1];
 
-                                            function populateSlot(slotEl, m, isMorning) {
-                                                if (!slotEl) return;
-                                                if (!m) {
+                                                function populateSlot(slotEl, m, isMorning) {
+                                                    if (!slotEl) return;
+                                                    if (!m) {
+                                                        slotEl.querySelector('.meeting-title').innerHTML =
+                                                            `<i class="fas fa-${isMorning ? 'sun' : 'moon'}"></i> ${isMorning ? 'Morning Stand-up Meeting' : 'Evening Stand-up Meeting'}`;
+                                                        slotEl.querySelector('.meeting-time').innerHTML =
+                                                            `<i class="fas fa-clock"></i> -`;
+                                                        slotEl.querySelector('.meeting-duration').innerHTML =
+                                                            `<i class="fas fa-hourglass-half"></i> -`;
+                                                        slotEl.querySelector('.meeting-link-input').value = '';
+                                                        slotEl.querySelector('.copy-btn').onclick = (e) => copyToClipboard(
+                                                            '', e);
+                                                        slotEl.querySelector('.join-meeting-btn').setAttribute('href', '#');
+                                                        slotEl.querySelector('.status-badge').className =
+                                                            'status-badge scheduled';
+                                                        slotEl.querySelector('.status-badge').textContent = 'Scheduled';
+                                                        return;
+                                                    }
+                                                    const start = m.start_time ? new Date(m.start_time) : null;
+                                                    const end = m.end_time ? new Date(m.end_time) : null;
+                                                    const timeText = (start && end) ?
+                                                        `${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}` :
+                                                        (m.duration ? `${m.duration} minutes` : '-');
                                                     slotEl.querySelector('.meeting-title').innerHTML =
-                                                        `<i class="fas fa-${isMorning ? 'sun' : 'moon'}"></i> ${isMorning ? 'Morning Stand-up Meeting' : 'Evening Stand-up Meeting'}`;
+                                                        `<i class="fas fa-${lowerTitle(m.title).includes('morning') ? 'sun' : 'moon'}"></i> ${m.title || (isMorning ? 'Morning' : 'Evening')}`;
                                                     slotEl.querySelector('.meeting-time').innerHTML =
-                                                        `<i class="fas fa-clock"></i> -`;
+                                                        `<i class="fas fa-clock"></i> ${timeText}`;
                                                     slotEl.querySelector('.meeting-duration').innerHTML =
-                                                        `<i class="fas fa-hourglass-half"></i> -`;
-                                                    slotEl.querySelector('.meeting-link-input').value = '';
-                                                    slotEl.querySelector('.copy-btn').onclick = (e) => copyToClipboard(
-                                                        '', e);
-                                                    slotEl.querySelector('.join-meeting-btn').setAttribute('href', '#');
-                                                    slotEl.querySelector('.status-badge').className =
-                                                        'status-badge scheduled';
-                                                    slotEl.querySelector('.status-badge').textContent = 'Scheduled';
-                                                    return;
+                                                        `<i class="fas fa-hourglass-half"></i> ${m.duration ? m.duration + ' minutes' : '-'}`;
+                                                    slotEl.querySelector('.meeting-link-input').value = m.meeting_link ||
+                                                        '';
+                                                    slotEl.querySelector('.copy-btn').onclick = (e) => copyToClipboard(m
+                                                        .meeting_link || '', e);
+                                                    slotEl.querySelector('.join-meeting-btn').setAttribute('href', m
+                                                        .meeting_link || '#');
+                                                    const badge = slotEl.querySelector('.status-badge');
+                                                    if (badge) {
+                                                        badge.className = 'status-badge ' + ((m.status === 'ongoing') ?
+                                                            'ongoing' : 'scheduled');
+                                                        badge.textContent = (m.status || 'scheduled').charAt(0)
+                                                            .toUpperCase() + (m.status || 'scheduled').slice(1);
+                                                    }
                                                 }
-                                                const start = m.start_time ? new Date(m.start_time) : null;
-                                                const end = m.end_time ? new Date(m.end_time) : null;
-                                                const timeText = (start && end) ?
-                                                    `${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}` :
-                                                    (m.duration ? `${m.duration} minutes` : '-');
-                                                slotEl.querySelector('.meeting-title').innerHTML =
-                                                    `<i class="fas fa-${lowerTitle(m.title).includes('morning') ? 'sun' : 'moon'}"></i> ${m.title || (isMorning ? 'Morning' : 'Evening')}`;
-                                                slotEl.querySelector('.meeting-time').innerHTML =
-                                                    `<i class="fas fa-clock"></i> ${timeText}`;
-                                                slotEl.querySelector('.meeting-duration').innerHTML =
-                                                    `<i class="fas fa-hourglass-half"></i> ${m.duration ? m.duration + ' minutes' : '-'}`;
-                                                slotEl.querySelector('.meeting-link-input').value = m.meeting_link ||
-                                                    '';
-                                                slotEl.querySelector('.copy-btn').onclick = (e) => copyToClipboard(m
-                                                    .meeting_link || '', e);
-                                                slotEl.querySelector('.join-meeting-btn').setAttribute('href', m
-                                                    .meeting_link || '#');
-                                                const badge = slotEl.querySelector('.status-badge');
-                                                if (badge) {
-                                                    badge.className = 'status-badge ' + ((m.status === 'ongoing') ?
-                                                        'ongoing' : 'scheduled');
-                                                    badge.textContent = (m.status || 'scheduled').charAt(0)
-                                                        .toUpperCase() + (m.status || 'scheduled').slice(1);
-                                                }
+
+                                                populateSlot(morningSlot, morning, true);
+                                                populateSlot(eveningSlot, evening, false);
                                             }
 
-                                            populateSlot(morningSlot, morning, true);
-                                            populateSlot(eveningSlot, evening, false);
-                                        }
-
-                                        // Team Distribution -> update teamChart if available
-                                        try {
-                                            const teams = payload.teams_distribution && Array.isArray(payload
-                                                    .teams_distribution.labels) && payload.teams_distribution.labels
-                                                .length ? payload.teams_distribution : null;
-                                            const depts = payload.departments_distribution && Array.isArray(payload
-                                                    .departments_distribution.labels) && payload
-                                                .departments_distribution.labels.length ? payload
-                                                .departments_distribution : null;
-                                            const use = teams || depts;
-                                            if (use && teamChart) {
-                                                const labels = use.labels.map(l => String(l));
-                                                const data = use.data.map(n => Number(n) || 0);
-                                                const colors = generateColors(labels.length);
-                                                teamChart.data.labels = labels;
-                                                teamChart.data.datasets[0].data = data;
-                                                teamChart.data.datasets[0].backgroundColor = colors;
-                                                teamChart.update();
-                                            } else if (!use) {
-                                                console.info(
-                                                    'No team/department distribution data available for chart.');
-                                            }
-                                        } catch (e) {
-                                            console.error('Failed to render team distribution chart', e);
-                                        }
-
-                                        // Performance Analytics -> update performanceChart from backend payload
-                                        try {
-                                            // payload.performance expected shape:
-                                            // { labels: [...], datasets: [ { label, data: [...], borderColor?, backgroundColor?, tension?, fill? }, ... ] }
-                                            const perfPayload = payload.performance || payload.metrics?.performance ||
-                                                null;
-                                            if (perfPayload && Array.isArray(perfPayload.labels) && Array.isArray(
-                                                    perfPayload.datasets)) {
-                                                // normalize dataset colors if missing
-                                                const datasets = perfPayload.datasets.map((ds, idx) => {
-                                                    const base = {
-                                                        label: ds.label || `Series ${idx+1}`,
-                                                        data: (ds.data || []).map(n => Number(n) || 0),
-                                                        borderWidth: ds.borderWidth ?? 3,
-                                                        tension: typeof ds.tension !== 'undefined' ? ds
-                                                            .tension : 0.4,
-                                                        fill: typeof ds.fill !== 'undefined' ? ds.fill :
-                                                            true,
-                                                        pointRadius: ds.pointRadius ?? 6,
-                                                        pointHoverRadius: ds.pointHoverRadius ?? 8
-                                                    };
-                                                    // choose sensible colors if not provided
-                                                    if (ds.borderColor) base.borderColor = ds.borderColor;
-                                                    else base.borderColor = idx === 0 ? '#DC2626' : '#2563EB';
-                                                    if (ds.backgroundColor) base.backgroundColor = ds
-                                                        .backgroundColor;
-                                                    else base.backgroundColor = idx === 0 ?
-                                                        performanceGradient : performanceGradient2;
-                                                    return base;
-                                                });
-
-                                                performanceChart.data.labels = perfPayload.labels.map(l => String(l));
-                                                performanceChart.data.datasets = datasets;
-                                                performanceChart.update();
-                                            } else {
-                                                // fallback: if metrics contains simple series arrays, map them
-                                                if (metrics && Array.isArray(metrics.performance_labels) && Array
-                                                    .isArray(metrics.performance_series)) {
-                                                    const labels = metrics.performance_labels;
-                                                    const datasets = metrics.performance_series.map((s, idx) => ({
-                                                        label: s.label || `Series ${idx+1}`,
-                                                        data: (s.data || []).map(n => Number(n) || 0),
-                                                        borderColor: idx === 0 ? '#DC2626' : '#2563EB',
-                                                        backgroundColor: idx === 0 ? performanceGradient :
-                                                            performanceGradient2,
-                                                        borderWidth: 3,
-                                                        tension: 0.4,
-                                                        fill: true,
-                                                        pointRadius: 6,
-                                                        pointHoverRadius: 8
-                                                    }));
-                                                    performanceChart.data.labels = labels;
-                                                    performanceChart.data.datasets = datasets;
-                                                    performanceChart.update();
+                                            // Team Distribution -> update teamChart if available
+                                            try {
+                                                const teams = payload.teams_distribution && Array.isArray(payload
+                                                        .teams_distribution.labels) && payload.teams_distribution.labels
+                                                    .length ? payload.teams_distribution : null;
+                                                const depts = payload.departments_distribution && Array.isArray(payload
+                                                        .departments_distribution.labels) && payload
+                                                    .departments_distribution.labels.length ? payload
+                                                    .departments_distribution : null;
+                                                const use = teams || depts;
+                                                if (use && teamChart) {
+                                                    const labels = use.labels.map(l => String(l));
+                                                    const data = use.data.map(n => Number(n) || 0);
+                                                    const colors = generateColors(labels.length);
+                                                    teamChart.data.labels = labels;
+                                                    teamChart.data.datasets[0].backgroundColor = colors;
+                                                    teamChart.update();
+                                                } else if (!use) {
+                                                    console.info(
+                                                        'No team/department distribution data available for chart.');
                                                 }
+                                            } catch (e) {
+                                                console.error('Failed to render team distribution chart', e);
                                             }
-                                        } catch (e) {
-                                            console.error('Failed to render performance chart:', e);
-                                        }
 
-                                        // existing: handle activities list population
-                                        if (listEl) {
-                                            listEl.innerHTML = '';
+                                            // Update Team Details List (Independent of chart)
+                                            try {
+                                                const teamListEl = document.getElementById('teamDetailsList');
+                                                if (teamListEl) {
+                                                    teamListEl.innerHTML = '';
+                                                    
+                                                    const teamsData = payload.teams_details || [];
+                                                    // Fallback if teams_details is empty but distribution data exists
+                                                    if (teamsData.length === 0 && payload.teams_distribution && payload.teams_distribution.labels) {
+                                                        payload.teams_distribution.labels.forEach((l, i) => {
+                                                            teamsData.push({
+                                                                name: l,
+                                                                employees_count: payload.teams_distribution.data[i] || 0,
+                                                                projects_count: 0,
+                                                                project_names: []
+                                                            });
+                                                        });
+                                                    }
 
-                                            // prefer activities if present
-                                            if (Array.isArray(payload.activities) && payload.activities.length > 0) {
-                                                payload.activities.forEach(act => {
-                                                    const item = document.createElement('div');
-                                                    item.className = 'activity-item';
-                                                    const icon = document.createElement('div');
-                                                    icon.className = 'activity-icon';
-                                                    icon.style.background = act.bg ||
-                                                        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                                                    icon.innerHTML =
-                                                        `<i class="fas fa-${act.icon || 'bell'}"></i>`;
-                                                    const content = document.createElement('div');
-                                                    content.className = 'activity-content';
-                                                    const title = document.createElement('div');
-                                                    title.className = 'activity-title';
-                                                    title.textContent = act.title || '-';
-                                                    const desc = document.createElement('div');
-                                                    desc.className = 'activity-description';
-                                                    desc.textContent = act.description || act.message || '';
-                                                    const time = document.createElement('div');
-                                                    time.className = 'activity-time';
-                                                    time.textContent = act.created_at ? new Date(act.created_at)
-                                                        .toLocaleString() : '';
-                                                    content.appendChild(title);
-                                                    content.appendChild(desc);
-                                                    content.appendChild(time);
-                                                    item.appendChild(icon);
-                                                    item.appendChild(content);
-                                                    listEl.appendChild(item);
-                                                });
+                                                    // Generate colors if needed (reuse generateColors if possible, or simple fallback)
+                                                    const colors = window.generateColors ? window.generateColors(teamsData.length) : teamsData.map(() => '#667eea');
 
-                                                // also append recent notifications after activities (optional)
-                                                if (Array.isArray(payload.notifications) && payload.notifications
+                                                    teamsData.forEach((team, index) => {
+                                                        const color = colors[index] || '#ccc';
+                                                        const projectNames = team.project_names && team.project_names.length > 0 
+                                                            ? team.project_names.join(', ') + (team.projects_count > team.project_names.length ? ` (+${team.projects_count - team.project_names.length})` : '')
+                                                            : 'No active projects';
+
+                                                        const item = document.createElement('div');
+                                                        item.style.cssText = 'display: flex; align-items: flex-start; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f3f4f6;';
+                                                        
+                                                        item.innerHTML = `
+                                                            <div style="display: flex; gap: 10px;">
+                                                                <span style="width: 10px; height: 10px; border-radius: 50%; background-color: ${color}; display: inline-block; margin-top: 5px;"></span>
+                                                                <div>
+                                                                    <div style="font-weight: 600; color: #374151; font-size: 0.9rem;">${team.name}</div>
+                                                                    <div style="font-size: 0.8rem; color: #6b7280; margin-top: 2px;">
+                                                                        <i class="fas fa-project-diagram" style="font-size: 0.7rem; margin-right: 4px;"></i>
+                                                                        ${projectNames}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div style="text-align: right; min-width: 60px;">
+                                                                <span style="font-weight: 700; color: #111827; font-size: 0.9rem;">${team.employees_count}</span>
+                                                                <div style="font-size: 0.7rem; color: #9ca3af;">Employees</div>
+                                                            </div>
+                                                        `;
+                                                        teamListEl.appendChild(item);
+                                                    });
+                                                    
+                                                    if (teamsData.length === 0) {
+                                                        teamListEl.innerHTML = '<p style="text-align: center; color: #9ca3af; margin-top: 20px;">No team data available</p>';
+                                                    }
+                                                }
+                                            } catch (e) {
+                                                console.error('Failed to render team list', e);
+                                            }
+
+
+                                            // Performance Analytics removed
+                                            // console.log('Payload received:', payload);
+
+                                            // existing: handle activities list population
+                                            if (listEl) {
+                                                listEl.innerHTML = '';
+
+                                                // prefer activities if present
+                                                if (Array.isArray(payload.activities) && payload.activities.length > 0) {
+                                                    payload.activities.forEach(act => {
+                                                        const item = document.createElement('div');
+                                                        item.className = 'activity-item';
+                                                        const icon = document.createElement('div');
+                                                        icon.className = 'activity-icon';
+                                                        icon.style.background = act.bg ||
+                                                            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                                                        icon.innerHTML =
+                                                            `<i class="fas fa-${act.icon || 'bell'}"></i>`;
+                                                        const content = document.createElement('div');
+                                                        content.className = 'activity-content';
+                                                        const title = document.createElement('div');
+                                                        title.className = 'activity-title';
+                                                        title.textContent = act.title || '-';
+                                                        const desc = document.createElement('div');
+                                                        desc.className = 'activity-description';
+                                                        desc.textContent = act.description || act.message || '';
+                                                        const time = document.createElement('div');
+                                                        time.className = 'activity-time';
+                                                        time.textContent = act.created_at ? new Date(act.created_at)
+                                                            .toLocaleString() : '';
+                                                        content.appendChild(title);
+                                                        content.appendChild(desc);
+                                                        content.appendChild(time);
+                                                        item.appendChild(icon);
+                                                        item.appendChild(content);
+                                                        listEl.appendChild(item);
+                                                    });
+
+                                                    // also append recent notifications after activities (optional)
+                                                    if (Array.isArray(payload.notifications) && payload.notifications
+                                                        .length > 0) {
+                                                        payload.notifications.forEach(n => {
+                                                            const item = document.createElement('div');
+                                                            item.className = 'activity-item';
+                                                            const icon = document.createElement('div');
+                                                            icon.className = 'activity-icon';
+                                                            icon.style.background = n.bg ||
+                                                                'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)';
+                                                            icon.innerHTML =
+                                                                `<i class="fas fa-${n.icon || 'bell'}"></i>`;
+                                                            const content = document.createElement('div');
+                                                            content.className = 'activity-content';
+                                                            const title = document.createElement('div');
+                                                            title.className = 'activity-title';
+                                                            title.textContent = n.title || n.message || '-';
+                                                            const desc = document.createElement('div');
+                                                            desc.className = 'activity-description';
+                                                            desc.textContent = n.message || '';
+                                                            const time = document.createElement('div');
+                                                            time.className = 'activity-time';
+                                                            time.textContent = n.created_at ? new Date(n.created_at)
+                                                                .toLocaleString() : '';
+                                                            content.appendChild(title);
+                                                            content.appendChild(desc);
+                                                            content.appendChild(time);
+                                                            item.appendChild(icon);
+                                                            item.appendChild(content);
+                                                            listEl.appendChild(item);
+                                                        });
+                                                    }
+                                                }
+                                                // if no activities, show notifications (useful when activities table is empty)
+                                                else if (Array.isArray(payload.notifications) && payload.notifications
                                                     .length > 0) {
                                                     payload.notifications.forEach(n => {
                                                         const item = document.createElement('div');
@@ -844,55 +969,75 @@
                                                         item.appendChild(content);
                                                         listEl.appendChild(item);
                                                     });
+                                                } else {
+                                                    // keep existing loading / fallback behavior
+                                                    if (loadingEl) loadingEl.textContent =
+                                                        'No recent activities or notifications.';
                                                 }
                                             }
-                                            // if no activities, show notifications (useful when activities table is empty)
-                                            else if (Array.isArray(payload.notifications) && payload.notifications
-                                                .length > 0) {
-                                                payload.notifications.forEach(n => {
-                                                    const item = document.createElement('div');
-                                                    item.className = 'activity-item';
-                                                    const icon = document.createElement('div');
-                                                    icon.className = 'activity-icon';
-                                                    icon.style.background = n.bg ||
-                                                        'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)';
-                                                    icon.innerHTML =
-                                                        `<i class="fas fa-${n.icon || 'bell'}"></i>`;
-                                                    const content = document.createElement('div');
-                                                    content.className = 'activity-content';
-                                                    const title = document.createElement('div');
-                                                    title.className = 'activity-title';
-                                                    title.textContent = n.title || n.message || '-';
-                                                    const desc = document.createElement('div');
-                                                    desc.className = 'activity-description';
-                                                    desc.textContent = n.message || '';
-                                                    const time = document.createElement('div');
-                                                    time.className = 'activity-time';
-                                                    time.textContent = n.created_at ? new Date(n.created_at)
-                                                        .toLocaleString() : '';
-                                                    content.appendChild(title);
-                                                    content.appendChild(desc);
-                                                    content.appendChild(time);
-                                                    item.appendChild(icon);
-                                                    item.appendChild(content);
-                                                    listEl.appendChild(item);
-                                                });
-                                            } else {
-                                                // keep existing loading / fallback behavior
-                                                if (loadingEl) loadingEl.textContent =
-                                                    'No recent activities or notifications.';
+
+                                            // Top Performers Table
+                                            if (topPerformersBody) {
+                                                // console.log('Updating top performers table', payload.topPerformers);
+                                                topPerformersBody.innerHTML = '';
+                                                if (Array.isArray(payload.topPerformers) && payload.topPerformers.length > 0) {
+                                                    payload.topPerformers.forEach(p => {
+                                                        const tr = document.createElement('tr');
+                                                        tr.innerHTML = `
+                                                            <td>
+                                                                <div style="display:flex;align-items:center;gap:0.5rem;">
+                                                                    <div style="width:32px;height:32px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#64748b;">
+                                                                        ${p.name.charAt(0)}
+                                                                    </div>
+                                                                    <div>
+                                                                        <div style="font-weight:600;color:var(--text-primary);">${p.name}</div>
+                                                                        <div style="font-size:0.75rem;color:var(--text-secondary);">${p.email}</div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>${p.role}</td>
+                                                            <td>
+                                                                <div style="display:flex;align-items:center;gap:0.5rem;">
+                                                                    <div style="flex:1;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;width:80px;">
+                                                                        <div style="width:${p.score}%;height:100%;background:${p.score >= 80 ? '#22c55e' : (p.score >= 60 ? '#eab308' : '#ef4444')};"></div>
+                                                                    </div>
+                                                                    <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                                                                        <span style="font-weight:600;font-size:0.875rem;">${p.score}%</span>
+                                                                        <span style="font-size:0.7rem;color:#64748b;">${p.rating || 0} / 5</span>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>${p.projects_count}</td>
+                                                            <td>
+                                                                <span class="status-badge ${p.status === 'active' ? 'ongoing' : 'scheduled'}" style="font-size:0.75rem;padding:0.25rem 0.5rem;">
+                                                                    ${p.status.charAt(0).toUpperCase() + p.status.slice(1)}
+                                                                </span>
+                                                            </td>
+                                                        `;
+                                                        topPerformersBody.appendChild(tr);
+                                                    });
+                                                } else {
+                                                    topPerformersBody.innerHTML = '<tr><td colspan="5" class="text-center">No data available</td></tr>';
+                                                }
                                             }
-                                        }
-                                    })
-                                    .catch(err => {
-                                        console.error('Failed to load admin dashboard data:', err);
-                                        if (loadingEl) loadingEl.textContent = 'Failed to load activities.';
-                                    });
+
+                                        })
+                                        .catch(err => {
+                                            console.error('Failed to load admin dashboard data:', err);
+                                            if (loadingEl) loadingEl.textContent = 'Failed to load activities.';
+                                            if (topPerformersBody) topPerformersBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Failed to load data</td></tr>';
+                                        });
+                                }
+
+                                // Initial fetch
+                                fetchData();
+
+                                // Chart Controls removed
                             })();
                         });
         </script>
         @if (session('success'))
-            <script script>
+            <script>
                 const Toast = Swal.mixin({
                     toast: true,
                     position: 'top-end',

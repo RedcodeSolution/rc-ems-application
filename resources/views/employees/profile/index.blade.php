@@ -1713,6 +1713,55 @@
                 opacity: 0;
             }
         }
+
+        /* Responsive Styles for Medium Screens (Tablets/Small Laptops) */
+        @media (max-width: 1024px) {
+            .profile-content {
+                grid-template-columns: 1fr !important;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+                padding: 1.5rem;
+            }
+
+            .profile-avatar-section {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .profile-header-info h1 {
+                font-size: 1.75rem;
+            }
+
+            .profile-actions {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+
+            .profile-actions .btn {
+                width: auto;
+                min-width: 200px;
+            }
+        }
+
+        /* Mobile Specific Adjustments */
+        @media (max-width: 600px) {
+            .profile-actions .btn {
+                width: 100%;
+            }
+        }
     `;
         document.head.appendChild(style);
     </script>

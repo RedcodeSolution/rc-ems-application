@@ -449,6 +449,74 @@
 @section('title', 'Document Management')
 
 @section('content')
+    <!-- Document Statistics -->
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="card">
+            <div class="card-body text-center">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
+                    {{ $documents->count() }}</div>
+                <div style="color: var(--gray-600); font-weight: 500;">Total Documents</div>
+            </div>
+        </div>
+
+        @php
+            $totalDownloads = $documents->sum('downloads');
+        @endphp
+
+        <div class="card">
+            <div class="card-body text-center">
+                <div id="total-downloads"
+                    style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">
+                    {{ $totalDownloads }}
+                </div>
+                <div style="color: var(--gray-600); font-weight: 500;">
+                    Total Downloads
+                </div>
+            </div>
+        </div>
+
+
+        @php
+            use Illuminate\Support\Facades\File;
+
+            $totalSizeBytes = 0;
+
+            foreach ($documents as $doc) {
+                if (!empty($doc->file_path)) {
+                    $fullPath = storage_path('app/public/' . $doc->file_path);
+
+                    if (File::exists($fullPath)) {
+                        $totalSizeBytes += File::size($fullPath);
+                    }
+                }
+            }
+
+            // Convert total to MB
+            $totalSizeMB = $totalSizeBytes > 0 ? round($totalSizeBytes / 1048576, 2) : 0;
+
+        @endphp
+
+        <div class="card">
+            <div class="card-body text-center">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">
+                    {{ $totalSizeMB }}
+                </div>
+                <div style="color: var(--gray-600); font-weight: 500;">
+                    Total Size (MB)
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body text-center">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--info); margin-bottom: 0.5rem;">
+                    {{ $documents->whereNotNull('category')->pluck('category')->unique()->count() }}
+                </div>
+                <div style="color: var(--gray-600); font-weight: 500;">Categories</div>
+            </div>
+        </div>
+    </div>
     <div class="card">
         <div class="card-header">
             <h2><i class="fas fa-file-alt"></i> Document Management</h2>
@@ -714,74 +782,7 @@
         </div>
     </div>
 
-    <!-- Document Statistics -->
-    <div
-        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
-        <div class="card">
-            <div class="card-body text-center">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
-                    {{ $documents->count() }}</div>
-                <div style="color: var(--gray-600); font-weight: 500;">Total Documents</div>
-            </div>
-        </div>
 
-        @php
-            $totalDownloads = $documents->sum('downloads');
-        @endphp
-
-        <div class="card">
-            <div class="card-body text-center">
-                <div id="total-downloads"
-                    style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">
-                    {{ $totalDownloads }}
-                </div>
-                <div style="color: var(--gray-600); font-weight: 500;">
-                    Total Downloads
-                </div>
-            </div>
-        </div>
-
-
-        @php
-            use Illuminate\Support\Facades\File;
-
-            $totalSizeBytes = 0;
-
-            foreach ($documents as $doc) {
-                if (!empty($doc->file_path)) {
-                    $fullPath = storage_path('app/public/' . $doc->file_path);
-
-                    if (File::exists($fullPath)) {
-                        $totalSizeBytes += File::size($fullPath);
-                    }
-                }
-            }
-
-            // Convert total to MB
-            $totalSizeMB = $totalSizeBytes > 0 ? round($totalSizeBytes / 1048576, 2) : 0;
-
-        @endphp
-
-        <div class="card">
-            <div class="card-body text-center">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">
-                    {{ $totalSizeMB }}
-                </div>
-                <div style="color: var(--gray-600); font-weight: 500;">
-                    Total Size (MB)
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-body text-center">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--info); margin-bottom: 0.5rem;">
-                    {{ $documents->whereNotNull('category')->pluck('category')->unique()->count() }}
-                </div>
-                <div style="color: var(--gray-600); font-weight: 500;">Categories</div>
-            </div>
-        </div>
-    </div>
 
     <!-- Add Document Modal -->
     <div id="addDocumentModal" class="modal">

@@ -4,6 +4,44 @@
 @section('title', 'Announcements')
 
 @section('content')
+    <!-- Announcement Statistics -->
+    <div class="grid"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+
+        <!-- Total Announcements -->
+        <div class="card"
+            style="border: 1px solid var(--gray-200); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <div class="card-body text-center" style="padding: 1.25rem;">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
+                    {{ $totalAnnouncements }}
+                </div>
+                <div style="color: var(--gray-700); font-weight: 600;">Total Announcements</div>
+            </div>
+        </div>
+
+        <!-- Published -->
+        <div class="card"
+            style="border: 1px solid var(--gray-200); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <div class="card-body text-center" style="padding: 1.25rem;">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">
+                    {{ $publishedCount }}
+                </div>
+                <div style="color: var(--gray-700); font-weight: 600;">Published</div>
+            </div>
+        </div>
+
+        <!-- Scheduled -->
+        <div class="card"
+            style="border: 1px solid var(--gray-200); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <div class="card-body text-center" style="padding: 1.25rem;">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">
+                    {{ $scheduledCount }}
+                </div>
+                <div style="color: var(--gray-700); font-weight: 600;">Scheduled</div>
+            </div>
+        </div>
+
+    </div>
     <div class="card">
         <div class="card-header">
             <h2><i class="fas fa-bullhorn"></i> Announcements</h2>
@@ -244,44 +282,7 @@
         </div>
     </div>
 
-    <!-- Announcement Statistics -->
-    <div class="grid"
-        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
 
-        <!-- Total Announcements -->
-        <div class="card"
-            style="border: 1px solid var(--gray-200); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <div class="card-body text-center" style="padding: 1.25rem;">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
-                    {{ $totalAnnouncements }}
-                </div>
-                <div style="color: var(--gray-700); font-weight: 600;">Total Announcements</div>
-            </div>
-        </div>
-
-        <!-- Published -->
-        <div class="card"
-            style="border: 1px solid var(--gray-200); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <div class="card-body text-center" style="padding: 1.25rem;">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">
-                    {{ $publishedCount }}
-                </div>
-                <div style="color: var(--gray-700); font-weight: 600;">Published</div>
-            </div>
-        </div>
-
-        <!-- Scheduled -->
-        <div class="card"
-            style="border: 1px solid var(--gray-200); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <div class="card-body text-center" style="padding: 1.25rem;">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">
-                    {{ $scheduledCount }}
-                </div>
-                <div style="color: var(--gray-700); font-weight: 600;">Scheduled</div>
-            </div>
-        </div>
-
-    </div>
 
     <!-- Announcement Creation Modal -->
     <div id="announcementModal" class="modal-overlay">

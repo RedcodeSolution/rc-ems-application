@@ -143,8 +143,7 @@
                     </span>
                 </a>
 
-                <a href="{{ route('employee.profile') }}" class="user-menu"
-                    style="text-decoration: none; color: inherit;">
+                <div class="user-menu" id="userMenuBtn">
                     <div class="user-avatar">
                         {{ strtoupper(substr(auth()->user()?->name ?? 'E', 0, 1)) }}
                     </div>
@@ -152,16 +151,30 @@
                         <h4>{{ auth()->user()?->name ?? 'Employee' }}</h4>
                         <p>{{ auth()->user()?->email ?? 'employee@company.com' }}</p>
                     </div>
-                </a>
+                    <i class="fas fa-chevron-down" style="color: var(--gray-400); margin-left: 0.5rem;"></i>
+
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="{{ route('employee.profile') }}" class="dropdown-item">
+                            <i class="fas fa-user"></i> My Profile
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <form method="POST" action="{{ route('logout') }}" id="logout-form-dropdown">
+                            @csrf
+                            <button type="button" class="dropdown-item text-danger" onclick="confirmLogout()">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Mobile Profile Button (Visible only on mobile) -->
+                <button class="mobile-profile-btn" id="mobileProfileBtn" style="display: none;">
+                    <div class="user-avatar">
+                        {{ strtoupper(substr(auth()->user()?->name ?? 'E', 0, 1)) }}
+                    </div>
+                </button>
 
 
-                <form method="POST" action="{{ route('logout') }}" style="display: inline;" id="logoutForm">
-                    @csrf
-                    <button type="button" class="btn btn-primary" onclick="confirmLogout()">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </button>
-                </form>
             </div>
 
         </div>
@@ -174,10 +187,12 @@
             <div class="modal-dropdown-content">
                 <div class="modal-dropdown-header">
                     <h3><i class="fas fa-bell"></i> Notifications</h3>
-                    <button class="modal-close" id="closenotificationModalDrop">&times;</button>
-                    <button id="markAllBtn" class="btn btn-warning btn-sm" style="float:right;">
-                        Mark All as Read
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <button id="markAllBtn" class="mark-all-btn">
+                            <i class="fas fa-check-double"></i> Mark all read
+                        </button>
+                        <button class="modal-close" id="closenotificationModalDrop">&times;</button>
+                    </div>
                 </div>
                 <div class="modal-dropdown-body" id="latestNotifications">
                     <p style="text-align:center; color: gray;">Loading...</p>
@@ -185,6 +200,34 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Mobile Profile Modal Overlay -->
+    <div id="mobileProfileModal" class="mobile-profile-modal" style="display: none;">
+        <div class="mobile-profile-bg"></div>
+        <div class="mobile-profile-content">
+            <div class="mobile-profile-header">
+                <div class="user-avatar large">
+                    {{ strtoupper(substr(auth()->user()?->name ?? 'E', 0, 1)) }}
+                </div>
+                <div class="mobile-user-info">
+                    <h4>{{ auth()->user()?->name ?? 'Employee' }}</h4>
+                    <p>{{ auth()->user()?->email ?? 'employee@company.com' }}</p>
+                </div>
+                <!-- Close button removed -->
+            </div>
+            <div class="mobile-profile-body">
+                <a href="{{ route('employee.profile') }}" class="mobile-menu-item">
+                    <i class="fas fa-user"></i> My Profile
+                </a>
+                <form method="POST" action="{{ route('logout') }}" id="logout-form-mobile">
+                    @csrf
+                    <button type="button" class="mobile-menu-item text-danger" onclick="confirmMobileLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -365,6 +408,23 @@
             });
 
             refreshBellDot();
+
+            // User Dropdown Toggle
+            const userMenuBtn = document.getElementById('userMenuBtn');
+            const userDropdown = document.getElementById('userDropdown');
+
+            if (userMenuBtn && userDropdown) {
+                userMenuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('show');
+                });
+
+                document.addEventListener('click', function(e) {
+                    if (!userMenuBtn.contains(e.target)) {
+                        userDropdown.classList.remove('show');
+                    }
+                });
+            }
         });
 
 
@@ -400,7 +460,85 @@
                 confirmButtonText: "Logout",
             }).then((result) => {
                 if (result.isConfirmed) {
-                    document.getElementById('logoutForm').submit();
+                    document.getElementById('logout-form-dropdown').submit();
+                }
+            });
+        }
+
+        /* ============================
+           MOBILE PROFILE MODAL
+        ============================ */
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileBtn = document.getElementById('mobileProfileBtn');
+            const mobileModal = document.getElementById('mobileProfileModal');
+            const closeMobileBtn = document.getElementById('closeMobileProfile');
+            const mobileBg = mobileModal ? mobileModal.querySelector('.mobile-profile-bg') : null;
+
+            if (mobileBtn && mobileModal) {
+                mobileBtn.addEventListener('click', function() {
+                    mobileModal.style.display = 'flex';
+                });
+
+                const closeModal = () => {
+                    mobileModal.style.display = 'none';
+                };
+
+                if (closeMobileBtn) closeMobileBtn.addEventListener('click', closeModal);
+                if (mobileBg) mobileBg.addEventListener('click', closeModal);
+            }
+        });
+
+        function confirmMobileLogout() {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You will be logged out.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DC2626",
+                cancelButtonColor: "#6B7280",
+                confirmButtonText: "Logout",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form-mobile').submit();
+                }
+            });
+        }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile Profile Modal Logic
+            const mobileBtn = document.getElementById('mobileProfileBtn');
+            const mobileModal = document.getElementById('mobileProfileModal');
+            const closeMobileBtn = document.getElementById('closeMobileProfile');
+            const mobileBg = mobileModal.querySelector('.mobile-profile-bg');
+
+            if (mobileBtn && mobileModal) {
+                mobileBtn.addEventListener('click', function() {
+                    mobileModal.style.display = 'flex';
+                });
+
+                const closeModal = () => {
+                    mobileModal.style.display = 'none';
+                };
+
+                closeMobileBtn.addEventListener('click', closeModal);
+                mobileBg.addEventListener('click', closeModal);
+            }
+        });
+
+        function confirmMobileLogout() {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You will be logged out.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DC2626",
+                cancelButtonColor: "#6B7280",
+                confirmButtonText: "Logout",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form-mobile').submit();
                 }
             });
         }

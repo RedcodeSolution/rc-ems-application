@@ -16,16 +16,67 @@
         </div>
     @endif
 
+    <!-- Summary Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Total Employees -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(37, 99, 235, 0.1); color: var(--redcode-blue); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Total Employees</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $employees->count() }}</div>
+            </div>
+        </div>
+
+        <!-- Active Employees -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(5, 150, 105, 0.1); color: var(--redcode-green); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Active Employees</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $employees->where('employee_status', 'Active')->count() }}</div>
+            </div>
+        </div>
+
+        <!-- On Leave -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(245, 158, 11, 0.1); color: var(--redcode-orange); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-user-clock"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">On Leave</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $employees->where('employee_status', 'On Leave')->count() }}</div>
+            </div>
+        </div>
+
+        <!-- New Joiners -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(107, 114, 128, 0.1); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">New Joiners (Month)</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">
+                    {{ $employees->filter(function($employee) {
+                        return $employee->created_at && $employee->created_at->isCurrentMonth();
+                    })->count() }}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-header">
             <h2><i class="fas fa-users"></i> Employees</h2>
             <div class="flex gap-2">
                 <button onclick="openEmployeeModal()" class="btn btn-primary">
                     <i class="fas fa-plus"></i>
-                    Add Employee
+                    <span class="btn-text">Add Employee</span>
                 </button>
                 <button class="btn btn-secondary" onclick="exportEmployeePDF()">
-                    <i class="fas fa-download"></i> Export
+                    <i class="fas fa-download"></i> <span class="btn-text">Export</span>
                 </button>
 
             </div>

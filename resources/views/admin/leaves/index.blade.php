@@ -3,6 +3,514 @@
 @section('title', 'Leave Management - Admin Dashboard')
 
 @section('content')
+    <style>
+        /* Leave Management Index Styles */
+        .leave-management-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .leave-header {
+            background: linear-gradient(135deg, #dc2626, #b91c1c, #991b1b);
+            background-size: 400% 400%;
+            animation: gradientShift 18s ease infinite;
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .leave-header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-info h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-info p {
+            margin: 0.5rem 0 0 0;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .header-actions .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-actions .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Stats Grid */
+        .leave-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .leave-stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .leave-stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .leave-stat-card .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .leave-stat-card.pending .stat-icon {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+
+        .leave-stat-card.approved .stat-icon {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+
+        .leave-stat-card.rejected .stat-icon {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .leave-stat-card.total .stat-icon {
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+        }
+
+        .leave-stat-card .stat-content h3 {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin: 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .leave-stat-card .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0.5rem 0;
+            line-height: 1;
+        }
+
+        .leave-stat-card .stat-trend {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .stat-trend.positive { color: #059669; }
+        .stat-trend.negative { color: #dc2626; }
+        .stat-trend.neutral { color: var(--text-secondary); }
+        .stat-trend.urgent { color: #d97706; }
+
+        /* Tabs */
+        .leave-tabs {
+            margin-bottom: 2rem;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.1rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+        }
+
+        .tab-btn:not(.active) .tab-badge {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        /* Filters */
+        .leave-filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-light);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .filter-select, .filter-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-light);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        /* Tables */
+        .leave-table-container {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+        }
+
+        .leave-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .leave-table th {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .leave-table td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+
+        .leave-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .leave-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Employee Cell */
+        .employee-cell {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .employee-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .employee-info h4 {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .employee-info p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Badges */
+        .leave-type-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .type-annual { background: rgba(220, 38, 38, 0.1); color: #dc2626; }
+        .type-sick { background: rgba(37, 99, 235, 0.1); color: #2563eb; }
+        .type-personal { background: rgba(5, 150, 105, 0.1); color: #059669; }
+        .type-maternity { background: rgba(219, 39, 119, 0.1); color: #db2777; }
+        .type-emergency { background: rgba(220, 38, 38, 0.1); color: #dc2626; }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-approved { background: rgba(16, 185, 129, 0.1); color: #059669; }
+        .status-rejected { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+        .status-pending { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+
+        .btn-view { background: rgba(107, 114, 128, 0.1); color: #4b5563; }
+        .btn-view:hover { background: #4b5563; color: white; }
+
+        .btn-approve { background: rgba(16, 185, 129, 0.1); color: #059669; }
+        .btn-approve:hover { background: #059669; color: white; }
+
+        .btn-reject { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+        .btn-reject:hover { background: #dc2626; color: white; }
+
+        /* Tab Panels */
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .panel-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Analytics Grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .analytics-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
+        }
+
+        .card-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .leave-management-container {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .header-info h1 {
+                justify-content: center;
+            }
+
+            .header-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .header-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .filter-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .leave-table th, .leave-table td {
+                padding: 0.75rem 1rem;
+            }
+            
+            .leave-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
     <div class="leave-management-container">
         <!-- Leave Management Header -->
         <div class="leave-header">
@@ -393,9 +901,9 @@
                         <tbody>
                             @foreach ($pendingLeaves as $leave)
                                 <tr class="leave-row" data-id="{{ e($leave->leave_id) }}"
-                                    data-name="{{ e($leave->employee->employee_name) }}"
-                                    data-empid="{{ e($leave->employee->employee_id) }}"
-                                    data-department="{{ e($leave->employee->department->department_name ?? '-') }}"
+                                    data-name="{{ e($leave->user->employee->employee_name ?? 'Unknown') }}"
+                                    data-empid="{{ e($leave->user->employee->employee_id ?? '') }}"
+                                    data-department="{{ e($leave->user->employee->department->department_name ?? '-') }}"
                                     data-type="{{ e($leave->leave_type) }}" data-status="{{ e($leave->status) }}"
                                     data-start="{{ e(\Carbon\Carbon::parse($leave->start_date)->format('M d, Y')) }}"
                                     data-end="{{ e(\Carbon\Carbon::parse($leave->end_date)->format('M d, Y')) }}"
@@ -408,11 +916,11 @@
                                     <td>
                                         <div class="employee-cell">
                                             <div class="employee-avatar">
-                                                {{ strtoupper(substr($leave->employee->employee_name, 0, 1)) }}
+                                                {{ strtoupper(substr($leave->user->employee->employee_name ?? 'U', 0, 1)) }}
                                             </div>
                                             <div class="employee-info">
-                                                <h4>{{ $leave->employee->employee_name }}</h4>
-                                                <p>{{ $leave->employee->employee_id }} •
+                                                <h4>{{ $leave->user->employee->employee_name ?? 'Unknown' }}</h4>
+                                                <p>{{ $leave->user->employee->employee_id ?? '' }} •
                                                 </p>
                                             </div>
                                         </div>
@@ -531,9 +1039,9 @@
                             <tbody>
                                 @foreach ($approvedLeaves as $leave)
                                     <tr class="leave-row" data-id="{{ e($leave->leave_id) }}"
-                                        data-name="{{ e($leave->employee->employee_name) }}"
-                                        data-empid="{{ e($leave->employee->employee_id) }}"
-                                        data-department="{{ e($leave->employee->department->department_name ?? '-') }}"
+                                        data-name="{{ e($leave->user->employee->employee_name ?? 'Unknown') }}"
+                                        data-empid="{{ e($leave->user->employee->employee_id ?? '') }}"
+                                        data-department="{{ e($leave->user->employee->department->department_name ?? '-') }}"
                                         data-type="{{ e($leave->leave_type) }}" data-status="{{ e($leave->status) }}"
                                         data-start="{{ e(\Carbon\Carbon::parse($leave->start_date)->format('M d, Y')) }}"
                                         data-end="{{ e(\Carbon\Carbon::parse($leave->end_date)->format('M d, Y')) }}"
@@ -543,12 +1051,12 @@
                                         <td>
                                             <div class="employee-cell">
                                                 <div class="employee-avatar">
-                                                    {{ strtoupper(substr($leave->employee->employee_name, 0, 1)) }}
+                                                    {{ strtoupper(substr($leave->user->employee->employee_name ?? 'U', 0, 1)) }}
                                                 </div>
                                                 <div class="employee-info">
-                                                    <h4>{{ $leave->employee->employee_name }}</h4>
-                                                    <p>{{ $leave->employee->employee_id }} •
-                                                        {{ $leave->employee->department->department_name }}</p>
+                                                    <h4>{{ $leave->user->employee->employee_name ?? 'Unknown' }}</h4>
+                                                    <p>{{ $leave->user->employee->employee_id ?? '' }} •
+                                                        {{ $leave->user->employee->department->department_name ?? '' }}</p>
                                                 </div>
                                             </div>
                                         </td>
@@ -650,9 +1158,9 @@
                             <tbody>
                                 @foreach ($rejectedLeaves as $leave)
                                     <tr class="leave-row" data-id="{{ e($leave->leave_id) }}"
-                                        data-name="{{ e($leave->employee->employee_name) }}"
-                                        data-empid="{{ e($leave->employee->employee_id) }}"
-                                        data-department="{{ e($leave->employee->department->department_name ?? '-') }}"
+                                        data-name="{{ e($leave->user->employee->employee_name ?? 'Unknown') }}"
+                                        data-empid="{{ e($leave->user->employee->employee_id ?? '') }}"
+                                        data-department="{{ e($leave->user->employee->department->department_name ?? '-') }}"
                                         data-type="{{ e($leave->leave_type) }}" data-status="{{ e($leave->status) }}"
                                         data-start="{{ e(\Carbon\Carbon::parse($leave->start_date)->format('M d, Y')) }}"
                                         data-end="{{ e(\Carbon\Carbon::parse($leave->end_date)->format('M d, Y')) }}"
@@ -662,12 +1170,12 @@
                                         <td>
                                             <div class="employee-cell">
                                                 <div class="employee-avatar">
-                                                    {{ strtoupper(substr($leave->employee->employee_name, 0, 1)) }}
+                                                    {{ strtoupper(substr($leave->user->employee->employee_name ?? 'U', 0, 1)) }}
                                                 </div>
                                                 <div class="employee-info">
-                                                    <h4>{{ $leave->employee->employee_name }}</h4>
-                                                    <p>{{ $leave->employee->employee_id }} •
-                                                        {{ $leave->employee->department->department_name }}</p>
+                                                    <h4>{{ $leave->user->employee->employee_name ?? 'Unknown' }}</h4>
+                                                    <p>{{ $leave->user->employee->employee_id ?? '' }} •
+                                                        {{ $leave->user->employee->department->department_name ?? '' }}</p>
                                                 </div>
                                             </div>
                                         </td>
@@ -762,9 +1270,9 @@
 
                             @foreach ($employeeLeaves as $leave)
                                 <tr class="leave-row" data-id="{{ $leave->leave_id }}"
-                                    data-name="{{ e($leave->employee->employee_name) }}"
-                                    data-empid="{{ e($leave->employee->employee_id) }}"
-                                    data-department="{{ e($leave->employee->department->department_name ?? '') }}"
+                                    data-name="{{ e($leave->user->employee->employee_name ?? 'Unknown') }}"
+                                    data-empid="{{ e($leave->user->employee->employee_id ?? '') }}"
+                                    data-department="{{ e($leave->user->employee->department->department_name ?? '') }}"
                                     data-type="{{ e($leave->leave_type) }}" data-status="{{ e($leave->status) }}"
                                     data-start="{{ e(\Carbon\Carbon::parse($leave->start_date)->format('M d, Y')) }}"
                                     data-end="{{ e(\Carbon\Carbon::parse($leave->end_date)->format('M d, Y')) }}"
@@ -775,12 +1283,12 @@
                                     <td>
                                         <div class="employee-cell">
                                             <div class="employee-avatar">
-                                                {{ strtoupper(substr($leave->employee->employee_name, 0, 1)) }}
+                                                {{ strtoupper(substr($leave->user->employee->employee_name ?? 'U', 0, 1)) }}
                                             </div>
                                             <div class="employee-info">
-                                                <h4>{{ $leave->employee->employee_name }}</h4>
-                                                <p>{{ $leave->employee->employee_id }} <br />
-                                                    {{-- {{ $leave->employee->department->department_name }}</p> --}}
+                                                <h4>{{ $leave->user->employee->employee_name ?? 'Unknown' }}</h4>
+                                                <p>{{ $leave->user->employee->employee_id ?? '' }} <br />
+                                                    {{-- {{ $leave->user->employee->department->department_name ?? '' }}</p> --}}
                                             </div>
                                         </div>
                                     </td>
@@ -4363,4 +4871,4 @@
         }
     </script>
 
-@endsection
+@endsection 

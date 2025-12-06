@@ -4,6 +4,53 @@
 @section('title', 'Projects Management')
 
 @section('content')
+    <!-- Summary Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Total Projects -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(37, 99, 235, 0.1); color: var(--redcode-blue); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-project-diagram"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Total Projects</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $projects->count() }}</div>
+            </div>
+        </div>
+
+        <!-- In Progress -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(5, 150, 105, 0.1); color: var(--redcode-green); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-spinner"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">In Progress</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $projects->where('status', 'In Progress')->count() }}</div>
+            </div>
+        </div>
+
+        <!-- Completed -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(16, 185, 129, 0.1); color: var(--success); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Completed</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $projects->where('status', 'Completed')->count() }}</div>
+            </div>
+        </div>
+
+        <!-- On Hold -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(245, 158, 11, 0.1); color: var(--redcode-orange); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-pause-circle"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">On Hold</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $projects->where('status', 'On Hold')->count() }}</div>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-header">
             <h2><i class="fas fa-project-diagram"></i> Projects</h2>
@@ -2332,4 +2379,15 @@
             });
         </script>
     @endif
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('action') === 'create') {
+                openModal();
+                // Clean up URL
+                const newUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+            }
+        });
+    </script>
 @endsection

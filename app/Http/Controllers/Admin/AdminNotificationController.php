@@ -67,11 +67,22 @@ class AdminNotificationController extends Controller
         ]);
     }
 
+    public function deleteAll()
+    {
+        Notification::where('target', 'admin')->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'All notifications deleted successfully'
+        ]);
+    }
+
     public function latest()
     {
         $latestNotifications = Notification::where('target', 'admin')
+            ->where('is_read', false)
             ->latest()
-            ->take(3)
+            ->take(5)
             ->get();
 
         return response()->json($latestNotifications);

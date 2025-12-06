@@ -1,6 +1,6 @@
 @extends('layouts.employee')
 <link rel="stylesheet" href="{{ asset('css/Employee/overview.css') }}">
-@section('title', 'Employee Dashboard - Overview')
+@section('title', 'Dashboard')
 
 @section('content')
     <div class="dashboard-container">
@@ -241,11 +241,23 @@
                     <div class="card-header">
                         <h3><i class="fas fa-history"></i> Recent Activity</h3>
                     </div>
-                    @foreach ($recentActivities as $activity)
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas {{ $activity->icon }}"></i>
-                            </div>
+                        @foreach ($recentActivities as $activity)
+                            @php
+                                $iconClass = 'fa-bell'; // Default
+                                if (stripos($activity->action, 'Logged In') !== false) {
+                                    $iconClass = 'fa-sign-in-alt';
+                                } elseif (stripos($activity->action, 'Logged Out') !== false) {
+                                    $iconClass = 'fa-sign-out-alt';
+                                } elseif (stripos($activity->action, 'Update') !== false) {
+                                    $iconClass = 'fa-edit';
+                                } elseif (stripos($activity->action, 'Task') !== false) {
+                                    $iconClass = 'fa-tasks';
+                                }
+                            @endphp
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas {{ $activity->icon ? $activity->icon : $iconClass }}"></i>
+                                </div>
                             <div class="activity-content">
                                 <h4>{{ $activity->action }}</h4>
                                 <p>{{ $activity->details }}</p>
@@ -463,6 +475,7 @@
                 justify-content: center;
                 color: white;
                 font-size: 1.5rem;
+                flex-shrink: 0;
             }
 
             .stat-content {
@@ -591,6 +604,7 @@
                 justify-content: center;
                 color: white;
                 font-size: 1.125rem;
+                flex-shrink: 0;
             }
 
             .action-content h4 {
@@ -796,50 +810,33 @@
                 }
             }
 
+            @media (max-width: 600px) {
+                .meetings-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .meeting-content {
+                    grid-template-columns: 1fr;
+                    gap: 1rem;
+                }
+
+                .meeting-link-display {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+                
+                .meeting-link-input {
+                    width: 100%;
+                }
+            }
+
             @media (max-width: 395px) {
                 .meetings-grid {
-                    grid-template-columns: 1fr !important;
                     gap: 1rem !important;
-                    width: 100vw !important;
-                    max-width: 100vw !important;
-                    box-sizing: border-box !important;
                 }
 
                 .meeting-card {
-                    padding: 0.75rem !important;
-                    font-size: 0.85rem !important;
-                    width: 100vw !important;
-                    max-width: 100vw !important;
-                    box-sizing: border-box !important;
-                }
-
-                .meeting-header {
-                    flex-direction: column !important;
-                    gap: 0.5rem !important;
-                }
-
-                .meeting-title {
-                    font-size: 1rem !important;
-                }
-
-                .meeting-section-title {
-                    font-size: 1.1rem !important;
-                }
-
-                .meeting-section-subtitle {
-                    font-size: 0.85rem !important;
-                }
-
-                .meeting-content {
-                    grid-template-columns: 1fr !important;
-                    gap: 1rem !important;
-                }
-
-                .meeting-link-input,
-                .copy-btn,
-                .join-meeting-btn {
-                    font-size: 0.85rem !important;
-                    padding: 0.5rem 0.7rem !important;
+                    padding: 1rem !important;
                 }
             }
 
@@ -874,7 +871,7 @@
 
             .meetings-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
                 gap: 1.5rem;
             }
 

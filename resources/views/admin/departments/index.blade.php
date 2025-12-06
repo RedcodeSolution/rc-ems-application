@@ -5,6 +5,37 @@
 @section('title', 'Departments Management')
 
 @section('content')
+    <div class="departments-stats" style="margin-top: 0; margin-bottom: 2rem;">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="stat-value stat-departments">{{ $departments->count() }}</div>
+                <div class="stat-label">Total Departments</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="stat-value stat-employees">{{ $departments->sum('employees_count') }}</div>
+                <div class="stat-label">Total Employees</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                @php
+                    $totalEmployees = $departments->sum('employees_count');
+                    $totalDepartments = $departments->count();
+                    $average = $totalDepartments > 0 ? round($totalEmployees / $totalDepartments, 1) : 0;
+                @endphp
+                <div class="stat-value stat-average">{{ $average }}</div>
+                <div class="stat-label">Avg per Department</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="stat-value stat-largest">{{ $departments->max('employees_count') ?? 0 }}</div>
+                <div class="stat-label">Largest Department</div>
+            </div>
+        </div>
+    </div>
     <div class="card">
         <div class="card-header">
             <h2><i class="fas fa-building"></i> Departments</h2>
@@ -155,37 +186,7 @@
         </div>
     </div>
 
-    <div class="departments-stats">
-        <div class="card">
-            <div class="card-body text-center">
-                <div class="stat-value stat-departments">{{ $departments->count() }}</div>
-                <div class="stat-label">Total Departments</div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-body text-center">
-                <div class="stat-value stat-employees">{{ $departments->sum('employees_count') }}</div>
-                <div class="stat-label">Total Employees</div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-body text-center">
-                @php
-                    $totalEmployees = $departments->sum('employees_count');
-                    $totalDepartments = $departments->count();
-                    $average = $totalDepartments > 0 ? round($totalEmployees / $totalDepartments, 1) : 0;
-                @endphp
-                <div class="stat-value stat-average">{{ $average }}</div>
-                <div class="stat-label">Avg per Department</div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-body text-center">
-                <div class="stat-value stat-largest">{{ $departments->max('employees_count') ?? 0 }}</div>
-                <div class="stat-label">Largest Department</div>
-            </div>
-        </div>
-    </div>
+
 
     <div id="departmentModal" class="modal-overlay">
         <div class="modal-container">

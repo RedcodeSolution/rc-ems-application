@@ -16,15 +16,11 @@ class EmployeeLeaveController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$user->employee) {
-            return response()->json(['error' => 'Employee leaves data not found for this user.'], 404);
-        }
-
         // All leaves for stats
-        $allLeaves = $user->employee->leaves;
+        $allLeaves = $user->leaves;
 
         // Last 3 recent leaves
-        $recentLeaves = $user->employee->leaves()->latest()->take(3)->get();
+        $recentLeaves = $user->leaves()->latest()->take(3)->get();
 
         // Stats calculation
         $annualUsed   = $allLeaves->where('leave_type', 'annual')->where('status', 'approved')->sum('duration');
@@ -98,7 +94,7 @@ class EmployeeLeaveController extends Controller
     public function show(Leave $leave)
     {
         $user = Auth::user();
-        if ($leave->employee_id !== $user->employee->employee_id) {
+        if ($leave->user_id !== $user->id) {
             return response()->json(['error' => 'Leave not found for this user.'], 404);
         }
         $leave->load('employee');

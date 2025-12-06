@@ -16,6 +16,7 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -131,10 +132,12 @@
                         id="navBellBtn" type="button">
                         <span class="nav-bell-icon">
                             <i class="fas fa-bell"></i>
-                            <span class="nav-bell-dot"></span>
+                            @if (($notificationStats['unread'] ?? 0) > 0)
+                                <span class="nav-bell-dot"></span>
+                            @endif
                         </span>
                     </a>
-                    <div class="user-menu">
+                    <div class="user-menu" id="userMenuBtn">
                         <div class="user-avatar">
                             {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
                         </div>
@@ -143,14 +146,28 @@
                             <p>{{ ucfirst(Auth::user()->role ?? 'admin') }}</p>
                         </div>
                         <i class="fas fa-chevron-down" style="color: var(--gray-400);"></i>
+                        
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="{{ route('admin.profile.index') }}" class="dropdown-item">
+                                <i class="fas fa-user-shield"></i> Profile
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <form method="POST" action="{{ route('logout') }}" id="logout-form-dropdown">
+                                @csrf
+                                <button type="button" class="dropdown-item text-danger" onclick="confirmLogout(event, 'logout-form-dropdown')">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                    <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-sign-out-alt"></i>
-                            Logout
-                        </button>
-                    </form>
+
+                    <!-- Mobile Profile Button (Visible only on mobile) -->
+                    <button class="mobile-profile-btn" id="mobileProfileBtn" style="display: none;">
+                        <div class="user-avatar">
+                            {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                        </div>
+                    </button>
+
                 </div>
             </div>
 
@@ -194,10 +211,43 @@
         <div class="modal-dropdown-content">
             <div class="modal-dropdown-header">
                 <h3><i class="fas fa-bell"></i> Notifications</h3>
-                <button class="modal-close" id="closenotificationModalDrop">&times;</button>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <button id="markAllBtn" class="mark-all-btn">
+                        <i class="fas fa-check-double"></i> Mark all read
+                    </button>
+                    <button class="modal-close" id="closenotificationModalDrop">&times;</button>
+                </div>
             </div>
             <div class="modal-dropdown-body" id="latestNotifications">
                 <p style="text-align:center; color: gray;">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Profile Modal Overlay -->
+    <div id="mobileProfileModal" class="mobile-profile-modal" style="display: none;">
+        <div class="mobile-profile-bg"></div>
+        <div class="mobile-profile-content">
+            <div class="mobile-profile-header">
+                <div class="user-avatar large">
+                    {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                </div>
+                <div class="mobile-user-info">
+                    <h4>{{ Auth::user()->name ?? 'Admin User' }}</h4>
+                    <p>{{ ucfirst(Auth::user()->role ?? 'admin') }}</p>
+                </div>
+                <!-- Close button removed -->
+            </div>
+            <div class="mobile-profile-body">
+                <a href="{{ route('admin.profile.index') }}" class="mobile-menu-item">
+                    <i class="fas fa-user-shield"></i> Admin Profile
+                </a>
+                <form method="POST" action="{{ route('logout') }}" id="logout-form-mobile">
+                    @csrf
+                    <button type="button" class="mobile-menu-item text-danger" onclick="confirmMobileLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -277,6 +327,43 @@
             });
         });
 
+        /* ============================
+           MOBILE PROFILE MODAL
+        ============================ */
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileBtn = document.getElementById('mobileProfileBtn');
+            const mobileModal = document.getElementById('mobileProfileModal');
+            const mobileBg = mobileModal ? mobileModal.querySelector('.mobile-profile-bg') : null;
+
+            if (mobileBtn && mobileModal) {
+                mobileBtn.addEventListener('click', function() {
+                    mobileModal.style.display = 'flex';
+                });
+
+                const closeModal = () => {
+                    mobileModal.style.display = 'none';
+                };
+
+                if (mobileBg) mobileBg.addEventListener('click', closeModal);
+            }
+        });
+
+        function confirmMobileLogout() {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You will be logged out.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DC2626",
+                cancelButtonColor: "#6B7280",
+                confirmButtonText: "Logout",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form-mobile').submit();
+                }
+            });
+        }
+
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -297,6 +384,71 @@
             var bg = modal ? modal.querySelector('.modal-dropdown-bg') : null;
             var body = modal ? modal.querySelector('.modal-dropdown-body') : null;
 
+            // Sidebar Toggle Function
+            window.toggleSidebar = function() {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.querySelector('.main-content');
+                sidebar.classList.toggle('active');
+                
+                // Create overlay if it doesn't exist
+                let overlay = document.getElementById('sidebar-overlay');
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = 'sidebar-overlay';
+                    overlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.5);
+                        z-index: 999;
+                        display: none;
+                        opacity: 0;
+                        transition: opacity 0.3s ease;
+                    `;
+                    document.body.appendChild(overlay);
+                    
+                    overlay.addEventListener('click', function() {
+                        sidebar.classList.remove('active');
+                        overlay.style.opacity = '0';
+                        setTimeout(() => {
+                            overlay.style.display = 'none';
+                        }, 300);
+                    });
+                }
+
+                if (sidebar.classList.contains('active')) {
+                    overlay.style.display = 'block';
+                    setTimeout(() => {
+                        overlay.style.opacity = '1';
+                    }, 10);
+                } else {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                    }, 300);
+                }
+            };
+
+            // Logout Confirmation
+            window.confirmLogout = function(event, formId) {
+                event.preventDefault();
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You will be logged out of the system.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, logout!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById(formId).submit();
+                    }
+                });
+            };
+
             function closeModal() {
                 if (modal) modal.style.display = 'none';
             }
@@ -312,13 +464,20 @@
                         body.innerHTML = "";
 
                         if (!data.length) {
-                            body.innerHTML = `<p style="padding:10px;">No notifications</p>`;
+                            body.innerHTML = `<p style="padding:10px; text-align:center; color:gray;">No unread notifications</p>`;
+                            if (document.querySelector(".nav-bell-dot")) {
+                                document.querySelector(".nav-bell-dot").style.display = "none";
+                            }
                             return;
+                        }
+
+                        if (document.querySelector(".nav-bell-dot")) {
+                            document.querySelector(".nav-bell-dot").style.display = "block";
                         }
 
                         data.forEach(n => {
                             body.innerHTML += `
-                        <div class="notification-item">
+                        <div class="notification-item unread" data-id="${n.notifi_id}">
                             <div>
                                 <div class="notification-title">${n.type ?? 'Notification'}</div>
                                 <div class="notification-desc">${n.message ?? ''}</div>
@@ -328,8 +487,15 @@
                                 </div>
                             </div>
                             <div class="notification-actions">
-                                <a href="/admin/notifications"
-                                   class="btn btn-info btn-sm">View</a>
+                                <button class="icon-btn mark-btn" title="Mark as Read"
+                                    onclick="markAsRead('${n.notifi_id}')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+
+                                <button class="icon-btn delete-btn" title="Delete"
+                                   onclick="deleteNotification('${n.notifi_id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </div>
                     `;
@@ -340,6 +506,90 @@
                         body.innerHTML = `<p style="padding:10px; color:red;">Error loading notifications</p>`;
                     });
             }
+
+            // Mark one notification as read
+            window.markAsRead = function(id) {
+                fetch(`/admin/notifications/${id}/mark-as-read`, {
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        }
+                    })
+                    .then(() => {
+                        loadLatestNotifications();
+                        refreshBellDot();
+                    })
+                    .catch(err => console.error("Mark as read error:", err));
+            };
+
+            // Delete notification
+            window.deleteNotification = function(id) {
+                // Close modal temporarily if needed, or just keep it open
+                // document.getElementById('notificationModalDrop').style.display = "none";
+
+                Swal.fire({
+                    title: "Delete Notification?",
+                    text: "This action cannot be undone.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DC2626",
+                    cancelButtonColor: "#6B7280",
+                    confirmButtonText: "Yes, Delete",
+                    cancelButtonText: "Cancel"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/admin/notifications/${id}`, {
+                                method: "DELETE",
+                                headers: {
+                                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                                }
+                            })
+                            .then(res => res.json())
+                            .then(() => {
+                                loadLatestNotifications();
+                                refreshBellDot();
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Deleted!",
+                                    text: "Notification has been deleted.",
+                                    timer: 1200,
+                                    showConfirmButton: false
+                                });
+                            });
+                    }
+                });
+            };
+
+            // Mark All as Read
+            const markAllBtn = document.getElementById("markAllBtn");
+            if (markAllBtn) {
+                markAllBtn.addEventListener("click", function() {
+                    fetch("{{ route('admin.notifications.markAllAsRead') }}", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        }
+                    }).then(() => {
+                        loadLatestNotifications();
+                        refreshBellDot();
+                    });
+                });
+            }
+
+            // Update bell dot
+            function refreshBellDot() {
+                fetch("{{ route('admin.notifications.latest') }}")
+                    .then(res => res.json())
+                    .then(data => {
+                        const dot = document.querySelector(".nav-bell-dot");
+                        if (dot) {
+                            dot.style.display = data.length > 0 ? "block" : "none";
+                        }
+                    });
+            }
+            
+            // Auto refresh
+            setInterval(refreshBellDot, 15000);
 
             if (bellBtn && modal && closeBtn) {
                 bellBtn.addEventListener('click', function(e) {
@@ -371,6 +621,86 @@
                     }
                 });
             }
+
+            // User Dropdown Toggle
+            const userMenuBtn = document.getElementById('userMenuBtn');
+            const userDropdown = document.getElementById('userDropdown');
+
+            if (userMenuBtn && userDropdown) {
+                userMenuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('show');
+                });
+
+                document.addEventListener('click', function(e) {
+                    if (!userMenuBtn.contains(e.target)) {
+                        userDropdown.classList.remove('show');
+                    }
+                });
+            }
+            // Global Copy to Clipboard function
+            window.copyToClipboard = function(text, event) {
+                if (event) event.preventDefault();
+                
+                navigator.clipboard.writeText(text).then(() => {
+                    // Visual feedback on button
+                    if (event && event.currentTarget) {
+                        const btn = event.currentTarget;
+                        const originalHtml = btn.innerHTML;
+                        const originalWidth = btn.offsetWidth;
+                        
+                        btn.style.width = `${originalWidth}px`; // Prevent layout shift
+                        btn.innerHTML = '<i class="fas fa-check"></i>';
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = originalHtml;
+                            btn.style.width = '';
+                        }, 2000);
+                    }
+
+                    // Toast feedback
+                    if (typeof Swal !== 'undefined') {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer)
+                                toast.addEventListener('mouseleave', Swal.resumeTimer)
+                            }
+                        });
+                        Toast.fire({
+                            icon: 'success',
+                            title: 'Link copied to clipboard'
+                        });
+                    }
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    // Fallback
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Link copied',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                        }
+                    } catch (err) {
+                        console.error('Fallback copy failed', err);
+                    }
+                    document.body.removeChild(textArea);
+                });
+            };
         });
     </script>
 

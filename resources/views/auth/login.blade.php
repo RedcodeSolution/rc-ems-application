@@ -18,10 +18,8 @@
 
         <!-- Left Side - Login Form -->
         <div class="login-form-section">
-            <a href="{{ url('/') }}"
-                class="fixed top-4 left-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 hover:bg-red-700 transition">
+            <a href="{{ url('/') }}" class="back-button" title="Back to Home">
                 <i class="fas fa-arrow-left"></i>
-                Back
             </a>
             <div class="login-card">
                 <!-- RedCode Logo -->

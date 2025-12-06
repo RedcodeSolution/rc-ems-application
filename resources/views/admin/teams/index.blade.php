@@ -5,6 +5,57 @@
 @section('title', 'Teams Management')
 
 @section('content')
+    <!-- Summary Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Total Teams -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(37, 99, 235, 0.1); color: var(--redcode-blue); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-users-cog"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Total Teams</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $teams->count() }}</div>
+            </div>
+        </div>
+
+        <!-- Active Teams -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(5, 150, 105, 0.1); color: var(--redcode-green); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Active Teams</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $teams->where('team_status', 'Active')->count() }}</div>
+            </div>
+        </div>
+
+        <!-- Total Members -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(245, 158, 11, 0.1); color: var(--redcode-orange); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Total Members</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">
+                    {{ $teams->sum(function($team) { return $team->employees->count(); }) }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Avg Team Size -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(107, 114, 128, 0.1); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Avg Team Size</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">
+                    {{ $teams->count() > 0 ? round($teams->avg(function($team) { return $team->employees->count(); }), 1) : 0 }}
+                </div>
+            </div>
+        </div>
+    </div>
+
 <div class="card">
     <div class="card-header">
         <h2><i class="fas fa-users-cog"></i> Teams</h2>

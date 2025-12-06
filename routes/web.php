@@ -27,7 +27,7 @@ use App\Http\Controllers\Employee\EmployeeRatingController as EmployeeEmployeeRa
 use App\Http\Controllers\Employee\EmployeeNotificationController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\MeetingController;
-use App\Http\Controllers\NotificationController;
+
 use App\Http\Controllers\SuperAdmin\AdminController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
 
@@ -72,6 +72,13 @@ Route::middleware('auth')->group(function () {
         $approvedLeaves = $leaves->where('status', 'approved')->count();
         $rejectedLeaves = $leaves->where('status', 'rejected')->count();
 
+        // Dynamic counts for cards
+        $departmentsCount = \App\Models\Department::count();
+        $adminsCount = \App\Models\User::where('role', 'admin')->count();
+        $notificationsCount = \App\Models\Notification::where('target', 'admin')->where('is_read', false)->count();
+        $newJoinings = \App\Models\Employee::whereDate('created_at', '>=', \Carbon\Carbon::now()->subMonth())->count();
+        $dailyJoinings = \App\Models\Employee::whereDate('created_at', \Carbon\Carbon::today())->count();
+
         // Get employee project assignments and leave counts
         $employeeData = $employees->map(function ($employee) {
             return [
@@ -91,13 +98,64 @@ Route::middleware('auth')->group(function () {
             ];
         });
 
+        // --- Fetch Team Details for SSR ---
+        $teams_details = [];
+        if (class_exists(\App\Models\Team::class)) {
+            $teamsRaw = \App\Models\Team::withCount(['employees', 'projects'])
+                ->with(['projects' => function($q) {
+                    $q->select('project_id', 'team_id', 'project_name')->latest()->take(3);
+                }])
+                ->get();
+
+            foreach ($teamsRaw as $t) {
+                $teams_details[] = [
+                    'name' => $t->team_name ?? ('Team ' . $t->id),
+                    'employees_count' => (int)($t->employees_count ?? 0),
+                    'projects_count' => (int)($t->projects_count ?? 0),
+                    'project_names' => $t->projects->pluck('project_name')->toArray()
+                ];
+            }
+        }
+
+        // --- Fetch Top Performers for SSR ---
+        $topPerformers = [];
+        if (class_exists(\App\Models\Employee::class)) {
+            $topPerformers = \App\Models\Employee::with(['ratings', 'projects'])
+                ->get()
+                ->map(function($e) {
+                    $avgRating = $e->ratings->avg('rating') ?: 0;
+                    $baseScore = $avgRating * 20;
+                    $projectBonus = min($e->projects->count() * 2, 10);
+                    $score = $baseScore > 0 ? ($baseScore + $projectBonus) : 0;
+                    if ($score > 100) $score = 100;
+                    
+                    return [
+                        'name' => $e->employee_name ?? $e->name ?? 'Unknown',
+                        'email' => $e->email,
+                        'role' => $e->role ?? 'Employee',
+                        'score' => $score,
+                        'rating' => number_format($avgRating, 1),
+                        'projects_count' => $e->projects->count(),
+                        'status' => $e->employee_status ?? 'active'
+                    ];
+                })
+                ->sortByDesc('score')
+                ->take(5)
+                ->values()
+                ->toArray();
+        }
+
         $dashboardData = [
             'totalEmployees' => $totalEmployees,
             'activeProjects' => $activeProjects,
             'pendingTasks' => 23,
             'revenue' => '$2.4M',
-            'newJoinings' => 12,
+            'newJoinings' => $newJoinings,
+            'dailyJoinings' => $dailyJoinings,
             'pendingLeaves' => $pendingLeaves,
+            'departmentsCount' => $departmentsCount,
+            'adminsCount' => $adminsCount,
+            'notificationsCount' => $notificationsCount,
             'efficiency' => '94.2%',
             'employeeData' => $employeeData,
             'employees' => $employees,
@@ -105,7 +163,9 @@ Route::middleware('auth')->group(function () {
             'leaves' => $leaves,
             'approvedLeaves' => $approvedLeaves,
             'rejectedLeaves' => $rejectedLeaves,
-            'todayMeetings' => $todayMeetings
+            'todayMeetings' => $todayMeetings,
+            'teams_details' => $teams_details,
+            'topPerformers' => $topPerformers
         ];
         return view('admin.dashboard', $dashboardData);
     })->name('admin.dashboard');
@@ -266,10 +326,7 @@ Route::middleware('auth')->group(function () {
 
         Route::match(['put', 'patch'], '/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
 
-        Route::get('/projects', function () {
-            $employees = Employee::select('employee_id', 'employee_name')->get();
-            return view('admin.projects.index', compact('employees'));
-        })->name('projects');
+        Route::get('/projects', [ProjectController::class, 'index'])->name('projects');
 
         // Leave Management
         Route::put('/leaves/{leave}/status', [AdminsLeaveController::class, 'updateLeaveStatus'])->name('leaves.updateLeaveStatus');
@@ -313,9 +370,10 @@ Route::middleware('auth')->group(function () {
             return view('admin.notifications.index');
         })->name('notifications');
         Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications');
-        Route::get('/notifications/{notifi_id}', [AdminNotificationController::class, 'show'])->name('admin.notifications.show');
-        Route::post('/notifications/{id}/mark-as-read', [AdminNotificationController::class, 'markAsRead'])->name('admin.notifications.markAsRead');
-        Route::post('/notifications/mark-all-as-read', [AdminNotificationController::class, 'markAllAsRead'])->name('admin.notifications.markAllAsRead');
+        Route::get('/notifications/{notifi_id}', [AdminNotificationController::class, 'show'])->name('notifications.show');
+        Route::post('/notifications/{id}/mark-as-read', [AdminNotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+        Route::post('/notifications/mark-all-as-read', [AdminNotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+        Route::delete('/notifications/delete-all', [AdminNotificationController::class, 'deleteAll'])->name('notifications.deleteAll');
         Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
         Route::get('/admin/notifications/latest', [AdminNotificationController::class, 'latest'])->name('notifications.latest');
 

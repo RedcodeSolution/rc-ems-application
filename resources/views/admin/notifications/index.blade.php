@@ -551,6 +551,10 @@
                     <i class="fas fa-check-double"></i>
                     Mark All Read
                 </button>
+                <button class="btn btn-danger" onclick="deleteAllNotifications()">
+                    <i class="fas fa-trash-alt"></i>
+                    Delete All
+                </button>
                 <button class="btn btn-success" onclick="openCreateModal()">
                     <i class="fas fa-plus"></i>
                     Create
@@ -838,6 +842,12 @@
                                         onclick="viewNotification('{{ $notification->notifi_id }}')" title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </button>
+                                    @if (!$notification->is_read)
+                                        <button class="btn btn-primary" style="padding: 0.5rem;"
+                                            onclick="markAsRead('{{ $notification->notifi_id }}')" title="Mark as Read">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    @endif
                                     <button class="btn btn-secondary" style="padding: 0.5rem;"
                                         onclick="deleteNotification('{{ $notification->notifi_id }}')" title="Delete">
                                         <i class="fas fa-trash"></i>
@@ -1231,6 +1241,32 @@
                     }
                 } catch (error) {
                     console.error("Error marking all notifications as read:", error);
+                }
+            });
+        }
+
+        async function deleteAllNotifications() {
+            showConfirm('Are you sure you want to delete ALL notifications? This action cannot be undone.', async () => {
+                try {
+                    const response = await fetch(`/admin/notifications/delete-all`, {
+                        method: "DELETE",
+                        headers: {
+                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        document.getElementById('notificationsList').innerHTML = '<p>No notifications available.</p>';
+                        showToast(result.message, 'success');
+                        updateStats();
+                    } else {
+                        showToast(result.message || 'Failed to delete notifications', 'error');
+                    }
+                } catch (error) {
+                    console.error("Error deleting all notifications:", error);
+                    showToast('An error occurred while deleting notifications', 'error');
                 }
             });
         }

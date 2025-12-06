@@ -18,41 +18,9 @@
 
         <!-- Left Side - Registration Form -->
         <div class="register-form-section">
-            <a href="{{ route('login') }}" class="back-to-login-btn">
-                <i class="fas fa-arrow-left"></i> Back
+            <a href="{{ route('login') }}" class="back-button" title="Back to Login">
+                <i class="fas fa-arrow-left"></i>
             </a>
-            <style>
-                .back-to-login-btn {
-                    position: fixed;
-                    top: 20px;
-                    left: 20px;
-                    background: #dc2626;
-                    /* Red-600 */
-                    color: #ffffff;
-                    /* White text */
-                    padding: 10px 18px;
-                    border-radius: 10px;
-                    font-weight: 600;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    text-decoration: none;
-                    box-shadow: 0 2px 12px rgba(220, 38, 38, 0.3);
-                    z-index: 9999;
-                    transition: 0.25s ease;
-                }
-
-                .back-to-login-btn:hover {
-                    background: #b91c1c;
-                    /* Darker red */
-                    box-shadow: 0 4px 14px rgba(185, 28, 28, 0.4);
-                    transform: translateX(-2px);
-                }
-
-                .back-to-login-btn i {
-                    font-size: 14px;
-                }
-            </style>
 
             <div class="register-card">
 

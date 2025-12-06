@@ -36,8 +36,9 @@ class AdminsLeaveController extends Controller
         }
 
         // Get all employee leaves with proper relationships
-        $employeeLeaves = Leave::with(['employee', 'employee.department'])
-            ->whereHas('employee', function ($query) {
+        // Get all employee leaves with proper relationships
+        $employeeLeaves = Leave::with(['user.employee', 'user.employee.department'])
+            ->whereHas('user.employee', function ($query) {
                 $query->whereNotIn('role', ['admin', 'superadmin']);
             })
             ->get();
@@ -47,21 +48,21 @@ class AdminsLeaveController extends Controller
         $currentYear = now()->year;
         $today = now()->toDateString();
 
-        $annualUsed = Leave::whereHas('employee', function ($q) {
+        $annualUsed = Leave::whereHas('user.employee', function ($q) {
             $q->whereNotIn('role', ['admin', 'superadmin']);
         })
             ->where('leave_type', 'annual')
             ->where('status', 'approved')
             ->sum('duration');
 
-        $sickUsed = Leave::whereHas('employee', function ($q) {
+        $sickUsed = Leave::whereHas('user.employee', function ($q) {
             $q->whereNotIn('role', ['admin', 'superadmin']);
         })
             ->where('leave_type', 'sick')
             ->where('status', 'approved')
             ->sum('duration');
 
-        $personalUsed = Leave::whereHas('employee', function ($q) {
+        $personalUsed = Leave::whereHas('user.employee', function ($q) {
             $q->whereNotIn('role', ['admin', 'superadmin']);
         })
             ->where('leave_type', 'personal')
@@ -69,14 +70,14 @@ class AdminsLeaveController extends Controller
             ->sum('duration');
 
         // Count statistics for current month
-        $employeeMonthlyCount = Leave::whereHas('employee', function ($query) {
+        $employeeMonthlyCount = Leave::whereHas('user.employee', function ($query) {
             $query->whereNotIn('role', ['admin', 'superadmin']);
         })
             ->whereMonth('created_at', $currentMonth)
             ->whereYear('created_at', $currentYear)
             ->count();
 
-        $employeePendingMonthlyCount = Leave::whereHas('employee', function ($query) {
+        $employeePendingMonthlyCount = Leave::whereHas('user.employee', function ($query) {
             $query->whereNotIn('role', ['admin', 'superadmin']);
         })
             ->whereMonth('created_at', $currentMonth)
@@ -84,7 +85,7 @@ class AdminsLeaveController extends Controller
             ->where('status', 'pending')
             ->count();
 
-        $employeeRejectedMonthlyCount = Leave::whereHas('employee', function ($query) {
+        $employeeRejectedMonthlyCount = Leave::whereHas('user.employee', function ($query) {
             $query->whereNotIn('role', ['admin', 'superadmin']);
         })
             ->whereMonth('created_at', $currentMonth)
@@ -95,22 +96,22 @@ class AdminsLeaveController extends Controller
         $employeeApprovedMonthlyCount = $employeeMonthlyCount - $employeePendingMonthlyCount - $employeeRejectedMonthlyCount;
 
         // Get leaves by status with proper relationships
-        $pendingLeaves = Leave::with(['employee', 'employee.department'])
-            ->whereHas('employee', function ($query) {
+        $pendingLeaves = Leave::with(['user.employee', 'user.employee.department'])
+            ->whereHas('user.employee', function ($query) {
                 $query->whereNotIn('role', ['admin', 'superadmin']);
             })
             ->where('status', 'pending')
             ->get();
 
-        $approvedLeaves = Leave::with(['employee', 'employee.department'])
-            ->whereHas('employee', function ($query) {
+        $approvedLeaves = Leave::with(['user.employee', 'user.employee.department'])
+            ->whereHas('user.employee', function ($query) {
                 $query->whereNotIn('role', ['admin', 'superadmin']);
             })
             ->where('status', 'approved')
             ->get();
 
-        $rejectedLeaves = Leave::with(['employee', 'employee.department'])
-            ->whereHas('employee', function ($query) {
+        $rejectedLeaves = Leave::with(['user.employee', 'user.employee.department'])
+            ->whereHas('user.employee', function ($query) {
                 $query->whereNotIn('role', ['admin', 'superadmin']);
             })
             ->where('status', 'rejected')
@@ -161,18 +162,18 @@ class AdminsLeaveController extends Controller
 
         // Trend analysis
         $yesterday = now()->subDay()->toDateString();
-        $employeeApprovedYesterdayCount = Leave::whereHas('employee', function ($query) {
+        $employeeApprovedYesterdayCount = Leave::whereHas('user.employee', function ($query) {
             $query->whereNotIn('role', ['admin', 'superadmin']);
         })
             ->whereDate('approved_date', $yesterday)
             ->where('status', 'approved')
             ->count();
 
-        $employeeApprovedTodayCount = Leave::whereHas('employee', function ($query) {
+        $employeeApprovedTodayCount = Leave::whereHas('user.employee', function ($query) {
             $query->whereNotIn('role', ['admin', 'superadmin']);
         })
             ->whereDate('approved_date', $today)
-            ->where('status', 'approved')
+            ->where('status', 'approved') 
             ->count();
 
         $approvedTrendDiff = $employeeApprovedTodayCount - $employeeApprovedYesterdayCount;
@@ -180,7 +181,7 @@ class AdminsLeaveController extends Controller
         // Last month comparison
         $lastMonth = now()->subMonth()->month;
         $lastMonthYear = now()->subMonth()->year;
-        $employeeLastMonthCount = Leave::whereHas('employee', function ($query) {
+        $employeeLastMonthCount = Leave::whereHas('user.employee', function ($query) {
             $query->whereNotIn('role', ['admin', 'superadmin']);
         })
             ->whereMonth('created_at', $lastMonth)
@@ -200,24 +201,24 @@ class AdminsLeaveController extends Controller
         }
 
         // Quick stats
-        $avgProcessingTime = Leave::whereHas('employee', function ($q) {
+        $avgProcessingTime = Leave::whereHas('user.employee', function ($q) {
             $q->whereNotIn('role', ['admin', 'superadmin']);
         })
             ->whereNotNull('approved_date')
             ->select(DB::raw('AVG(TIMESTAMPDIFF(HOUR, created_at, approved_date)) as avg_time'))
             ->value('avg_time') ?? 0;
 
-        $totalLeaveRequests = Leave::whereHas('employee', function ($q) {
+        $totalLeaveRequests = Leave::whereHas('user.employee', function ($q) {
             $q->whereNotIn('role', ['admin', 'superadmin']);
         })->count();
 
         $approvalRate = $totalLeaveRequests > 0
-            ? round((Leave::whereHas('employee', function ($q) {
+            ? round((Leave::whereHas('user.employee', function ($q) {
                 $q->whereNotIn('role', ['admin', 'superadmin']);
             })->where('status', 'approved')->count() / $totalLeaveRequests) * 100)
             : 0;
 
-        $employeesOnLeaveToday = Leave::whereHas('employee', function ($q) {
+        $employeesOnLeaveToday = Leave::whereHas('user.employee', function ($q) {
             $q->whereNotIn('role', ['admin', 'superadmin']);
         })
             ->where('status', 'approved')
@@ -225,7 +226,7 @@ class AdminsLeaveController extends Controller
             ->whereDate('end_date', '>=', $today)
             ->count();
 
-        $overdueRequests = Leave::whereHas('employee', function ($q) {
+        $overdueRequests = Leave::whereHas('user.employee', function ($q) {
             $q->whereNotIn('role', ['admin', 'superadmin']);
         })
             ->where('status', 'pending')

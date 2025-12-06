@@ -58,7 +58,6 @@
 .dashboard-container {
     background: var(--primary-light);
     min-height: 100vh;
-    padding: 2rem;
     position: relative;
     overflow: hidden;
 }
@@ -165,7 +164,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .stat-card {
@@ -178,7 +177,7 @@
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 2px 12px 0 rgba(37, 99, 235, 0.04);
     cursor: pointer;
-    group: hover;
+    cursor: pointer;
 }
 
 .stat-card::before {
@@ -738,13 +737,29 @@
     }
 
     .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     }
 
     .stat-card {
         padding: 1.5rem;
     }
+
+    .charts-grid,
+    .activity-section {
+        grid-template-columns: 1fr;
+    }
 }
+
+@media (max-width: 480px) {
+    .dashboard-title {
+        font-size: 1.75rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .meeting-section {
     margin-bottom: clamp(1rem, 3vw, 2rem);
 }
@@ -924,6 +939,7 @@
     .meeting-content {
         grid-template-columns: 1fr;
     }
+
     .meeting-link-display {
         flex-direction: column;
         align-items: stretch;
