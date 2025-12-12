@@ -43,6 +43,13 @@ class AuthenticatedSessionController extends Controller
             // ROLE BASED REDIRECT
             switch ($user->role) {
                 case 'admin':
+                    \App\Models\AdminActivity::create([
+                        'user_id' => $user->id,
+                        'type'    => 'system',
+                        'icon'    => 'sign-in-alt',
+                        'action'  => 'Logged In',
+                        'details' => 'Admin logged in at ' . now()->format('h:i A'),
+                    ]);
                     return redirect()->intended(route('admin.dashboard'));
 
                 case 'employee':
@@ -76,14 +83,24 @@ class AuthenticatedSessionController extends Controller
     {
         $user = Auth::user();
 
-        if ($user && $user->role === 'employee') {
-            EmployeeActivity::create([
-                'employee_id' => $user->employee_id,
-                'type'        => 'system',
-                'icon'        => 'sign-out-alt',
-                'action'      => 'Logged Out',
-                'details'     => 'Logged out at ' . now()->format('h:i A'),
-            ]);
+        if ($user) {
+            if ($user->role === 'employee') {
+                EmployeeActivity::create([
+                    'employee_id' => $user->employee_id,
+                    'type'        => 'system',
+                    'icon'        => 'sign-out-alt',
+                    'action'      => 'Logged Out',
+                    'details'     => 'Logged out at ' . now()->format('h:i A'),
+                ]);
+            } elseif ($user->role === 'admin') {
+                \App\Models\AdminActivity::create([
+                    'user_id' => $user->id,
+                    'type'    => 'system',
+                    'icon'    => 'sign-out-alt',
+                    'action'  => 'Logged Out',
+                    'details' => 'Admin logged out at ' . now()->format('h:i A'),
+                ]);
+            }
         }
 
         Auth::guard('web')->logout();

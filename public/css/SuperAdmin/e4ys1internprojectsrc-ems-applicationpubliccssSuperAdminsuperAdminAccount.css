@@ -1,0 +1,35 @@
+
+/* Modifications for Mobile View */
+
+/* Hide Recent Activities on Mobile */
+@media (max-width: 900px) {
+    .recent-activities-card {
+        display: none !important;
+    }
+
+    /* Ensure user info is visible and styled correctly */
+    .user-info {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.75rem;
+    }
+    
+    .user-avatar {
+        display: flex !important;
+        width: 36px;
+        height: 36px;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .user-name {
+        display: block !important;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+}

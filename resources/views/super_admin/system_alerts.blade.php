@@ -14,9 +14,7 @@
             <button class="btn btn-primary" id="openCreateAlertModal">
                 <i class="fas fa-plus"></i> Create Alert
             </button>
-            <button class="btn btn-secondary" onclick="exportAlerts()">
-                <i class="fas fa-download"></i> Export Report
-            </button>
+
             <button class="btn btn-outline" onclick="refreshAlerts()">
                 <i class="fas fa-sync"></i> Refresh
             </button>
@@ -1666,14 +1664,6 @@
     function createAlert() {
         showNotification('Opening alert creation form...', 'info');
         // Implement alert creation modal
-    }
-
-    function exportAlerts() {
-        showNotification('Generating alerts report...', 'info');
-        
-        setTimeout(() => {
-            showNotification('Report exported successfully!', 'success');
-        }, 2000);
     }
 
     function refreshAlerts() {

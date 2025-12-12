@@ -7,7 +7,6 @@
     /* Main Container */
     .ratings-container {
         min-height: 100vh;
-        padding: 1.5rem;
         color: var(--text-primary);
     }
 

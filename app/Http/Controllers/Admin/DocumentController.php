@@ -11,12 +11,36 @@ use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $documents = Document::latest()->paginate(10);
-        $departments = Department::all();
+        $query = Document::latest();
 
-        return view('admin.documents.index', compact('documents', 'departments'));
+        // Search Filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('tags', 'like', "%{$search}%");
+            });
+        }
+
+        // Category Filter
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        // Type Filter (File Extension)
+        if ($request->filled('type')) {
+            $type = $request->type;
+            $query->where('file_path', 'like', "%.{$type}");
+        }
+
+        $documents = $query->paginate(10)->withQueryString();
+        $departments = Department::all();
+        $projects = Project::with('team')->get();
+
+        return view('admin.documents.index', compact('documents', 'departments', 'projects'));
     }
 
     public function getProjectsByDepartment($departmentId)
@@ -190,6 +214,13 @@ class DocumentController extends Controller
         }
 
         $document->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Document deleted successfully.'
+            ]);
+        }
 
         return redirect()->route('admin.documents.index')->with('success', 'Document deleted successfully.');
     }

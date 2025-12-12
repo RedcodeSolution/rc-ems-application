@@ -257,6 +257,7 @@
             </div>
 
             <div class="table-container">
+                @if($employees->count() > 0)
                 <table class="table">
                     <thead>
                         <tr>
@@ -271,14 +272,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($employees as $employee)
+                        @foreach($employees as $employee)
                             <tr>
                                 <td data-label="Employee">
-                                    <div class="flex items-center gap-3">
-                                        <div class="user-avatar" style="width: 2rem; height: 2rem; font-size: 0.875rem;">
+                                    <div class="flex items-center gap-3" style="flex-wrap: nowrap;">
+                                        <div class="user-avatar" style="width: 2rem; height: 2rem; font-size: 0.875rem; flex-shrink: 0;">
                                             {{ strtoupper(substr($employee->employee_name, 0, 1)) }}{{ strtoupper(substr(str_replace(' ', '', $employee->employee_name), 1, 1)) }}
                                         </div>
-                                        <br>
                                         <div>
                                             <div style="font-weight: 600;">{{ $employee->employee_name }}</div>
                                         </div>
@@ -372,20 +372,14 @@
                                     </div>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center"
-                                    style="padding: 2rem; color: var(--text-secondary);">
-                                    <i class="fas fa-users"
-                                        style="font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.3;"></i>
-                                    <p style="margin: 0; font-size: 1.1rem;">No employees found</p>
-                                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">Click "Add Employee" to create your
-                                        first employee record</p>
-                                </td>
-                            </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
+                @else
+                    <div class="text-center no-records" style="padding: 4rem 2rem; color: var(--text-secondary); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <p style="margin: 0; font-size: 1rem;">Click "Add Employee" to create your first employee record</p>
+                    </div>
+                @endif
             </div>
 
             <p id="noEmployeesFoundMsg"

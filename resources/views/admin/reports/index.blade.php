@@ -287,22 +287,6 @@
         margin-bottom: 1.5rem;
     }
 
-    .modal-close {
-        position: absolute;
-        top: 1rem;
-        right: 1.5rem;
-        background: rgba(220, 38, 38, 0.1);
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        color: var(--redcode-primary);
-    }
 
     .modal-close:hover {
         background: rgba(220, 38, 38, 0.2);
@@ -565,7 +549,13 @@
     }
 
     /* Responsive */
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
+        .card-body, .card-header { padding: 1rem; }
+        .table th, .table td { padding: 0.75rem 0.5rem; }
+        .card-body h2 { font-size: 1.1rem; }
+    }
+
+    @media (max-width: 600px) {
         .modal-container {
             width: 95%;
             margin: 1rem;
@@ -587,6 +577,155 @@
         .form-actions {
             flex-direction: column;
         }
+
+        /* Hide button text on mobile */
+        .btn-text {
+            display: none;
+        }
+
+        /* Adjust header buttons to be icon-only */
+        .card-header .btn {
+            padding: 0.5rem;
+            width: auto;
+        }
+
+        /* Force Header Inline */
+        .card-header {
+            flex-direction: row !important;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        
+        .card-header h2 {
+             font-size: 1.1rem;
+             margin: 0;
+             white-space: nowrap; /* Prevent title wrapping if possible/desired, or allow normal wrap without breaks */
+        }
+        
+        /* Stack search and filter on mobile */
+        .card-body .flex.justify-between {
+             flex-direction: column;
+             align-items: stretch;
+             gap: 1rem;
+        }
+        
+        .card-body .flex.gap-2 {
+             width: 100%;
+             flex-wrap: wrap;
+        }
+        
+        .form-input, .form-select {
+             width: 100% !important;
+        }
+        
+         /* Filter buttons full width on mobile */
+        .card-body .flex.gap-2 button {
+             flex: 1;
+             justify-content: center;
+        }
+
+        /* Card View for Mobile */
+        .table-container {
+            border: none;
+            box-shadow: none;
+            background: transparent;
+            overflow-x: visible;
+        }
+
+        .table {
+            display: block;
+            min-width: 0;
+        }
+
+        .table thead {
+            display: none;
+        }
+
+        .table tbody {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .table tbody tr {
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--divider);
+        }
+
+        .table tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--divider);
+            text-align: right;
+        }
+
+        .table tbody td:last-child {
+            border-bottom: none;
+            justify-content: flex-end;
+            padding-top: 1rem;
+        }
+
+        .table tbody td:before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-right: auto;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        /* Report Name as Card Header */
+        .table tbody td[data-label="Report Name"] {
+            border-bottom: 2px solid var(--divider);
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .table tbody td[data-label="Report Name"]:before {
+            display: none;
+        }
+
+        .table tbody td[data-label="Actions"]:before {
+            display: none;
+        }
+    }
+
+    /* Add this to global styles if not present, or ensure it propagates */
+    .table-container {
+        /* Default for desktop */
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+        display: block;
+    }
+
+
+    /* Custom Scrollbar for Table */
+    .table-container::-webkit-scrollbar {
+        height: 8px; /* Force height */
+        display: block;
+    }
+
+    .table-container::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+        background: var(--redcode-primary);
+        border-radius: 4px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb:hover {
+        background: var(--redcode-primary-dark);
     }
 </style>
 
@@ -599,12 +738,9 @@
         <div class="flex gap-2">
             <button onclick="openReportModal()" class="btn btn-primary">
                 <i class="fas fa-plus"></i>
-                Generate Report
+                <span class="btn-text">Generate Report</span>
             </button>
-            <button class="btn btn-secondary">
-                <i class="fas fa-download"></i>
-                Export All
-            </button>
+
         </div>
     </div>
     <div class="card-body">
@@ -648,26 +784,33 @@
 
         <div class="flex justify-between items-center mb-4">
             <div class="flex gap-2">
-                <input type="text" id="reportSearch" placeholder="Search reports..." class="form-input" style="width: 300px;">
+                <input type="text" id="reportSearch" placeholder="Search reports..." class="form-input" style="width: 300px;" value="{{ request('search') }}">
 
                 <select id="typeFilter" class="form-select" style="width: 200px;">
-                    <option value="all">All Types</option>
-                    <option value="employee">Employee</option>
-                    <option value="department">Department</option>
-                    <option value="project">Project</option>
-                    <option value="finance">Finance</option>
+                    <option value="all" {{ request('type') == 'all' ? 'selected' : '' }}>All Types</option>
+                    <option value="employee" {{ request('type') == 'employee' ? 'selected' : '' }}>Employee</option>
+                    <option value="department" {{ request('type') == 'department' ? 'selected' : '' }}>Department</option>
+                    <option value="project" {{ request('type') == 'project' ? 'selected' : '' }}>Project</option>
+                    <option value="finance" {{ request('type') == 'finance' ? 'selected' : '' }}>Finance</option>
+                    <option value="attendance" {{ request('type') == 'attendance' ? 'selected' : '' }}>Attendance</option>
+                    <option value="performance" {{ request('type') == 'performance' ? 'selected' : '' }}>Performance</option>
+                    <option value="payroll" {{ request('type') == 'payroll' ? 'selected' : '' }}>Payroll</option>
+                    <option value="leave" {{ request('type') == 'leave' ? 'selected' : '' }}>Leave</option>
+                    <option value="team" {{ request('type') == 'team' ? 'selected' : '' }}>Team</option>
+                    <option value="custom" {{ request('type') == 'custom' ? 'selected' : '' }}>Custom</option>
                 </select>
 
-                <select id="statusFilter" class="form-select" style="width: 200px;">
-                    <option value="all">All Status</option>
-                    <option value="completed">Completed</option>
-                    <option value="processing">Processing</option>
-                    <option value="failed">Failed</option>
+                <select id="priorityFilter" class="form-select" style="width: 200px;">
+                    <option value="all" {{ request('priority') == 'all' ? 'selected' : '' }}>All Priorities</option>
+                    <option value="high" {{ request('priority') == 'high' ? 'selected' : '' }}>High</option>
+                    <option value="urgent" {{ request('priority') == 'urgent' ? 'selected' : '' }}>Urgent</option>
+                    <option value="normal" {{ request('priority') == 'normal' ? 'selected' : '' }}>Normal</option>
+                    <option value="low" {{ request('priority') == 'low' ? 'selected' : '' }}>Low</option>
                 </select>
             </div>
 
             <div class="flex gap-2">
-                <button onclick="filterReports()" class="btn btn-secondary">
+                <button onclick="applyServerFilters()" class="btn btn-secondary">
                     <i class="fas fa-filter"></i> Filter
                 </button>
                 <button onclick="clearFilters()" class="btn btn-light">
@@ -693,18 +836,18 @@
                 <tbody id="reportTable">
                 @foreach($reports as $report)
                 <tr>
-                    <td>
+                    <td data-label="Report Name">
                         <div style="font-weight: 600;">{{ $report->report_name }}</div>
 
                     </td>
-                    <td>
+                    <td data-label="Type">
                       <span class="badge" style="background: rgba(59, 130, 246, 0.1); color: var(--primary);">
                             {{ strtolower($report->report_type) }}
                       </span>
                     </td>
-                    <td>{{ $report->generated_by ?? 'Admin' }}</td>
-                    <td>{{ $report->created_at->format('M d, Y') }}</td>
-                    <td>
+                    <td data-label="Generated By">{{ $report->generated_by ?? 'Admin' }}</td>
+                    <td data-label="Date">{{ $report->created_at->format('M d, Y') }}</td>
+                    <td data-label="Priority">
                         @php
                         $priority = $report->priority ?? 'normal';
 
@@ -729,8 +872,8 @@
     </span>
                     </td>
 
-                    <td>
-                        <div class="flex gap-1">
+                    <td data-label="Actions">
+                        <div class="flex gap-1 justify-end">
                             <button class="btn btn-secondary" style="padding: 0.5rem;"
                                     onclick="window.open('{{ route('admin.reports.show', $report->report_id) }}', '_blank')">
                                 <i class="fas fa-eye"></i>
@@ -1378,43 +1521,34 @@
         }
     });
 
-    function filterReports() {
-        const searchValue = document.getElementById('reportSearch').value.toLowerCase();
-        const typeValue = document.getElementById('typeFilter').value.toLowerCase();
-        const statusValue = document.getElementById('statusFilter').value.toLowerCase();
+    function applyServerFilters() {
+        const search = document.getElementById('reportSearch').value;
+        const type = document.getElementById('typeFilter').value;
+        const priority = document.getElementById('priorityFilter').value;
 
-        const rows = document.querySelectorAll("#reportTable tbody tr");
+        const params = new URLSearchParams(window.location.search);
+        
+        if (search) params.set('search', search); else params.delete('search');
+        if (type !== 'all') params.set('type', type); else params.delete('type');
+        if (priority !== 'all') params.set('priority', priority); else params.delete('priority');
+        
+        // Reset to page 1 on new filter
+        params.delete('page');
 
-        rows.forEach(row => {
-            const reportName = row.cells[0].textContent.toLowerCase();
-            const reportType = row.cells[1].textContent.toLowerCase();
-            const reportStatus = row.cells[4].textContent.toLowerCase();
-
-            // Check each filter
-            const matchesSearch = reportName.includes(searchValue);
-            const matchesType = typeValue === 'all' || reportType === typeValue;
-            const matchesStatus = statusValue === 'all' || reportStatus === statusValue;
-
-            if (matchesSearch && matchesType && matchesStatus) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
+        window.location.href = `${window.location.pathname}?${params.toString()}`;
     }
 
     // Clear all filters
     function clearFilters() {
-        document.getElementById('reportSearch').value = '';
-        document.getElementById('typeFilter').value = 'all';
-        document.getElementById('statusFilter').value = 'all';
-        filterReports(); // show all rows
+        window.location.href = window.location.pathname;
     }
 
-    // Live filtering as user types or changes dropdowns
-    document.getElementById('reportSearch').addEventListener('keyup', filterReports);
-    document.getElementById('typeFilter').addEventListener('change', filterReports);
-    document.getElementById('statusFilter').addEventListener('change', filterReports);
+    // Live filtering as user types or changes dropdowns (Optional - removed for now to match explicit button click, or can keep)
+    // For server-side, it's better to rely on the button or use debounce. 
+    // Let's attach 'Enter' key on search input to trigger filter.
+    document.getElementById('reportSearch').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') applyServerFilters();
+    });
 
 </script>
 @endsection

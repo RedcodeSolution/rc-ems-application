@@ -239,6 +239,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/employee/announcements/{id}/read', [EmployeeAnnouncementController::class, 'markAsRead']);
     Route::post('/employee/announcements/{id}/unread', [EmployeeAnnouncementController::class, 'markAsUnread']);
 
+    // Admin Profile Routes
+    Route::get('/admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile');
+    Route::post('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+
     // Employee ratings routes
     Route::resource('employees/ratings', EmployeeEmployeeRatingController::class)
         ->names([
@@ -278,6 +282,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/super_admin/system_stats', [SuperAdminController::class, 'systemStats'])->name('super_admin.system_stats');
     Route::get('/super_admin/admins', [SuperAdminController::class, 'admins'])->name('super_admin.admins');
     Route::get('/super_admin/notifications', [SuperAdminController::class, 'notifications'])->name('super_admin.notifications');
+    Route::get('/super_admin/notifications/latest', [SuperAdminController::class, 'latest'])->name('super_admin.notifications.latest');
     Route::post('/notifications/{id}/read', [SuperAdminController::class, 'markAsRead'])->name('super_admin.notifications.markAsRead');
     Route::post('/notifications/read-all', [SuperAdminController::class, 'markAsRead'])->name('notifications.readAll');
     Route::delete('/notifications/{id}', [SuperAdminController::class, 'deleteNotification'])->name('notifications.delete');
@@ -421,6 +426,7 @@ Route::middleware('auth')->group(function () {
 
     // Meeting management
     Route::get('/admin/meetings/{meeting}/join', [MeetingController::class, 'join'])->name('meetings.join');
+    Route::post('/meetings/{id}/status', [MeetingController::class, 'updateStatus'])->name('meetings.updateStatus');
 });
 // Employee-specific routes
 Route::middleware(['auth'])->prefix('employee')->name('employee.')->group(function () {

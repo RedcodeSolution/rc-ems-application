@@ -46,7 +46,8 @@
 
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Personal</div>
-                <a href="{{ url('/employees/profile') }}" class="sidebar-menu-item">
+                <a href="{{ route('employee.profile') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('employee.profile*') ? 'active' : '' }}">
                     <i class="fas fa-user"></i>
                     <span>My Profile</span>
                 </a>
@@ -60,12 +61,12 @@
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Work</div>
                 <a href="{{ route('employee.projects') }}"
-                    class="sidebar-menu-item {{ request()->routeIs('employee.projects') ? 'active' : '' }}">
+                    class="sidebar-menu-item {{ request()->routeIs('employee.projects*') ? 'active' : '' }}">
                     <i class="fas fa-project-diagram"></i>
                     <span>My Projects</span>
                 </a>
                 <a href="{{ route('employee.tasks') }}"
-                    class="sidebar-menu-item {{ request()->routeIs('employee.tasks') ? 'active' : '' }}">
+                    class="sidebar-menu-item {{ request()->routeIs('employee.tasks*') ? 'active' : '' }}">
                     <i class="fas fa-tasks"></i>
                     <span>My Tasks</span>
                 </a>
@@ -74,12 +75,12 @@
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Attendance</div>
                 <a href="{{ route('employee.attendance') }}"
-                    class="sidebar-menu-item {{ request()->routeIs('employee.attendance') ? 'active' : '' }}">
+                    class="sidebar-menu-item {{ request()->routeIs('employee.attendance*') ? 'active' : '' }}">
                     <i class="fas fa-calendar-check"></i>
                     <span>Attendance</span>
                 </a>
-                <a href="{{ url('/employees/leaves') }}"
-                    class="sidebar-menu-item {{ request()->routeIs('employee.leaves.*') ? 'active' : '' }}">
+                <a href="{{ route('employee.leaves.index') }}"
+                    class="sidebar-menu-item {{ request()->routeIs('employee.leaves*') ? 'active' : '' }}">
                     <i class="fas fa-calendar-times"></i>
                     <span>Leave Management</span>
                 </a>
@@ -88,7 +89,7 @@
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Communication</div>
                 <a href="{{ route('employee.announcements.index') }}"
-                    class="sidebar-menu-item {{ request()->routeIs('employee.announcements') ? 'active' : '' }}">
+                    class="sidebar-menu-item {{ request()->routeIs('employee.announcements*') ? 'active' : '' }}">
                     <i class="fas fa-bullhorn"></i>
                     <span>Announcements</span>
                 </a>
@@ -179,7 +180,7 @@
 
         </div>
 
-        <div class="content-area">
+        <div class="content-area @yield('content-class')">
             @yield('content')
         </div>
         <div id="notificationModalDrop" class="modal-dropdown" style="display:none;">

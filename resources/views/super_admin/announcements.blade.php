@@ -14,9 +14,7 @@
             <button class="btn btn-primary" onclick="openCreateModal()">
                 <i class="fas fa-plus"></i> Create Announcement
             </button>
-            <button class="btn btn-secondary" onclick="exportAnnouncements()">
-                <i class="fas fa-download"></i> Export Reports
-            </button>
+
             <button class="btn btn-outline" onclick="refreshAnnouncements()">
                 <i class="fas fa-sync"></i> Refresh
             </button>
@@ -2053,13 +2051,7 @@
     }
 
     // Other actions
-    function exportAnnouncements() {
-        showNotification('Generating announcements report...', 'info');
-        
-        setTimeout(() => {
-            showNotification('Report exported successfully!', 'success');
-        }, 2000);
-    }
+
 
     function refreshAnnouncements() {
         showNotification('Refreshing announcements...', 'info');

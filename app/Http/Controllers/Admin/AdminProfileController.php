@@ -25,16 +25,13 @@ class AdminProfileController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'role' => 'required|in:Admin,HR Admin,Department Admin',
             'contact_no' => 'nullable|string|max:20',
             'current_password' => 'nullable|required_with:new_password|string|min:8',
             'new_password' => 'nullable|string|min:8|confirmed',
         ]);
 
-
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->role = $request->role;
         $user->contact_no = $request->contact_no;
 
         if ($request->filled('new_password')) {

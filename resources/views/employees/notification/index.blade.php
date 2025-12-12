@@ -1,6 +1,6 @@
 @extends('layouts.employee')
 
-@section('title', 'All Notifications - Employee Dashboard')
+@section('title', 'Notifications')
 <link rel="stylesheet" href="{{ asset('css/Employee/employeeNotification.css') }}">
 @section('content')
     <div class="notifications-container">
@@ -121,32 +121,35 @@
                     data-status="{{ $notification['is_read'] ? 'read' : 'unread' }}">
 
                     <div class="notification-indicator {{ $notification['color'] }}"></div>
-                    <div class="notification-icon {{ $notification['color'] }}">
-                        <i class="{{ $notification['icon'] }}"></i>
-                    </div>
-
-                    <div class="notification-content">
-                        <div class="notification-header">
-                            <h4 class="notification-title">{{ $notification['title'] }}</h4>
-                            <div class="notification-meta">
-                                <span class="notification-priority priority-{{ $notification['priority'] }}">
-                                    {{ ucfirst($notification['priority']) }}
-                                </span>
-                                <span class="notification-time">
-                                    {{ \Carbon\Carbon::parse($notification['timestamp'])->diffForHumans() }}
-                                </span>
-                            </div>
+                    
+                    <div class="notification-main">
+                        <div class="notification-icon {{ $notification['color'] }}">
+                            <i class="{{ $notification['icon'] }}"></i>
                         </div>
 
-                        <p class="notification-message">{{ $notification['message'] }}</p>
+                        <div class="notification-content">
+                            <div class="notification-header">
+                                <h4 class="notification-title">{{ $notification['title'] }}</h4>
+                                <div class="notification-meta">
+                                    <span class="notification-priority priority-{{ $notification['priority'] }}">
+                                        {{ ucfirst($notification['priority']) }}
+                                    </span>
+                                    <span class="notification-time">
+                                        {{ \Carbon\Carbon::parse($notification['timestamp'])->diffForHumans() }}
+                                    </span>
+                                </div>
+                            </div>
 
-                        <div class="notification-footer">
-                            <span class="notification-from">
-                                <i class="fas fa-user"></i> {{ $notification->user->name ?? 'Unknown User' }}
-                            </span>
-                            <span class="notification-type">
-                                <i class="fas fa-tag"></i> {{ ucfirst($notification['type']) }}
-                            </span>
+                            <p class="notification-message">{{ $notification['message'] }}</p>
+
+                            <div class="notification-footer">
+                                <span class="footer-badge">
+                                    <i class="fas fa-user"></i> {{ $notification->user->name ?? 'Unknown User' }}
+                                </span>
+                                <span class="footer-badge">
+                                    <i class="fas fa-tag"></i> {{ ucfirst($notification['type']) }}
+                                </span>
+                            </div>
                         </div>
                     </div>
 

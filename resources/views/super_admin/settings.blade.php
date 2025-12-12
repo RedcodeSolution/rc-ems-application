@@ -17,9 +17,7 @@
             <button class="btn btn-secondary" onclick="resetToDefaults()">
                 <i class="fas fa-undo"></i> Reset to Defaults
             </button>
-            <button class="btn btn-outline" onclick="exportSettings()">
-                <i class="fas fa-download"></i> Export Settings
-            </button>
+
         </div>
     </div>
 
@@ -931,15 +929,6 @@
                 location.reload(); // Reload to show default values
             }, 2000);
         }
-    }
-
-    function exportSettings() {
-        showNotification('Exporting settings...', 'info');
-        
-        // Here you would export settings
-        setTimeout(() => {
-            showNotification('Settings exported successfully!', 'success');
-        }, 1000);
     }
 
     // Cache actions

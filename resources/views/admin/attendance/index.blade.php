@@ -16,22 +16,24 @@
                     <p>Admin view hours, date</p>
                 </div>
 
-                <div class="admin-header-right">
+                <div class="admin-header-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
                     <input id="adminSearch" class="form-control" placeholder="Search name or date..."
                         style="min-width:220px;">
 
-                    <select id="adminStatus" class="filter-select">
-                        <option value="">All Status</option>
-                        <option value="present">Present</option>
-                        <option value="absent">Absent</option>
-                        <option value="late">Late</option>
-                        <option value="halfday">Half Day</option>
-                        <option value="overtime">Overtime</option>
-                    </select>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <select id="adminStatus" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="present">Present</option>
+                            <option value="absent">Absent</option>
+                            <option value="late">Late</option>
+                            <option value="halfday">Half Day</option>
+                            <option value="overtime">Overtime</option>
+                        </select>
 
-                    <button class="btn btn-secondary" id="reloadBtn">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
+                        <button class="btn btn-secondary" id="reloadBtn">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
                 </div>
             </div>
 

@@ -62,12 +62,9 @@
         <div class="flex gap-2">
             <button onclick="openTeamModal()" class="btn btn-primary">
                 <i class="fas fa-plus"></i>
-                New Team
+                <span class="btn-text">New Team</span>
             </button>
-            <button class="btn btn-secondary">
-                <i class="fas fa-download"></i>
-                Export
-            </button>
+
         </div>
     </div>
     <div class="card-body">

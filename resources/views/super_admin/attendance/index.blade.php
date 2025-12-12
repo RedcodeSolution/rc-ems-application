@@ -4,24 +4,76 @@
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('css/Employee/attendance.css') }}">
+    <style>
+        .attendance-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .attendance-desc {
+            margin: 0;
+            color: var(--text-secondary);
+        }
+
+        .attendance-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            min-width: 220px;
+        }
+
+        @media (max-width: 768px) {
+            .attendance-header-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .attendance-controls {
+                width: 100%;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .search-input,
+            .filter-select,
+            .btn-refresh {
+                width: 100% !important;
+                min-width: 100% !important;
+                flex: 1;
+            }
+            
+            /* Enhance table container scrolling */
+            .table-responsive {
+                border-radius: 8px;
+                border: 1px solid var(--border-light);
+            }
+        }
+    </style>
 
     <div class="card">
         <div class="card-header">
             <h2><i class="fas fa-calendar-check"></i> Attendance Count</h2>
             <div class="flex gap-2">
-                <a href="#" class="btn btn-secondary" id="exportAttendanceBtn"><i class="fas fa-download"></i> Export</a>
+
             </div>
         </div>
 
         <div class="card-body" style="padding:1rem;">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1rem;">
+            <div class="attendance-header-row">
                 <div>
-                    <p style="margin:0;color:var(--text-secondary);">Admin view — name, check in, check out, status, total
-                        hours, date</p>
+                    <p class="attendance-desc">Admin view — Name, Check-in, Check-out, Status, Total Hours, Date</p>
                 </div>
-                <div style="display:flex;gap:0.5rem;align-items:center;">
-                    <input id="adminSearch" class="form-control" placeholder="Search name or date..."
-                        style="min-width:220px;">
+                <div class="attendance-controls">
+                    <input id="adminSearch" class="form-control search-input" placeholder="Search name or date...">
                     <select id="adminStatus" class="filter-select">
                         <option value="">All Status</option>
                         <option value="present">Present</option>
@@ -30,11 +82,11 @@
                         <option value="halfday">Half Day</option>
                         <option value="overtime">Overtime</option>
                     </select>
-                    <button class="btn btn-secondary" id="reloadBtn"><i class="fas fa-sync"></i> Refresh</button>
+                    <button class="btn btn-secondary btn-refresh" id="reloadBtn"><i class="fas fa-sync"></i> Refresh</button>
                 </div>
             </div>
 
-            <div style="overflow:auto;">
+            <div class="table-responsive" style="overflow-x:auto;">
                 <table class="table" id="attendanceTable" style="width:100%; border-collapse:collapse; min-width:900px;">
                     <thead>
                         <tr style="text-align:left;border-bottom:1px solid var(--border-light);">

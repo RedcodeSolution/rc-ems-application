@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Models\Leave;
+use App\Models\EmployeeActivity;
 use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
@@ -84,6 +85,14 @@ class EmployeeLeaveController extends Controller
             referenceId: $leave->leave_id
         );
 
+        EmployeeActivity::create([
+            'employee_id' => $user->employee_id,
+            'type'        => 'leave_request',
+            'action'      => 'Requested Leave',
+            'details'     => "Applied for {$leave->leave_type} leave from {$leave->start_date} to {$leave->end_date}",
+            'icon'        => 'fa-calendar-plus',
+        ]);
+
         return redirect()->route('employee.leaves.index')
             ->with('success', 'Leave request submitted successfully.');
     }
@@ -137,6 +146,15 @@ class EmployeeLeaveController extends Controller
 
         $leave->update($validated);
 
+        $user = Auth::user();
+        EmployeeActivity::create([
+            'employee_id' => $user->employee_id,
+            'type'        => 'leave_update',
+            'action'      => 'Updated Leave Request',
+            'details'     => "Updated {$leave->leave_type} leave request",
+            'icon'        => 'fa-edit',
+        ]);
+
         return redirect()->route('employee.leaves.index')
             ->with('success', 'Leave request updated successfully.');
     }
@@ -152,6 +170,15 @@ class EmployeeLeaveController extends Controller
             return response()->json(['error' => 'Cannot delete a ' . $leave->status . ' leave request.'], 403);
         }
         $leave->delete();
+
+        $user = Auth::user();
+        EmployeeActivity::create([
+            'employee_id' => $user->employee_id,
+            'type'        => 'leave_cancel',
+            'action'      => 'Cancelled Leave Request',
+            'details'     => "Cancelled pending {$leave->leave_type} leave request",
+            'icon'        => 'fa-trash',
+        ]);
 
         return redirect()->route('employee.leaves.index');
     }

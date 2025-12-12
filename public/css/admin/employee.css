@@ -141,22 +141,6 @@ body {
     margin-bottom: 1.25rem;
 }
 
-.modal-close {
-    position: absolute;
-    top: 1rem;
-    right: 1.25rem;
-    background: rgba(220, 38, 38, 0.1);
-    border: none;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: var(--redcode-primary);
-}
 
 .modal-close:hover {
     background: rgba(220, 38, 38, 0.2);
@@ -561,6 +545,27 @@ body {
     border-radius: 0.75rem;
     box-shadow: 0 1px 8px 0 rgba(220, 38, 38, 0.03);
     background: #fff;
+    /* Custom Scrollbar for better visibility */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-medium) transparent;
+}
+
+.table-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background-color: var(--border-medium);
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background-color: var(--border-dark);
 }
 
 .table {
@@ -601,6 +606,20 @@ body {
     justify-content: center;
     font-weight: 700;
     box-shadow: 0 2px 8px 0 rgba(220, 38, 38, 0.08);
+}
+
+/* Global Fix for "No Records"/Empty State */
+.table tbody td.no-records {
+    text-align: center !important;
+    vertical-align: middle;
+    /* Reset sticky behavior that might apply if it's the last-child */
+    position: static !important;
+    box-shadow: none !important;
+    border-left: none !important;
+    background: transparent !important;
+    width: 100%;
+    display: table-cell;
+    /* Ensure it stays a cell on desktop */
 }
 
 /* Custom Scrollbar for Modals */
@@ -1209,73 +1228,144 @@ body {
 
 /* Adaptive Table for Mobile (Stacked Layout) */
 /* Adaptive Table for Mobile (Stacked Layout) */
+/* Adaptive Table for Mobile (Stacked Layout) - IMPROVED */
 @media (max-width: 992px) {
     .table-container {
-        overflow-x: auto;
-        width: 100%;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+        overflow-x: visible;
+        /* Allow cards to show shadows */
     }
 
     .table {
         display: block;
         width: 100%;
-        overflow-x: auto;
-        border-spacing: 0;
+        background: transparent;
     }
 
     .table thead {
         display: none;
+        /* Hide headers */
+    }
+
+    .table tbody {
+        display: block;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        /* Masonry-like grid for cards */
+        gap: 1.5rem;
     }
 
     .table tbody tr {
-        display: block;
-        margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0;
+        /* Handled by grid gap */
         background: #fff;
         border-radius: 1rem;
-        box-shadow: 0 1px 8px 0 rgba(220, 38, 38, 0.03);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         border: 1px solid var(--border-light);
-        padding: 0.75rem;
+        overflow: hidden;
+        height: 100%;
+        /* Equal height cards */
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .table tbody tr:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
 
     .table tbody td {
         display: flex;
-        width: 100%;
-        padding: 0.5rem 0.25rem;
-        font-size: 0.85rem;
+        justify-content: space-between;
         align-items: center;
-        border: none;
-        position: relative;
-        box-sizing: border-box;
+        padding: 0.875rem 1.25rem;
+        border-bottom: 1px solid var(--border-light);
+        text-align: right;
+        min-height: 3.5rem;
     }
 
+    .table tbody td:last-child {
+        border-bottom: none;
+        margin-top: auto;
+        /* Push actions to bottom if flex column */
+        background: #f8fafc;
+        justify-content: flex-end;
+        padding: 1rem 1.25rem;
+    }
+
+    /* Pseudo-element for labels */
     .table tbody td:before {
         content: attr(data-label);
-        flex: 0 0 110px;
         font-weight: 600;
         color: var(--text-secondary);
-        margin-right: 1rem;
-        font-size: 0.8rem;
         text-align: left;
-        min-width: 90px;
-        word-break: break-word;
+        margin-right: auto;
+        padding-right: 1rem;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
 
-    /* Ensure actions column is always visible and wraps icons/buttons */
-    .table tbody td[data-label="Actions"] {
-        flex-wrap: wrap;
-        min-width: 120px;
+    /* Special styling for Employee Name (Card Header) */
+    .table tbody td[data-label="Employee"] {
+        background: linear-gradient(135deg, var(--redcode-light) 0%, #fff 100%);
+        border-bottom: 2px solid var(--border-light);
+        flex-direction: row;
+        /* Keep avatar and text horizontal */
         justify-content: flex-start;
-        gap: 0.25rem;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+    }
+
+    .table tbody td[data-label="Employee"]:before {
+        display: none;
+        /* Hide 'Employee' label */
+    }
+
+    /* Adjust avatar in card view */
+    .user-avatar {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1.2rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Actions Column */
+    .table tbody td[data-label="Actions"] {
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .table tbody td[data-label="Actions"]:before {
+        content: "Actions";
+        /* Show label for actions or hide? Let's hide to be cleaner */
+        display: none;
     }
 
     .table tbody td[data-label="Actions"] .btn {
-        min-width: 36px;
-        min-height: 36px;
-        font-size: 0.85em;
-        padding: 6px 12px;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
     }
 
-    .table tbody td[data-label="Actions"] i {
-        font-size: 1.1em;
+    /* Fix for "No Records"/Empty State */
+    .table tbody td.no-records {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        height: auto;
+        min-height: 200px;
+        background: #fff;
+    }
+
+    .table tbody td.no-records:before {
+        display: none;
     }
 }
 
@@ -1285,6 +1375,8 @@ body {
     .table {
         display: table;
         width: 100%;
+        min-width: 2000px;
+        /* Force scrollbar on smaller screens */
         border-collapse: separate;
         border-spacing: 0;
     }
@@ -1311,27 +1403,63 @@ body {
         border: none;
         position: relative;
         box-sizing: border-box;
+        white-space: nowrap;
+        /* Prevent text wrapping to force scroll */
     }
 
     .table tbody td:before {
         display: none;
     }
 
+    /* Sticky Actions Column - Keeps buttons visible while scrolling */
+    .table th:last-child,
+    .table td:last-child {
+        position: sticky;
+        right: 0;
+        background: #fff;
+        z-index: 10;
+        box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
+        border-left: 1px solid var(--border-light);
+    }
+
+    /* Ensure header matches background */
+    .table th:last-child {
+        background: var(--primary-light);
+        /* Header background */
+    }
+
     /* Fix actions column visibility and icon/button scaling */
     .table tbody td[data-label="Actions"] {
-        min-width: 200px;
+        min-width: 160px;
+        width: 160px;
+        white-space: nowrap;
+        text-align: center;
+        padding-right: 1rem;
+    }
+
+    /* Prevent buttons from wrapping */
+    .table tbody td[data-label="Actions"] .flex {
+        flex-wrap: nowrap;
+        gap: 0.5rem;
     }
 
     .table tbody td[data-label="Actions"] .btn {
-        min-width: 40px;
-        min-height: 40px;
-        font-size: 1em;
-        padding: 8px 16px;
+        min-width: 36px;
+        /* Slightly smaller min-width */
+        min-height: 36px;
+        font-size: 0.95em;
+        padding: 6px 12px;
     }
 
     .table tbody td[data-label="Actions"] i {
-        font-size: 1.2em;
+        font-size: 1.1em;
     }
+}
+
+/* Ensure all columns are visible on larger screens */
+.table th,
+.table td {
+    display: table-cell !important;
 }
 
 /* Responsive Grid for Dashboard Cards */

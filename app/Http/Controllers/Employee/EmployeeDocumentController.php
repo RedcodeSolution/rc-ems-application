@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\ShareDocumentMail;
 use App\Models\Document;
 use App\Models\EmployeeDocument;
+use App\Models\EmployeeActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -92,6 +93,17 @@ class EmployeeDocumentController extends Controller
                 $uploadedFiles[] = $doc;
             }
         }
+
+        if (count($uploadedFiles) > 0) {
+            EmployeeActivity::create([
+                'employee_id' => $employeeId,
+                'type'        => 'document_upload',
+                'action'      => 'Uploaded Documents',
+                'details'     => 'Uploaded ' . count($uploadedFiles) . ' new document(s)',
+                'icon'        => 'fa-file-upload',
+            ]);
+        }
+
         return redirect()->route('employee.documents')->with('success', count($uploadedFiles) . ' file(s) uploaded successfully!');
     }
 

@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Employee;
+use App\Models\Admin;
 use App\Models\SuperAdmin;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -33,49 +33,85 @@ class RegistrationController extends Controller
         }
 
         $role = $request->role;
-        $employee = null;
+
+        /**
+         * -------------------------
+         *  EMPLOYEE REGISTRATION
+         * -------------------------
+         */
         if ($role === 'employee') {
             $employee = Employee::where('email', $request->email)->first();
-            if ($employee) {
-                $role = $employee->role;
+
+            if (!$employee) {
+                return back()->withErrors([
+                    'email' => 'Employee record not found. You cannot register.'
+                ])->withInput();
             }
+
+            // Enforce role
+            $role = 'employee';
         }
 
+        /**
+         * -------------------------
+         *  ADMIN REGISTRATION
+         * -------------------------
+         */
+        if ($role === 'admin') {
+            $admin = Admin::where('email', $request->email)->first();
+
+            if (!$admin) {
+                return back()->withErrors([
+                    'email' => 'Admin record not found. You cannot register.'
+                ])->withInput();
+            }
+
+            // Enforce role
+            $role = 'admin';
+        }
+
+        /**
+         * -------------------------
+         *  SUPER ADMIN REGISTRATION
+         * -------------------------
+         */
         if ($role === 'super_admin') {
             $superAdmin = SuperAdmin::where('super_admin_email', $request->email)->first();
+
             if (!$superAdmin) {
-                return redirect()->back()->withErrors(['email' => 'Super admin not found.'])->withInput();
+                return back()->withErrors([
+                    'email' => 'Super admin record not found. You cannot register.'
+                ])->withInput();
             }
+
+            // Special case: only "amal@gmail.com" can skip password check
             if ($request->email !== 'amal@gmail.com') {
                 if (!Hash::check($request->password, $superAdmin->password)) {
-                    return redirect()->back()->withErrors(['password' => 'Password does not match the super admin account.'])->withInput();
+                    return back()->withErrors([
+                        'password' => 'Password does not match the super admin record.'
+                    ])->withInput();
                 }
             }
+
+            // Enforce role
+            $role = 'super_admin';
         }
 
+        /**
+         * -------------------------
+         *  CREATE USER ACCOUNT
+         * -------------------------
+         */
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'contact_no' => $request->contact_no,
-            'employee_id' => $employee ? $employee->employee_id : null,
-            'role' => $role,
+            'name'        => $request->name,
+            'email'       => $request->email,
+            'password'    => Hash::make($request->password),
+            'contact_no'  => $request->contact_no,
+            'role'        => $role,
+            'employee_id' => $employee->employee_id ?? null,
         ]);
 
-        if ($role === 'employee' && !$employee) {
-            $newEmployee = Employee::create([
-                'employee_name' => $user->name,
-                'email' => $user->email,
-                'contact_no' => $user->contact_no,
-                'employee_type' => 'Full Time',
-                'employee_status' => 'Active',
-                'paid_status' => 'Unpaid',
-                'role' => $user->role,
-            ]);
-
-            $user->employee_id = $newEmployee->employee_id;
-            $user->save();
-        }
-        return redirect()->route('login')->with('success', 'Account created successfully! Please log in.');
+        return redirect()->route('login')
+            ->with('success', 'Account created successfully! Please log in.');
     }
 }

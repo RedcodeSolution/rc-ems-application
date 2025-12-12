@@ -477,9 +477,7 @@ function viewRating(id) {
     document.getElementById('viewRatingModal').style.display = 'block';
 }
 
-function exportRatings() {
-    console.log('Exporting ratings data...');
-}
+
 
 document.addEventListener('DOMContentLoaded', function() {
     const starInputs = document.querySelectorAll('.star-rating input[type="radio"]');

@@ -57,7 +57,7 @@
             <div class="flex gap-2">
                 <button onclick="openModal()" class="btn btn-primary">
                     <i class="fas fa-plus"></i>
-                    New Project
+                    <span class="btn-text">New Project</span>
                 </button>
             </div>
         </div>
@@ -103,21 +103,19 @@
 
                 <div class="card-body" style="padding: 1.5rem;">
                     <!-- Employee Search -->
-                    <div style="display: flex; gap: 1rem; align-items: end; margin-bottom: 1rem;">
-                        <div style="flex: 1;">
-                            <label for="employeeSearch"
-                                style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem;">
-                                <i class="fas fa-search" style="color: var(--redcode-primary); margin-right: 0.25rem;"></i>
+                    <!-- Employee Search -->
+                    <div class="employee-search-row">
+                        <div class="search-group flex-grow">
+                            <label for="employeeSearch" class="form-label">
+                                <i class="fas fa-search"></i>
                                 Search Employee
                             </label>
-                            <input type="text" id="employeeSearch" class="form-input"
-                                placeholder="Enter employee name..." style="width: 100%;" onkeyup="filterEmployeeList()">
+                            <input type="text" id="employeeSearch" class="form-input w-full"
+                                placeholder="Enter employee name..." onkeyup="filterEmployeeList()">
                         </div>
-                        <div>
-                            <label for="departmentFilter"
-                                style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem;">
-                                <i class="fas fa-building"
-                                    style="color: var(--redcode-primary); margin-right: 0.25rem;"></i>
+                        <div class="search-group">
+                            <label for="departmentFilter" class="form-label">
+                                <i class="fas fa-building"></i>
                                 Department
                             </label>
 
@@ -129,7 +127,7 @@
                             </select>
                         </div>
 
-                        <div>
+                        <div class="search-actions">
                             <button class="btn btn-primary" onclick="clearEmployeeSearch()">
                                 <i class="fas fa-times"></i> Clear
                             </button>
@@ -583,18 +581,16 @@
                     Add New Project
                 </div>
                 <div class="modal-subtitle">Fill in the project details below</div>
-                {{-- <button class="modal-close" onclick="closeModal()">
-                        <i class="fas fa-times"></i>
-                    </button> --}}
+                <button class="modal-close-btn" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
 
             <div class="modal-body">
                 <form action="{{ route('admin.projects.store') }}" method="POST" id="projectForm">
                     @csrf
                     <div class="form-container">
-                        <button class="modal-close-btn" onclick="closeModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
+
 
                         <!-- Basic Information Row -->
                         <div class="form-row">

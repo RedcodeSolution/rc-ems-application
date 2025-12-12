@@ -23,18 +23,22 @@ class EmployeeAttendanceController extends Controller
 
         $specificDate = $request->query('date');
 
-        // Fetch all attendance records for this user
-        $attendances = Attendance::where('user_id', $userId)
-            ->orderBy('date', 'desc')
+        // Fetch all attendance records for stats
+        $allAttendances = Attendance::where('user_id', $userId)
             ->get();
 
+        // Fetch paginated attendance records for list
+        $attendances = Attendance::where('user_id', $userId)
+            ->orderBy('date', 'desc')
+            ->paginate(5);
+
         // --- Summary stats ---
-        $presentDays = $attendances->where('status', 'present')->count();
-        $absentDays = $attendances->where('status', 'absent')->count();
-        $lateArrivals = $attendances->where('status', 'late')->count();
+        $presentDays = $allAttendances->where('status', 'present')->count();
+        $absentDays = $allAttendances->where('status', 'absent')->count();
+        $lateArrivals = $allAttendances->where('status', 'late')->count();
 
         // --- Total hours calculation ---
-        $totalHoursValue = $attendances->sum('hours_worked');
+        $totalHoursValue = $allAttendances->sum('hours_worked');
         $totalMinutes = round($totalHoursValue * 60);
         $totalHoursOnly = floor($totalMinutes / 60);
         $totalMinutesOnly = $totalMinutes % 60;
@@ -330,6 +334,14 @@ class EmployeeAttendanceController extends Controller
             'is_on_break' => true,
         ]);
 
+        EmployeeActivity::create([
+            'employee_id' => $user->employee_id,
+            'type'        => 'attendance',
+            'action'      => 'Started Break',
+            'details'     => 'Started break at ' . $now->format('h:i A'),
+            'icon'        => 'fa-coffee',
+        ]);
+
         return response()->json(['success' => true, 'message' => 'Break started successfully.']);
     }
 
@@ -365,6 +377,14 @@ class EmployeeAttendanceController extends Controller
             'break_end_time' => $now,
             'break_duration' => $attendance->break_duration + $breakHours,
             'is_on_break' => false,
+        ]);
+
+        EmployeeActivity::create([
+            'employee_id' => $user->employee_id,
+            'type'        => 'attendance',
+            'action'      => 'Ended Break',
+            'details'     => 'Ended break at ' . $now->format('h:i A') . ' (Duration: ' . $breakHours . ' hrs)',
+            'icon'        => 'fa-briefcase',
         ]);
 
         return response()->json([
@@ -481,6 +501,14 @@ class EmployeeAttendanceController extends Controller
             'emergency_start_time' => $now,
         ]);
 
+        EmployeeActivity::create([
+            'employee_id' => $user->employee_id,
+            'type'        => 'attendance',
+            'action'      => 'Started Emergency',
+            'details'     => 'Reported emergency: ' . $request->input('emergency_type'),
+            'icon'        => 'fa-procedures',
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Emergency break started successfully.',
@@ -520,6 +548,14 @@ class EmployeeAttendanceController extends Controller
             'is_on_emergency' => false,
             'emergency_end_time' => $now,
             'emergency_duration' => $attendance->emergency_duration + $duration,
+        ]);
+
+        EmployeeActivity::create([
+            'employee_id' => $user->employee_id,
+            'type'        => 'attendance',
+            'action'      => 'Ended Emergency',
+            'details'     => 'Ended emergency at ' . $now->format('h:i A') . ' (Duration: ' . $duration . ' hrs)',
+            'icon'        => 'fa-user-clock',
         ]);
 
         return response()->json([

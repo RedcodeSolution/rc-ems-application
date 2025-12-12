@@ -1,6 +1,6 @@
 @extends('layouts.super_admin')
 <link rel="stylesheet" href="{{ asset('css/SuperAdmin/adminManagement.css') }}">
-@section('title', 'Admin Management - Super Admin Dashboard')
+@section('title', 'Admin Management')
 
 @section('content')
 <div class="admin-management-container">
@@ -12,9 +12,6 @@
         <div class="header-actions">
             <button class="btn btn-primary" onclick="openAddAdminModal()">
                 <i class="fas fa-plus"></i> Add New Admin
-            </button>
-            <button class="btn btn-secondary" onclick="exportAdminData()">
-                <i class="fas fa-download"></i> Export Data
             </button>
         </div>
     </div>
@@ -87,20 +84,14 @@
     <div class="admins-table-container">
         <div class="table-header">
             <h2><i class="fas fa-table"></i> Administrators List</h2>
-            <div class="table-actions">
-                <button class="btn btn-outline" onclick="refreshAdminData()">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-            </div>
+
         </div>
 
         <div class="table-wrapper">
             <table class="admins-table">
                 <thead>
                     <tr>
-                        <th>
-                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
-                        </th>
+
                         <th>Admin ID</th>
                         <th>Admin Name</th>
                         <th>Department Info</th>
@@ -111,10 +102,8 @@
                 </thead>
                 <tbody id="adminsTableBody">
                     @forelse($admins as $admin)
-                    <tr class="admin-row" data-admin-id="{{ $admin->admin_id }}">
-                        <td data-label="Select">
-                            <input type="checkbox" class="admin-checkbox" value="{{ $admin->admin_id }}">
-                        </td>
+                    <tr class="admin-row" data-admin-id="{{ $admin->admin_id }}" data-status="{{ $admin->status }}" data-role="{{ $admin->role }}">
+
                         <td data-label="Admin ID">
                             <div class="admin-id">
                                 <span class="id-text">{{ $admin->admin_id }}</span>
@@ -185,8 +174,8 @@
                                 <form action="{{ route('super_admin.destroy', $admin->admin_id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="action-btn delete-btn" title="Delete Admin"
-                                            onclick="return confirm('Are you sure you want to delete this admin?');">
+                                    <button type="button" class="action-btn delete-btn" title="Delete Admin"
+                                            onclick="confirmDeleteForm(this.closest('form'))">
                                         <i class="fas fa-trash"></i>
                                     </form>
 
@@ -325,7 +314,7 @@
         </div>
 
         <div class="modal-body">
-            <form id="editAdminForm" action="" method="POST">
+            <form id="editAdminForm" action="" method="POST" onsubmit="confirmUpdateForm(event)">
                 @csrf
                 @method('PUT')
 
@@ -623,6 +612,7 @@
     });
 
     function openEditAdminModal(adminId) {
+        closeViewAdminModal();
         if (!adminId) return alert('Admin ID missing!');
         const modal = document.getElementById('editAdminModal');
         if (!modal) return console.warn('editAdminModal not found');
@@ -631,7 +621,7 @@
 
         const form = document.getElementById('editAdminForm');
         if (form) {
-            form.action = `/super-admin/${adminId}`;
+            form.action = `/super-admin/admins/${adminId}`;
         }
 
         ['edit_admin_name','edit_role','edit_email','edit_contact_no','edit_status','edit_department_id'].forEach(id => {
@@ -683,6 +673,25 @@
         if (form) form.reset();
     }
 
+    function confirmUpdateForm(e) {
+        e.preventDefault();
+        const form = e.target;
+        
+        Swal.fire({
+            title: 'Update Admin?',
+            text: "Save changes to this administrator?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, update it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         const searchInput = document.getElementById("adminSearch");
         const statusFilter = document.getElementById("statusFilter");
@@ -697,10 +706,10 @@
             const rows = tableBody.querySelectorAll(".admin-row");
 
             rows.forEach(row => {
-                const adminId = row.querySelector("td[data-label='Admin ID'] .id-text")?.textContent.toLowerCase() || "";
-                const adminName = row.querySelector("td[data-label='Admin Name'] .name-primary")?.textContent.toLowerCase() || "";
-                const status = row.querySelector("td[data-label='Status'] .status-badge")?.textContent.toLowerCase() || "";
-                const role = row.querySelector("td[data-label='Admin Name'] .name-secondary")?.textContent.toLowerCase() || "";
+                const adminId = row.dataset.adminId.toLowerCase();
+                const adminName = row.querySelector("td[data-label='Admin Name'] .name-primary")?.textContent.toLowerCase().trim() || "";
+                const status = row.dataset.status ? row.dataset.status.toLowerCase() : "";
+                const role = row.dataset.role ? row.dataset.role.toLowerCase() : "";
 
                 const matchesSearch = adminName.includes(searchValue) || adminId.includes(searchValue);
                 const matchesStatus = !selectedStatus || status === selectedStatus;

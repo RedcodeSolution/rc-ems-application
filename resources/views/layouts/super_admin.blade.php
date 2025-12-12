@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'EMS') }} - @yield('title', 'Super Admin Dashboard')</title>
+    <title>{{ config('app.name', 'EMS') }} - @hasSection('browser_title') @yield('browser_title') @else @php echo strip_tags($__env->yieldContent('title', 'Super Admin Dashboard')); @endphp @endif</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -103,14 +104,14 @@
             </div>
 
             <div class="nav-actions">
-                <a href="#" class="nav-bell">
+                <a href="{{ route('super_admin.notifications') }}" class="nav-bell" id="navBellBtn">
                     <div class="nav-bell-icon">
                         <i class="fas fa-bell"></i>
-                        <span class="nav-bell-dot"></span>
+                        <span class="nav-bell-dot" style="display: none;"></span>
                     </div>
                 </a>
 
-                <div class="user-menu">
+                <div class="user-menu" id="userMenuBtn">
                     <div class="user-avatar">
                         {{ strtoupper(substr(auth()->user()?->name ?? 'SA', 0, 1)) }}
                     </div>
@@ -119,21 +120,45 @@
                         <p>{{ auth()->user()?->email ?? 'superadmin@company.com' }}</p>
                     </div>
                     <i class="fas fa-chevron-down"></i>
-                </div>
 
-                <form method="POST" action="{{ route('logout') }}" class="nav-logout">
-                    @csrf
-                    <button type="submit" class="btn btn-primary" aria-label="Logout">
-                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
-                        <span class="btn-text">Logout</span>
-                    </button>
-                </form>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="{{ route('super_admin.super_admin_accounts') }}" class="dropdown-item">
+                            <i class="fas fa-user-shield"></i> Profile
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <form method="POST" action="{{ route('logout') }}" id="logout-form">
+                            @csrf
+                            <button type="button" onclick="confirmLogout(event)" class="dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
 
 
-        <div class="content-area">
+    <div class="content-area">
             @yield('content')
+        </div>
+    </div>
+
+    <!-- Notification Modal -->
+    <div id="notificationModalDrop" class="modal-dropdown" style="display:none;">
+        <div class="modal-dropdown-bg"></div>
+        <div class="modal-dropdown-content">
+            <div class="modal-dropdown-header">
+                <h3><i class="fas fa-bell"></i> Notifications</h3>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <button id="markAllBtn" class="mark-all-btn">
+                        <i class="fas fa-check-double"></i> Mark all read
+                    </button>
+                    <button class="modal-close" id="closenotificationModalDrop">&times;</button>
+                </div>
+            </div>
+            <div class="modal-dropdown-body" id="latestNotifications">
+                <p style="text-align:center; color: gray;">Loading...</p>
+            </div>
         </div>
     </div>
 
@@ -151,6 +176,264 @@
                 sidebar.classList.remove('active');
             }
         });
+
+        // User Dropdown
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userDropdown = document.getElementById('userDropdown');
+
+        if (userMenuBtn && userDropdown) {
+            userMenuBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!userMenuBtn.contains(e.target)) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+        }
+
+        // Notification System
+        const bellBtn = document.getElementById('navBellBtn');
+        const modal = document.getElementById('notificationModalDrop');
+        const closeBtn = document.getElementById('closenotificationModalDrop');
+        const body = document.getElementById('latestNotifications');
+
+        // Initial Load
+        document.addEventListener('DOMContentLoaded', () => {
+             refreshBellDot();
+             // loadLatestNotifications(); // Optional: preload
+        });
+
+
+        // Toggle Modal
+        if (bellBtn && modal) {
+            bellBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (modal.style.display === 'none' || modal.style.display === '') {
+                    modal.style.display = 'flex';
+                    loadLatestNotifications();
+                } else {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+        }
+
+        // Close when clicking outside
+        window.addEventListener('click', function(e) {
+            const content = document.querySelector('.modal-dropdown-content');
+            if (modal && modal.style.display !== 'none' && content && !content.contains(e.target) && !bellBtn.contains(e.target)) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Load Notifications
+        function loadLatestNotifications() {
+             if (!body) return;
+             body.innerHTML = '<p style="padding:10px; text-align:center;">Loading...</p>';
+
+             fetch("{{ route('super_admin.notifications.latest') }}")
+                 .then(res => res.json())
+                 .then(data => {
+                     body.innerHTML = "";
+                     refreshBellDot(); // sync dot
+
+                     if (!data || data.length === 0) {
+                         body.innerHTML = '<p style="padding:10px; text-align:center; color:gray;">No unread notifications</p>';
+                         return;
+                     }
+
+                     data.forEach(n => {
+                         let icon = 'fas fa-bell'; // default
+                         // Simple icon toggle based on type if wanted, or server provided
+                         if(n.type === 'leave') icon = 'fas fa-calendar';
+                         if(n.type === 'system') icon = 'fas fa-cogs';
+
+                         const item = `
+                            <div class="notification-item unread">
+                                <div>
+                                    <div class="notification-title">
+                                       <i class="${icon}"></i> ${n.type ?? 'Notification'}
+                                    </div>
+                                    <div class="notification-desc">${n.message ?? ''}</div>
+                                    <div class="notification-meta">
+                                        ${new Date(n.created_at).toLocaleString()}
+                                    </div>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="icon-btn mark-btn" title="Mark as Read" onclick="markAsRead('${n.notifi_id}')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="icon-btn delete-btn" title="Delete" onclick="deleteNotification('${n.notifi_id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                         `;
+                         body.insertAdjacentHTML('beforeend', item);
+                     });
+                 })
+                 .catch(err => {
+                     console.error(err);
+                     body.innerHTML = '<p style="padding:10px; color:red;">Error loading notifications</p>';
+                 });
+        }
+
+        // Mark as Read
+        window.markAsRead = function(id) {
+            fetch(`/notifications/${id}/read`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    loadLatestNotifications();
+                }
+            })
+            .catch(err => console.error(err));
+        };
+
+        // Delete
+        window.deleteNotification = function(id) {
+             Swal.fire({
+                title: 'Are you sure?',
+                text: "Delete this notification?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+             }).then((result) => {
+                if (result.isConfirmed) {
+                     fetch(`/notifications/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.success) {
+                            loadLatestNotifications();
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                            Toast.fire({
+                                icon: 'success',
+                                title: 'Notification deleted'
+                            });
+                        }
+                    })
+                    .catch(err => console.error(err));
+                }
+             });
+        };
+
+        // Global Helper for Form Deletes
+        window.confirmDeleteForm = function(form) {
+             Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+             }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+             });
+             return false;
+        };
+        
+        // Session Flash Messages
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: "{{ session('success') }}",
+                timer: 3000,
+                showConfirmButton: false
+            });
+        @endif
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: "{{ session('error') }}",
+            });
+        @endif
+
+        // Mark All Read
+        const markAllBtn = document.getElementById('markAllBtn');
+        if(markAllBtn) {
+            markAllBtn.addEventListener('click', function() {
+                fetch("{{ route('notifications.readAll') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                     loadLatestNotifications();
+                });
+            });
+        }
+
+        // bell dot check
+        function refreshBellDot() {
+             const dot = document.querySelector('.nav-bell-dot');
+             if(!dot) return;
+
+             fetch("{{ route('super_admin.notifications.latest') }}")
+                 .then(res => res.json())
+                 .then(data => {
+                     if(data && data.length > 0) {
+                         dot.style.display = 'block';
+                     } else {
+                         dot.style.display = 'none';
+                     }
+                 })
+                 .catch(e => console.error(e));
+        }
+
+        // Logout Confirmation
+        window.confirmLogout = function(event) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Ready to Leave?',
+                text: "You will be logged out of your session.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, Logout',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                }
+            });
+        };
+
+        // Auto refresh
+        setInterval(refreshBellDot, 30000);
     </script>
 </body>
 

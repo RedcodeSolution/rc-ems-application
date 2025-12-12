@@ -73,6 +73,18 @@ class AdminAnnouncementsController extends Controller
 
     public function store(Request $request)
     {
+        // Pre-process inputs to handle "all" selection
+        $deptIds = $request->input('department_id', []);
+        $teamIds = $request->input('team_id', []);
+
+        if (in_array('all', (array)$deptIds)) {
+            $request->merge(['department_id' => []]);
+        }
+        
+        if (in_array('all', (array)$teamIds)) {
+            $request->merge(['team_id' => []]);
+        }
+
         $validated = $request->validate([
             'title'             => 'required|string|max:255',
             'priority'          => 'required|in:low,medium,high,urgent',
@@ -148,6 +160,18 @@ class AdminAnnouncementsController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Pre-process inputs to handle "all" selection
+        $deptIds = $request->input('department_id', []);
+        $teamIds = $request->input('team_id', []);
+
+        if (in_array('all', (array)$deptIds)) {
+            $request->merge(['department_id' => []]);
+        }
+        
+        if (in_array('all', (array)$teamIds)) {
+            $request->merge(['team_id' => []]);
+        }
+
         $validated = $request->validate([
             'title'             => 'required|string|max:255',
             'priority'          => 'required|in:low,medium,high,urgent',

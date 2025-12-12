@@ -1,6 +1,9 @@
 ﻿@extends('layouts.super_admin')
 
-@section('title', 'Super Admin Overview Dashboard')
+@section('title')
+    <span class="desktop-title">Super Admin Overview Dashboard</span>
+    <span class="mobile-title">Overview</span>
+@endsection
 <link rel="stylesheet" href="{{ asset('css/SuperAdmin/dashboard.css') }}">
 @section('content')
     <div class="dashboard-container">
@@ -10,14 +13,7 @@
                 <h1><i class="fas fa-crown"></i> Super Admin Overview</h1>
                 <p>Complete system management and monitoring dashboard</p>
             </div>
-            <div class="header-actions">
-                <button class="btn btn-primary" onclick="refreshDashboard()">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-                <button class="btn btn-secondary" onclick="exportReport()">
-                    <i class="fas fa-download"></i> Export Report
-                </button>
-            </div>
+            
         </div>
 
         <div class="stats-grid">
@@ -30,9 +26,7 @@
                     <div class="stat-number">{{ $dashboardStats['total_admins'] ?? 0 }}</div>
                     <p>System administrators</p>
                 </div>
-                <div class="stat-trend positive">
-                    <i class="fas fa-arrow-up"></i> +2
-                </div>
+               
             </div>
 
             <div class="stat-card employees">
@@ -43,9 +37,6 @@
                     <h3>Total Employees</h3>
                     <div class="stat-number">{{ $dashboardStats['total_employees'] ?? 0 }}</div>
                     <p>Active workforce</p>
-                </div>
-                <div class="stat-trend positive">
-                    <i class="fas fa-arrow-up"></i> +{{ $dashboardStats['recent_registrations'] ?? 0 }}
                 </div>
             </div>
 
@@ -58,9 +49,6 @@
                     <div class="stat-number">{{ $dashboardStats['total_departments'] ?? 0 }}</div>
                     <p>Active departments</p>
                 </div>
-                <div class="stat-trend neutral">
-                    <i class="fas fa-minus"></i> Stable
-                </div>
             </div>
 
             <div class="stat-card projects">
@@ -72,9 +60,6 @@
                     <div class="stat-number">{{ $dashboardStats['active_projects'] ?? 0 }}</div>
                     <p>Ongoing projects</p>
                 </div>
-                <div class="stat-trend positive">
-                    <i class="fas fa-arrow-up"></i> +3
-                </div>
             </div>
 
             <div class="stat-card leaves">
@@ -85,9 +70,6 @@
                     <h3>Pending Leaves</h3>
                     <div class="stat-number">{{ $dashboardStats['pending_leaves'] ?? 0 }}</div>
                     <p>Awaiting approval</p>
-                </div>
-                <div class="stat-trend warning">
-                    <i class="fas fa-exclamation"></i> Review
                 </div>
             </div>
         </div>
@@ -136,7 +118,15 @@
                                             Auth::user() && in_array(Auth::user()->role, ['admin', 'super_admin']);
                                     @endphp
 
-                                    @if ($meeting->status === 'ongoing' || $isAdmin)
+                                    @if(in_array($meeting->status, ['completed', 'cancelled']))
+                                        <div class="meeting-status-display">
+                                            <button class="join-meeting-btn" disabled 
+                                                style="opacity: 0.7; pointer-events: none; cursor: not-allowed; background: #94a3b8; width: 100%; justify-content: center; margin-top: 10px;">
+                                                <i class="fas fa-ban"></i> 
+                                                Meeting {{ ucfirst($meeting->status) }}
+                                            </button>
+                                        </div>
+                                    @elseif ($meeting->status === 'ongoing' || $isAdmin)
                                         <div class="meeting-link-display">
                                             <input type="text" value="{{ $meeting->meeting_link }}"
                                                 class="meeting-link-input" readonly>
@@ -146,11 +136,25 @@
                                             </button>
                                         </div>
 
-                                        <a href="{{ route('meetings.join', $meeting) }}" class="join-meeting-btn"
-                                            target="_blank" rel="noopener noreferrer">
-                                            <i class="fas fa-external-link-alt"></i>
-                                            {{ $isAdmin && $meeting->status === 'scheduled' ? 'Start Meeting' : 'Join Meeting' }}
-                                        </a>
+                                        <div class="meeting-actions" style="display: flex; gap: 8px; margin-top: 10px;">
+                                            <a href="{{ route('meetings.join', $meeting) }}" class="join-meeting-btn"
+                                                target="_blank" rel="noopener noreferrer">
+                                                <i class="fas fa-external-link-alt"></i>
+                                                {{ $isAdmin && $meeting->status === 'scheduled' ? 'Start Meeting' : 'Join Meeting' }}
+                                            </a>
+
+                                            @if($isAdmin)
+                                                @if($meeting->status === 'ongoing')
+                                                    <button onclick="updateMeetingStatus('{{ $meeting->id }}', 'completed')" class="btn btn-sm btn-danger" style="background-color: #ef4444; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                                                        <i class="fas fa-stop-circle"></i> End
+                                                    </button>
+                                                @elseif($meeting->status === 'scheduled')
+                                                    <button onclick="updateMeetingStatus('{{ $meeting->id }}', 'cancelled')" class="btn btn-sm btn-secondary" style="background-color: #64748b; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                                                        <i class="fas fa-times-circle"></i> Cancel
+                                                    </button>
+                                                @endif
+                                            @endif
+                                        </div>
                                     @else
                                         <p class="meeting-upcoming-text">
                                             <i class="fas fa-clock"></i> Meeting not started yet
@@ -180,8 +184,8 @@
                     </div>
                     <div class="card-content">
                         <div class="activities-list">
-                            @forelse ($recentActivities->take(3) as $activity)
-                                {{-- Show only latest 3 --}}
+                            @forelse ($recentActivities->take(5) as $activity)
+                                {{-- Show only latest 5 --}}
                                 <div class="activity-item activity-{{ $activity['type'] }}">
                                     <div class="activity-icon">
                                         <i class="{{ $activity['icon'] }}"></i>
@@ -230,6 +234,9 @@
                 </div>
 
 
+            </div>
+
+            <div class="dashboard-right">
                 <!-- Quick Actions Card -->
                 <div class="dashboard-card quick-actions">
                     <div class="card-header">
@@ -246,25 +253,7 @@
                 </div>
             </div>
 
-            <div class="dashboard-right">
-                <!-- Performance Overview Card -->
-                <div class="dashboard-card charts">
-                    <div class="card-header">
-                        <h2><i class="fas fa-chart-line"></i> Performance Overview</h2>
-                        <div class="chart-tabs">
-                            <button class="chart-tab active"
-                                onclick="showChart('registrations', event)">Registrations</button>
-                            <button class="chart-tab" onclick="showChart('leaves', event)">Leaves</button>
-                            <button class="chart-tab" onclick="showChart('projects', event)">Projects</button>
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <div class="chart-container" style="height: 300px;">
-                            <canvas id="performanceChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
         </div>
 
         <div class="dashboard-bottom">
@@ -416,14 +405,13 @@
         }
 
         function getChartColor(type) {
-            return {
-                registrations: '#2563EB',
-                leaves: '#F59E0B',
-                projects: '#10B981'
-            } [type] || '#DC2626';
-        }
-
-        document.addEventListener('DOMContentLoaded', initializeChart);
+    return {
+        registrations: '#2563EB',
+        leaves: '#F59E0B',
+        projects: '#10B981'
+    } [type] || '#DC2626';
+}
+    });
 
         // Dashboard functions
         function refreshDashboard() {
@@ -435,13 +423,6 @@
             }, 1000);
         }
 
-        function exportReport() {
-            showNotification('Generating system report...', 'info');
-
-            setTimeout(() => {
-                showNotification('Report exported successfully!', 'success');
-            }, 2000);
-        }
 
         // Real-time updates simulation
         function startRealTimeUpdates() {
@@ -508,10 +489,14 @@
         }
 
         // Copy to clipboard function for meeting links
-        function copyToClipboard(text) {
+        function copyToClipboard(text, event) {
             navigator.clipboard.writeText(text).then(function() {
                 // Show success message
                 const copyBtn = event.target.closest('.copy-btn');
+                
+                // Show toast notification
+                showNotification('Meeting link copied to clipboard!', 'success');
+
                 if (copyBtn) {
                     const originalText = copyBtn.innerHTML;
                     copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
@@ -544,9 +529,64 @@
                 modal.style.display = "none";
             }
         });
+            // Expose functions to global scope
+
+
+        // Meeting Status Update
+        function updateMeetingStatus(meetingId, status) {
+            const action = status === 'completed' ? 'End' : 'Cancel';
+            const confirmBtnColor = status === 'completed' ? '#ef4444' : '#64748b';
+
+            Swal.fire({
+                title: `Are you sure you want to ${action} this meeting?`,
+                text: "Employees will be notified.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: confirmBtnColor,
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: `Yes, ${action} it!`
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/meetings/${meetingId}/status`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ status: status })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire(
+                                'Updated!',
+                                `Meeting has been ${status}.`,
+                                'success'
+                            ).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                data.message || 'Something went wrong.',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire(
+                            'Error!',
+                            'Failed to update meeting status.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        }
     </script>
     @if (session('success'))
-        <script script>
+        <script>
             const Toast = Swal.mixin({
                 toast: true,
                 position: 'top-end',

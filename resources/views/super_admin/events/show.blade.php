@@ -91,16 +91,10 @@
             <i class="fas fa-edit"></i>
             Edit Event
         </button>
-        <button class="btn btn-secondary" onclick="shareEvent({{ $event['id'] }})">
-            <i class="fas fa-share"></i>
-            Share Event
+        <button class="btn btn-secondary" onclick="closeModal()">
+            <i class="fas fa-times"></i>
+            Close
         </button>
-        @if($event['status'] === 'upcoming')
-        <button class="btn btn-success" onclick="publishEvent({{ $event['id'] }})">
-            <i class="fas fa-globe"></i>
-            Publish Event
-        </button>
-        @endif
     </div>
 </div>
 
@@ -305,21 +299,5 @@ function editEvent(eventId) {
     window.location.href = `/super_admin/events/${eventId}/edit`;
 }
 
-function shareEvent(eventId) {
-    // Copy event link to clipboard
-    const eventUrl = `${window.location.origin}/super_admin/events/${eventId}`;
-    navigator.clipboard.writeText(eventUrl).then(() => {
-        alert('Event link copied to clipboard!');
-    }).catch(() => {
-        alert('Failed to copy link. Please copy manually: ' + eventUrl);
-    });
-}
 
-function publishEvent(eventId) {
-    if (confirm('Are you sure you want to publish this event? It will be visible to all employees.')) {
-        // In a real application, this would make an AJAX call to publish the event
-        alert('Event published successfully!');
-        closeModal();
-    }
-}
 </script>

@@ -1,6 +1,7 @@
 @extends('layouts.employee')
 <link rel="stylesheet" href="{{ asset('css/Employee/myProfile.css') }}">
 @section('title', 'My Profile')
+@section('content-class', 'profile-page')
 
 @section('content')
     <div class="profile-container">

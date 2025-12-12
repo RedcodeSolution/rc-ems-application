@@ -650,12 +650,24 @@
                 }
 
                 .filter-controls {
-                    flex-direction: column;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 0.75rem;
                     align-items: stretch;
                 }
 
                 .search-box {
+                    grid-column: 1 / -1;
                     min-width: auto;
+                }
+                
+                .filter-dropdown {
+                    width: 100%;
+                }
+                
+                .filter-dropdown select {
+                    width: 100%;
+                    min-width: 0;
                 }
 
                 .announcements-grid {

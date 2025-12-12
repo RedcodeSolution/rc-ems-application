@@ -106,6 +106,19 @@
             letter-spacing: 0.5px;
             margin-top: 4px;
         }
+
+        /* Mobile Responsive Enhancements */
+        .btn-icon { display: none; }
+        @media (max-width: 480px) {
+            .btn-text { display: none; }
+            .btn-icon { display: inline-block; }
+            .view-all-btn { 
+                padding: 0.5rem 0.75rem !important; 
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
     </style>
     <div class="dashboard-container">
         <div class="dashboard-content">
@@ -133,10 +146,7 @@
                     <div class="stat-card-title">Departments</div>
                     <div class="stat-card-value counter" id="metric-departments" data-target="{{ $departmentsCount ?? 0 }}">
                         {{ $departmentsCount ?? 0 }}</div>
-                    <div class="stat-card-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>+2 new departments</span>
-                    </div>
+                    
                 </div>
                 <div class="stat-card-icon">
                     <i class="fas fa-building"></i>
@@ -290,21 +300,43 @@
                                     $isAdmin = Auth::user() && in_array(Auth::user()->role, ['admin', 'super_admin']);
                                 @endphp
 
-                                @if ($meeting->status === 'ongoing' || $isAdmin)
-                                    <div class="meeting-link-display">
-                                        <input type="text" value="{{ $meeting->meeting_link }}"
-                                            class="meeting-link-input" readonly>
-                                        <button onclick="copyToClipboard('{{ $meeting->meeting_link }}', event)"
-                                            class="copy-btn">
-                                            <i class="fas fa-copy"></i> Copy
-                                        </button>
-                                    </div>
+                                    @if(in_array($meeting->status, ['completed', 'cancelled']))
+                                        <div class="meeting-status-display">
+                                            <button class="join-meeting-btn" disabled 
+                                                style="opacity: 0.7; pointer-events: none; cursor: not-allowed; background: #94a3b8; width: 100%; justify-content: center; margin-top: 10px;">
+                                                <i class="fas fa-ban"></i> 
+                                                Meeting {{ ucfirst($meeting->status) }}
+                                            </button>
+                                        </div>
+                                    @elseif ($meeting->status === 'ongoing' || $isAdmin)
+                                        <div class="meeting-link-display">
+                                            <input type="text" value="{{ $meeting->meeting_link }}"
+                                                class="meeting-link-input" readonly>
+                                            <button onclick="copyToClipboard('{{ $meeting->meeting_link }}', event)"
+                                                class="copy-btn">
+                                                <i class="fas fa-copy"></i> Copy
+                                            </button>
+                                        </div>
 
-                                    <a href="{{ route('meetings.join', $meeting) }}" class="join-meeting-btn"
-                                        target="_blank" rel="noopener noreferrer">
-                                        <i class="fas fa-external-link-alt"></i>
-                                        {{ $isAdmin && $meeting->status === 'scheduled' ? 'Start Meeting' : 'Join Meeting' }}
-                                    </a>
+                                        <div class="meeting-actions" style="display: flex; gap: 8px; margin-top: 10px;">
+                                            <a href="{{ route('meetings.join', $meeting) }}" class="join-meeting-btn"
+                                                target="_blank" rel="noopener noreferrer">
+                                                <i class="fas fa-external-link-alt"></i>
+                                                {{ $isAdmin && $meeting->status === 'scheduled' ? 'Start Meeting' : 'Join Meeting' }}
+                                            </a>
+
+                                            @if($isAdmin)
+                                                @if($meeting->status === 'ongoing')
+                                                    <button onclick="updateMeetingStatus('{{ $meeting->id }}', 'completed')" class="btn btn-sm btn-danger" style="background-color: #ef4444; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                                                        <i class="fas fa-stop-circle"></i> End
+                                                    </button>
+                                                @elseif($meeting->status === 'scheduled')
+                                                    <button onclick="updateMeetingStatus('{{ $meeting->id }}', 'cancelled')" class="btn btn-sm btn-secondary" style="background-color: #64748b; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                                                        <i class="fas fa-times-circle"></i> Cancel
+                                                    </button>
+                                                @endif
+                                            @endif
+                                        </div>
                                 @else
                                     <p class="meeting-upcoming-text">
                                         <i class="fas fa-clock"></i> Meeting not started yet
@@ -437,7 +469,7 @@
             <div class="chart-header">
                 <div class="chart-title">Top performing Employees</div>
             </div>
-            <div class="table-container" style="box-shadow: none; border: none;">
+            <div class="table-container" style="box-shadow: none; border: none; overflow-x: auto;">
                 <table class="table" id="topPerformersTable">
                     <thead>
                         <tr>
@@ -493,61 +525,7 @@
             </div>
         </div>
 
-        <div class="activity-card animate-fade-in-up" style="animation-delay: 1.0s">
-            <div class="chart-header">
-                <div class="chart-title">Recent Activities</div>
-                <a href="{{ route('admin.notifications') }}" class="btn btn-primary">View All</a>
-            </div>
 
-            {{-- Activity list container: server-render when $activities or $notifications provided, else JS will populate --}}
-            <div id="admin-activity-list">
-                @if (
-                    !empty($activities) &&
-                        (is_array($activities) || (method_exists($activities, 'isNotEmpty') && $activities->isNotEmpty())))
-                    @foreach ($activities as $activity)
-                        <div class="activity-item">
-                            <div class="activity-icon"
-                                style="background: {{ $activity->bg ?? ($activity['bg'] ?? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)') }}">
-                                <i class="fas fa-{{ $activity->icon ?? ($activity['icon'] ?? 'bell') }}"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">{{ $activity->title ?? ($activity['title'] ?? '-') }}</div>
-                                <div class="activity-description">
-                                    {{ $activity->description ?? ($activity['description'] ?? ($activity['desc'] ?? '-')) }}
-                                </div>
-                                <div class="activity-time">
-                                    {{ isset($activity->created_at) ? (is_object($activity->created_at) ? $activity->created_at->diffForHumans() : \Carbon\Carbon::parse($activity->created_at)->diffForHumans()) : $activity['created_at'] ?? '-' }}
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                @elseif (
-                    !empty($notifications) &&
-                        (is_array($notifications) || (method_exists($notifications, 'isNotEmpty') && $notifications->isNotEmpty())))
-                    @foreach ($notifications as $note)
-                        <div class="activity-item">
-                            <div class="activity-icon"
-                                style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)">
-                                <i class="fas fa-bell"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">
-                                    {{ $note->title ?? ($note['title'] ?? ($note->message ?? ($note['message'] ?? '-'))) }}
-                                </div>
-                                <div class="activity-description">{{ $note->message ?? ($note['message'] ?? '') }}</div>
-                                <div class="activity-time">
-                                    {{ isset($note->created_at) ? (is_object($note->created_at) ? $note->created_at->diffForHumans() : \Carbon\Carbon::parse($note->created_at)->diffForHumans()) : $note['created_at'] ?? '-' }}
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                @else
-                    <div id="admin-activity-loading" style="padding:1rem;color:var(--text-secondary);">
-                        Loading recent activities...
-                    </div>
-                @endif
-            </div>
-        </div>
 
 
     </div>
@@ -679,8 +657,7 @@
                                 const elEmployees = document.getElementById('metric-employees');
                                 const morningSlot = document.getElementById('morning-meeting-card');
                                 const eveningSlot = document.getElementById('evening-meeting-card');
-                                const listEl = document.getElementById('admin-activity-list');
-                                const loadingEl = document.getElementById('admin-activity-loading');
+
                                 const topPerformersBody = document.querySelector('#topPerformersTable tbody');
 
                                 function fetchData(range = '1M') {
@@ -768,16 +745,54 @@
                                                         '';
                                                     slotEl.querySelector('.copy-btn').onclick = (e) => copyToClipboard(m
                                                         .meeting_link || '', e);
-                                                    slotEl.querySelector('.join-meeting-btn').setAttribute('href', m
-                                                        .meeting_link || '#');
+                                                    const joinBtn = slotEl.querySelector('.join-meeting-btn');
+                                                    if (joinBtn) {
+                                                        const isEnded = ['completed', 'cancelled'].includes(m.status);
+                                                        if (isEnded) {
+                                                            joinBtn.setAttribute('href', 'javascript:void(0)');
+                                                            joinBtn.style.opacity = '0.6';
+                                                            joinBtn.style.pointerEvents = 'none';
+                                                            joinBtn.style.cursor = 'not-allowed';
+                                                            joinBtn.style.background = '#94a3b8'; // Grey out
+                                                            joinBtn.innerHTML = '<i class="fas fa-ban"></i> ' + (m.status === 'completed' ? 'Ended' : 'Cancelled');
+                                                        } else {
+                                                            joinBtn.setAttribute('href', m.meeting_link || '#');
+                                                            joinBtn.style.opacity = '';
+                                                            joinBtn.style.pointerEvents = '';
+                                                            joinBtn.style.cursor = '';
+                                                            joinBtn.style.background = '';
+                                                            joinBtn.innerHTML = '<i class="fas fa-video"></i> Join';
+                                                        }
+                                                    }
+
                                                     const badge = slotEl.querySelector('.status-badge');
                                                     if (badge) {
-                                                        badge.className = 'status-badge ' + ((m.status === 'ongoing') ?
-                                                            'ongoing' : 'scheduled');
-                                                        badge.textContent = (m.status || 'scheduled').charAt(0)
-                                                            .toUpperCase() + (m.status || 'scheduled').slice(1);
+                                                        let badgeClass = 'scheduled';
+                                                        if (m.status === 'ongoing') badgeClass = 'ongoing';
+                                                        
+                                                        badge.className = 'status-badge ' + badgeClass;
+                                                        
+                                                        // Inline styles for completed/cancelled as fallback
+                                                        if (m.status === 'completed') {
+                                                            badge.style.backgroundColor = '#10b981';
+                                                            badge.style.color = '#fff';
+                                                        } else if (m.status === 'cancelled') {
+                                                            badge.style.backgroundColor = '#64748b';
+                                                            badge.style.color = '#fff';
+                                                        } else {
+                                                            badge.style.backgroundColor = '';
+                                                            badge.style.color = '';
+                                                        }
+
+                                                        badge.textContent = (m.status || 'scheduled').charAt(0).toUpperCase() + (m.status || 'scheduled').slice(1);
                                                     }
                                                 }
+                                                // Added for dynamic update
+                                                const isAdmin = {{ Auth::check() && in_array(Auth::user()->role, ['admin', 'super_admin']) ? 'true' : 'false' }};
+                                                // Simplified rebuilding of buttons for dynamics (omitted for brevity, assuming page reload on status change for now or user will handle basic flow)
+                                                // Ideally we should rebuild the innerHTML of meeting-link-section here if we want full real-time updates without reload.
+                                                // For now, the static page load handles the initial buttons. JS updates below handle the actions.
+                                            }
 
                                                 populateSlot(morningSlot, morning, true);
                                                 populateSlot(eveningSlot, evening, false);
@@ -870,111 +885,8 @@
                                             // Performance Analytics removed
                                             // console.log('Payload received:', payload);
 
-                                            // existing: handle activities list population
-                                            if (listEl) {
-                                                listEl.innerHTML = '';
+                                                // handle activities list population
 
-                                                // prefer activities if present
-                                                if (Array.isArray(payload.activities) && payload.activities.length > 0) {
-                                                    payload.activities.forEach(act => {
-                                                        const item = document.createElement('div');
-                                                        item.className = 'activity-item';
-                                                        const icon = document.createElement('div');
-                                                        icon.className = 'activity-icon';
-                                                        icon.style.background = act.bg ||
-                                                            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                                                        icon.innerHTML =
-                                                            `<i class="fas fa-${act.icon || 'bell'}"></i>`;
-                                                        const content = document.createElement('div');
-                                                        content.className = 'activity-content';
-                                                        const title = document.createElement('div');
-                                                        title.className = 'activity-title';
-                                                        title.textContent = act.title || '-';
-                                                        const desc = document.createElement('div');
-                                                        desc.className = 'activity-description';
-                                                        desc.textContent = act.description || act.message || '';
-                                                        const time = document.createElement('div');
-                                                        time.className = 'activity-time';
-                                                        time.textContent = act.created_at ? new Date(act.created_at)
-                                                            .toLocaleString() : '';
-                                                        content.appendChild(title);
-                                                        content.appendChild(desc);
-                                                        content.appendChild(time);
-                                                        item.appendChild(icon);
-                                                        item.appendChild(content);
-                                                        listEl.appendChild(item);
-                                                    });
-
-                                                    // also append recent notifications after activities (optional)
-                                                    if (Array.isArray(payload.notifications) && payload.notifications
-                                                        .length > 0) {
-                                                        payload.notifications.forEach(n => {
-                                                            const item = document.createElement('div');
-                                                            item.className = 'activity-item';
-                                                            const icon = document.createElement('div');
-                                                            icon.className = 'activity-icon';
-                                                            icon.style.background = n.bg ||
-                                                                'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)';
-                                                            icon.innerHTML =
-                                                                `<i class="fas fa-${n.icon || 'bell'}"></i>`;
-                                                            const content = document.createElement('div');
-                                                            content.className = 'activity-content';
-                                                            const title = document.createElement('div');
-                                                            title.className = 'activity-title';
-                                                            title.textContent = n.title || n.message || '-';
-                                                            const desc = document.createElement('div');
-                                                            desc.className = 'activity-description';
-                                                            desc.textContent = n.message || '';
-                                                            const time = document.createElement('div');
-                                                            time.className = 'activity-time';
-                                                            time.textContent = n.created_at ? new Date(n.created_at)
-                                                                .toLocaleString() : '';
-                                                            content.appendChild(title);
-                                                            content.appendChild(desc);
-                                                            content.appendChild(time);
-                                                            item.appendChild(icon);
-                                                            item.appendChild(content);
-                                                            listEl.appendChild(item);
-                                                        });
-                                                    }
-                                                }
-                                                // if no activities, show notifications (useful when activities table is empty)
-                                                else if (Array.isArray(payload.notifications) && payload.notifications
-                                                    .length > 0) {
-                                                    payload.notifications.forEach(n => {
-                                                        const item = document.createElement('div');
-                                                        item.className = 'activity-item';
-                                                        const icon = document.createElement('div');
-                                                        icon.className = 'activity-icon';
-                                                        icon.style.background = n.bg ||
-                                                            'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)';
-                                                        icon.innerHTML =
-                                                            `<i class="fas fa-${n.icon || 'bell'}"></i>`;
-                                                        const content = document.createElement('div');
-                                                        content.className = 'activity-content';
-                                                        const title = document.createElement('div');
-                                                        title.className = 'activity-title';
-                                                        title.textContent = n.title || n.message || '-';
-                                                        const desc = document.createElement('div');
-                                                        desc.className = 'activity-description';
-                                                        desc.textContent = n.message || '';
-                                                        const time = document.createElement('div');
-                                                        time.className = 'activity-time';
-                                                        time.textContent = n.created_at ? new Date(n.created_at)
-                                                            .toLocaleString() : '';
-                                                        content.appendChild(title);
-                                                        content.appendChild(desc);
-                                                        content.appendChild(time);
-                                                        item.appendChild(icon);
-                                                        item.appendChild(content);
-                                                        listEl.appendChild(item);
-                                                    });
-                                                } else {
-                                                    // keep existing loading / fallback behavior
-                                                    if (loadingEl) loadingEl.textContent =
-                                                        'No recent activities or notifications.';
-                                                }
-                                            }
 
                                             // Top Performers Table
                                             if (topPerformersBody) {
@@ -1052,5 +964,110 @@
                 });
             </script>
         @endif
+        <script>
+            function updateMeetingStatus(meetingId, status) {
+                const action = status === 'completed' ? 'End' : 'Cancel';
+                const confirmBtnColor = status === 'completed' ? '#ef4444' : '#64748b';
+
+                Swal.fire({
+                    title: `Are you sure you want to ${action} this meeting?`,
+                    text: "Employees will be notified.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: confirmBtnColor,
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: `Yes, ${action} it!`
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/meetings/${meetingId}/status`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ status: status })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire(
+                                    'Updated!',
+                                    `Meeting has been ${status}.`,
+                                    'success'
+                                ).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Error!',
+                                    data.message || 'Something went wrong.',
+                                    'error'
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire(
+                                'Error!',
+                                'Failed to update meeting status.',
+                                'error'
+                            );
+                        });
+                    }
+                });
+            }
+        </script>
     @endpush
+    <style>
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease;
+            background: #fff;
+        }
+        .activity-item:hover {
+            background: #f8fafc; /* bg-secondary approximation */
+            border-color: #667eea; /* var(--primary) approximation */
+        }
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* var(--gradient-hero) */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+        .activity-content {
+            flex: 1;
+        }
+        .activity-content h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+            color: #1f2937; /* text-primary */
+        }
+        .activity-content p {
+            font-size: 0.85rem;
+            color: #6b7280; /* text-secondary */
+            margin: 0 0 0.25rem 0;
+        }
+        .activity-time {
+            font-size: 0.75rem;
+            color: #9ca3af; /* text-light */
+        }
+    </style>
 @endsection

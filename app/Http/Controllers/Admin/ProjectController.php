@@ -100,18 +100,9 @@ class ProjectController extends Controller
             }
         }
 
-        // Generate base notification ID only once
-        $lastNotification = Notification::orderBy('notifi_id', 'desc')->first();
-        $lastNum = $lastNotification ? intval(substr($lastNotification->notifi_id, 5)) : 0;
-
         foreach ($team->employees as $employee) {
 
-            // Increment for each employee
-            $lastNum++;
-            $newNotiId = 'NOTI-' . str_pad($lastNum, 5, '0', STR_PAD_LEFT);
-
             Notification::create([
-                'notifi_id' => $newNotiId,
                 'user_id'   => $employee->user_id,
                 'title'     => 'New Project Assigned',
                 'message'   => "You have been assigned to the project: {$project->project_name}.",

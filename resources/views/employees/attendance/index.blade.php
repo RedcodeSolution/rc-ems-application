@@ -204,7 +204,7 @@
 
                     <div class="attendance-card {{ $statusClass }}" data-status="{{ $attendance->status }}"
                         data-month="{{ strtolower($date->format('F')) }}">
-                        <div class="attendance-header">
+                        <div class="attendance-card-header">
                             <div class="attendance-date">
                                 <h4>{{ $formattedDate }}</h4>
                                 <p>{{ $dayName }}</p>
@@ -288,6 +288,9 @@
                     @empty
                         <p class="text-center text-gray-500">No attendance records found.</p>
                     @endforelse
+                </div>
+                <div class="pagination-container" style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+                    {{ $attendances->links() }}
                 </div>
             </div>
 
@@ -783,7 +786,7 @@
                 background: linear-gradient(135deg, rgba(6, 182, 212, 0.05), rgba(6, 182, 212, 0.02));
             }
 
-            .attendance-header {
+            .attendance-card-header {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
@@ -1273,7 +1276,7 @@
                         const minutes = now.getMinutes();
 
                         if (hours > 17 || (hours === 17 && minutes > 0)) {
-                            showMessage('⏰ You cannot clock in after 5:00 PM.', 'error');
+                            Swal.fire('Error', '⏰ You cannot clock in after 5:00 PM.', 'error');
                             closeClockModal();
                             return;
                         }
@@ -1294,33 +1297,27 @@
                     console.log(data);
 
                     if (data.success) {
-                        console.log(action);
+                        closeClockModal(); // Close modal first
+                        
+                        const message = action === 'clock-in' ? 'Successfully clocked in!' : 'Successfully clocked out!';
+                        
+                        Swal.fire({
+                            title: 'Success!',
+                            text: message,
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload();
+                        });
 
-                        const clockInBtn = document.getElementById('clockInBtn');
-                        const clockOutBtn = document.getElementById('clockOutBtn');
-
-                        if (action === 'clock-in') {
-                            if (clockInBtn) clockInBtn.style.display = 'none';
-                            if (clockOutBtn) clockOutBtn.style.display = 'inline-flex';
-                            clockedIn = true;
-                            showMessage('✅ Successfully clocked in!', 'success');
-                        } else {
-                            if (clockOutBtn) clockOutBtn.style.display = 'none';
-                            if (clockInBtn) clockInBtn.style.display = 'inline-flex';
-                            clockedIn = false;
-                            showMessage('✅ Successfully clocked out!', 'success');
-                        }
-
-                        setTimeout(() => location.reload(), 800);
                     } else {
-                        showMessage(data.message || 'Something went wrong.', 'error');
+                        Swal.fire('Error!', data.message || 'Something went wrong.', 'error');
                     }
                 } catch (error) {
                     console.error(error);
-                    showMessage('Server error, please try again later.', 'error');
+                    Swal.fire('Error!', 'Server error, please try again later.', 'error');
                 }
-
-                closeClockModal();
             }
 
 
@@ -1431,36 +1428,95 @@
 
 
             function startBreak() {
-                fetch("{{ route('employee.attendance.startbreak') }}", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                        }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        console.log("startBreak() response:", data);
-                        alert(data.message);
-                        if (data.success) {
-                            setTimeout(checkBreakStatus, 1000);
-                        }
-                    });
+                Swal.fire({
+                    title: 'Start Break?',
+                    text: "Are you sure you want to take a break now?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, Start Break'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch("{{ route('employee.attendance.startbreak') }}", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                                }
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire(
+                                        'Break Started!',
+                                        data.message,
+                                        'success'
+                                    );
+                                    setTimeout(checkBreakStatus, 1000);
+                                } else {
+                                    Swal.fire(
+                                        'Error!',
+                                        data.message,
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire(
+                                    'Error!',
+                                    'Something went wrong.',
+                                    'error'
+                                );
+                            });
+                    }
+                });
             }
 
             function endBreak() {
-                fetch("{{ route('employee.attendance.endbreak') }}", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                        }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        alert(data.message);
-                        if (data.success) checkBreakStatus();
-                    });
+                Swal.fire({
+                    title: 'End Break?',
+                    text: "Are you ready to resume work?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, End Break'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch("{{ route('employee.attendance.endbreak') }}", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                                }
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire(
+                                        'Welcome Back!',
+                                        data.message,
+                                        'success'
+                                    );
+                                    checkBreakStatus();
+                                } else {
+                                    Swal.fire(
+                                        'Error!',
+                                        data.message,
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire(
+                                    'Error!',
+                                    'Something went wrong.',
+                                    'error'
+                                );
+                            });
+                    }
+                });
             }
 
 
@@ -1474,26 +1530,38 @@
             }
 
             function endEmergencyBreak() {
-                fetch('/employees/attendance/emergency/end', {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showMessage('Emergency break ended successfully.', 'success');
-                            updateEmergencyStatus(false);
-                        } else {
-                            showMessage(data.message, 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error ending emergency:', error);
-                        showMessage('Failed to end emergency. Please try again.', 'error');
-                    });
+                Swal.fire({
+                    title: 'End Emergency?',
+                    text: "Are you sure you want to end the emergency status?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, End Emergency'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('/employees/attendance/emergency/end', {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire('Ended!', 'Emergency break ended successfully.', 'success');
+                                    updateEmergencyStatus(false);
+                                } else {
+                                    Swal.fire('Error!', data.message, 'error');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error ending emergency:', error);
+                                Swal.fire('Error!', 'Failed to end emergency. Please try again.', 'error');
+                            });
+                    }
+                });
             }
 
             function reportEmergency() {
@@ -1515,7 +1583,7 @@
                 const emergencyDescription = document.getElementById('emergencyDescription').value;
 
                 if (!emergencyType) {
-                    showMessage('⚠️ Please select an emergency type.', 'error');
+                    Swal.fire('Warning', '⚠️ Please select an emergency type.', 'warning');
                     return;
                 }
 
@@ -1537,16 +1605,20 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            showMessage(`🚨 Emergency started: ${emergencyType}`, 'warning');
+                            closeEmergencyModal(); // Close modal first
+                            Swal.fire({
+                                title: 'Emergency Reported',
+                                text: `Emergency started: ${emergencyType}`,
+                                icon: 'warning'
+                            });
                             updateEmergencyStatus(true, emergencyType);
                         } else {
-                            showMessage(data.message, 'error');
+                            Swal.fire('Error!', data.message, 'error');
                         }
-                        closeEmergencyModal();
                     })
                     .catch(error => {
                         console.error('Error reporting emergency:', error);
-                        showMessage('Failed to start emergency. Please try again.', 'error');
+                        Swal.fire('Error!', 'Failed to start emergency. Please try again.', 'error');
                     });
             }
 

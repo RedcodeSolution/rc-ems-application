@@ -14,9 +14,32 @@ use Illuminate\Support\Str;
 
 class ReportController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $reports = Report::latest()->paginate(10);
+        $query = Report::latest();
+
+        // Search Filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('report_name', 'like', "%{$search}%")
+                  ->orWhere('report_type', 'like', "%{$search}%")
+                  ->orWhere('generated_by', 'like', "%{$search}%");
+            });
+        }
+
+        // Type Filter
+        if ($request->filled('type') && $request->type !== 'all') {
+            $query->where('report_type', $request->type);
+        }
+
+        // Priority Filter (Changed from Status as per request)
+        if ($request->filled('priority') && $request->priority !== 'all') {
+            $query->where('priority', $request->priority);
+        }
+
+        $reports = $query->paginate(10)->withQueryString();
+        
         $departments = Department::all();
         $employees = Employee::all();
         $projects = Project::all();

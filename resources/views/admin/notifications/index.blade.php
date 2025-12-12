@@ -510,6 +510,44 @@
         }
     }
 
+    .filter-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        flex: 1;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .search-wrapper {
+        width: 300px;
+    }
+
+    .filter-select {
+        width: 150px;
+    }
+
+    @media (max-width: 900px) {
+        .search-wrapper {
+            width: 200px;
+        }
+        .filter-select {
+            width: auto;
+            flex: 1;
+        }
+    }
+
     @media (max-width: 600px) {
         .modal-content {
             width: 95%;
@@ -530,8 +568,62 @@
             width: 100%;
         }
 
-        .search-input {
+        /* Responsive Filters */
+        .filter-container {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem;
+        }
+
+        .filter-group {
+            flex-direction: column;
             width: 100%;
+        }
+
+        .search-wrapper {
+            width: 100%;
+        }
+        
+        .search-input {
+            width: 100% !important; /* Force full width on mobile */
+        }
+
+        .filter-select {
+            width: 100% !important;
+        }
+
+        .filter-actions {
+            justify-content: flex-end; /* Align clear/refresh to right, or stretch if needed */
+            width: 100%;
+        }
+
+        .filter-actions .btn {
+            flex: 1; /* Make action buttons equal width */
+            justify-content: center;
+        }
+
+        /* Hide button text on mobile */
+        .btn-text {
+            display: none;
+        }
+
+        /* Adjust header buttons to be icon-only */
+        .card-header .btn {
+            padding: 0.5rem;
+            width: auto;
+        }
+
+        /* Force Header Inline */
+        .card-header {
+            flex-direction: row !important;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        
+        .card-header h2 {
+             font-size: 1.1rem;
+             margin: 0;
         }
     }
 </style>
@@ -539,9 +631,40 @@
 @section('title', 'Notifications')
 
 @section('content')
+    <!-- Notification Statistics -->
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="card" onclick="filterByStatus('')" style="cursor: pointer;">
+            <div class="card-body text-center">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;"
+                    id="totalNotifications">{{ $totalCount }}</div>
+                <div style="color: var(--gray-600); font-weight: 500;">Total Notifications</div>
+            </div>
+        </div>
+        <div class="card" onclick="filterByStatus('unread')" style="cursor: pointer;">
+            <div class="card-body text-center">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;"
+                    id="unreadCount">{{ $unreadCount }}</div>
+                <div style="color: var(--gray-600); font-weight: 500;">Unread</div>
+            </div>
+        </div>
+        <div class="card" onclick="filterByStatus('read')" style="cursor: pointer;">
+            <div class="card-body text-center">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;"
+                    id="readCount">{{ $readCount }}</div>
+                <div style="color: var(--gray-600); font-weight: 500;">Read</div>
+            </div>
+        </div>
+        <div class="card" onclick="filterByAction()" style="cursor: pointer;">
+            <div class="card-body text-center">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--info); margin-bottom: 0.5rem;"
+                    id="actionCount">{{ $actionCount }}</div>
+                <div style="color: var(--gray-600); font-weight: 500;">Action Required</div>
+            </div>
+        </div>
+    </div>
     <div class="card">
         <div class="card-header">
-            {{-- <h2><i class="fas fa-bell notification-badge"></i> Notifications</h2> --}}
             <h2>
                 <i class="fas fa-bell {{ $unreadCount == 0 ? 'notification' : 'notification-badge' }}"></i>
                 Notifications
@@ -549,37 +672,31 @@
             <div class="flex gap-2">
                 <button class="btn btn-primary" onclick="markAllAsRead()">
                     <i class="fas fa-check-double"></i>
-                    Mark All Read
+                    <span class="btn-text">Mark All Read</span>
                 </button>
                 <button class="btn btn-danger" onclick="deleteAllNotifications()">
                     <i class="fas fa-trash-alt"></i>
-                    Delete All
+                    <span class="btn-text">Delete All</span>
                 </button>
-                <button class="btn btn-success" onclick="openCreateModal()">
-                    <i class="fas fa-plus"></i>
-                    Create
-                </button>
-                <button class="btn btn-secondary" onclick="openSettingsModal()">
-                    <i class="fas fa-cog"></i>
-                    Settings
-                </button>
+
+
             </div>
         </div>
         <div class="card-body">
             <!-- Filter Section -->
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex gap-2">
-                    <div class="input-icon">
+            <div class="filter-container mb-4">
+                <div class="filter-group">
+                    <div class="input-icon search-wrapper">
                         <i class="fas fa-search"></i>
                         <input type="text" class="search-input" placeholder="Search notifications..." id="searchInput"
                             onkeyup="searchNotifications()">
                     </div>
-                    <select class="form-select" id="statusFilter" onchange="filterNotifications()" style="width: 200px;">
+                    <select class="form-select filter-select" id="statusFilter" onchange="filterNotifications()">
                         <option value="">All Notifications</option>
                         <option value="unread">Unread</option>
                         <option value="read">Read</option>
                     </select>
-                    <select class="form-select" id="typeFilter" onchange="filterNotifications()" style="width: 200px;">
+                    <select class="form-select filter-select" id="typeFilter" onchange="filterNotifications()">
                         <option value="">All Types</option>
                         <option value="system">System</option>
                         <option value="employee">Employee</option>
@@ -587,14 +704,14 @@
                         <option value="project">Project</option>
                     </select>
                 </div>
-                <div class="flex gap-2">
+                <div class="filter-actions">
                     <button class="btn btn-secondary" onclick="clearFilters()">
                         <i class="fas fa-times"></i>
-                        Clear
+                        <span class="btn-text">Clear</span>
                     </button>
                     <button class="btn btn-info" onclick="refreshNotifications()">
                         <i class="fas fa-sync"></i>
-                        Refresh
+                        <span class="btn-text">Refresh</span>
                     </button>
                 </div>
             </div>
@@ -923,38 +1040,7 @@
         </div>
     </div>
 
-    <!-- Notification Statistics -->
-    <div
-        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
-        <div class="card" onclick="filterByStatus('')" style="cursor: pointer;">
-            <div class="card-body text-center">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;"
-                    id="totalNotifications">{{ $totalCount }}</div>
-                <div style="color: var(--gray-600); font-weight: 500;">Total Notifications</div>
-            </div>
-        </div>
-        <div class="card" onclick="filterByStatus('unread')" style="cursor: pointer;">
-            <div class="card-body text-center">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;"
-                    id="unreadCount">{{ $unreadCount }}</div>
-                <div style="color: var(--gray-600); font-weight: 500;">Unread</div>
-            </div>
-        </div>
-        <div class="card" onclick="filterByStatus('read')" style="cursor: pointer;">
-            <div class="card-body text-center">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;"
-                    id="readCount">{{ $readCount }}</div>
-                <div style="color: var(--gray-600); font-weight: 500;">Read</div>
-            </div>
-        </div>
-        <div class="card" onclick="filterByAction()" style="cursor: pointer;">
-            <div class="card-body text-center">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--info); margin-bottom: 0.5rem;"
-                    id="actionCount">{{ $actionCount }}</div>
-                <div style="color: var(--gray-600); font-weight: 500;">Action Required</div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Modals -->
     <!-- View Notification Modal -->

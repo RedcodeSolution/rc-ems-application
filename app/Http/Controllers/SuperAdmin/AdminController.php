@@ -43,6 +43,16 @@ class AdminController
             'color' => 'blue',
         ]);
 
+        if (auth()->check() && auth()->user()->role === 'admin') {
+            \App\Models\AdminActivity::create([
+                'user_id' => auth()->id(),
+                'type'    => 'admin',
+                'icon'    => 'user-plus',
+                'action'  => 'Created Admin',
+                'details' => 'Created new admin: ' . $validated['admin_name'],
+            ]);
+        }
+
         return redirect()->route('super_admin.admins')
             ->with('success', 'Administrator added successfully!');
     }
@@ -83,6 +93,16 @@ class AdminController
             target: 'super admin',
             referenceId: $admin->admin_id
         );
+
+        if (auth()->check() && auth()->user()->role === 'admin') {
+            \App\Models\AdminActivity::create([
+                'user_id' => auth()->id(),
+                'type'    => 'admin',
+                'icon'    => 'user-edit',
+                'action'  => 'Updated Admin',
+                'details' => 'Updated admin profile: ' . $admin->admin_name,
+            ]);
+        }
 
         return redirect()->route('super_admin.admins')->with('success', 'Admin updated successfully!');
     }

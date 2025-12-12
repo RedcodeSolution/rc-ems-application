@@ -17,9 +17,6 @@
                 <button class="btn btn-secondary" onclick="refreshNotifications()">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
-                <!-- <button class="btn btn-outline" onclick="exportNotifications()">
-                                                                                                                                                                                                                                                                                                        <i class="fas fa-download"></i> Export
-                                                                                                                                                                                                                                                                                                    </button> -->
             </div>
         </div>
 
@@ -94,27 +91,18 @@
                     <label for="type-filter">Type</label>
                     <select id="type-filter" class="filter-select" onchange="filterNotifications()">
                         <option value="">All Types</option>
-                        <option value="admin">Employee</option>
+                        <option value="admin">Admin</option>
+                        <option value="event">Event</option>
                         <option value="leave">Leave</option>
-                        <option value="security">Security</option>
                         <option value="project">Project</option>
+                        <option value="task">Task</option>
                         <option value="system">System</option>
+                        <option value="security">Security</option>
                         <option value="announcement">Announcement</option>
-                        <option value="department">Department</option>
-                        <option value="hr">HR</option>
                     </select>
                 </div>
 
-                <div class="filter-group">
-                    <label for="priority-filter">Priority</label>
-                    <select id="priority-filter" class="filter-select" onchange="filterNotifications()">
-                        <option value="">All Priorities</option>
-                        <option value="critical">Critical</option>
-                        <option value="high">High</option>
-                        <option value="medium">Medium</option>
-                        <option value="low">Low</option>
-                    </select>
-                </div>
+
 
                 <div class="filter-group">
                     <label for="status-filter">Status</label>
@@ -131,9 +119,7 @@
                 </div>
 
                 <div class="filter-group">
-                    <button class="btn btn-primary" onclick="filterNotifications()">
-                        <i class="fas fa-filter"></i> Filter
-                    </button>
+
                     <button class="btn btn-secondary" onclick="clearFilters()">
                         <i class="fas fa-times"></i> Clear
                     </button>
@@ -876,17 +862,7 @@
             color: var(--redcode-primary);
         }
 
-        .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: all 0.3s ease;
-        }
+
 
         .modal-close:hover {
             color: var(--redcode-primary);
@@ -1275,7 +1251,6 @@
         // Filter notifications
         function filterNotifications() {
             const typeFilter = document.getElementById('type-filter').value;
-            const priorityFilter = document.getElementById('priority-filter').value;
             const statusFilter = document.getElementById('status-filter').value;
             const searchInput = document.getElementById('search-input').value.toLowerCase();
 
@@ -1284,16 +1259,14 @@
 
             notifications.forEach(notification => {
                 const type = notification.dataset.type;
-                const priority = notification.dataset.priority;
                 const status = notification.dataset.status;
                 const text = notification.textContent.toLowerCase();
 
                 const typeMatch = !typeFilter || type === typeFilter;
-                const priorityMatch = !priorityFilter || priority === priorityFilter;
                 const statusMatch = !statusFilter || status === statusFilter;
                 const searchMatch = !searchInput || text.includes(searchInput);
 
-                if (typeMatch && priorityMatch && statusMatch && searchMatch) {
+                if (typeMatch && statusMatch && searchMatch) {
                     notification.style.display = 'flex';
                     visibleCount++;
                 } else {
@@ -1313,7 +1286,7 @@
         // Clear all filters
         function clearFilters() {
             document.getElementById('type-filter').value = '';
-            document.getElementById('priority-filter').value = '';
+
             document.getElementById('status-filter').value = '';
             document.getElementById('search-input').value = '';
             filterNotifications();
@@ -1488,9 +1461,7 @@
                         <button class="btn btn-danger btn-sm" onclick="deleteNotification('${notificationData.id}')">
     <i class="fas fa-trash"></i> Delete
 </button>
-                        <button class="btn btn-primary btn-sm" onclick="shareNotification(${notificationData.id})">
-                            <i class="fas fa-share"></i> Share  
-                        </button>
+                        
                     </div>
                 </div>
             </div>
@@ -1545,12 +1516,6 @@
             setTimeout(() => {
                 location.reload();
             }, 1000);
-        }
-
-        // Export notifications
-        function exportNotifications() {
-            showNotification('Exporting notifications...', 'info');
-            // Implementation for exporting notifications
         }
 
         // Update notification statistics

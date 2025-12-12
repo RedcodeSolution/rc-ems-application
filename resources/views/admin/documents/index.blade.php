@@ -179,7 +179,6 @@
     }
 
     @media (max-width: 900px) {
-
         .card-body,
         .card-header {
             padding: 1rem;
@@ -187,6 +186,48 @@
 
         .card-body h4 {
             font-size: 0.95rem;
+        }
+    }
+
+    @media (max-width: 600px) {
+        /* Hide button text on mobile */
+        .btn-text {
+            display: none;
+        }
+
+        /* Adjust header buttons to be icon-only */
+        .card-header .btn {
+            padding: 0.5rem;
+            width: auto;
+        }
+
+        /* Force Header Inline */
+        .card-header {
+            flex-direction: row !important;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        
+        .card-header h2 {
+             font-size: 1.1rem;
+             margin: 0;
+        }
+        
+        /* Stack search and filter on mobile if needed */
+        .card-body .flex.justify-between {
+             flex-direction: column;
+             align-items: stretch;
+             gap: 1rem;
+        }
+        
+        .card-body .flex.gap-2 {
+             width: 100%;
+             flex-direction: column;
+        }
+        
+        .form-input, .form-select {
+             width: 100% !important;
         }
     }
 
@@ -302,7 +343,7 @@
     .form-group select,
     .form-group textarea {
         width: 100%;
-        padding: 0.75rem 1rem;
+        padding: 0.75rem 2rem;
         border: 1px solid var(--divider);
         border-radius: 0.5rem;
         font-size: 1rem;
@@ -450,13 +491,16 @@
 
 @section('content')
     <!-- Document Statistics -->
-    <div
-        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-        <div class="card">
-            <div class="card-body text-center">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
-                    {{ $documents->count() }}</div>
-                <div style="color: var(--gray-600); font-weight: 500;">Total Documents</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        
+        <!-- Total Documents -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(37, 99, 235, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Total Documents</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $documents->count() }}</div>
             </div>
         </div>
 
@@ -464,56 +508,51 @@
             $totalDownloads = $documents->sum('downloads');
         @endphp
 
-        <div class="card">
-            <div class="card-body text-center">
-                <div id="total-downloads"
-                    style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">
-                    {{ $totalDownloads }}
-                </div>
-                <div style="color: var(--gray-600); font-weight: 500;">
-                    Total Downloads
-                </div>
+        <!-- Total Downloads -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(5, 150, 105, 0.1); color: var(--success); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-download"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Total Downloads</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $totalDownloads }}</div>
             </div>
         </div>
 
-
         @php
             use Illuminate\Support\Facades\File;
-
             $totalSizeBytes = 0;
-
             foreach ($documents as $doc) {
                 if (!empty($doc->file_path)) {
                     $fullPath = storage_path('app/public/' . $doc->file_path);
-
                     if (File::exists($fullPath)) {
                         $totalSizeBytes += File::size($fullPath);
                     }
                 }
             }
-
             // Convert total to MB
             $totalSizeMB = $totalSizeBytes > 0 ? round($totalSizeBytes / 1048576, 2) : 0;
-
         @endphp
 
-        <div class="card">
-            <div class="card-body text-center">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">
-                    {{ $totalSizeMB }}
-                </div>
-                <div style="color: var(--gray-600); font-weight: 500;">
-                    Total Size (MB)
-                </div>
+        <!-- Total Size -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(245, 158, 11, 0.1); color: var(--warning); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-hdd"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Total Size (MB)</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $totalSizeMB }}</div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-body text-center">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--info); margin-bottom: 0.5rem;">
-                    {{ $documents->whereNotNull('category')->pluck('category')->unique()->count() }}
-                </div>
-                <div style="color: var(--gray-600); font-weight: 500;">Categories</div>
+        <!-- Categories -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(0, 151, 167, 0.1); color: var(--info); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-folder"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Categories</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $documents->whereNotNull('category')->pluck('category')->unique()->count() }}</div>
             </div>
         </div>
     </div>
@@ -523,42 +562,46 @@
             <div class="flex gap-2">
                 <button class="btn btn-primary" onclick="openAddDocumentModal()">
                     <i class="fas fa-plus"></i>
-                    Upload Document
+                    <span class="btn-text">Upload Document</span>
                 </button>
-                <button class="btn btn-secondary">
-                    <i class="fas fa-download"></i>
-                    Bulk Download
-                </button>
+
             </div>
         </div>
         <div class="card-body">
             <!-- Search and Filter Section -->
+            <!-- Search and Filter Section -->
             <div class="flex justify-between items-center mb-4">
                 <div class="flex gap-2">
                     <input type="text" id="documentSearch" placeholder="Search documents by title..." class="form-input"
-                        style="width: 300px;">
+                        style="width: 300px;" value="{{ request('search') }}">
 
                     <select id="categoryFilter" class="form-select" style="width: 200px;">
                         <option value="">All Categories</option>
-                        <option value="policies">Policies</option>
-                        <option value="forms">Forms</option>
-                        <option value="contracts">Contracts</option>
-                        <option value="reports">Reports</option>
-                        <option value="training">Training</option>
+                        <option value="policies" {{ request('category') == 'policies' ? 'selected' : '' }}>Policies</option>
+                        <option value="forms" {{ request('category') == 'forms' ? 'selected' : '' }}>Forms</option>
+                        <option value="contracts" {{ request('category') == 'contracts' ? 'selected' : '' }}>Contracts</option>
+                        <option value="reports" {{ request('category') == 'reports' ? 'selected' : '' }}>Reports</option>
+                        <option value="training" {{ request('category') == 'training' ? 'selected' : '' }}>Training</option>
+                        <option value="templates" {{ request('category') == 'templates' ? 'selected' : '' }}>Templates</option>
                     </select>
 
                     <select id="typeFilter" class="form-select" style="width: 200px;">
                         <option value="">All Types</option>
-                        <option value="pdf">PDF</option>
-                        <option value="doc">DOC</option>
-                        <option value="xls">XLS</option>
-                        <option value="ppt">PPT</option>
+                        <option value="pdf" {{ request('type') == 'pdf' ? 'selected' : '' }}>PDF</option>
+                        <option value="doc" {{ request('type') == 'doc' ? 'selected' : '' }}>DOC</option>
+                        <option value="xls" {{ request('type') == 'xls' ? 'selected' : '' }}>XLS</option>
+                        <option value="ppt" {{ request('type') == 'ppt' ? 'selected' : '' }}>PPT</option>
                     </select>
                 </div>
 
-                <button id="applyFilter" class="btn btn-secondary">
-                    <i class="fas fa-filter"></i> Filter
-                </button>
+                <div class="flex gap-2">
+                    <button id="applyFilter" class="btn btn-secondary" onclick="applyServerFilters()">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    <button class="btn btn-light" onclick="window.location.href='{{ route('admin.documents.index') }}'">
+                        Reset
+                    </button>
+                </div>
             </div>
 
             <div id="documentsGrid"
@@ -614,28 +657,24 @@
                                 <i class="{{ $icon }}" style="font-size: 1.25rem;"></i>
                             </div>
                             <div class="flex gap-1">
-                                <button class="btn btn-secondary" style="padding: 0.5rem;"
+                                <button class="btn btn-secondary" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;"
                                     onclick="viewDocument('{{ $document->document_id }}')" title="View Document">
                                     <i class="fas fa-eye"></i>
                                 </button>
                                 <button id="download-btn-{{ $document->document_id }}" class="btn btn-secondary"
-                                    style="padding: 0.5rem;" data-title="{{ $document->title }}"
+                                    style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;"
+                                    data-title="{{ $document->title }}"
                                     onclick="downloadDocument('{{ $document->document_id }}')" title="Download Document">
                                     <i class="fas fa-download"></i>
                                 </button>
-                                <button class="btn btn-warning" style="padding: 0.5rem;"
+                                <button class="btn btn-warning" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;"
                                     onclick="openEditDocumentModal('{{ $document->document_id }}')" title="Edit Document">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <form action="{{ route('admin.documents.destroy', $document->document_id) }}" method="POST"
-                                    style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger" style="padding: 0.5rem;"
-                                        title="Delete Document">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                                <button type="button" class="btn btn-danger" style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;"
+                                    onclick="deleteDocument('{{ $document->document_id }}')" title="Delete Document">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </div>
 
@@ -832,7 +871,7 @@
                         <label for="document_department">Department</label>
                         <div class="input-icon">
                             <i class="fas fa-building"></i>
-                            <select id="department_filter" name="department_id" class="form-select">
+                            <select id="document_department" name="department_id" class="form-select" onchange="filterProjectsByDept(this.value)">
                                 <option value="">All Departments</option>
                                 @foreach ($departments as $department)
                                     <option value="{{ $department->department_id }}">
@@ -850,6 +889,11 @@
                             <i class="fas fa-project-diagram"></i>
                             <select id="document_project" name="project_id" class="form-select">
                                 <option value="">Select Project</option>
+                                @foreach ($projects as $project)
+                                    <option value="{{ $project->project_id }}" data-dept="{{ $project->team->department_id ?? '' }}">
+                                        {{ $project->project_name }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -881,7 +925,8 @@
                         <label for="document_file">Document File *</label>
                         <div class="file-upload-area" onclick="document.getElementById('document_file').click()">
                             <input type="file" id="document_file" name="file"
-                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar" required>
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar" required
+                                onchange="handleFileSelect(this)">
                             <div class="file-upload-icon">
                                 <i class="fas fa-cloud-upload-alt"></i>
                             </div>
@@ -905,12 +950,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" id="document_notify" name="notify_users" value="1">
-                            <span>Notify users about this document</span>
-                        </label>
-                    </div>
+                   
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-cancel" onclick="closeAddDocumentModal()">Cancel</button>
@@ -1018,7 +1058,7 @@
                 <button class="close" onclick="closeEditDocumentModal()">&times;</button>
             </div>
 
-            <form id="editDocumentForm" method="POST" enctype="multipart/form-data">
+            <form id="editDocumentForm" method="POST" enctype="multipart/form-data" onsubmit="handleEditSubmit(event)">
                 @csrf
                 @method('PUT')
 
@@ -1117,7 +1157,8 @@
                         <label for="edit_document_file">Replace Document File (Optional)</label>
                         <div class="file-upload-area" onclick="document.getElementById('edit_document_file').click()">
                             <input type="file" id="edit_document_file" name="file"
-                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar">
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar"
+                                onchange="handleEditFileSelect(this)">
                             <div class="file-upload-icon">
                                 <i class="fas fa-cloud-upload-alt"></i>
                             </div>
@@ -1136,14 +1177,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Notify Users -->
-                    <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" id="edit_document_notify" name="notify_users" value="1">
-                            <span>Notify users about this document</span>
-                        </label>
-                    </div>
+                   
                 </div>
 
                 <div class="modal-footer">
@@ -1229,37 +1263,28 @@
                 projectSelect.innerHTML = '<option value="">Error loading projects</option>';
             }
         });
+        function applyServerFilters() {
+            const search = document.getElementById('documentSearch').value;
+            const category = document.getElementById('categoryFilter').value;
+            const type = document.getElementById('typeFilter').value;
+
+            const params = new URLSearchParams(window.location.search);
+            
+            if (search) params.set('search', search); else params.delete('search');
+            if (category) params.set('category', category); else params.delete('category');
+            if (type) params.set('type', type); else params.delete('type');
+            
+            // Reset to page 1
+            params.delete('page');
+
+            window.location.href = `${window.location.pathname}?${params.toString()}`;
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('documentSearch');
-            const categorySelect = document.getElementById('categoryFilter');
-            const typeSelect = document.getElementById('typeFilter');
-            const filterButton = document.getElementById('applyFilter');
-            const cards = document.querySelectorAll('#documentsGrid .document-card');
-
-            function filterDocuments() {
-                const query = searchInput.value.toLowerCase().trim();
-                const selectedCategory = categorySelect.value.toLowerCase();
-                const selectedType = typeSelect.value.toLowerCase();
-
-                cards.forEach(card => {
-                    const title = card.dataset.title;
-                    const category = card.dataset.category;
-                    const type = card.dataset.type;
-
-                    const matchesTitle = title.includes(query);
-                    const matchesCategory = !selectedCategory || category === selectedCategory;
-                    const matchesType = !selectedType || type === selectedType;
-
-                    card.style.display = (matchesTitle && matchesCategory && matchesType) ? 'block' :
-                        'none';
-                });
-            }
-
-            filterButton.addEventListener('click', filterDocuments);
-
-            searchInput.addEventListener('keyup', filterDocuments);
-            categorySelect.addEventListener('change', filterDocuments);
-            typeSelect.addEventListener('change', filterDocuments);
+            // Enter key for search
+            document.getElementById('documentSearch').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') applyServerFilters();
+            });
         });
 
         document.getElementById('edit_department_id').addEventListener('change', async function() {
@@ -1293,23 +1318,11 @@
             }
         });
 
-        document.getElementById('documentSearch').addEventListener('keyup', function() {
-            const searchValue = this.value.toLowerCase().trim();
-            const cards = document.querySelectorAll('#documentsGrid .document-card');
-
-            cards.forEach(card => {
-                const title = card.dataset.title; // title saved in data-title
-                if (title.includes(searchValue)) {
-                    card.style.display = "block";
-                } else {
-                    card.style.display = "none";
-                }
-            });
-        });
 
 
 
-        let currentDocumentId = null;
+
+
 
         // Add Document Modal Functions
         function openAddDocumentModal() {
@@ -1406,8 +1419,9 @@
                     document.getElementById('viewDocumentDate').textContent = `Date: ${doc.date || 'N/A'}`;
                     document.getElementById('viewDocumentDownloads').textContent = doc.downloads ?? 0;
                     document.getElementById('viewDocumentViews').textContent = doc.views ?? 0;
-                    document.getElementById('viewDocumentIcon').className = doc.icon || 'fas fa-file';
-
+                    document.getElementById('viewDocumentViews').textContent = doc.views ?? 0;
+                    
+                    // Fix: doc.icon might not exist, use helper
                     const iconData = viewDocumentIcon(doc.file_path);
                     const iconEl = document.getElementById('viewDocumentIcon');
                     iconEl.className = iconData.icon;
@@ -1415,7 +1429,14 @@
                     iconEl.parentElement.style.background = iconData.bgColor;
 
 
-                    currentDocumentId = documentId;
+                    // Store ID on the download button itself or a hidden field
+                    const downloadBtn = document.querySelector('#viewDocumentModal .btn-submit');
+                    if (downloadBtn) {
+                        downloadBtn.setAttribute('data-doc-id', documentId);
+                        downloadBtn.onclick = function() {
+                            window.location.href = `/admin/documents/download/${documentId}`;
+                        };
+                    }
 
                     // Show modal
                     document.getElementById('viewDocumentModal').classList.add('show');
@@ -1433,11 +1454,6 @@
             document.body.style.overflow = 'auto';
         }
 
-        // Optional: Download current document
-        function downloadCurrentDocument() {
-            if (!currentDocumentId) return;
-            window.location.href = `/admin/documents/download/${currentDocumentId}`;
-        }
 
         function openEditDocumentModal(documentId) {
             if (!documentId) return alert('Document ID missing!');
@@ -1532,60 +1548,72 @@
         }
 
 
-        function deleteDocument(id, title = '', category = '', size = '') {
-            currentDocumentId = id;
+        function deleteDocument(id) {
+            if (!id) return;
+            
+            Swal.fire({
+                title: 'Delete Document?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Deleting...',
+                        text: 'Please wait',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
 
-            // Populate modal
-            document.getElementById('deleteDocumentTitle').textContent = title || 'Document';
-            document.getElementById('deleteDocumentInfo').textContent = category ? `${category} • ${size || ''}` : '';
-            document.getElementById('deleteDocumentIcon').className = 'fas fa-file-alt'; // customize if needed
-
-            document.getElementById('deleteDocumentModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
+                    fetch(`/admin/documents/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: data.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message || 'Failed to delete document'
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while deleting the document'
+                        });
+                    });
+                }
+            });
         }
 
-        function closeDeleteDocumentModal() {
-            document.getElementById('deleteDocumentModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-            currentDocumentId = null;
-        }
-
-        function confirmDeleteDocument() {
-            if (!currentDocumentId) return;
-
-            const deleteBtn = document.querySelector('#deleteDocumentModal .btn-submit');
-            const originalText = deleteBtn.innerHTML;
-
-            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
-            deleteBtn.disabled = true;
-
-            fetch(`/admin/documents/${currentDocumentId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        // alert(data.message);
-                        // Redirect to index page
-                        window.location.href = data.redirect;
-                    } else {
-                        alert('Failed to delete document: ' + (data.message || 'Unknown error'));
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert('Error deleting document: ' + err.message);
-                })
-                .finally(() => {
-                    deleteBtn.innerHTML = originalText;
-                    deleteBtn.disabled = false;
-                    closeDeleteDocumentModal();
-                });
-        }
+        // Functions no longer needed but kept empty to prevent reference errors if called elsewhere
+        function openDeleteDocumentModal() {}
+        function closeDeleteDocumentModal() {}
+        function confirmDeleteDocument() {}
 
         async function downloadDocument(documentId) {
             const token = document.querySelector('meta[name="csrf-token"]').content;
@@ -1623,52 +1651,69 @@
         }
 
 
-        document.getElementById('document_file').addEventListener('change', function(e) {
-            const file = e.target.files[0];
+        function handleFileSelect(input) {
+            const file = input.files[0];
             if (file) {
                 // Check file size (10MB limit)
                 if (file.size > 10 * 1024 * 1024) {
                     alert('File size must be less than 10MB');
-                    e.target.value = '';
+                    input.value = '';
                     return;
                 }
 
                 // Show file preview
-                document.getElementById('file-name').textContent = file.name;
-                document.getElementById('file-preview').style.display = 'block';
+                const fileNameEl = document.getElementById('file-name');
+                const filePreviewEl = document.getElementById('file-preview');
+                
+                if (fileNameEl && filePreviewEl) {
+                    fileNameEl.textContent = file.name;
+                    filePreviewEl.style.display = 'block';
+                }
 
                 // Update upload area
                 const uploadArea = document.querySelector('.file-upload-area');
-                uploadArea.style.borderColor = 'var(--success)';
-                uploadArea.style.background = 'rgba(67, 160, 71, 0.1)';
+                if (uploadArea) {
+                    uploadArea.style.borderColor = 'var(--success)';
+                    uploadArea.style.background = 'rgba(67, 160, 71, 0.1)';
 
-                // Update icon and text
-                const icon = uploadArea.querySelector('.file-upload-icon i');
-                icon.className = 'fas fa-check-circle';
-                icon.style.color = 'var(--success)';
+                    // Update icon and text
+                    const icon = uploadArea.querySelector('.file-upload-icon i');
+                    if (icon) {
+                        icon.className = 'fas fa-check-circle';
+                        icon.style.color = 'var(--success)';
+                    }
 
-                const text = uploadArea.querySelector('.file-upload-text');
-                text.textContent = 'File selected successfully';
-                text.style.color = 'var(--success)';
+                    const text = uploadArea.querySelector('.file-upload-text');
+                    if (text) {
+                        text.textContent = 'File selected successfully';
+                        text.style.color = 'var(--success)';
+                    }
+                }
             }
-        });
+        }
 
-        // File Upload Handling for Edit Document
-        document.getElementById('edit_document_file').addEventListener('change', function(e) {
-            const file = e.target.files[0];
+        function handleEditFileSelect(input) {
+            const file = input.files[0];
             if (file) {
                 // Check file size (10MB limit)
                 if (file.size > 10 * 1024 * 1024) {
                     alert('File size must be less than 10MB');
-                    e.target.value = '';
+                    input.value = '';
                     return;
                 }
 
                 // Show file preview
-                document.getElementById('edit-file-name').textContent = file.name;
-                document.getElementById('edit-file-preview').style.display = 'block';
+                const fileNameEl = document.getElementById('edit-file-name');
+                const filePreviewEl = document.getElementById('edit-file-preview');
+                
+                if (fileNameEl && filePreviewEl) {
+                    fileNameEl.textContent = file.name;
+                    filePreviewEl.style.display = 'block';
+                }
             }
-        });
+        }
+
+
 
         function removeFile() {
             document.getElementById('document_file').value = '';
@@ -1692,6 +1737,38 @@
         function removeEditFile() {
             document.getElementById('edit_document_file').value = '';
             document.getElementById('edit-file-preview').style.display = 'none';
+        }
+
+        function handleEditSubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            
+            Swal.fire({
+                title: 'Save Changes?',
+                text: "Do you want to update this document?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, update it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Processing...',
+                        text: 'Updating document details',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    form.submit();
+                }
+            });
+            
+            return false;
         }
 
         // Drag and Drop Functionality
@@ -1899,4 +1976,26 @@
         }
     </script>
 
+    <script>
+        function filterProjectsByDept(deptId) {
+            const projectSelect = document.getElementById('document_project');
+            const options = projectSelect.querySelectorAll('option');
+            
+            // Reset selection
+            projectSelect.value = "";
+            
+            options.forEach(option => {
+                if (option.value === "") return; // Skip default option
+                
+                const projectDept = option.getAttribute('data-dept');
+                
+                // Show option if no dept selected OR dept matches
+                if (!deptId || projectDept == deptId) {
+                    option.style.display = "";
+                } else {
+                    option.style.display = "none";
+                }
+            });
+        }
+    </script>
 @endsection

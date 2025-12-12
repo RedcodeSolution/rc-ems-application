@@ -1151,7 +1151,7 @@
     background: white;
     border-radius: 0.75rem;
     overflow: hidden;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
     border: 1px solid var(--border-light);
 }
 
@@ -1189,7 +1189,7 @@
     padding: 0.9rem;
     border-radius: 0.75rem;
     border: 1px solid var(--border-light);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -1218,9 +1218,20 @@
 }
 
 /* status colors */
-.status-pill.pending { background: rgba(217,119,6,0.12); color: var(--redcode-orange); }
-.status-pill.approved { background: rgba(16,185,129,0.12); color: var(--redcode-green); }
-.status-pill.rejected { background: rgba(239,68,68,0.12); color: var(--redcode-primary); }
+.status-pill.pending {
+    background: rgba(217, 119, 6, 0.12);
+    color: var(--redcode-orange);
+}
+
+.status-pill.approved {
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--redcode-green);
+}
+
+.status-pill.rejected {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--redcode-primary);
+}
 
 .hc-body {
     display: flex;
@@ -1241,6 +1252,7 @@
     .history-table {
         display: none;
     }
+
     .history-cards {
         display: flex;
         flex-direction: column;
@@ -1249,9 +1261,19 @@
 
 /* minor adjustments for narrow modal */
 @media (max-width: 480px) {
-    .history-card { padding: 0.75rem; }
-    .history-card h4 { font-size: 0.95rem; }
-    .history-table th, .history-table td { padding: 0.6rem 0.75rem; font-size: 0.9rem; }
+    .history-card {
+        padding: 0.75rem;
+    }
+
+    .history-card h4 {
+        font-size: 0.95rem;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.9rem;
+    }
 }
 
 /* Leave Policy modal content */

@@ -94,10 +94,6 @@
                     <h3>{{ $unread_notifications }}</h3>
                     <p>Notifications</p>
                 </div>
-                <div class="stat-trend warning">
-                    <i class="fas fa-exclamation"></i>
-                    <span>Unread</span>
-                </div>
             </div>
 
             <div class="stat-card">
@@ -107,10 +103,6 @@
                 <div class="stat-content">
                     <h3>{{ $document_count }}</h3>
                     <p>My Documents</p>
-                </div>
-                <div class="stat-trend positive">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>+2 New</span>
                 </div>
             </div>
         </div>
@@ -154,7 +146,15 @@
                                     </div>
                                 </div>
                                 <div class="meeting-link-section">
-                                    @if ($meeting->status === 'ongoing')
+                                    @if(in_array($meeting->status, ['completed', 'cancelled']))
+                                        <div class="meeting-status-display">
+                                            <button class="join-meeting-btn" disabled 
+                                                style="opacity: 0.7; pointer-events: none; cursor: not-allowed; background: #94a3b8; width: 100%; justify-content: center; margin-top: 10px;">
+                                                <i class="fas fa-ban"></i> 
+                                                Meeting {{ ucfirst($meeting->status) }}
+                                            </button>
+                                        </div>
+                                    @elseif ($meeting->status === 'ongoing')
                                         <div class="meeting-link-display">
                                             <input type="text" value="{{ $meeting->meeting_link }}"
                                                 class="meeting-link-input" readonly>
@@ -243,20 +243,28 @@
                     </div>
                         @foreach ($recentActivities as $activity)
                             @php
-                                $iconClass = 'fa-bell'; // Default
-                                if (stripos($activity->action, 'Logged In') !== false) {
+                                $action = strtolower($activity->action);
+                                // Default to DB icon if available, otherwise bell
+                                $iconClass = !empty($activity->icon) ? $activity->icon : 'fa-bell';
+
+                                // Override with specific icons based on action keywords
+                                if (str_contains($action, 'clocked in')) {
+                                    $iconClass = 'fa-clock';
+                                } elseif (str_contains($action, 'clocked out')) {
+                                    $iconClass = 'fa-history';
+                                } elseif (str_contains($action, 'logged in')) {
                                     $iconClass = 'fa-sign-in-alt';
-                                } elseif (stripos($activity->action, 'Logged Out') !== false) {
+                                } elseif (str_contains($action, 'logged out')) {
                                     $iconClass = 'fa-sign-out-alt';
-                                } elseif (stripos($activity->action, 'Update') !== false) {
+                                } elseif (str_contains($action, 'update')) {
                                     $iconClass = 'fa-edit';
-                                } elseif (stripos($activity->action, 'Task') !== false) {
+                                } elseif (str_contains($action, 'task')) {
                                     $iconClass = 'fa-tasks';
                                 }
                             @endphp
                             <div class="activity-item">
                                 <div class="activity-icon">
-                                    <i class="fas {{ $activity->icon ? $activity->icon : $iconClass }}"></i>
+                                    <i class="fas {{ $iconClass }}"></i>
                                 </div>
                             <div class="activity-content">
                                 <h4>{{ $activity->action }}</h4>

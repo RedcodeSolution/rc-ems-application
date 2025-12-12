@@ -171,6 +171,8 @@ document.addEventListener("keydown", function (e) {
 document
     .getElementById("editEmployeeForm")
     .addEventListener("submit", function (e) {
+        e.preventDefault(); // Prevent default submission first
+
         const requiredFields = this.querySelectorAll("[required]");
         let isValid = true;
         requiredFields.forEach((field) => {
@@ -183,10 +185,32 @@ document
                 field.style.background = "rgba(5, 150, 105, 0.05)";
             }
         });
+
         if (!isValid) {
-            e.preventDefault();
-            alert("Please fill in all required fields.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: 'Please fill in all required fields.',
+                confirmButtonColor: '#d33'
+            });
+            return;
         }
+
+        // SweetAlert2 Confirmation
+        Swal.fire({
+            title: 'Update Employee Details?',
+            text: "Are you sure you want to save these changes?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, Update',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                this.submit();
+            }
+        });
     });
 document
     .getElementById("edit_contact_no")
@@ -587,20 +611,23 @@ window.closeViewModal = function () {
 
 window.openEditModalFromView = function () {
     if (currentViewEmployeeId) {
-        const rows = document.querySelectorAll("tbody tr");
-        for (let row of rows) {
-            if (row.cells.length > 1) {
-                const employeeIdCell = row.cells[0].textContent.trim();
-                if (employeeIdCell === currentViewEmployeeId) {
-                    const editButton = row.querySelector(
-                        'button[title="Edit Employee"]'
-                    );
-                    if (editButton) {
-                        editButton.click();
-                        return;
-                    }
-                }
-            }
+        // Find the edit button that calls openEditModal with this ID
+        // The onclick string starts with: openEditModal('ID',
+        const selector = `button[onclick*="openEditModal('${currentViewEmployeeId}'"]`;
+        const editButton = document.querySelector(selector);
+
+        if (editButton) {
+            // Close the view modal first to avoid stacking
+            window.closeViewModal();
+            // Trigger the edit modal
+            editButton.click();
+        } else {
+            console.error("Edit button not found for employee:", currentViewEmployeeId);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Could not find the editable row for this employee. Please try searching for them in the list.',
+            });
         }
     }
 };

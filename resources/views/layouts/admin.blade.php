@@ -40,12 +40,12 @@
                 <div class="sidebar-menu-section">
                     <div class="sidebar-menu-title">Employee Management</div>
                     <a href="{{ route('admin.employees') }}"
-                        class="sidebar-menu-item {{ request()->routeIs('admin.employees') ? 'active' : '' }}">
+                        class="sidebar-menu-item {{ request()->routeIs('admin.employees*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
                         <span>Employees</span>
                     </a>
                     <a href="{{ route('admin.departments.index') }}"
-                        class="sidebar-menu-item {{ request()->routeIs('departments.*') ? 'active' : '' }}">
+                        class="sidebar-menu-item {{ request()->routeIs('admin.departments.*') ? 'active' : '' }}">
                         <i class="fas fa-building"></i>
                         <span>Departments</span>
                     </a>
@@ -55,7 +55,7 @@
                         <span>Attendance Count</span>
                     </a>
                     <a href="{{ route('admin.teams') }}"
-                        class="sidebar-menu-item {{ request()->routeIs('admin.teams') ? 'active' : '' }}">
+                        class="sidebar-menu-item {{ request()->routeIs('admin.teams*') ? 'active' : '' }}">
                         <i class="fas fa-users-cog"></i>
                         <span>Teams</span>
                     </a>
@@ -69,12 +69,12 @@
                 <div class="sidebar-menu-section">
                     <div class="sidebar-menu-title">Project Management</div>
                     <a href="{{ route('admin.projects.index') }}"
-                        class="sidebar-menu-item {{ request()->routeIs('admin.projects') ? 'active' : '' }}">
+                        class="sidebar-menu-item {{ request()->routeIs('admin.projects*') ? 'active' : '' }}">
                         <i class="fas fa-project-diagram"></i>
                         <span>Projects</span>
                     </a>
                     <a href="{{ url('/admin/leaves') }}"
-                        class="sidebar-menu-item {{ request()->routeIs('admin.leaves') ? 'active' : '' }}">
+                        class="sidebar-menu-item {{ request()->routeIs('admin.leaves*') ? 'active' : '' }}">
                         <i class="fas fa-calendar-times"></i>
                         <span>Leave Management</span>
                     </a>
@@ -83,12 +83,12 @@
                 <div class="sidebar-menu-section">
                     <div class="sidebar-menu-title">Reports & Analytics</div>
                     <a href="{{ route('admin.reports.index') }}"
-                        class="sidebar-menu-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
+                        class="sidebar-menu-item {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
                         <i class="fas fa-chart-bar"></i>
                         <span>Reports</span>
                     </a>
                     <a href="{{ route('admin.announcements') }}"
-                        class="sidebar-menu-item {{ request()->routeIs('admin.announcements') ? 'active' : '' }}">
+                        class="sidebar-menu-item {{ request()->routeIs('admin.announcements*') ? 'active' : '' }}">
                         <i class="fas fa-bullhorn"></i>
                         <span>Announcements</span>
                     </a>
@@ -97,17 +97,17 @@
                 <div class="sidebar-menu-section">
                     <div class="sidebar-menu-title">Administration</div>
                     <a href="{{ route('admin.profile.index') }}"
-                        class="sidebar-menu-item {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
+                        class="sidebar-menu-item {{ request()->routeIs('admin.profile*') ? 'active' : '' }}">
                         <i class="fas fa-user-shield"></i>
                         <span>Admin Profile</span>
                     </a>
                     <a href="{{ route('admin.documents.index') }}"
-                        class="sidebar-menu-item {{ request()->routeIs('admin.documents') ? 'active' : '' }}">
+                        class="sidebar-menu-item {{ request()->routeIs('admin.documents*') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
                         <span>Documents</span>
                     </a>
                     <a href="{{ route('admin.notifications') }}"
-                        class="sidebar-menu-item {{ request()->routeIs('admin.notifications') ? 'active' : '' }}">
+                        class="sidebar-menu-item {{ request()->routeIs('admin.notifications*') ? 'active' : '' }}">
                         <i class="fas fa-bell"></i>
                         <span>Notifications</span>
                         <span class="badge">{{ $notificationStats['unread'] ?? 0 }}</span>
@@ -213,7 +213,7 @@
                 <h3><i class="fas fa-bell"></i> Notifications</h3>
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <button id="markAllBtn" class="mark-all-btn">
-                        <i class="fas fa-check-double"></i> Mark all read
+                        <i class="fas fa-check-double"></i> <span class="btn-text">Mark all read</span>
                     </button>
                     <button class="modal-close" id="closenotificationModalDrop">&times;</button>
                 </div>

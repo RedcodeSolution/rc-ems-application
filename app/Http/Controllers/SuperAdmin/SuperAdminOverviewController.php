@@ -117,7 +117,7 @@ class SuperAdminOverviewController
 
 
 
-        $recentActivities = $recentActivities->sortByDesc('timestamp');
+        $recentActivities = $recentActivities->sortByDesc('timestamp')->take(5);
 
         // Return data to view
         return view('super_admin.dashboard', compact(

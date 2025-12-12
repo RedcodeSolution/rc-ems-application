@@ -161,6 +161,14 @@
         flex-direction: column;
         text-align: center;
     }
+
+    .btn-text {
+        display: none;
+    }
+    
+    .card-header .btn {
+        padding: 10px 14px;
+    }
 }
 </style>
 
@@ -173,7 +181,7 @@
         <div>
             <button type="button" class="btn btn-primary" onclick="saveProfile()">
                 <i class="fas fa-save"></i>
-                Save Changes
+                <span class="btn-text">Save Changes</span>
             </button>
         </div>
     </div>
@@ -252,21 +260,45 @@
                 <div class="grid grid-cols-2">
                     <div class="form-group">
                         <label for="current_password" class="form-label">Current Password</label>
-                        <input type="password" id="current_password" name="current_password"
-                               class="form-input" placeholder="Enter current password">
+                        <div style="position: relative;">
+                            <input type="password" id="current_password" name="current_password"
+                                class="form-input" placeholder="Enter current password" style="padding-right: 40px;">
+                            <span onclick="togglePassword('current_password')" 
+                                  style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-secondary);">
+                                <i class="fas fa-eye" id="icon_current_password"></i>
+                            </span>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="new_password" class="form-label">New Password</label>
-                        <input type="password" id="new_password" name="new_password"
-                               class="form-input" placeholder="Enter new password">
+                        <div style="position: relative;">
+                            <input type="password" id="new_password" name="new_password"
+                                class="form-input" placeholder="Enter new password" style="padding-right: 40px;">
+                            <span onclick="togglePassword('new_password')"
+                                  style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-secondary);">
+                                <i class="fas fa-eye" id="icon_new_password"></i>
+                            </span>
+                        </div>
+                        <small id="password-hint" style="color: var(--text-secondary); display: block; margin-top: 0.25rem;">
+                            Minimum 8 characters
+                        </small>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="new_password_confirmation" class="form-label">Confirm New Password</label>
-                    <input type="password" id="new_password_confirmation" name="new_password_confirmation"
-                           class="form-input" placeholder="Confirm new password">
+                    <div style="position: relative;">
+                        <input type="password" id="new_password_confirmation" name="new_password_confirmation"
+                            class="form-input" placeholder="Confirm new password" style="padding-right: 40px;">
+                        <span onclick="togglePassword('new_password_confirmation')"
+                              style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-secondary);">
+                            <i class="fas fa-eye" id="icon_new_password_confirmation"></i>
+                        </span>
+                    </div>
+                    <small id="match-hint" style="color: var(--text-secondary); display: none; margin-top: 0.25rem;">
+                        Passwords do not match
+                    </small>
                 </div>
             </div>
 
@@ -332,16 +364,43 @@
         const newPassword = form.new_password.value;
         const confirmPassword = form.new_password_confirmation.value;
 
-        if (!name) { alert('Please enter your full name.'); return; }
-        if (!email) { alert('Please enter your email.'); return; }
-
-        if (newPassword || confirmPassword) {
-            if (!currentPassword) { alert('Please enter your current password.'); return; }
-            if (newPassword !== confirmPassword) { alert('New password and confirmation do not match.'); return; }
-            if (newPassword.length < 8) { alert('New password must be at least 8 characters.'); return; }
+        if (!name) { 
+            Swal.fire({ icon: 'error', title: 'Missing Info', text: 'Please enter your full name.' });
+            return; 
+        }
+        if (!email) { 
+            Swal.fire({ icon: 'error', title: 'Missing Info', text: 'Please enter your email.' });
+            return; 
         }
 
-        form.submit();
+        if (newPassword || confirmPassword) {
+            if (!currentPassword) { 
+                Swal.fire({ icon: 'error', title: 'Security Check', text: 'Please enter your current password to set a new one.' });
+                return; 
+            }
+            if (newPassword !== confirmPassword) { 
+                Swal.fire({ icon: 'error', title: 'Mismatch', text: 'New password and confirmation do not match.' });
+                return; 
+            }
+            if (newPassword.length < 8) { 
+                Swal.fire({ icon: 'error', title: 'Too Weak', text: 'New password must be at least 8 characters long.' });
+                return; 
+            }
+        }
+
+        Swal.fire({
+            title: 'Save Changes?',
+            text: "Are you sure you want to update your profile?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, save changes!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
     }
 
 
@@ -362,5 +421,61 @@ function setupAutoSave() {
 
 // Initialize auto-save
 document.addEventListener('DOMContentLoaded', setupAutoSave);
+
+function togglePassword(fieldId) {
+    const input = document.getElementById(fieldId);
+    const icon = document.getElementById('icon_' + fieldId);
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Realtime Password Validation
+document.addEventListener('DOMContentLoaded', function() {
+    const newPass = document.getElementById('new_password');
+    const confirmPass = document.getElementById('new_password_confirmation');
+    const passHint = document.getElementById('password-hint');
+    const matchHint = document.getElementById('match-hint');
+
+    if(newPass && confirmPass) {
+        newPass.addEventListener('input', function() {
+            if (this.value.length < 8 && this.value.length > 0) {
+                passHint.textContent = 'Too short (min 8 chars)';
+                passHint.style.color = 'var(--error)';
+            } else if (this.value.length >= 8) {
+                passHint.textContent = 'Strong password';
+                passHint.style.color = 'var(--success)';
+            } else {
+                passHint.textContent = 'Minimum 8 characters';
+                passHint.style.color = 'var(--text-secondary)';
+            }
+            checkMatch();
+        });
+
+        confirmPass.addEventListener('input', checkMatch);
+
+        function checkMatch() {
+            if (confirmPass.value.length > 0) {
+                matchHint.style.display = 'block';
+                if (newPass.value === confirmPass.value) {
+                    matchHint.textContent = 'Passwords match';
+                    matchHint.style.color = 'var(--success)';
+                } else {
+                    matchHint.textContent = 'Passwords do not match';
+                    matchHint.style.color = 'var(--error)';
+                }
+            } else {
+                matchHint.style.display = 'none';
+            }
+        }
+    }
+});
 </script>
 @endsection

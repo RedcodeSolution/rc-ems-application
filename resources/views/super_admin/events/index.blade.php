@@ -14,10 +14,6 @@
         </p>
     </div>
     <div class="header-actions">
-        <button class="btn btn-secondary" onclick="exportEvents()">
-            <i class="fas fa-download"></i>
-            Export Events
-        </button>
         <a href="{{ route('super_admin.events.create') }}" class="btn btn-primary">
             <i class="fas fa-plus"></i>
             Create Event
@@ -93,18 +89,7 @@
     <div class="tab-panel active" id="all-panel">
         <div class="panel-header">
             <h3>All Events</h3>
-            <div class="bulk-actions">
-                <button class="btn btn-success" onclick="bulkPublish()">
-                    <i class="fas fa-globe"></i>
-                    Publish Selected
-                </button>
-                <button class="btn btn-danger" onclick="bulkDelete()">
-                    <i class="fas fa-trash"></i>
-                    Delete Selected
-                </button>
-            </div>
         </div>
-
         <div class="events-grid">
             @forelse($events as $event)
             <div class="event-card">
@@ -401,43 +386,56 @@ function editEvent(eventId) {
 }
 
 function deleteEvent(eventId) {
-    if (confirm('Are you sure you want to delete this event?')) {
-        fetch(`/super_admin/events/${eventId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Event deleted successfully');
-                location.reload();
-            } else {
-                alert('Error: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error deleting event');
-        });
-    }
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/super_admin/events/${eventId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire(
+                        'Deleted!',
+                        'Event has been deleted.',
+                        'success'
+                    ).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire(
+                        'Error!',
+                        data.error || 'Something went wrong',
+                        'error'
+                    );
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire(
+                    'Error!',
+                    'Failed to delete event.',
+                    'error'
+                );
+            });
+        }
+    });
 }
 
-function bulkPublish() {
-    alert('Bulk publish functionality will be implemented here');
-}
 
-function bulkDelete() {
-    if (confirm('Are you sure you want to delete the selected events?')) {
-        alert('Bulk delete functionality will be implemented here');
-    }
-}
 
-function exportEvents() {
-    alert('Export functionality will be implemented here');
-}
+
 
 function generateReport(eventId) {
     alert(`Report generation for event ${eventId} will be implemented here`);

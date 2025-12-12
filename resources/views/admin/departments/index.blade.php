@@ -5,34 +5,55 @@
 @section('title', 'Departments Management')
 
 @section('content')
-    <div class="departments-stats" style="margin-top: 0; margin-bottom: 2rem;">
-        <div class="card">
-            <div class="card-body text-center">
-                <div class="stat-value stat-departments">{{ $departments->count() }}</div>
-                <div class="stat-label">Total Departments</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Total Departments -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(220, 38, 38, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-building"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Total Departments</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $departments->count() }}</div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-body text-center">
-                <div class="stat-value stat-employees">{{ $departments->sum('employees_count') }}</div>
-                <div class="stat-label">Total Employees</div>
+
+        <!-- Total Employees -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(5, 150, 105, 0.1); color: var(--success); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Total Employees</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $departments->sum('employees_count') }}</div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-body text-center">
-                @php
-                    $totalEmployees = $departments->sum('employees_count');
-                    $totalDepartments = $departments->count();
-                    $average = $totalDepartments > 0 ? round($totalEmployees / $totalDepartments, 1) : 0;
-                @endphp
-                <div class="stat-value stat-average">{{ $average }}</div>
-                <div class="stat-label">Avg per Department</div>
+
+        <!-- Avg per Department -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(245, 158, 11, 0.1); color: var(--warning); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Avg per Department</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">
+                    @php
+                        $totalEmployees = $departments->sum('employees_count');
+                        $totalDepartments = $departments->count();
+                        $average = $totalDepartments > 0 ? round($totalEmployees / $totalDepartments, 1) : 0;
+                    @endphp
+                    {{ $average }}
+                </div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-body text-center">
-                <div class="stat-value stat-largest">{{ $departments->max('employees_count') ?? 0 }}</div>
-                <div class="stat-label">Largest Department</div>
+
+        <!-- Largest Department -->
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(0, 151, 167, 0.1); color: var(--info); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Largest Department</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $departments->max('employees_count') ?? 0 }}</div>
             </div>
         </div>
     </div>
@@ -42,12 +63,9 @@
             <div class="flex gap-2">
                 <button onclick="openDepartmentModal()" class="btn btn-primary">
                     <i class="fas fa-plus"></i>
-                    Add Department
+                    <span class="btn-text">Add Department</span>
                 </button>
-                <button class="btn btn-secondary">
-                    <i class="fas fa-download"></i>
-                    Export
-                </button>
+
             </div>
         </div>
         <div class="card-body">
@@ -110,11 +128,11 @@
                             <div class="flex gap-1">
                                 <button class="btn btn-warning edit-btn" title="Edit Department"
                                     onclick="openEditDepartmentModal('{{ $department->department_id }}')">
-                                    <i class="fas fa-edit"></i>
+                                    <i class="fas fa-edit" style="color: white !important;"></i>
                                 </button>
                                 <button class="btn btn-danger delete-btn" title="Delete Department"
                                     onclick="confirmDeleteDepartment('{{ $department->department_id }}', '{{ $department->department_name ?? $department->department_id }}')">
-                                    <i class="fas fa-trash"></i>
+                                    <i class="fas fa-trash" style="color: white !important;"></i>
                                 </button>
                             </div>
                         </div>
@@ -1090,6 +1108,31 @@
 
             // Initial render
             renderDepartments(departments);
+        });
+
+        // SweetAlert2 Confirmation for Edit Department
+        document.addEventListener('DOMContentLoaded', function() {
+            const editForm = document.getElementById('editDepartmentForm');
+            if (editForm) {
+                editForm.addEventListener('submit', function(e) {
+                    e.preventDefault(); // Prevent default submission
+                    
+                    Swal.fire({
+                        title: 'Update Department?',
+                        text: "Are you sure you want to update this department's details?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6', // Matches primary blue
+                        cancelButtonColor: '#d33',   // Matches danger red
+                        confirmButtonText: 'Yes, update it!',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            editForm.submit(); // Submit programmatically
+                        }
+                    });
+                });
+            }
         });
     </script>
 

@@ -18,11 +18,25 @@
 }
 
 @keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    25% { background-position: 100% 50%; }
-    50% { background-position: 100% 100%; }
-    75% { background-position: 0% 100%; }
-    100% { background-position: 0% 50%; }
+    0% {
+        background-position: 0% 50%;
+    }
+
+    25% {
+        background-position: 100% 50%;
+    }
+
+    50% {
+        background-position: 100% 100%;
+    }
+
+    75% {
+        background-position: 0% 100%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .tasks-header::before {
@@ -551,6 +565,7 @@
         transform: translateY(-50px);
         opacity: 0;
     }
+
     to {
         transform: translateY(0);
         opacity: 1;
@@ -908,7 +923,8 @@
     flex-wrap: wrap;
 }
 
-.priority-badge, .status-badge {
+.priority-badge,
+.status-badge {
     display: flex;
     align-items: center;
     gap: 5px;

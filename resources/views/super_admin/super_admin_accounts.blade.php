@@ -1,13 +1,16 @@
 @extends('layouts.super_admin')
 <link rel="stylesheet" href="{{ asset('css/SuperAdmin/superAdminAccount.css') }}">
-@section('title', 'Super Admin Account Management')
+@section('title')
+    <span class="desktop-title">Super Admin Management</span>
+    <span class="mobile-title">Account Management</span>
+@endsection
 
 @section('content')
 <div class="page-header">
     <div class="header-content">
         <h1 class="page-title">
             <i class="fas fa-user-cog"></i>
-            Super Admin Account Management
+            Super Admin Management
         </h1>
         <p class="page-description">
             Manage super admin accounts, permissions, and access controls
@@ -18,10 +21,7 @@
             <i class="fas fa-plus"></i>
             Create New Account
         </button>
-        <button class="btn btn-secondary" onclick="exportAccounts()">
-            <i class="fas fa-download"></i>
-            Export Data
-        </button>
+
     </div>
 </div>
 
@@ -82,10 +82,6 @@
                     <i class="fas fa-sync-alt"></i>
                     Refresh
                 </button>
-                <button class="btn btn-sm btn-outline" onclick="bulkAction()">
-                    <i class="fas fa-tasks"></i>
-                    Bulk Actions
-                </button>
             </div>
         </div>
 
@@ -93,9 +89,6 @@
             <table class="data-table">
                 <thead>
                 <tr>
-                    <th>
-                        <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
-                    </th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Status</th>
@@ -107,17 +100,14 @@
                 <tbody>
                 @forelse($superAdminUsers as $user)
                 <tr class="responsive-row">
-                    <td data-label="Select">
-                        <input type="checkbox" class="row-select" value="{{ $user->super_admin_id }}">
-                    </td>
+                <tr class="responsive-row">
                     <td data-label="Name">
-                        <div class="user-info">
+                        <div class="user-info" style="align-items: center;">
                             <div class="user-avatar">
                                 {{ strtoupper(substr($user->super_admin_name, 0, 1)) }}
                             </div>
                             <div class="user-details">
                                 <span class="user-name">{{ $user->super_admin_name }}</span>
-                                <span class="user-id">ID: {{ $user->super_admin_id }}</span>
                             </div>
                         </div>
                     </td>
@@ -171,29 +161,7 @@
         </div>
     </div>
 
-    <div class="content-card">
-        <div class="card-header">
-            <h2 class="card-title">
-                <i class="fas fa-history"></i>
-                Recent Activities
-            </h2>
-        </div>
 
-        <div class="activities-list">
-            @foreach($recentActivities as $activity)
-            <div class="activity-item">
-                <div class="activity-icon {{ $activity['type'] }}">
-                    <i class="{{ $activity['icon'] }}"></i>
-                </div>
-                <div class="activity-content">
-                    <h4 class="activity-title">{{ $activity['action'] }}</h4>
-                    <p class="activity-details">{{ $activity['details'] }}</p>
-                    <span class="activity-time">{{ \Carbon\Carbon::parse($activity['timestamp'])->diffForHumans() }}</span>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
 </div>
 
 <!-- Create Account Modal -->
@@ -495,31 +463,11 @@
     }
 
     // Table functions
-    function toggleSelectAll() {
-        const selectAll = document.getElementById('select-all');
-        const checkboxes = document.querySelectorAll('.row-select');
+    // Table functions
 
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = selectAll.checked;
-        });
-    }
 
     function refreshTable() {
         location.reload();
-    }
-
-    function bulkAction() {
-        const selectedRows = document.querySelectorAll('.row-select:checked');
-        if (selectedRows.length === 0) {
-            alert('Please select at least one account.');
-            return;
-        }
-
-        const action = prompt('Enter action (activate/deactivate/delete):');
-        if (action) {
-            // Implement bulk action logic here
-            console.log('Bulk action:', action, 'on', selectedRows.length, 'accounts');
-        }
     }
 
     function viewAccount(id) {
@@ -607,34 +555,37 @@
     }
 
     function deleteAccount(id) {
-        if (confirm('Are you sure you want to delete this account? This action cannot be undone.')) {
-            fetch(`{{ url('/super_admin/super_admin_accounts') }}/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Account deleted successfully!');
-                    location.reload();
-                } else {
-                    alert(data.message || 'Failed to delete account.');
-                }
-            })
-            .catch(() => {
-                alert('Error deleting account.');
-        const strengthFill = document.getElementById('strength-fill');
-        const strengthText = document.getElementById('strength-text');
-            });
-        }
-    }
-
-    function exportAccounts() {
-        console.log('Exporting accounts data...');
-
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This action cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`{{ url('/super_admin/super_admin_accounts') }}/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Deleted!', 'Account deleted successfully.', 'success')
+                        .then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', data.message || 'Failed to delete account.', 'error');
+                    }
+                })
+                .catch(() => {
+                    Swal.fire('Error', 'Error deleting account.', 'error');
+                });
+            }
+        });
     }
 
     document.getElementById('new-password').addEventListener('input', function() {
@@ -715,23 +666,23 @@
                     data = {};
                 }
                 if (response.ok && data.success) {
-                    alert('Account updated successfully!');
-                    closeModal('editAccountModal');
-                    location.reload();
-                } else if (data.errors) {
-                    // Show validation errors
-                    let msg = 'Please fix the following errors:\n';
-                    Object.values(data.errors).forEach(errArr => {
-                        msg += '- ' + errArr.join(', ') + '\n';
+                    Swal.fire('Success', 'Account updated successfully!', 'success')
+                    .then(() => {
+                        closeModal('editAccountModal');
+                        location.reload();
                     });
-                    alert(msg);
+                } else if (data.errors) {
+                    let msg = '';
+                    Object.values(data.errors).forEach(errArr => {
+                        msg += errArr.join(', ') + '\n';
+                    });
+                    Swal.fire('Validation Error', msg, 'error');
                 } else if (data.message) {
-                    alert(data.message);
+                    Swal.fire('Error', data.message, 'error');
                 }
-                // No generic fail alert
             })
             .catch(error => {
-                alert('Error updating account.');
+                Swal.fire('Error', 'Error updating account.', 'error');
                 console.error(error);
             });
     });
@@ -784,15 +735,17 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Password changed successfully!');
-                closeModal('changePasswordModal');
-                location.reload();
+                Swal.fire('Success', 'Password changed successfully!', 'success')
+                .then(() => {
+                    closeModal('changePasswordModal');
+                    location.reload();
+                });
             } else {
-                alert(data.message || 'Failed to change password.');
+                Swal.fire('Error', data.message || 'Failed to change password.', 'error');
             }
         })
         .catch(() => {
-            alert('Error changing password.');
+            Swal.fire('Error', 'Error changing password.', 'error');
         });
     });
 
@@ -834,23 +787,23 @@
                     data = {};
                 }
                 if (response.ok && data.success) {
-                    alert('Super Admin account created successfully!');
-                    closeModal('createAccountModal');
-                    location.reload();
-                } else if (data.errors) {
-                    // Show validation errors
-                    let msg = 'Please fix the following errors:\n';
-                    Object.values(data.errors).forEach(errArr => {
-                        msg += '- ' + errArr.join(', ') + '\n';
+                    Swal.fire('Success', 'Super Admin account created successfully!', 'success')
+                    .then(() => {
+                        closeModal('createAccountModal');
+                        location.reload();
                     });
-                    alert(msg);
+                } else if (data.errors) {
+                    let msg = '';
+                    Object.values(data.errors).forEach(errArr => {
+                        msg += errArr.join(', ') + '\n';
+                    });
+                    Swal.fire('Validation Error', msg, 'error');
                 } else if (data.message) {
-                    alert(data.message);
+                    Swal.fire('Error', data.message, 'error');
                 }
-                // No generic fail alert
             })
             .catch(error => {
-                alert('Error creating account.');
+                Swal.fire('Error', 'Error creating account.', 'error');
                 console.error(error);
             });
     });

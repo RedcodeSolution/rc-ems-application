@@ -1,91 +1,10 @@
 @extends('layouts.admin')
 
-@section('title', 'Leave Management - Admin Dashboard')
+@section('title', 'Leave Management')
 
 @section('content')
     <style>
-        /* Leave Management Index Styles */
-        .leave-management-container {
-            padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .leave-header {
-            background: linear-gradient(135deg, #dc2626, #b91c1c, #991b1b);
-            background-size: 400% 400%;
-            animation: gradientShift 18s ease infinite;
-            color: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-xl);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .leave-header::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header-info h1 {
-            margin: 0;
-            font-size: 2rem;
-            font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .header-info p {
-            margin: 0.5rem 0 0 0;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1rem;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .header-actions .btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .header-actions .btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        /* Stats Grid */
-        .leave-stats-grid {
+.leave-stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
@@ -174,6 +93,7 @@
 
         /* Tabs */
         .leave-tabs {
+            
             margin-bottom: 2rem;
             background: white;
             padding: 0.5rem;
@@ -268,11 +188,21 @@
         }
 
         /* Tables */
+        .my-leave-table-container {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            overflow-x: auto; /* Enable horizontal scrolling */
+            border: 1px solid var(--border-light);
+        }
+
         .leave-table-container {
             background: white;
             border-radius: 1rem;
             box-shadow: var(--shadow-lg);
             overflow: hidden;
+            overflow-x: auto; /* Enable horizontal scrolling */
             border: 1px solid var(--border-light);
         }
 
@@ -432,10 +362,11 @@
         /* Analytics Grid */
         .analytics-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
         }
 
+        /* ... existing styles ... */
         .analytics-card {
             background: white;
             padding: 1.5rem;
@@ -460,38 +391,153 @@
             gap: 0.5rem;
         }
 
+        /* Leave Management Index Styles */
+        /* .leave-management-container {
+            padding: 0;
+            max-width: 100%;
+            margin: 0 auto;
+        } */
+
+        /* Stats Grid */
+        
+
         /* Responsive Design */
         @media (max-width: 1024px) {
             .analytics-grid {
                 grid-template-columns: 1fr;
             }
         }
+        
+        @media (max-width: 600px) {
+            /* Prevent horizontal scroll at root level */
+            /* .leave-management-container {
+                width: 100%;
+                max-width: 100vw;
+                padding: 0.5rem; 
+                box-sizing: border-box;
+                overflow-x: hidden;
+            } */
 
-        @media (max-width: 768px) {
-            .leave-management-container {
+            .tab-panel {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .leave-stats-grid,
+            .analytics-grid {
+                display: flex; /* Switch to flex for simple stacking */
+                flex-direction: column;
+                align-items: center; /* Center children horizontally */
+                gap: 1rem;
+                width: 100%;
+                padding: 0; /* Remove potential container padding issues */
+            }
+
+            .analytics-card, 
+            .leave-stat-card {
+                width: 92% !important; /* Use less than 100% to ensure visual centering gap */
+                margin: 0 auto 1rem auto !important; /* Center and bottom margin */
+                box-sizing: border-box; 
+                max-width: 100%; /* Prevent overflow */
+            }
+
+            .analytics-card {
                 padding: 1rem;
             }
-
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
+            
+            .analytics-card .card-content {
+                width: 100%;
+                overflow: hidden; /* Contain chart */
             }
+            
+            /* Ensure chart canvas fits */
+            .analytics-card canvas {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+            }
+        }
 
+        @media (max-width: 768px) {
+            /* .leave-management-container {
+                padding: 1rem;
+            } */
+
+            /* Fix header layout */
             .header-info h1 {
+                
                 justify-content: center;
             }
 
-            .header-actions {
+            /* Responsive Tabs - Scrollable + Icon Only on very small screens */
+            .leave-tabs {
+                
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 0.5rem;
+                margin-bottom: 1.5rem;
                 width: 100%;
-                flex-direction: column;
+            }
+            
+            .leave-tabs::-webkit-scrollbar {
+                height: 4px;
+            }
+            
+            .tab-nav {
+                display: flex;
+                gap: 0.5rem;
+                padding-right: 1rem;
             }
 
-            .header-actions .btn {
-                width: 100%;
-                justify-content: center;
+            .tab-btn {
+                flex: 0 0 auto;
+                white-space: nowrap;
             }
 
+            @media (max-width: 600px) {
+                /* Hide text in tabs for icon-only look */
+                .tab-text {
+                    display: none;
+                }
+                .tab-text {
+                    display: none;
+                }
+                .header-actions .btn .btn-text,
+                .leave-filters .btn .btn-text,
+                .bulk-actions .btn .btn-text {
+                    display: none;
+                }
+                
+                .bulk-actions .btn {
+                    padding: 0.75rem; /* Square-ish buttons on mobile */
+                }
+                .tab-btn {
+                    padding: 0.75rem 1rem; /* Increase padding for touch target */
+                    border-radius: 0.5rem;
+                    position: relative;
+                    min-width: 44px; /* Ensure minimum width */
+                    justify-content: center; /* Center the icon */
+                }
+                
+                .tab-btn i {
+                    font-size: 1.1rem; /* Make icon slightly larger */
+                }
+                
+                .tab-badge {
+                    position: absolute;
+                    top: -5px;
+                    right: -5px;
+                    margin: 0;
+                    font-size: 0.65rem;
+                    padding: 2px 5px;
+                    border-radius: 10px;
+                    z-index: 2;
+                }
+            }
+
+            /* Filter Layout */
             .filter-row {
                 flex-direction: column;
                 gap: 1rem;
@@ -501,38 +547,63 @@
                 width: 100%;
             }
 
-            .leave-table th, .leave-table td {
-                padding: 0.75rem 1rem;
+            /* Table Scrolling */
+            .leave-table-container,
+            .all-requests-table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                border-radius: 0.5rem;
             }
             
             .leave-table {
-                display: block;
-                overflow-x: auto;
+                width: 100%;
+                min-width: 800px; /* Force scroll */
+                display: table; 
+            }
+
+            .leave-table th, .leave-table td {
+                padding: 0.75rem 1rem;
+                white-space: nowrap;
+            }
+
+            /* Header Actions */
+            .btn-text {
+                display: none;
+            }
+
+            .header-actions .btn {
+                width: auto; 
+                padding: 0.5rem 0.75rem; 
+            }
+            
+            /* Add this specifically for the card-header if it exists from previous edits */
+            .card-header {
+                flex-direction: row !important;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.5rem;
+            }
+            
+            .card-header h2 {
+                 font-size: 1.1rem;
+                 margin: 0;
             }
         }
     </style>
-    <div class="leave-management-container">
-        <!-- Leave Management Header -->
-        <div class="leave-header">
-            <div class="header-content">
-                <h1><i class="fas fa-calendar-alt"></i> Leave Management</h1>
-                <p>Review, approve, and manage employee leave requests</p>
-            </div>
-            <div class="header-actions">
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2><i class="fas fa-calendar-alt"></i> Leave Management</h2>
+            <div class="flex gap-2">
                 <button class="btn btn-success" onclick="openApplyLeaveModal()">
-                    <i class="fas fa-plus-circle"></i> Apply for Leave
-                </button>
-                <button class="btn btn-outline" onclick="exportLeaveReport()">
-                    <i class="fas fa-download"></i> Export Report
-                </button>
-                <button class="btn btn-secondary" onclick="refreshLeaves()">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-                <button class="btn btn-primary" onclick="showLeaveAnalytics()">
-                    <i class="fas fa-chart-bar"></i> Analytics
+                    <i class="fas fa-plus-circle"></i> 
+                    <span class="btn-text">Apply for Leave</span>
                 </button>
             </div>
         </div>
+  
 
         <!-- Leave Statistics Cards -->
         <div class="leave-stats-grid">
@@ -608,24 +679,22 @@
         <div class="leave-tabs">
             <div class="tab-nav">
                 <button class="tab-btn" data-tab="my-leaves" onclick="switchTab('my-leaves')">
-                    <i class="fas fa-user-calendar"></i> My Leave Requests
+                    <i class="fas fa-calendar-alt"></i> <span class="tab-text">My Leave Requests</span>
                 </button>
                 <button class="tab-btn active" data-tab="pending" onclick="switchTab('pending')">
-                    <i class="fas fa-clock"></i> Pending Requests
+                    <i class="fas fa-clock"></i> <span class="tab-text">Pending Requests</span>
                     <span class="tab-badge">{{ $employeePendingMonthlyCount }}</span>
                 </button>
                 <button class="tab-btn" data-tab="approved" onclick="switchTab('approved')">
-                    <i class="fas fa-check-circle"></i> Approved
+                    <i class="fas fa-check-circle"></i> <span class="tab-text">Approved</span>
                 </button>
                 <button class="tab-btn" data-tab="rejected" onclick="switchTab('rejected')">
-                    <i class="fas fa-times-circle"></i> Rejected
+                    <i class="fas fa-times-circle"></i> <span class="tab-text">Rejected</span>
                 </button>
                 <button class="tab-btn" data-tab="all" onclick="switchTab('all')">
-                    <i class="fas fa-list"></i> All Requests
+                    <i class="fas fa-list"></i> <span class="tab-text">All Requests</span>
                 </button>
-                <button class="tab-btn" data-tab="analytics" onclick="switchTab('analytics')">
-                    <i class="fas fa-chart-bar"></i> Analytics
-                </button>
+
             </div>
         </div>
 
@@ -634,7 +703,7 @@
             <div class="filter-row">
                 <div class="filter-group">
                     <label for="date-filter">Date Range</label>
-                    <select id="date-filter" class="filter-select">
+                    <select id="date-filter" class="filter-select" onchange="applyFilters()">
                         <option value="today">Today</option>
                         <option value="week">This Week</option>
                         <option value="month" selected>This Month</option>
@@ -645,7 +714,7 @@
 
                 <div class="filter-group">
                     <label for="department-filter">Department</label>
-                    <select id="department-filter" class="filter-select">
+                    <select id="department-filter" class="filter-select" onchange="applyFilters()">
                         <option value="">All Departments</option>
                         @foreach ($departments as $dept)
                             <option value="{{ strtolower($dept->department_name) }}">{{ $dept->department_name }}</option>
@@ -655,7 +724,7 @@
 
                 <div class="filter-group">
                     <label for="leave-type-filter">Leave Type</label>
-                    <select id="leave-type-filter" class="filter-select">
+                    <select id="leave-type-filter" class="filter-select" onchange="applyFilters()">
                         <option value="">All Types</option>
                         <option value="annual">Annual Leave</option>
                         <option value="sick">Sick Leave</option>
@@ -671,11 +740,9 @@
                 </div>
 
                 <div class="filter-group">
-                    <button class="btn btn-primary" onclick="applyFilters()">
-                        <i class="fas fa-filter"></i> Filter
-                    </button>
+                    <!-- Removed Filter Button -->
                     <button class="btn btn-secondary" onclick="clearFilters()">
-                        <i class="fas fa-times"></i> Clear
+                        <i class="fas fa-times"></i> <span class="btn-text">Clear</span>
                     </button>
                 </div>
             </div>
@@ -690,10 +757,7 @@
                     <h2><i class="fas fa-user-calendar"></i> My Leave Requests</h2>
                     <div class="header-actions">
                         <button class="btn btn-primary" onclick="openApplyLeaveModal()">
-                            <i class="fas fa-plus-circle"></i> Apply for Leave
-                        </button>
-                        <button class="btn btn-outline" onclick="exportMyLeaveReport()">
-                            <i class="fas fa-download"></i> Export My Leaves
+                            <i class="fas fa-plus-circle"></i> <span class="btn-text">Apply for Leave</span>
                         </button>
                     </div>
                 </div>
@@ -874,10 +938,10 @@
                     <h2><i class="fas fa-clock"></i> Pending Leave Requests</h2>
                     <div class="bulk-actions">
                         <button class="btn btn-success" onclick="bulkApprove()" disabled id="bulk-approve">
-                            <i class="fas fa-check"></i> Approve Selected
+                            <i class="fas fa-check"></i> <span class="btn-text">Approve Selected</span>
                         </button>
                         <button class="btn btn-danger" onclick="bulkReject()" disabled id="bulk-reject">
-                            <i class="fas fa-times"></i> Reject Selected
+                            <i class="fas fa-times"></i> <span class="btn-text">Reject Selected</span>
                         </button>
                     </div>
                 </div>
@@ -1007,11 +1071,7 @@
             <div id="approved-tab" class="tab-panel">
                 <div class="panel-header">
                     <h2><i class="fas fa-check-circle"></i> Approved Leave Requests</h2>
-                    <div class="header-actions">
-                        <button class="btn btn-outline" onclick="exportApprovedReport()">
-                            <i class="fas fa-download"></i> Export Approved
-                        </button>
-                    </div>
+
                 </div>
 
                 @if ($approvedLeaves->isEmpty())
@@ -1126,11 +1186,7 @@
             <div id="rejected-tab" class="tab-panel">
                 <div class="panel-header">
                     <h2><i class="fas fa-times-circle"></i> Rejected Leave Requests</h2>
-                    <div class="header-actions">
-                        <button class="btn btn-outline" onclick="exportRejectedReport()">
-                            <i class="fas fa-download"></i> Export Rejected
-                        </button>
-                    </div>
+
                 </div>
 
                 @if ($rejectedLeaves->isEmpty())
@@ -1246,11 +1302,7 @@
             <div id="all-tab" class="tab-panel">
                 <div class="panel-header">
                     <h2><i class="fas fa-list"></i> All Leave Requests</h2>
-                    <div class="header-actions">
-                        <button class="btn btn-outline" onclick="exportAllReport()">
-                            <i class="fas fa-download"></i> Export All
-                        </button>
-                    </div>
+
                 </div>
 
                 <div class="all-requests-table">
@@ -1354,89 +1406,9 @@
             <!-- Analytics Tab -->
             <div id="analytics-tab" class="tab-panel">
                 <div class="analytics-grid">
-                    <div class="analytics-card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-chart-pie"></i> Leave Distribution</h3>
-                        </div>
-                        <div class="card-content" style="height:300px;"> <!-- add fixed height -->
-                            <canvas id="leaveDistributionChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="analytics-card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-chart-line"></i> Monthly Trends</h3>
-                        </div>
-                        <div class="card-content">
-                            <canvas id="leaveTrendsChart" width="400" height="300"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="analytics-card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-building"></i> Department-wise Leave Usage</h3>
-                        </div>
-                        <div class="card-content">
-                            <div class="department-stats">
-                                @foreach ($departmentStats as $dept)
-                                    <div class="dept-stat-item">
-                                        <div class="dept-info">
-                                            <span class="dept-name">{{ $dept['name'] }}</span>
-                                            <span class="dept-usage">{{ $dept['used'] }}/{{ $dept['total'] }} days
-                                                used</span>
-                                        </div>
-                                        <div class="dept-progress">
-                                            <div class="progress-bar">
-                                                <div class="progress-fill" style="width: {{ $dept['percentage'] }}%">
-                                                </div>
-                                            </div>
-                                            <span class="progress-percent">{{ $dept['percentage'] }}%</span>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="analytics-card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-trophy"></i> Quick Stats</h3>
-                        </div>
-                        <div class="card-content">
-                            <div class="quick-stats">
-                                <div class="quick-stat">
-                                    <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value">{{ $avgProcessingTime }}</span>
-                                        <span class="stat-label">Avg Processing Time (hours)</span>
-                                    </div>
-                                </div>
-
-                                <div class="quick-stat">
-                                    <div class="stat-icon"><i class="fas fa-percentage"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value">{{ $approvalRate }}%</span>
-                                        <span class="stat-label">Approval Rate</span>
-                                    </div>
-                                </div>
-
-                                <div class="quick-stat">
-                                    <div class="stat-icon"><i class="fas fa-users"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value">{{ $employeesOnLeaveToday }}</span>
-                                        <span class="stat-label">Employees on Leave Today</span>
-                                    </div>
-                                </div>
-
-                                <div class="quick-stat">
-                                    <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                                    <div class="stat-info">
-                                        <span class="stat-value">{{ $overdueRequests }}</span>
-                                        <span class="stat-label">Overdue Requests</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Analytics cards removed as per request -->
+                    <div style="grid-column: 1 / -1; display: flex; justify-content: center; align-items: center; width: 100%; min-height: 200px; text-align: center; color: var(--text-secondary); margin: 0 auto;">
+                        Analytics module temporarily disabled.
                     </div>
                 </div>
             </div>
@@ -1671,11 +1643,11 @@
             --border-dark: #6B7280;
         }
 
-        .leave-management-container {
+        /* .leave-management-container {
             padding: 2rem;
             background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
             min-height: 100vh;
-        }
+        } */
 
         /* Header */
         .leave-header {
@@ -2487,17 +2459,6 @@
             color: var(--redcode-primary);
         }
 
-        .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: all 0.3s ease;
-        }
 
         .modal-close:hover {
             color: var(--redcode-primary);
@@ -3018,16 +2979,7 @@
             background: #f1f5f9;
         }
 
-        .user-avatar {
-            background: linear-gradient(135deg, #6366f1 40%, #2563eb 100%);
-            color: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            box-shadow: 0 2px 8px 0 rgba(99, 102, 241, 0.08);
-        }
+      
 
         .card-body>div[style*="display: grid"]>.card {
             border: 1px solid #f3f4f6;
@@ -3206,22 +3158,7 @@
             margin-bottom: 1.5rem;
         }
 
-        .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-            background: rgba(220, 38, 38, 0.1);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: var(--redcode-primary);
-        }
+  
 
         .modal-close:hover {
             background: rgba(220, 38, 38, 0.2);
@@ -3858,12 +3795,14 @@
             // Update charts with filtered data
             updateCharts(filteredData);
 
-            // Show notification
+            // Show notification logic removed for realtime filtering
+            /* 
             if (typeof showNotification === 'function') {
                 showNotification(`Filters applied! Showing ${visibleCount} results.`, 'success');
             } else {
                 console.log(`Filters applied! Showing ${visibleCount} results.`);
             }
+            */
         }
 
         function clearFilters() {
@@ -3876,27 +3815,24 @@
                 row.style.display = '';
             });
 
-            showNotification('Filters cleared!', 'info');
+
         }
 
         // Leave actions
 
         function viewLeaveDetails(id) {
-            showNotification(`Loading leave details...`, 'info');
+            const modal = document.getElementById('leaveDetailsModal');
+            modal.dataset.currentId = id;
 
-            setTimeout(() => {
-                const modal = document.getElementById('leaveDetailsModal');
-                modal.dataset.currentId = id;
+            // get the row using the id
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            if (!row) return;
 
-                // get the row using the id
-                const row = document.querySelector(`tr[data-id="${id}"]`);
-                if (!row) return;
+            const content = document.getElementById('leaveDetailsContent');
+            const modalFooter = modal.querySelector('.modal-footer'); // footer buttons area
 
-                const content = document.getElementById('leaveDetailsContent');
-                const modalFooter = modal.querySelector('.modal-footer'); // footer buttons area
-
-                // Fill modal content
-                content.innerHTML = `
+            // Fill modal content
+            content.innerHTML = `
             <div class="leave-details">
                 <div class="form-container">
                     <div class="form-row">
@@ -3958,16 +3894,15 @@
             </div>
         `;
 
-                // --- Dynamic footer buttons ---
-                // --- Dynamic footer buttons ---
-                let footerButtons = `
+            // --- Dynamic footer buttons ---
+            let footerButtons = `
     <button class="btn btn-secondary" onclick="closeModal()">Close</button>
 `;
 
-                if (row.dataset.status && row.dataset.status.toLowerCase() === 'pending') {
-                    const id = row.dataset.id;
+            if (row.dataset.status && row.dataset.status.toLowerCase() === 'pending') {
+                const id = row.dataset.id;
 
-                    footerButtons += `
+                footerButtons += `
     <form action="/admin/leaves/${id}/status" method="POST" style="display:inline;">
         <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
         <input type="hidden" name="_method" value="PUT">
@@ -3986,15 +3921,12 @@
         </button>
     </form>
 `;
-                }
+            }
 
+            // Replace footer with new buttons
+            modalFooter.innerHTML = footerButtons;
 
-                // Replace footer with new buttons
-                modalFooter.innerHTML = footerButtons;
-
-                modal.style.display = 'block';
-                showNotification('Leave details loaded!', 'success');
-            }, 800);
+            modal.style.display = 'block';
         }
 
 
@@ -4622,15 +4554,12 @@
 
         // My Leave Functions
         function viewMyLeaveDetails(button) {
-            showNotification('Loading leave details...', 'info');
+            const row = button.closest('.leave-row');
 
-            setTimeout(() => {
-                const row = button.closest('.leave-row');
+            const modal = document.getElementById('leaveDetailsModal');
+            const content = document.getElementById('leaveDetailsContent');
 
-                const modal = document.getElementById('leaveDetailsModal');
-                const content = document.getElementById('leaveDetailsContent');
-
-                content.innerHTML = `
+            content.innerHTML = `
 <div class="leave-details">
   <div class="form-container">
     <div class="form-row">
@@ -4687,85 +4616,72 @@
 `;
 
 
-                // Modal footer
-                const modalFooter = modal.querySelector('.modal-footer');
-                modalFooter.innerHTML =
-                    `<button class="btn btn-secondary" onclick="closeModal()">Close</button>`;
+            // Modal footer
+            const modalFooter = modal.querySelector('.modal-footer');
+            modalFooter.innerHTML =
+                `<button class="btn btn-secondary" onclick="closeModal()">Close</button>`;
 
-                modal.style.display = 'block';
-                showNotification('Leave details loaded!', 'success');
-            }, 500);
+            modal.style.display = 'block';
         }
 
         function editMyLeave(button) {
-            showNotification('Opening leave editor...', 'info');
+            const form = document.getElementById('applyLeaveForm');
+            const id = button.dataset.id;
 
-            setTimeout(() => {
-                const form = document.getElementById('applyLeaveForm');
-                const id = button.dataset.id;
-
-                form.action = `/admin/leaves/${id}`;
-                document.getElementById('formMethod').value = 'PUT';
+            form.action = `/admin/leaves/${id}`;
+            document.getElementById('formMethod').value = 'PUT';
 
 
-                const formatDate = (dateStr) => dateStr || '';
+            const formatDate = (dateStr) => dateStr || '';
 
-                document.getElementById('leaveType').value = button.dataset.type;
-                document.getElementById('duration').value = button.dataset.duration || 0;
-                document.getElementById('durationValue').innerText = button.dataset.duration || 0;
+            document.getElementById('leaveType').value = button.dataset.type;
+            document.getElementById('duration').value = button.dataset.duration || 0;
+            document.getElementById('durationValue').innerText = button.dataset.duration || 0;
 
-                document.getElementById('startDate').value = formatDate(button.dataset.start);
-                document.getElementById('endDate').value = formatDate(button.dataset.end);
-                document.getElementById('leaveReason').value = button.dataset.reason || '';
-                document.getElementById('emergencyContact').value = button.dataset.contact || '';
+            document.getElementById('startDate').value = formatDate(button.dataset.start);
+            document.getElementById('endDate').value = formatDate(button.dataset.end);
+            document.getElementById('leaveReason').value = button.dataset.reason || '';
+            document.getElementById('emergencyContact').value = button.dataset.contact || '';
 
-                // Handle document preview
-                const previewContainer = document.getElementById('file-preview');
-                const fileNameEl = document.getElementById('file-name');
+            // Handle document preview
+            const previewContainer = document.getElementById('file-preview');
+            const fileNameEl = document.getElementById('file-name');
 
-                if (button.dataset.doc) {
-                    previewContainer.style.display = 'flex';
-                    fileNameEl.innerHTML = `
+            if (button.dataset.doc) {
+                previewContainer.style.display = 'flex';
+                fileNameEl.innerHTML = `
                 <a href="${button.dataset.doc}" target="_blank" style="color: #2e7d32; text-decoration: underline;">
                     View current document
                 </a>
             `;
-                } else {
-                    previewContainer.style.display = 'none';
-                    fileNameEl.innerHTML = '';
-                }
+            } else {
+                previewContainer.style.display = 'none';
+                fileNameEl.innerHTML = '';
+            }
 
-                // Reset file input
-                document.getElementById('supporting_doc').value = '';
+            // Reset file input
+            document.getElementById('supporting_doc').value = '';
 
-                // Update submit button text
-                const submitBtn = document.querySelector('#applyLeaveModal .btn-primary');
-                submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Application';
+            // Update submit button text
+            const submitBtn = document.querySelector('#applyLeaveModal .btn-primary');
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Application';
 
-                // Show modal
-                document.getElementById('applyLeaveModal').style.display = 'block';
-                showNotification('Edit mode activated', 'success');
-            }, 500);
+            // Show modal
+            document.getElementById('applyLeaveModal').style.display = 'block';
         }
 
 
         function cancelMyLeave(id) {
             if (confirm('Are you sure you want to cancel this leave request? This action cannot be undone.')) {
-                showNotification('Cancelling leave request...', 'warning');
+                showNotification('Leave request cancelled successfully!', 'success');
 
-                setTimeout(() => {
-
-                    showNotification('Leave request cancelled successfully!', 'success');
-
-
-                    const row = document.querySelector(`[onclick="cancelMyLeave(${id})"]`).closest('tr');
-                    if (row) {
-                        row.style.background = '#FEE2E2';
-                        setTimeout(() => {
-                            row.remove();
-                        }, 1000);
-                    }
-                }, 1500);
+                const row = document.querySelector(`[onclick="cancelMyLeave(${id})"]`).closest('tr');
+                if (row) {
+                    row.style.background = '#FEE2E2';
+                    setTimeout(() => {
+                        row.remove();
+                    }, 1000);
+                }
             }
         }
 

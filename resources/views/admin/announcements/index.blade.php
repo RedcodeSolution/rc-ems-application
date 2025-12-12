@@ -5,39 +5,38 @@
 
 @section('content')
     <!-- Announcement Statistics -->
-    <div class="grid"
-        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
 
         <!-- Total Announcements -->
-        <div class="card"
-            style="border: 1px solid var(--gray-200); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <div class="card-body text-center" style="padding: 1.25rem;">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
-                    {{ $totalAnnouncements }}
-                </div>
-                <div style="color: var(--gray-700); font-weight: 600;">Total Announcements</div>
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(37, 99, 235, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-bullhorn"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Total Announcements</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $totalAnnouncements }}</div>
             </div>
         </div>
 
         <!-- Published -->
-        <div class="card"
-            style="border: 1px solid var(--gray-200); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <div class="card-body text-center" style="padding: 1.25rem;">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">
-                    {{ $publishedCount }}
-                </div>
-                <div style="color: var(--gray-700); font-weight: 600;">Published</div>
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(16, 185, 129, 0.1); color: var(--success); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Published</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $publishedCount }}</div>
             </div>
         </div>
 
         <!-- Scheduled -->
-        <div class="card"
-            style="border: 1px solid var(--gray-200); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <div class="card-body text-center" style="padding: 1.25rem;">
-                <div style="font-size: 2rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">
-                    {{ $scheduledCount }}
-                </div>
-                <div style="color: var(--gray-700); font-weight: 600;">Scheduled</div>
+        <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(245, 158, 11, 0.1); color: var(--warning); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Scheduled</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $scheduledCount }}</div>
             </div>
         </div>
 
@@ -48,33 +47,28 @@
             <div class="flex gap-2">
                 <button onclick="openAnnouncementModal()" class="btn btn-primary">
                     <i class="fas fa-plus"></i>
-                    New Announcement
-                </button>
-                <button class="btn btn-secondary">
-                    <i class="fas fa-download"></i>
-                    Export
+                    <span class="btn-text">New Announcement</span>
                 </button>
             </div>
         </div>
         <div class="card-body">
             <!-- Search and Filter Section -->
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex gap-2">
-                    <input type="text" id="searchInput" placeholder="Search announcements..." class="form-input"
-                        style="width: 300px;">
-                    <select id="categoryFilter" class="form-select" style="width: 200px;">
+            <!-- Search and Filter Section -->
+            <div class="ann-toolbar mb-4">
+                <div class="ann-filters">
+                    <input type="text" id="searchInput" placeholder="Search announcements..." 
+                        class="form-input ann-search-input">
+                    <select id="categoryFilter" class="form-select ann-category-select">
                         <option value="all">All Categories</option>
                         <option value="general">General</option>
-                        <option value="hr updates">HR Updates</option>
-                        <option value="policy changes">Policy Changes</option>
+                        <option value="hr">HR Updates</option>
+                        <option value="policy">Policy Changes</option>
                         <option value="events">Events</option>
-                        <option value="system updates">System Updates</option>
+                        <option value="system">System Updates</option>
+                        <option value="finance">Finance</option>
+                        <option value="operations">Operations</option>
                     </select>
                 </div>
-                <button class="btn btn-secondary">
-                    <i class="fas fa-filter"></i>
-                    Filter
-                </button>
             </div>
 
             <!-- Announcements List -->
@@ -204,7 +198,7 @@
 
                                     <form method="POST"
                                         action="{{ route('admin.announcements.destroy', $announcement->announcement_id) }}"
-                                        onsubmit="return confirm('Delete this announcement?')">
+                                        onsubmit="confirmDeleteAnnouncement(event, this)">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger" style="padding: 0.5rem;">
@@ -1231,48 +1225,70 @@
             // Handle edit form submission
             const editForm = document.getElementById('editAnnouncementForm');
             if (editForm) {
-                editForm.addEventListener('submit', async function(e) {
+                editForm.addEventListener('submit', function(e) {
                     e.preventDefault();
 
-                    const formData = new FormData(this);
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    const originalText = submitBtn.innerHTML;
+                    Swal.fire({
+                        title: 'Save changes?',
+                        text: "Do you want to update this announcement?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, update it!'
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            const formData = new FormData(this);
+                            const submitBtn = this.querySelector('button[type="submit"]');
+                            const originalText = submitBtn.innerHTML;
 
-                    // Show loading state
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                            // Show loading state
+                            submitBtn.disabled = true;
+                            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
 
-                    try {
-                        const response = await fetch(this.action, {
-                            method: "POST", // Laravel requires POST with _method=PUT for updates
-                            body: formData,
-                            headers: {
-                                "X-Requested-With": "XMLHttpRequest",
-                                "X-CSRF-TOKEN": this.querySelector('input[name="_token"]').value
+                            try {
+                                const response = await fetch(this.action, {
+                                    method: "POST", // Laravel requires POST with _method=PUT for updates
+                                    body: formData,
+                                    headers: {
+                                        "X-Requested-With": "XMLHttpRequest",
+                                        "X-CSRF-TOKEN": this.querySelector('input[name="_token"]').value
+                                    }
+                                });
+
+                                if (!response.ok) throw new Error("Failed to update announcement");
+
+                                const data = await response.json();
+
+                                // ✅ Show success message
+                                Swal.fire({
+                                    title: 'Updated!',
+                                    text: 'Announcement updated successfully.',
+                                    icon: 'success',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+
+                                // ✅ Close modal
+                                closeEditAnnouncementModal();
+
+                                // ✅ Optionally reload or dynamically update DOM
+                                setTimeout(() => location.reload(), 1500);
+
+                            } catch (error) {
+                                console.error(error);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Something went wrong while updating!',
+                                });
+                            } finally {
+                                // Reset button state
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalText;
                             }
-                        });
-
-                        if (!response.ok) throw new Error("Failed to update announcement");
-
-                        const data = await response.json();
-
-                        // ✅ Show success message
-                        showNotification('Announcement updated successfully!', 'success');
-
-                        // ✅ Close modal
-                        closeEditAnnouncementModal();
-
-                        // ✅ Optionally reload or dynamically update DOM
-                        setTimeout(() => location.reload(), 1000);
-
-                    } catch (error) {
-                        console.error(error);
-                        showNotification('Error updating announcement!', 'error');
-                    } finally {
-                        // Reset button state
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalText;
-                    }
+                        }
+                    });
                 });
             }
 
@@ -1457,6 +1473,23 @@
         // Bind events
         document.getElementById('searchInput').addEventListener('keyup', filterAnnouncements);
         document.getElementById('categoryFilter').addEventListener('change', filterAnnouncements);
+
+        function confirmDeleteAnnouncement(event, form) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
     </script>
 
     <style>

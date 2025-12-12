@@ -125,30 +125,14 @@ class AdminActivityController extends Controller
             }
 
             $activities = [];
-            if (class_exists(\App\Models\Activity::class)) {
-                $activities = \App\Models\Activity::with('user')->orderBy('created_at', 'desc')->take(10)
-                    ->get()
-                    ->map(function ($it) {
-                        return [
-                            'id' => $it->id,
-                            'title' => $it->title,
-                            'description' => $it->description,
-                            'icon' => $it->icon ?? 'bell',
-                            'bg' => $it->bg ?? null,
-                            'status' => $it->status ?? 'info',
-                            'user' => $it->user->name ?? null,
-                            'role' => $it->user->role ?? null,
-                            'created_at' => optional($it->created_at)->toIso8601String(),
-                        ];
-                    })->toArray();
-            }
+            $activities = [];
 
             $notifications = [];
             try {
                 if (class_exists(\App\Models\Notification::class)) {
                     $notifications = \App\Models\Notification::where('target', 'admin')
                         ->orderBy('created_at', 'desc')
-                        ->take(10)
+                        ->take(5)
                         ->get()
                         ->map(function ($n) {
                             $typeIconMap = [

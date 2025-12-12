@@ -14,10 +14,6 @@
             </p>
         </div>
         <div class="header-actions">
-            <button class="btn btn-secondary" onclick="exportReport()">
-                <i class="fas fa-download"></i>
-                Export Report
-            </button>
             <button class="btn btn-primary" onclick="refreshData()">
                 <i class="fas fa-sync-alt"></i>
                 Refresh
@@ -135,14 +131,13 @@
                                 <td>
                                     <div class="employee-info">
                                         <div class="employee-avatar">
-                                            {{ strtoupper(substr($leave->employee->employee_name ?? 'A', 0, 1)) }}
+                                            {{ strtoupper(substr($leave->employee->employee_name ?? $leave->user->name ?? 'A', 0, 1)) }}
                                         </div>
                                         <div class="employee-details">
                                             <div class="employee-name">
-                                                {{ $leave->employee->employee_name ?? 'Unknown Admin' }}</div>
-                                            <div class="employee-id">{{ $leave->employee->employee_id ?? 'N/A' }}</div>
-                                            <div class="employee-role">{{ $leave->employee->admin->admin_name ?? 'Admin' }}
-                                            </div>
+                                                {{ $leave->employee->employee_name ?? $leave->user->name ?? 'Unknown Admin' }}</div>
+                                            <div class="employee-id">{{ $leave->employee->employee_id ?? $leave->user->email ?? 'N/A' }}</div>
+                                            <div class="employee-role">Admin</div>
                                         </div>
                                     </div>
                                 </td>
@@ -236,14 +231,13 @@
                                 <td>
                                     <div class="employee-info">
                                         <div class="employee-avatar">
-                                            {{ strtoupper(substr($leave->employee->employee_name ?? 'A', 0, 1)) }}
+                                            {{ strtoupper(substr($leave->employee->employee_name ?? $leave->user->name ?? 'A', 0, 1)) }}
                                         </div>
                                         <div class="employee-details">
                                             <div class="employee-name">
-                                                {{ $leave->employee->employee_name ?? 'Unknown Admin' }}</div>
-                                            <div class="employee-id">{{ $leave->employee->employee_id ?? 'N/A' }}</div>
-                                            <div class="employee-role">
-                                                {{ $leave->employee->admin->admin_name ?? 'Admin' }}</div>
+                                                {{ $leave->employee->employee_name ?? $leave->user->name ?? 'Unknown Admin' }}</div>
+                                            <div class="employee-id">{{ $leave->employee->employee_id ?? $leave->user->email ?? 'N/A' }}</div>
+                                            <div class="employee-role">Admin</div>
                                         </div>
                                     </div>
                                 </td>
@@ -335,14 +329,13 @@
                                 <td>
                                     <div class="employee-info">
                                         <div class="employee-avatar">
-                                            {{ strtoupper(substr($leave->employee->employee_name ?? 'A', 0, 1)) }}
+                                            {{ strtoupper(substr($leave->employee->employee_name ?? $leave->user->name ?? 'A', 0, 1)) }}
                                         </div>
                                         <div class="employee-details">
                                             <div class="employee-name">
-                                                {{ $leave->employee->employee_name ?? 'Unknown Admin' }}</div>
-                                            <div class="employee-id">{{ $leave->employee->employee_id ?? 'N/A' }}</div>
-                                            <div class="employee-role">
-                                                {{ $leave->employee->admin->admin_name ?? 'Admin' }}</div>
+                                                {{ $leave->employee->employee_name ?? $leave->user->name ?? 'Unknown Admin' }}</div>
+                                            <div class="employee-id">{{ $leave->employee->employee_id ?? $leave->user->email ?? 'N/A' }}</div>
+                                            <div class="employee-role">Admin</div>
                                         </div>
                                     </div>
                                 </td>
@@ -433,14 +426,13 @@
                                 <td>
                                     <div class="employee-info">
                                         <div class="employee-avatar">
-                                            {{ strtoupper(substr($leave->employee->employee_name ?? 'A', 0, 1)) }}
+                                            {{ strtoupper(substr($leave->employee->employee_name ?? $leave->user->name ?? 'A', 0, 1)) }}
                                         </div>
                                         <div class="employee-details">
                                             <div class="employee-name">
-                                                {{ $leave->employee->employee_name ?? 'Unknown Admin' }}</div>
-                                            <div class="employee-id">{{ $leave->employee->employee_id ?? 'N/A' }}</div>
-                                            <div class="employee-role">
-                                                {{ $leave->employee->admin->admin_name ?? 'Admin' }}</div>
+                                                {{ $leave->employee->employee_name ?? $leave->user->name ?? 'Unknown Admin' }}</div>
+                                            <div class="employee-id">{{ $leave->employee->employee_id ?? $leave->user->email ?? 'N/A' }}</div>
+                                            <div class="employee-role">Admin</div>
                                         </div>
                                     </div>
                                 </td>
@@ -872,6 +864,35 @@
             padding: 0.375rem 0.75rem;
             font-size: 0.75rem;
             border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-info {
+            background-color: #3b82f6;
+            color: white;
+            border: 1px solid #3b82f6;
+        }
+        .btn-info:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+            border: 1px solid #10b981;
+        }
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+            border: 1px solid #ef4444;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
         }
 
         /* Empty State */
@@ -937,14 +958,6 @@
             margin: 0;
             font-size: 1.25rem;
             font-weight: 600;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.25rem;
-            cursor: pointer;
-            color: var(--text-secondary);
         }
 
         .modal-body {
@@ -1026,37 +1039,68 @@
         }
 
         function approveLeave(leaveId) {
-            if (confirm('Are you sure you want to approve this leave request?')) {
-                fetch(`/super_admin/admin-leaves/${leaveId}/approve`, {
+            Swal.fire({
+                title: 'Approve Request?',
+                text: "Are you sure you want to approve this leave request?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, approve it!',
+                input: 'text',
+                inputPlaceholder: 'Add approval comments (optional)',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const comments = result.value || '';
+                    
+                    fetch(`/super_admin/admin-leaves/${leaveId}/approve`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
                         body: JSON.stringify({
-                            comments: prompt('Add approval comments (optional):') || ''
+                            comments: comments
                         })
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert('Leave request approved successfully');
-                            location.reload();
+                            Swal.fire('Approved!', 'Leave request approved successfully.', 'success')
+                                .then(() => location.reload());
                         } else {
-                            alert('Error: ' + data.error);
+                            Swal.fire('Error!', 'Error: ' + data.error, 'error');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error approving leave request');
+                        Swal.fire('Error!', 'Error approving leave request', 'error');
                     });
-            }
+                }
+            });
         }
 
         function rejectLeave(leaveId) {
-            const rejectionReason = prompt('Please provide a reason for rejection:');
-            if (rejectionReason !== null) {
-                fetch(`/super_admin/admin-leaves/${leaveId}/reject`, {
+            Swal.fire({
+                title: 'Reject Request',
+                text: "Please provide a reason for rejection:",
+                icon: 'warning',
+                input: 'textarea',
+                inputPlaceholder: 'Reason for rejection...',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, reject it!',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'You need to write a reason!'
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const rejectionReason = result.value;
+                    
+                    fetch(`/super_admin/admin-leaves/${leaveId}/reject`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1064,35 +1108,45 @@
                         },
                         body: JSON.stringify({
                             rejection_reason: rejectionReason,
-                            comments: prompt('Add rejection comments (optional):') || ''
+                            comments: ''
                         })
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert('Leave request rejected successfully');
-                            location.reload();
+                            Swal.fire('Rejected!', 'Leave request rejected successfully.', 'success')
+                                .then(() => location.reload());
                         } else {
-                            alert('Error: ' + data.error);
+                            Swal.fire('Error!', 'Error: ' + data.error, 'error');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error rejecting leave request');
+                        Swal.fire('Error!', 'Error rejecting leave request', 'error');
                     });
-            }
+                }
+            });
         }
 
         function bulkApprove() {
             const selectedLeaves = Array.from(document.querySelectorAll('.leave-checkbox:checked')).map(cb => cb.value);
 
             if (selectedLeaves.length === 0) {
-                alert('Please select leave requests to approve');
+                Swal.fire('Warning', 'Please select leave requests to approve', 'warning');
                 return;
             }
 
-            if (confirm(`Are you sure you want to approve ${selectedLeaves.length} leave requests?`)) {
-                fetch('/super_admin/admin-leaves/bulk-approve', {
+            Swal.fire({
+                title: 'Bulk Approve?',
+                text: `Are you sure you want to approve ${selectedLeaves.length} leave requests?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, approve all!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/super_admin/admin-leaves/bulk-approve', {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1105,30 +1159,48 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert(data.message);
-                            location.reload();
+                            Swal.fire('Approved!', data.message, 'success')
+                                .then(() => location.reload());
                         } else {
-                            alert('Error: ' + data.error);
+                            Swal.fire('Error!', 'Error: ' + data.error, 'error');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error approving leave requests');
+                        Swal.fire('Error!', 'Error approving leave requests', 'error');
                     });
-            }
+                }
+            });
         }
 
         function bulkReject() {
             const selectedLeaves = Array.from(document.querySelectorAll('.leave-checkbox:checked')).map(cb => cb.value);
 
             if (selectedLeaves.length === 0) {
-                alert('Please select leave requests to reject');
+                Swal.fire('Warning', 'Please select leave requests to reject', 'warning');
                 return;
             }
 
-            const rejectionReason = prompt('Please provide a reason for rejection:');
-            if (rejectionReason !== null) {
-                fetch('/super_admin/admin-leaves/bulk-reject', {
+            Swal.fire({
+                title: 'Bulk Reject?',
+                text: `Are you sure you want to reject ${selectedLeaves.length} leave requests?`,
+                icon: 'warning',
+                input: 'textarea',
+                inputPlaceholder: 'Reason for rejection...',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, reject all!',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'You need to write a reason!'
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const rejectionReason = result.value;
+                    
+                    fetch('/super_admin/admin-leaves/bulk-reject', {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1142,26 +1214,25 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert(data.message);
-                            location.reload();
+                            Swal.fire('Rejected!', data.message, 'success')
+                                .then(() => location.reload());
                         } else {
-                            alert('Error: ' + data.error);
+                            Swal.fire('Error!', 'Error: ' + data.error, 'error');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error rejecting leave requests');
+                        Swal.fire('Error!', 'Error rejecting leave requests', 'error');
                     });
-            }
+                }
+            });
         }
 
         function closeModal() {
             document.getElementById('leaveDetailsModal').style.display = 'none';
         }
 
-        function exportReport() {
-            alert('Export functionality will be implemented here');
-        }
+
 
         function refreshData() {
             location.reload();

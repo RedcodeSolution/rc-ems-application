@@ -126,4 +126,14 @@ class SuperAdminController extends Controller
             default    => 'gray',
         };
     }
+    public function latest()
+    {
+        $latestNotifications = Notification::where('target', 'super admin')
+            ->where('is_read', false)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return response()->json($latestNotifications);
+    }
 }

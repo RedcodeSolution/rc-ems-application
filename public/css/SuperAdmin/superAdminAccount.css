@@ -6,7 +6,7 @@
     padding: 1.5rem;
     background: #fff;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .header-content h1 {
@@ -41,7 +41,7 @@
     background: #fff;
     border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -92,14 +92,14 @@
 /* Content Grid */
 .content-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr;
     gap: 2rem;
 }
 
 .content-card {
     background: #fff;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
 
@@ -157,8 +157,11 @@
 /* User Info */
 .user-info {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0;
+    line-height: 1.2;
 }
 
 .user-avatar {
@@ -339,7 +342,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 1000;
 }
 
@@ -707,15 +710,18 @@
         width: 100%;
         justify-content: center;
     }
+
     .header-actions .btn {
         width: 100%;
         justify-content: center;
     }
+
     .card-header {
-        flex-direction: column;
+        flex-direction: row;
         align-items: flex-start;
         gap: 0.75rem;
     }
+
     .card-actions {
         align-self: stretch;
         flex-wrap: wrap;
@@ -727,27 +733,33 @@
     .page-header {
         padding: 1rem;
     }
+
     .data-table th,
     .data-table td {
         padding: 0.75rem;
         font-size: 0.8rem;
     }
+
     .action-buttons {
         flex-wrap: wrap;
         gap: 0.4rem;
     }
+
     .btn,
     .btn-sm {
         width: 100%;
         justify-content: center;
     }
+
     .form-actions {
         flex-direction: column;
     }
+
     .modal-content {
         width: 96vw;
         max-width: none;
     }
+
     .modal-header,
     .modal-body,
     .modal-footer,
@@ -761,6 +773,7 @@
     .modal-content {
         max-width: 720px;
     }
+
     .stats-grid {
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     }
@@ -769,13 +782,15 @@
 /* Wide screens */
 @media (min-width: 1400px) {
     .content-grid {
-        grid-template-columns: 2.2fr 1fr;
+        grid-template-columns: 1fr;
         gap: 2.5rem;
     }
+
     .stats-grid {
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 2rem;
     }
+
     .stat-number {
         font-size: 2.25rem;
     }
@@ -784,15 +799,18 @@
 /* Ultra-wide screens */
 @media (min-width: 1900px) {
     .content-grid {
-        grid-template-columns: 2.5fr 1fr;
+        grid-template-columns: 1fr;
         gap: 3rem;
     }
+
     .modal-content {
         max-width: 900px;
     }
+
     .data-table th {
         font-size: 0.95rem;
     }
+
     .data-table td {
         font-size: 0.9rem;
     }
@@ -801,9 +819,17 @@
 /* Additional fluid scaling and responsive refinements (320px–1900px) */
 
 /* Fluid typography for headers and card titles */
-.header-content h1 { font-size: clamp(1.25rem, 1.2vw + 1rem, 2rem); }
-.card-title { font-size: clamp(1.05rem, 0.6vw + 0.9rem, 1.35rem); }
-.stat-number { font-size: clamp(1.5rem, 1.2vw + 1rem, 2.25rem); }
+.header-content h1 {
+    font-size: clamp(1.25rem, 1.2vw + 1rem, 2rem);
+}
+
+.card-title {
+    font-size: clamp(1.05rem, 0.6vw + 0.9rem, 1.35rem);
+}
+
+.stat-number {
+    font-size: clamp(1.5rem, 1.2vw + 1rem, 2.25rem);
+}
 
 /* Form control scaling */
 .form-control {
@@ -812,13 +838,18 @@
 }
 
 /* Table improvements */
-.table-container { -webkit-overflow-scrolling: touch; }
+.table-container {
+    -webkit-overflow-scrolling: touch;
+}
+
 @media (max-width: 640px) {
+
     .data-table th,
     .data-table td {
         white-space: normal;
         word-break: break-word;
     }
+
     /* Ensure actions column remains usable on mobile */
     .data-table th:nth-child(7),
     .data-table td:nth-child(7) {
@@ -828,18 +859,34 @@
 
 /* Avoid forcing all buttons full-width on tiny screens; limit full-width to form actions */
 @media (max-width: 480px) {
-    .form-actions .btn { width: 100%; justify-content: center; }
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
     .header-actions .btn,
     .card-header .btn,
-    .action-buttons .btn { width: auto; }
-    .action-buttons .btn-icon { width: 2.25rem; height: 2.25rem; }
-    .form-actions { gap: 0.75rem; }
+    .action-buttons .btn {
+        width: auto;
+    }
+
+    .action-buttons .btn-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+
+    .form-actions {
+        gap: 0.75rem;
+    }
 }
 
 /* Improve spacing for medium/large screens */
 @media (min-width: 1400px) {
+
     .data-table th,
-    .data-table td { padding: 1.25rem; }
+    .data-table td {
+        padding: 1.25rem;
+    }
 }
 
 /* Permissions grid scale-up on wider screens */
@@ -848,6 +895,7 @@
         grid-template-columns: repeat(3, minmax(180px, 1fr));
     }
 }
+
 @media (min-width: 1900px) {
     .permissions-grid {
         grid-template-columns: repeat(4, minmax(180px, 1fr));
@@ -856,62 +904,101 @@
 
 /* Table-to-card responsive layout for small screens */
 @media (max-width: 900px) {
-    .data-table {
-        border: 0;
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     }
+
+    .data-table {
+        min-width: 900px;
+        border: none;
+    }
+
     .data-table thead {
+        display: table-header-group;
+    }
+
+    .data-table tbody {
+        display: table-row-group;
+    }
+
+    .data-table tr {
+        display: table-row;
+        background: transparent;
+        box-shadow: none;
+        border: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .data-table td {
+        display: table-cell;
+        width: auto;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    /* Reset data-label pseudo-elements */
+    .data-table td::before {
         display: none;
     }
-    .data-table tbody {
-        display: block;
-        width: 100%;
-    }
-    .data-table tr {
-        display: block;
-        width: 100%;
-        background: #fff;
-        border: 1px solid var(--border-light);
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        margin: 0 0 1rem 0;
-        overflow: hidden;
-    }
-    .data-table td {
-        display: grid;
-        grid-template-columns: 130px 1fr;
-        gap: 0.75rem;
-        align-items: start;
-        padding: 0.875rem 1rem;
-        border-bottom: 1px solid var(--border-light);
-        white-space: normal;
-        word-break: break-word;
-    }
-    .data-table td:last-child {
-        border-bottom: none;
-    }
-    .data-table td::before {
-        content: attr(data-label);
-        font-weight: 700;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-size: 0.7rem;
-        align-self: center;
-    }
 
-    /* Better visuals for complex cells */
-    .data-table td[data-label="Name"] .user-info {
-        align-items: center;
-        gap: 0.75rem;
-    }
+    /* Keep actions accessible */
     .data-table td[data-label="Actions"] .action-buttons {
-        gap: 0.5rem;
-        flex-wrap: wrap;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+    }
+}
+
+/* Fix Mobile View: Hide Recent Activities */
+@media (max-width: 900px) {
+    .recent-activities-card {
+        display: none !important;
     }
 
-    /* Ensure container scroll is pleasant on mobile */
-    .table-container {
-        overflow: visible;
-        -webkit-overflow-scrolling: touch;
+    /* Ensure user info is visible */
+    .user-info {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.75rem;
+    }
+
+    .user-avatar {
+        display: flex !important;
+        width: 36px;
+        height: 36px;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: 50%;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .user-name {
+        display: block !important;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    /* Simplify Navbar User Profile (Step Id 4261) */
+    .user-menu {
+        padding: 0.25rem 0.5rem;
+        gap: 0.5rem;
+    }
+
+    .user-info p {
+        display: none !important;
+    }
+
+    .user-info h4 {
+        font-size: 0.85rem;
+        white-space: nowrap;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
