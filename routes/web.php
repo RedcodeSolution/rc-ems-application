@@ -49,8 +49,8 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', function () {
-    return view('guest');
-})->middleware('guest')->name('welcome');
+    return redirect()->route('login');
+});
 
 Route::middleware('auth')->group(function () {
 
