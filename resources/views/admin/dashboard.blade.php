@@ -486,9 +486,13 @@
                                 <tr>
                                     <td>
                                         <div style="display:flex;align-items:center;gap:0.5rem;">
-                                            <div style="width:32px;height:32px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#64748b;">
-                                                {{ substr($p['name'], 0, 1) }}
-                                            </div>
+                                            @if(!empty($p['profile_photo']))
+                                                <img src="{{ asset('storage/' . $p['profile_photo']) }}" alt="{{ $p['name'] }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid #dee2e6;">
+                                            @else
+                                                <div style="width:32px;height:32px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#64748b;">
+                                                    {{ substr($p['name'], 0, 1) }}
+                                                </div>
+                                            @endif
                                             <div>
                                                 <div style="font-weight:600;color:var(--text-primary);">{{ $p['name'] }}</div>
                                                 <div style="font-size:0.75rem;color:var(--text-secondary);">{{ $p['email'] }}</div>

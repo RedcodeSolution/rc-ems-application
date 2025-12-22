@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
+ 
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\EmployeeRating;
@@ -15,7 +15,7 @@ class EmployeeRatingsController extends Controller
      */
     public function index(Request $request)
     {
-        $query = EmployeeRating::with(['employee.department', 'rater']);
+        $query = EmployeeRating::with(['employee.department', 'rater.employee', 'rater.admin', 'rater.superAdmin']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -77,7 +77,22 @@ class EmployeeRatingsController extends Controller
         $ratings = $query->get();
         $employees = Employee::with(['department'])->get();
 
-        return view('admin.employeeRatings.index', compact('employees', 'ratings'));
+        // Group ratings by employee for the list
+        $groupedRatings = $ratings->groupBy('employee_id');
+
+        // Manual Pagination for the grouped items
+        $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
+        $perPage = 6;
+        $currentItems = $groupedRatings->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $paginatedRatings = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentItems,
+            $groupedRatings->count(),
+            $perPage,
+            $currentPage,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+        );
+
+        return view('admin.employeeRatings.index', compact('employees', 'ratings', 'paginatedRatings'));
     }
 
     /**
@@ -188,4 +203,80 @@ class EmployeeRatingsController extends Controller
         return redirect()->route('admin.employeeRatings.index')
             ->with('success', 'Employee rating deleted successfully!');
     }
+    /**
+     * Get ratings summary for a specific employee.
+     */
+    public function getEmployeeRatings(Request $request, $employeeId)
+    {
+        $query = EmployeeRating::with(['rater', 'employee'])
+            ->where('employee_id', $employeeId)
+            ->orderBy('created_at', 'desc');
+
+        $totalRatings = $query->count();
+        $averageRating = $totalRatings > 0 ? round($query->avg('rating'), 1) : 0;
+        
+        $ratings = $query->paginate(3);
+
+        $employee = Employee::find($employeeId);
+
+        if (!$employee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Employee not found.'
+            ], 404);
+        }
+
+        $formattedRatings = collect($ratings->items())->map(function ($rating) {
+            return [
+                'id' => $rating->id,
+                'rating' => $rating->rating,
+                'comment' => $rating->comment,
+                'created_at' => $rating->created_at->format('M d, Y'),
+                'rater_name' => $rating->rater->name ?? 'Unknown',
+                'rater_role' => $rating->rater->role ?? 'unknown',
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'employee_name' => $employee->employee_name,
+            'employee_email' => $employee->email,
+            'employee_department' => $employee->department->name ?? 'N/A',
+            'average_rating' => $averageRating,
+            'total_ratings' => $totalRatings,
+            'ratings' => $formattedRatings,
+            'pagination' => [
+                'current_page' => $ratings->currentPage(),
+                'last_page' => $ratings->lastPage(),
+                'has_more' => $ratings->hasMorePages(),
+                'total' => $ratings->total(),
+            ]
+        ]);
+    }
+    public function getCardHtml($employeeId)
+{
+    // Fetch the specific employee and their ratings
+    // Note: Use the same logic/relationships as your main index method
+    $employeeRatingGroup = Rating::where('employee_id', $employeeId)
+        ->with(['rater', 'employee'])
+        ->get();
+
+    if($employeeRatingGroup->isEmpty()) {
+        return response()->json(['html' => '']);
+    }
+
+    $employeeData = $employeeRatingGroup->first()->employee;
+
+    // Render a partial view. 
+    // IMPORTANT: You might need to extract the card HTML into a separate blade file 
+    // named 'partials.employee_rating_card.blade.php' to make this cleaner.
+    // For now, let's assume you pass the data to a view that only contains the card markup.
+    
+    $html = view('partials.employee_rating_card', [
+        'employeeRatingGroup' => $employeeRatingGroup,
+        'employeeData' => $employeeData
+    ])->render();
+
+    return response()->json(['success' => true, 'html' => $html]);
+}
 }

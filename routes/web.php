@@ -102,7 +102,7 @@ Route::middleware('auth')->group(function () {
         $teams_details = [];
         if (class_exists(\App\Models\Team::class)) {
             $teamsRaw = \App\Models\Team::withCount(['employees', 'projects'])
-                ->with(['projects' => function($q) {
+                ->with(['projects' => function ($q) {
                     $q->select('project_id', 'team_id', 'project_name')->latest()->take(3);
                 }])
                 ->get();
@@ -122,13 +122,13 @@ Route::middleware('auth')->group(function () {
         if (class_exists(\App\Models\Employee::class)) {
             $topPerformers = \App\Models\Employee::with(['ratings', 'projects'])
                 ->get()
-                ->map(function($e) {
+                ->map(function ($e) {
                     $avgRating = $e->ratings->avg('rating') ?: 0;
                     $baseScore = $avgRating * 20;
                     $projectBonus = min($e->projects->count() * 2, 10);
                     $score = $baseScore > 0 ? ($baseScore + $projectBonus) : 0;
                     if ($score > 100) $score = 100;
-                    
+
                     return [
                         'name' => $e->employee_name ?? $e->name ?? 'Unknown',
                         'email' => $e->email,
@@ -136,7 +136,8 @@ Route::middleware('auth')->group(function () {
                         'score' => $score,
                         'rating' => number_format($avgRating, 1),
                         'projects_count' => $e->projects->count(),
-                        'status' => $e->employee_status ?? 'active'
+                        'status' => $e->employee_status ?? 'active',
+                        'profile_photo' => $e->profile_photo
                     ];
                 })
                 ->sortByDesc('score')
@@ -184,7 +185,8 @@ Route::middleware('auth')->group(function () {
     // Route::post('/employees/profile/skills', [EmployeeProfileController::class, 'createSkills'])->name('employee.skills.create');
     // Route::put('/employees/profile/skills/{skillId}', [EmployeeProfileController::class, 'updateSkill'])->name('employee.skills.update');
     // Route::delete('/employees/profile/skills/{skillId}', [EmployeeProfileController::class, 'deleteSkill'])->name('employee.skills.delete');
-
+Route::get('/admin/employee-ratings/card/{employeeId}', [EmployeeRatingController::class, 'getCardHtml'])
+    ->name('employee.ratings.card');
     //employee leaves managment
     Route::get('/employees/leaves', [EmployeeLeaveController::class, 'index'])->name('employee.leaves.index');
     Route::post('/employees/leaves', [EmployeeLeaveController::class, 'store'])
@@ -198,10 +200,8 @@ Route::middleware('auth')->group(function () {
     })->name('employee.documents');
 
 
-    // Employee projects route (frontend only)
-    Route::get('/employees/projects', function () {
-        return view('employees.projects.index');
-    })->name('employee.projects');
+    // Employee projects route
+    Route::get('/employees/projects', [EmployeeProjectController::class, 'index'])->name('employee.projects');
 
     // Employee tasks route (frontend only)
     Route::put('/employees/tasks/{id}', [EmployeeTaskController::class, 'update'])->name('employee.update');
@@ -243,6 +243,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile');
     Route::post('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
 
+    // Employee rating submission and data routes
+    Route::post('/employees/ratings', [EmployeeEmployeeRatingController::class, 'store'])->name('employee.ratings.store');
+    Route::get('/employees/ratings/top-rated', [EmployeeEmployeeRatingController::class, 'getTopRated'])->name('employee.ratings.top-rated');
+    Route::get('/employees/ratings/employee/{employeeId}', [EmployeeEmployeeRatingController::class, 'getEmployeeRatings'])->name('employee.ratings.employee');
+
     // Employee ratings routes
     Route::resource('employees/ratings', EmployeeEmployeeRatingController::class)
         ->names([
@@ -250,10 +255,6 @@ Route::middleware('auth')->group(function () {
             'show' => 'employee.ratings.show',
         ])
         ->parameters(['ratings' => 'rating']);
-
-    // Employee rating submission and data routes
-    Route::post('/employees/ratings', [EmployeeEmployeeRatingController::class, 'store'])->name('employee.ratings.store');
-    Route::get('/employees/ratings/employee/{employeeId}', [EmployeeEmployeeRatingController::class, 'getEmployeeRatings'])->name('employee.ratings.employee');
 
     Route::middleware(['auth'])->group(function () {
 
@@ -321,13 +322,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         // Employee Management
 
-        Route::get('/employees', function () {
-            $employees = Employee::with(['department', 'admin'])->get();
-            $departments = Department::all();
-            $admins = Admin::all();
-            $teams = Team::all();
-            return view('admin.employees.index', compact('employees', 'departments', 'admins', 'teams'));
-        })->name('employees');
+        Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');
+
 
         Route::match(['put', 'patch'], '/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
 
@@ -388,6 +384,7 @@ Route::middleware('auth')->group(function () {
             return view('admin.other.index');
         })->name('other');
 
+        Route::get('/employeeRatings/employee/{id}', [\App\Http\Controllers\Admin\EmployeeRatingsController::class, 'getEmployeeRatings']);
         Route::resource('employeeRatings', \App\Http\Controllers\Admin\EmployeeRatingsController::class);
     });
 

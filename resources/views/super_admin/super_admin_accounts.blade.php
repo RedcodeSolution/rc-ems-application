@@ -104,7 +104,11 @@
                     <td data-label="Name">
                         <div class="user-info" style="align-items: center;">
                             <div class="user-avatar">
-                                {{ strtoupper(substr($user->super_admin_name, 0, 1)) }}
+                                @if($user->profile_image)
+                                    <img src="{{ asset('storage/' . $user->profile_image) }}" alt="{{ $user->super_admin_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                @else
+                                    {{ strtoupper(substr($user->super_admin_name, 0, 1)) }}
+                                @endif
                             </div>
                             <div class="user-details">
                                 <span class="user-name">{{ $user->super_admin_name }}</span>
@@ -119,8 +123,7 @@
                     </td>
                     <td data-label="Last Login">
                         <span class="text-muted">
-                            {{-- If you track last login, show it here, else show 'Never' --}}
-                            {{ $user->last_login ?? 'Never' }}
+                            {{ $user->last_login_at ? \Carbon\Carbon::parse($user->last_login_at)->diffForHumans() : 'Never' }}
                         </span>
                     </td>
                     <td data-label="Created">{{ \Carbon\Carbon::parse($user->created_at)->format('M d, Y') }}</td>
@@ -188,33 +191,17 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="password">Password *</label>
-                    <input type="password" id="password" name="password" required class="form-control">
+                    <div class="input-wrapper" style="position: relative;">
+                        <input type="password" id="password" name="password" required class="form-control" style="padding-right: 40px;">
+                        <i class="fas fa-eye toggle-password" onclick="togglePassword('password', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280;"></i>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="password_confirmation">Confirm Password *</label>
-                    <input type="password" id="password_confirmation" name="password_confirmation" required class="form-control">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="permissions">Permissions</label>
-                <div class="permissions-grid">
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="permissions[]" value="user_management" checked>
-                        <span>User Management</span>
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="permissions[]" value="system_settings" checked>
-                        <span>System Settings</span>
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="permissions[]" value="security" checked>
-                        <span>Security Settings</span>
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="permissions[]" value="reports" checked>
-                        <span>Reports & Analytics</span>
-                    </label>
+                    <div class="input-wrapper" style="position: relative;">
+                        <input type="password" id="password_confirmation" name="password_confirmation" required class="form-control" style="padding-right: 40px;">
+                        <i class="fas fa-eye toggle-password" onclick="togglePassword('password_confirmation', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280;"></i>
+                    </div>
                 </div>
             </div>
 
@@ -241,62 +228,44 @@
             </button>
         </div>
         <div class="modal-body">
-            <div class="account-details">
-                <div class="detail-section">
-                    <h3>Basic Information</h3>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>Full Name:</label>
-                            <span id="view-name">John Smith</span>
+                <div class="account-details">
+                    <!-- Profile Header Card -->
+                    <div class="profile-header-card">
+                        <div class="profile-header-avatar">
+                            <span id="view-initials" class="profile-header-initials">--</span>
+                            <img id="view-avatar-img" src="" alt="Profile" style="display: none;">
                         </div>
-                        <div class="detail-item">
-                            <label>Email:</label>
-                            <span id="view-email">john.smith@company.com</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Account ID:</label>
-                            <span id="view-id">SA001</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Status:</label>
-                            <span class="status-badge active" id="view-status">Active</span>
-                        </div>
+                        <div class="profile-header-name" id="view-name">Loading...</div>
+                        <div class="profile-header-role">Super Admin</div>
                     </div>
-                </div>
 
-                <div class="detail-section">
-                    <h3>Account Information</h3>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>Created:</label>
-                            <span id="view-created">January 15, 2024</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Last Login:</label>
-                            <span id="view-last-login">2 hours ago</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Login Count:</label>
-                            <span id="view-login-count">47</span>
-                        </div>
-                        <div class="detail-item">
-                            <label>Last IP:</label>
-                            <span id="view-last-ip">192.168.1.100</span>
+                    <div class="detail-section">
+                        <h3>Account Information</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Email Address</label>
+                                <span id="view-email">--</span>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <label>Account Status</label>
+                                <span><span class="status-badge" id="view-status">--</span></span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="detail-section">
-                    <h3>Permissions</h3>
-                    <div class="permissions-list" id="view-permissions">
-                        <span class="permission-badge">User Management</span>
-                        <span class="permission-badge">System Settings</span>
-                        <span class="permission-badge">Security Settings</span>
-                        <span class="permission-badge">Reports & Analytics</span>
+                    <div class="detail-section">
+                        <h3>System Activity</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Created</label>
+                                <span id="view-created">--</span>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
-        </div>
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="closeModal('viewAccountModal')">
                 Close
@@ -319,6 +288,21 @@
             </button>
         </div>
         <form class="modal-form" id="editAccountForm">
+            <div class="form-row" style="display: flex; justify-content: center; width: 100%; margin-bottom: 20px;">
+                <div class="profile-upload" style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                    <div class="avatar-preview" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; background: #f3f4f6; display: flex; align-items: center; justify-content: center; border: 2px solid #e5e7eb;">
+                        <img id="edit-avatar-preview" src="" alt="Profile Preview" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                        <span id="edit-avatar-initials" style="font-size: 2.5rem; color: #6b7280; font-weight: 600;"></span>
+                    </div>
+                    <div class="file-input-wrapper">
+                        <label for="edit-profile-image" class="btn btn-outline btn-sm" style="cursor: pointer;">
+                            <i class="fas fa-camera"></i> Change Photo
+                        </label>
+                        <input type="file" id="edit-profile-image" name="profile_image" accept="image/*" style="display: none;" onchange="previewImage(this)">
+                    </div>
+                </div>
+            </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="edit-name">Full Name *</label>
@@ -330,54 +314,7 @@
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="edit-status">Account Status</label>
-                    <select id="edit-status" name="status" class="form-control">
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="suspended">Suspended</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="edit-role">Role</label>
-                    <select id="edit-role" name="role" class="form-control">
-                        <option value="super_admin">Super Admin</option>
-                        <option value="system_admin">System Admin</option>
-                        <option value="security_admin">Security Admin</option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="form-group">
-                <label>Permissions</label>
-                <div class="permissions-grid">
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="permissions[]" value="user_management" id="edit-perm-user">
-                        <span>User Management</span>
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="permissions[]" value="system_settings" id="edit-perm-system">
-                        <span>System Settings</span>
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="permissions[]" value="security" id="edit-perm-security">
-                        <span>Security Settings</span>
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="permissions[]" value="reports" id="edit-perm-reports">
-                        <span>Reports & Analytics</span>
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="permissions[]" value="backup" id="edit-perm-backup">
-                        <span>Backup & Restore</span>
-                    </label>
-                    <label class="checkbox-item">
-                        <input type="checkbox" name="permissions[]" value="logs" id="edit-perm-logs">
-                        <span>System Logs</span>
-                    </label>
-                </div>
-            </div>
 
             <div class="form-actions">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('editAccountModal')">
@@ -404,7 +341,10 @@
         <form class="modal-form" id="changePasswordForm">
             <div class="form-group">
                 <label for="current-password">Current Password *</label>
-                <input type="password" id="current-password" name="current_password" required class="form-control">
+                <div class="input-wrapper" style="position: relative;">
+                    <input type="password" id="current-password" name="current_password" required class="form-control" style="padding-right: 40px;">
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword('current-password', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280;"></i>
+                </div>
                 <small class="form-help">Enter the current password to verify your identity</small>
             </div>
 
@@ -412,7 +352,10 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="new-password">New Password *</label>
-                    <input type="password" id="new-password" name="new_password" required class="form-control">
+                    <div class="input-wrapper" style="position: relative;">
+                        <input type="password" id="new-password" name="new_password" required class="form-control" style="padding-right: 40px;">
+                        <i class="fas fa-eye toggle-password" onclick="togglePassword('new-password', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280;"></i>
+                    </div>
                     <div class="password-strength" id="password-strength">
                         <div class="strength-bar">
                             <div class="strength-fill" id="strength-fill"></div>
@@ -422,7 +365,10 @@
                 </div>
                 <div class="form-group">
                     <label for="confirm-new-password">Confirm New Password *</label>
-                    <input type="password" id="confirm-new-password" name="confirm_new_password" required class="form-control">
+                    <div class="input-wrapper" style="position: relative;">
+                        <input type="password" id="confirm-new-password" name="confirm_new_password" required class="form-control" style="padding-right: 40px;">
+                        <i class="fas fa-eye toggle-password" onclick="togglePassword('confirm-new-password', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280;"></i>
+                    </div>
                 </div>
 
             </div>
@@ -453,6 +399,20 @@
 </div>
 
 <script>
+    // Toggle Password Visibility
+    function togglePassword(inputId, icon) {
+        const input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+
     // Modal functions
     function createAccount() {
         document.getElementById('createAccountModal').style.display = 'block';
@@ -481,21 +441,37 @@
             .then(accountData => {
                 document.getElementById('view-name').textContent = accountData.name;
                 document.getElementById('view-email').textContent = accountData.email;
-                document.getElementById('view-id').textContent = accountData.id;
                 document.getElementById('view-status').textContent = accountData.status.charAt(0).toUpperCase() + accountData.status.slice(1);
                 document.getElementById('view-created').textContent = accountData.created;
-                document.getElementById('view-last-login').textContent = accountData.lastLogin;
-                document.getElementById('view-login-count').textContent = accountData.loginCount;
-                document.getElementById('view-last-ip').textContent = accountData.lastIp;
 
                 const statusBadge = document.getElementById('view-status');
                 statusBadge.className = `status-badge ${accountData.status}`;
 
+                // Handle Profile Image Logic
+                const viewAvatarImg = document.getElementById('view-avatar-img');
+                const viewInitials = document.getElementById('view-initials');
+
+                if (accountData.profile_image) {
+                    viewAvatarImg.src = `{{ asset('storage') }}/${accountData.profile_image}`;
+                    viewAvatarImg.style.display = 'block';
+                    viewInitials.style.display = 'none';
+                    viewAvatarImg.style.width = '100%'; 
+                    viewAvatarImg.style.height = '100%';
+                    viewAvatarImg.style.objectFit = 'cover';
+                    viewAvatarImg.style.borderRadius = '50%';
+                } else {
+                    viewAvatarImg.style.display = 'none';
+                    viewInitials.style.display = 'flex'; // Ensure flex to center text
+                    
+                    // Generate Initials
+                    const nameParts = accountData.name.split(' ');
+                    const initials = nameParts.length > 1 
+                        ? (nameParts[0][0] + nameParts[1][0]).toUpperCase() 
+                        : accountData.name.substring(0, 2).toUpperCase();
+                    viewInitials.textContent = initials;
+                }
+
                 // Update permissions
-                const permissionsContainer = document.getElementById('view-permissions');
-                permissionsContainer.innerHTML = accountData.permissions.map(perm =>
-                    `<span class="permission-badge">${perm}</span>`
-                ).join('');
 
                 window.currentAccountId = id;
                 document.getElementById('viewAccountModal').style.display = 'block';
@@ -516,14 +492,25 @@
             .then(accountData => {
                 document.getElementById('edit-name').value = accountData.name;
                 document.getElementById('edit-email').value = accountData.email;
-                document.getElementById('edit-status').value = accountData.status;
-                document.getElementById('edit-role').value = accountData.role;
-                document.getElementById('edit-perm-user').checked = accountData.permissions.includes('User Management');
-                document.getElementById('edit-perm-system').checked = accountData.permissions.includes('System Settings');
-                document.getElementById('edit-perm-security').checked = accountData.permissions.includes('Security Settings');
-                document.getElementById('edit-perm-reports').checked = accountData.permissions.includes('Reports & Analytics');
-                document.getElementById('edit-perm-backup').checked = accountData.permissions.includes('Backup & Restore');
-                document.getElementById('edit-perm-logs').checked = accountData.permissions.includes('System Logs');
+
+                // Handle Profile Image Preview
+                const previewImg = document.getElementById('edit-avatar-preview');
+                const previewInitials = document.getElementById('edit-avatar-initials');
+                
+                if (accountData.profile_image) {
+                    previewImg.src = `{{ asset('storage') }}/${accountData.profile_image}`;
+                    previewImg.style.display = 'block';
+                    previewInitials.style.display = 'none';
+                } else {
+                    previewImg.src = '';
+                    previewImg.style.display = 'none';
+                    previewInitials.style.display = 'block';
+                    const nameParts = accountData.name.split(' ');
+                    const initials = nameParts.length > 1 
+                        ? (nameParts[0][0] + nameParts[1][0]).toUpperCase() 
+                        : accountData.name.substring(0, 2).toUpperCase();
+                    previewInitials.textContent = initials;
+                }
 
                 window.currentAccountId = id;
                 document.getElementById('editAccountModal').style.display = 'block';
@@ -531,6 +518,23 @@
             .catch(() => {
                 alert('Failed to load account details.');
             });
+    }
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const previewImg = document.getElementById('edit-avatar-preview');
+                const previewInitials = document.getElementById('edit-avatar-initials');
+                
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+                previewInitials.style.display = 'none';
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
     }
 
     function editAccountFromView() {
@@ -635,19 +639,10 @@
         const form = e.target;
         const formData = new FormData(form);
 
-        const permissions = [];
-        form.querySelectorAll('input[name="permissions[]"]:checked').forEach(cb => {
-            permissions.push(cb.value);
-        });
         formData.delete('permissions[]');
-        if (permissions.length === 0) {
-            formData.append('permissions', []);
-        } else {
-            permissions.forEach(p => formData.append('permissions[]', p));
-        }
+        // Removed permissions, status, and role appending
 
-        formData.set('status', document.getElementById('edit-status').value);
-        formData.set('role', document.getElementById('edit-role').value);
+
 
         fetch(`{{ url('/super_admin/super_admin_accounts') }}/${id}`, {
             method: 'POST',

@@ -411,7 +411,8 @@
         projects: '#10B981'
     } [type] || '#DC2626';
 }
-    });
+    // End of getChartColor
+
 
         // Dashboard functions
         function refreshDashboard() {
@@ -489,14 +490,11 @@
         }
 
         // Copy to clipboard function for meeting links
-        function copyToClipboard(text, event) {
-            navigator.clipboard.writeText(text).then(function() {
-                // Show success message
-                const copyBtn = event.target.closest('.copy-btn');
-                
-                // Show toast notification
+        window.copyToClipboard = function(text, event) {
+            // Helper to show success on button
+            const showSuccess = () => {
                 showNotification('Meeting link copied to clipboard!', 'success');
-
+                const copyBtn = event.target.closest('.copy-btn');
                 if (copyBtn) {
                     const originalText = copyBtn.innerHTML;
                     copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
@@ -506,21 +504,57 @@
                         copyBtn.style.background = '';
                     }, 2000);
                 }
-            }).catch(function(err) {
-                console.error('Could not copy text: ', err);
-                alert('Failed to copy meeting link. Please copy manually.');
-            });
-        }
+            };
 
-        function openRecentActivities() {
+            // 1. Try modern Clipboard API
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(showSuccess).catch(function(err) {
+                    console.warn('Clipboard API failed, trying fallback...', err);
+                    fallbackCopy(text);
+                });
+            } else {
+                // 2. Fallback if API not available
+                fallbackCopy(text);
+            }
+
+            function fallbackCopy(text) {
+                try {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    
+                    // Avoid scrolling to bottom
+                    textArea.style.top = "0";
+                    textArea.style.left = "0";
+                    textArea.style.position = "fixed";
+
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+
+                    const successful = document.execCommand('copy');
+                    document.body.removeChild(textArea);
+
+                    if (successful) {
+                        showSuccess();
+                    } else {
+                        throw new Error('Fallback copy failed');
+                    }
+                } catch (err) {
+                    console.error('Copy failed: ', err);
+                    alert('Failed to copy meeting link. Please copy manually.');
+                }
+            }
+        };
+
+        window.openRecentActivities = function() {
             const modal = document.getElementById('activitiesModal');
             modal.style.display = "flex";
-        }
+        };
 
-        function closeRecentActivities() {
+        window.closeRecentActivities = function() {
             const modal = document.getElementById('activitiesModal');
             modal.style.display = "none";
-        }
+        };
 
         // close when clicking outside
         document.addEventListener("click", function(e) {
@@ -529,11 +563,9 @@
                 modal.style.display = "none";
             }
         });
-            // Expose functions to global scope
-
 
         // Meeting Status Update
-        function updateMeetingStatus(meetingId, status) {
+        window.updateMeetingStatus = function(meetingId, status) {
             const action = status === 'completed' ? 'End' : 'Cancel';
             const confirmBtnColor = status === 'completed' ? '#ef4444' : '#64748b';
 
@@ -583,7 +615,7 @@
                     });
                 }
             });
-        }
+        };
     </script>
     @if (session('success'))
         <script>

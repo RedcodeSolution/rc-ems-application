@@ -15,7 +15,7 @@ class SuperAdminAccountsController extends Controller
 {
     public function index()
     {
-        $superAdmins = SuperAdmin::all();
+        $superAdmins = SuperAdmin::with('user')->get();
 
         $totalSuperAdmins = $superAdmins->count();
         $activeSuperAdmins = $superAdmins->where('status', 'active')->count();
@@ -23,7 +23,7 @@ class SuperAdminAccountsController extends Controller
         $recentLogins = 0;
 
         $superAdmins->transform(function ($user) {
-            $user->last_login = $user->last_login ?? null;
+            $user->last_login_at = $user->user->last_login_at ?? null;
             return $user;
         });
 
@@ -114,7 +114,7 @@ class SuperAdminAccountsController extends Controller
 
     public function show($id)
     {
-        $user = SuperAdmin::findOrFail($id);
+        $user = SuperAdmin::with('user')->findOrFail($id);
 
         $data = [
             'id' => $user->super_admin_id,
@@ -123,7 +123,8 @@ class SuperAdminAccountsController extends Controller
             'created' => $user->created_at ? $user->created_at->format('F d, Y') : '',
             'status' => $user->status ?? 'active',
             'role' => $user->role ?? 'super_admin',
-            'lastLogin' => 'Never',
+            'profile_image' => $user->profile_image ?? null,
+            'lastLogin' => $user->user && $user->user->last_login_at ? $user->user->last_login_at->diffForHumans() : 'Never',
             'loginCount' => 0,
             'lastIp' => '',
             'permissions' => collect(json_decode($user->permissions, true))->map(function ($perm) {
@@ -154,24 +155,46 @@ class SuperAdminAccountsController extends Controller
         try {
             $user = SuperAdmin::findOrFail($id);
 
-            if (!$request->has('permissions')) {
-                $request->merge(['permissions' => []]);
-            }
-
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:super_admins,super_admin_email,' . $id . ',super_admin_id',
-                'status' => 'required|string|in:active,inactive,suspended',
-                'role' => 'required|string|in:super_admin,system_admin,security_admin',
-                'permissions' => 'nullable|array'
+                'status' => 'sometimes|string|in:active,inactive,suspended',
+                'role' => 'sometimes|string|in:super_admin,system_admin,security_admin',
+                'permissions' => 'nullable|array',
+                'profile_image' => 'nullable|image|max:2048'
             ]);
 
+            // Sync with User table (for login)
+            $loginUser = User::where('email', $user->super_admin_email)->first();
+            
             $user->super_admin_name = $validated['name'];
             $user->super_admin_email = $validated['email'];
-            $user->status = $validated['status'];
-            $user->role = $validated['role'];
-            $user->permissions = json_encode($validated['permissions'] ?? []);
+
+            if ($request->hasFile('profile_image')) {
+                if ($user->profile_image) {
+                    \Storage::disk('public')->delete($user->profile_image);
+                }
+                $path = $request->file('profile_image')->store('profile_images', 'public');
+                $user->profile_image = $path;
+            }
+
+            if (isset($validated['status'])) {
+                $user->status = $validated['status'];
+            }
+            if (isset($validated['role'])) {
+                $user->role = $validated['role'];
+            }
+            if (array_key_exists('permissions', $validated)) {
+                $user->permissions = json_encode($validated['permissions'] ?? []);
+            }
+            
             $user->save();
+
+            if ($loginUser) {
+                $loginUser->name = $validated['name'];
+                $loginUser->email = $validated['email'];
+                $loginUser->save();
+            }
 
             // Log activity
             SuperAdminActivity::create([

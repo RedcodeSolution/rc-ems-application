@@ -20,9 +20,7 @@
                 <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
                 Access Level: Super Admin
             </div>
-            <div class="role-notice-text">
-                ✅ You can view all employee ratings and rate other employees
-            </div>
+            
         </div>
 
         <div class="rating-legend">
@@ -46,6 +44,8 @@
                 </div>
             </div>
         </div>
+
+        
     </div>
     <div class="header-actions">
         <button class="btn btn-primary" onclick="openRateEmployeeModal()">
@@ -112,14 +112,67 @@
     </div>
 @endif
 
-<div class="employee-ratings-grid">
-    @php
-        // Group ratings by employee
-        $employeeRatings = $ratings->groupBy('employee_id');
-    @endphp
+    <!-- Employee Ratings Grid -->
+    <style>
+        .ratings-pagination-wrapper {
+            width: 100%;
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center; /* Center content */
+            margin-top: 2rem;
+        }
+        .ratings-pagination {
+            display: flex;
+            justify-content: center;
+        }
+        .ratings-pagination nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: #fff;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .ratings-pagination .pagination {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            gap: 0.25rem;
+        }
+        .ratings-pagination .page-item .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.375rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .ratings-pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #DC2626 0%, #991b1b 100%); /* SuperAdmin Red */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2);
+        }
+        .ratings-pagination .page-item:not(.active) .page-link:hover {
+            background-color: #fef2f2;
+            color: #DC2626;
+        }
+        .ratings-pagination .page-item.disabled .page-link {
+            color: #d1d5db;
+            pointer-events: none;
+        }
+    </style>
 
-    @if($employeeRatings->count() > 0)
-        @foreach($employeeRatings as $employeeId => $employeeRatingGroup)
+    <div class="employee-ratings-grid">
+        @if($paginatedRatings->count() > 0)
+        @foreach($paginatedRatings as $employeeId => $employeeRatingGroup)
             @php
                 $employeeData = $employeeRatingGroup->first()->employee;
                 $totalRatings = $employeeRatingGroup->count();
@@ -153,6 +206,44 @@
                     <div class="employee-details">
                         <div class="employee-name">{{ $employeeData->employee_name ?? 'Unknown Employee' }}</div>
                         <div class="employee-role">{{ ucfirst($employeeData->role ?? 'Unknown') }}</div>
+
+                        @php
+                            // Get unique ratings keyed by rater to show latest rating per person
+                            $uniqueRatings = $employeeRatingGroup->sortByDesc('created_at')->unique('rated_by')->filter(fn($r) => $r->rater);
+                            $displayRatings = $uniqueRatings->take(4);
+                            $remainingCount = $uniqueRatings->count() - 4;
+                        @endphp
+                        <div class="raters-info" style="margin-top: 8px; display: flex; align-items: center;">
+                            <span style="font-size: 0.75rem; color: #64748b; margin-right: 8px;">Rated by:</span>
+                            <div class="avatar-stack" style="display: flex;">
+                                @foreach($displayRatings as $rating)
+                                    @php
+                                        $rater = $rating->rater;
+                                        $photo = $rater->employee->profile_photo
+                                                ?? $rater->admin->profile_image
+                                                ?? $rater->superAdmin->profile_image
+                                                ?? null;
+                                        $initials = strtoupper(substr($rater->name ?? 'U', 0, 1));
+                                        $color = $rater->role === 'super_admin' ? '#DC2626' : ($rater->role === 'admin' ? '#fbbf24' : '#3b82f6');
+                                        $score = $rating->rating;
+                                    @endphp
+                                    <div class="rater-avatar" title="{{ $rater->name ?? 'Unknown' }} ({{ ucfirst(str_replace('_', ' ', $rater->role ?? 'user')) }}) • Rating: {{ $score }}/5"
+                                         style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; margin-left: -8px; background-color: {{ $color }}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; overflow: hidden; cursor:help;">
+                                        @if($photo)
+                                            <img src="{{ asset('storage/' . $photo) }}" alt="{{ $rater->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        @else
+                                            {{ $initials }}
+                                        @endif
+                                    </div>
+                                @endforeach
+                                @if($remainingCount > 0)
+                                    <div class="rater-avatar remaining-count" title="{{ $uniqueRatings->skip(4)->map(fn($r) => $r->rater->name . ' (' . $r->rating . '/5)')->implode(', ') }}"
+                                         style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; margin-left: -8px; background-color: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold;">
+                                        +{{ $remainingCount }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -180,6 +271,14 @@
                 </div>
             </div>
         @endforeach
+
+        <!-- Pagination Links -->
+        <div class="ratings-pagination-wrapper">
+            <div class="ratings-pagination">
+                {{ $paginatedRatings->links('pagination::bootstrap-4') }}
+            </div>
+        </div>
+
     @else
         <div class="empty-state">
             <div class="empty-icon">
@@ -232,7 +331,7 @@
                             </div>
                         </div>
                         <div class="detail-item">
-                            <label>Rated By:</label>
+                            <label>Rated By: </label>
                             <span id="modal-rater-name">Sarah Wilson</span>
                         </div>
                         <div class="detail-item">
@@ -499,21 +598,27 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-function loadEmployeeRatings(employeeId) {
+let currentEmployeeId = null;
+
+function loadEmployeeRatings(employeeId, page = 1) {
     if (!employeeId) {
         document.getElementById('employee-rating-summary').style.display = 'none';
         return;
     }
 
-
+    currentEmployeeId = employeeId;
     const summaryDiv = document.getElementById('employee-rating-summary');
     summaryDiv.style.display = 'block';
-    document.getElementById('avg-rating').textContent = 'Loading...';
-    document.getElementById('total-ratings').textContent = 'Loading...';
-    document.getElementById('recent-ratings-list').innerHTML = '<p>Loading recent ratings...</p>';
+    
+    document.getElementById('recent-ratings-list').innerHTML = '<p class="text-center text-gray-500 py-2">Loading...</p>';
+
+    if (page === 1) {
+        document.getElementById('avg-rating').textContent = '...';
+        document.getElementById('total-ratings').textContent = '...';
+    }
 
     // Fetch employee ratings
-    fetch(`/super_admin/employee_ratings/employee/${employeeId}`)
+    fetch(`/super_admin/employee_ratings/employee/${employeeId}?page=${page}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -523,8 +628,10 @@ function loadEmployeeRatings(employeeId) {
 
                 // Update recent ratings
                 const recentRatingsList = document.getElementById('recent-ratings-list');
-                if (data.recent_ratings && data.recent_ratings.length > 0) {
-                    recentRatingsList.innerHTML = data.recent_ratings.map(rating => `
+                const ratings = data.recent_ratings || data.ratings || [];
+
+                if (ratings.length > 0) {
+                    let html = ratings.map(rating => `
                         <div class="recent-rating-item">
                             <div class="rating-info">
                                 <div class="rating-stars">
@@ -537,14 +644,40 @@ function loadEmployeeRatings(employeeId) {
                                         return `<i class="fas fa-star ${isFilled ? 'filled' : ''}" style="color: ${isFilled ? roleColor : '#ddd'};"></i>`;
                                     }).join('')
                                 }
+                                <span style="font-size:0.8rem;color:#666;margin-left:5px;">(${rating.rating}/5)</span>
                                 </div>
-                                <div class="rating-date">${rating.created_at}</div>
+                                <div class="rating-meta">
+                                    <span class="rater-name" style="font-size:0.8rem;color:#666;margin-right:10px;">By: ${rating.rater_name || 'Unknown'}</span>
+                                    <span class="rating-date" style="font-size:0.8rem;color:#999;">${rating.created_at}</span>
+                                </div>
                             </div>
                             <div class="rating-comment" title="${rating.comment || 'No comment'}">
                                 ${rating.comment || 'No comment'}
                             </div>
                         </div>
                     `).join('');
+
+                    // Pagination Controls
+                    if (data.pagination && data.pagination.last_page > 1) {
+                        html += `
+                            <div class="pagination-controls" style="display:flex; justify-content:center; gap:10px; margin-top:10px; align-items:center;">
+                                <button type="button" class="btn btn-sm btn-secondary" 
+                                    ${data.pagination.current_page === 1 ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}
+                                    onclick="loadEmployeeRatings('${employeeId}', ${data.pagination.current_page - 1})">
+                                    <i class="fas fa-chevron-left"></i> Prev
+                                </button>
+                                <span style="font-size:0.85rem; color:#6b7280;">
+                                    Page ${data.pagination.current_page} of ${data.pagination.last_page}
+                                </span>
+                                <button type="button" class="btn btn-sm btn-secondary" 
+                                    ${!data.pagination.has_more ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}
+                                    onclick="loadEmployeeRatings('${employeeId}', ${data.pagination.current_page + 1})">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+                    recentRatingsList.innerHTML = html;
                 } else {
                     recentRatingsList.innerHTML = '<p>No recent ratings found.</p>';
                 }

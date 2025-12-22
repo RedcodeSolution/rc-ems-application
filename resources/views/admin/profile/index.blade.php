@@ -213,19 +213,30 @@
             </div>
         @endif
 
-        <form id="profileForm" method="POST" action="{{ route('admin.profile.update') }}">
+        <form id="profileForm" method="POST" action="{{ route('admin.profile.update') }}" enctype="multipart/form-data">
             @csrf
 
             <!-- Profile Header -->
             <div class="profile-section">
                 <div class="profile-header">
-                    <div class="profile-avatar">
-                        {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                    <div style="position: relative;">
+                        <div class="profile-avatar" id="avatarPreview" style="{{ Auth::user()->admin?->profile_image ? 'background: none; padding: 0;' : '' }}">
+                            @if(Auth::user()->admin?->profile_image)
+                                <img src="{{ asset('storage/' . Auth::user()->admin->profile_image) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            @else
+                                {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                            @endif
+                        </div>
+                        <label for="profile_image" style="position: absolute; bottom: 0; right: 0; background: var(--primary); color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                            <i class="fas fa-camera" style="font-size: 0.9rem;"></i>
+                        </label>
+                        <input type="file" id="profile_image" name="profile_image" style="display: none;" accept="image/*" onchange="previewImage(this)">
                     </div>
                     <div class="profile-info">
                         <h3>{{ Auth::user()->name ?? 'Admin User' }}</h3>
                         <p>{{ ucfirst(Auth::user()->role ?? 'admin') }}</p>
                         <p>Last updated: {{ Auth::user()->updated_at ? Auth::user()->updated_at->format('M d, Y H:i') : 'Never' }}</p>
+                        <small id="image-error" style="color: var(--error); display: none;">Image size exceeds 2MB limit</small>
                     </div>
                 </div>
             </div>
@@ -355,6 +366,37 @@
 </div>
 
 <script>
+
+    function previewImage(input) {
+        const errorMsg = document.getElementById('image-error');
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            
+            // Check file size (2MB = 2 * 1024 * 1024 bytes)
+            if (file.size > 2 * 1024 * 1024) {
+                errorMsg.style.display = 'block';
+                input.value = ''; // Clear input
+                
+                 Swal.fire({
+                    icon: 'error',
+                    title: 'File Too Large',
+                    text: 'Image size cannot exceed 2MB.'
+                });
+                
+                return;
+            }
+            errorMsg.style.display = 'none';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const avatarDiv = document.getElementById('avatarPreview');
+                avatarDiv.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                avatarDiv.style.background = 'none';
+                avatarDiv.style.padding = '0';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
 
     function saveProfile() {
         const form = document.getElementById('profileForm');

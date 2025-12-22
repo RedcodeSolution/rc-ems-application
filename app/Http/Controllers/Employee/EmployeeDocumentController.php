@@ -30,9 +30,12 @@ class EmployeeDocumentController extends Controller
         if (!$employeeId) {
             $employeeDocuments = collect(); // empty collection
         } else {
+            $employee = $user->employee;
+            $projectIds = $employee->projects->pluck('project_id')->toArray();
+            $departmentId = $employee->department_id;
+
             $employeeDocuments = DB::table('documents')
-                ->join('projects', 'documents.project_id', '=', 'projects.project_id')
-                ->join('employee_project', 'projects.project_id', '=', 'employee_project.project_id')
+                ->leftJoin('projects', 'documents.project_id', '=', 'projects.project_id')
                 ->leftJoin('departments', 'documents.department_id', '=', 'departments.department_id')
                 ->select(
                     'documents.document_id',
@@ -48,7 +51,17 @@ class EmployeeDocumentController extends Controller
                     'documents.downloads',
                     'documents.created_at'
                 )
-                ->where('employee_project.employee_id', $employeeId)
+                // Visibility Logic: 
+                // 1. Must match Project OR be Global Project (Null)
+                // 2. Must match Department OR be Global Department (Null)
+                ->where(function($q) use ($projectIds) {
+                    $q->whereIn('documents.project_id', $projectIds)
+                      ->orWhereNull('documents.project_id');
+                })
+                ->where(function($q) use ($departmentId) {
+                    $q->where('documents.department_id', $departmentId)
+                      ->orWhereNull('documents.department_id');
+                })
                 ->get();
         }
 

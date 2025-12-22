@@ -28,6 +28,7 @@ class AdminProfileController extends Controller
             'contact_no' => 'nullable|string|max:20',
             'current_password' => 'nullable|required_with:new_password|string|min:8',
             'new_password' => 'nullable|string|min:8|confirmed',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $user->name = $request->name;
@@ -40,6 +41,19 @@ class AdminProfileController extends Controller
                     ->with('error', 'Current password is incorrect.');
             }
             $user->password = Hash::make($request->new_password);
+        }
+
+        // Handle Profile Image Upload
+        if ($request->hasFile('profile_image')) {
+            $admin = $user->admin;
+            if ($admin) {
+                if ($admin->profile_image) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($admin->profile_image);
+                }
+                $path = $request->file('profile_image')->store('profile_images', 'public');
+                $admin->profile_image = $path;
+                $admin->save();
+            }
         }
 
         $user->save();

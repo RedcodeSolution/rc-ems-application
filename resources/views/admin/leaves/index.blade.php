@@ -973,7 +973,8 @@
                                     data-end="{{ e(\Carbon\Carbon::parse($leave->end_date)->format('M d, Y')) }}"
                                     data-duration="{{ e($leave->duration ?? '0') }}"
                                     data-reason="{{ e($leave->reason ?? '-') }}"
-                                    data-contact="{{ e($leave->contact_number ?? '-') }}">
+                                    data-contact="{{ e($leave->contact_number ?? '-') }}"
+                                    data-doc="{{ $leave->supporting_doc ? asset('storage/leaves/' . $leave->supporting_doc) : '' }}">
                                     <td>
                                         <input type="checkbox" class="leave-checkbox" value="{{ $leave->leave_id }}">
                                     </td>
@@ -1107,7 +1108,8 @@
                                         data-end="{{ e(\Carbon\Carbon::parse($leave->end_date)->format('M d, Y')) }}"
                                         data-duration="{{ e($leave->duration ?? '0') }}"
                                         data-reason="{{ e($leave->reason ?? '-') }}"
-                                        data-contact="{{ e($leave->contact_number ?? '-') }}">
+                                        data-contact="{{ e($leave->contact_number ?? '-') }}"
+                                        data-doc="{{ $leave->supporting_doc ? asset('storage/leaves/' . $leave->supporting_doc) : '' }}">
                                         <td>
                                             <div class="employee-cell">
                                                 <div class="employee-avatar">
@@ -1222,7 +1224,8 @@
                                         data-end="{{ e(\Carbon\Carbon::parse($leave->end_date)->format('M d, Y')) }}"
                                         data-duration="{{ e($leave->duration ?? '0') }}"
                                         data-reason="{{ e($leave->reason ?? '-') }}"
-                                        data-contact="{{ e($leave->contact_number ?? '-') }}">
+                                        data-contact="{{ e($leave->contact_number ?? '-') }}"
+                                        data-doc="{{ $leave->supporting_doc ? asset('storage/leaves/' . $leave->supporting_doc) : '' }}">
                                         <td>
                                             <div class="employee-cell">
                                                 <div class="employee-avatar">
@@ -1330,7 +1333,8 @@
                                     data-end="{{ e(\Carbon\Carbon::parse($leave->end_date)->format('M d, Y')) }}"
                                     data-duration="{{ e($leave->duration) }}"
                                     data-reason="{{ e($leave->reason ?? '-') }}"
-                                    data-contact="{{ e($leave->emergency_contact ?? '-') }}">
+                                    data-contact="{{ e($leave->emergency_contact ?? '-') }}"
+                                    data-doc="{{ $leave->supporting_doc ? asset('storage/leaves/' . $leave->supporting_doc) : '' }}">
 
                                     <td>
                                         <div class="employee-cell">
@@ -3890,6 +3894,16 @@
                         <label class="form-label"><i class="fas fa-phone"></i> Emergency Contact</label>
                         <div class="view-field">${row.dataset.contact ?? '-'}</div>
                     </div>
+                    
+                    ${row.dataset.doc ? `
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-paperclip"></i> Supporting Document</label>
+                        <div class="view-field">
+                             <a href="${row.dataset.doc}" target="_blank" class="btn btn-sm btn-outline-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+                                <i class="fas fa-download"></i> Download Attachment
+                            </a>
+                        </div>
+                    </div>` : ''}
                 </div>
             </div>
         `;

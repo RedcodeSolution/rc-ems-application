@@ -153,7 +153,6 @@
                     <h4>No Events Found</h4>
                     <p>Create your first event to get started.</p>
                     <a href="{{ route('super_admin.events.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i>
                         Create Event
                     </a>
                 </div>

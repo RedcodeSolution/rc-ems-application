@@ -128,22 +128,26 @@
                 </div>
 
                 <div class="nav-actions">
+
                     <a href="{{ route('admin.notifications.latest') }}" class="nav-bell" title="Notifications"
                         id="navBellBtn" type="button">
                         <span class="nav-bell-icon">
-                            <i class="fas fa-bell"></i>
+                            <i class="fa-regular fa-bell"></i>
                             @if (($notificationStats['unread'] ?? 0) > 0)
                                 <span class="nav-bell-dot"></span>
                             @endif
                         </span>
                     </a>
                     <div class="user-menu" id="userMenuBtn">
-                        <div class="user-avatar">
-                            {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                        <div class="user-avatar" style="{{ Auth::user()->admin?->profile_image ? 'background: none; padding: 0;' : '' }}">
+                            @if(Auth::user()->admin?->profile_image)
+                                <img src="{{ asset('storage/' . Auth::user()->admin->profile_image) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            @else
+                                {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                            @endif
                         </div>
                         <div class="user-info">
-                            <h4>{{ Auth::user()->name ?? 'Admin User' }}</h4>
-                            <p>{{ ucfirst(Auth::user()->role ?? 'admin') }}</p>
+                        <h4>{{ explode(' ', Auth::user()->name ?? 'Admin User')[0] }}</h4>
                         </div>
                         <i class="fas fa-chevron-down" style="color: var(--gray-400);"></i>
                         
@@ -163,8 +167,12 @@
 
                     <!-- Mobile Profile Button (Visible only on mobile) -->
                     <button class="mobile-profile-btn" id="mobileProfileBtn" style="display: none;">
-                        <div class="user-avatar">
-                            {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                        <div class="user-avatar" style="{{ Auth::user()->admin?->profile_image ? 'background: none; padding: 0;' : '' }}">
+                            @if(Auth::user()->admin?->profile_image)
+                                <img src="{{ asset('storage/' . Auth::user()->admin->profile_image) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            @else
+                                {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                            @endif
                         </div>
                     </button>
 
@@ -229,12 +237,15 @@
         <div class="mobile-profile-bg"></div>
         <div class="mobile-profile-content">
             <div class="mobile-profile-header">
-                <div class="user-avatar large">
-                    {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                <div class="user-avatar large" style="{{ Auth::user()->admin?->profile_image ? 'background: none; padding: 0;' : '' }}">
+                    @if(Auth::user()->admin?->profile_image)
+                        <img src="{{ asset('storage/' . Auth::user()->admin->profile_image) }}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                    @else
+                        {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                    @endif
                 </div>
                 <div class="mobile-user-info">
-                    <h4>{{ Auth::user()->name ?? 'Admin User' }}</h4>
-                    <p>{{ ucfirst(Auth::user()->role ?? 'admin') }}</p>
+                    <h4>{{ explode(' ', Auth::user()->name ?? 'Admin User')[0] }}</h4>
                 </div>
                 <!-- Close button removed -->
             </div>

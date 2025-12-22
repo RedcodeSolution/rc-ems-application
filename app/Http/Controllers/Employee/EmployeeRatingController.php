@@ -40,10 +40,26 @@ class EmployeeRatingController extends Controller
             '1_star' => $totalRatings > 0 ? round(($oneStarRatings / $totalRatings) * 100, 1) : 0,
         ];
 
+        // Group ratings by employee for the list
+        $groupedRatings = $ratings->groupBy('employee_id');
+
+        // Manual Pagination for the grouped items
+        $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
+        $perPage = 6; // Adjust per page as needed
+        $currentItems = $groupedRatings->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $paginatedRatings = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentItems,
+            $groupedRatings->count(),
+            $perPage,
+            $currentPage,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+        );
+
         $employees = Employee::where('employee_id', '!=', $user->employee_id)->get();
 
         $data = [
-            'ratings' => $ratings,
+            'ratings' => $ratings, // Keep for stats
+            'paginatedRatings' => $paginatedRatings, // For the list
             'totalRatings' => $totalRatings,
             'averageRating' => $averageRating,
             'fiveStarRatings' => $fiveStarRatings,
@@ -106,10 +122,15 @@ class EmployeeRatingController extends Controller
             'rated_by' => $user->id,
         ]);
 
+        // Calculate new average rating for the employee
+        $newAverage = EmployeeRating::where('employee_id', $request->employee_id)->avg('rating');
+
         return response()->json([
             'success' => true,
             'message' => 'Rating submitted successfully!',
-            'rating' => $rating->load(['employee', 'rater'])
+            'rating' => $rating->load(['employee', 'rater']),
+            'employee_id' => $request->employee_id,
+            'new_average_rating' => round($newAverage, 1)
         ]);
     }
 
@@ -155,6 +176,27 @@ class EmployeeRatingController extends Controller
             'average_rating' => round($averageRating, 1),
             'total_ratings' => $ratings->count(),
             'recent_ratings' => $recentRatings
+        ]);
+    }
+
+    public function getTopRated()
+    {
+        $topRatedEmployees = \App\Models\Employee::whereHas('ratings')
+            ->withAvg('ratings', 'rating')
+            ->orderByDesc('ratings_avg_rating')
+            ->take(10)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $topRatedEmployees->map(function ($emp) {
+                return [
+                    'id' => $emp->employee_id, // Explicitly use employee_id
+                    'employee_name' => $emp->employee_name,
+                    'profile_photo' => $emp->profile_photo ? asset('storage/' . $emp->profile_photo) : null,
+                    'avg_rating' => round($emp->ratings_avg_rating, 1)
+                ];
+            })
         ]);
     }
 }

@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="{{ asset('css/admin/teams.css') }}">
 
 @section('title', 'Teams Management')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 @section('content')
     <!-- Summary Cards -->
@@ -70,25 +71,28 @@
     <div class="card-body">
         <!-- Search & Actions Toolbar -->
         <div class="teams-toolbar mb-4">
-            <form method="GET" action="{{ route('admin.teams') }}" class="search-form">
+            <form id="teamSearchForm" method="GET" action="{{ route('admin.teams') }}" class="search-form">
                 <input
+                    id="teamSearchInput"
                     type="text"
                     name="search"
                     value="{{ request('search') }}"
                     placeholder="Search teams..."
                     class="form-input search-input"
+                    autocomplete="off"
                 >
-                <button class="btn btn-secondary" type="submit">
-                    <i class="fas fa-search"></i>
-                    Search
-                </button>
+                
             </form>
         </div>
 
         <!-- Teams Grid -->
         <div class="teams-grid">
             @forelse($teams as $team)
-                <div class="card" style="padding: 1.5rem;">
+                @php
+                    $deptName = optional($departments->firstWhere('department_id', $team->department_id))->department_name ?? '';
+                    $searchContent = strtolower($team->team_name . ' ' . ($team->team_lead ?? '') . ' ' . $deptName . ' ' . $team->team_status);
+                @endphp
+                <div class="card" style="padding: 1.5rem;" data-search-content="{{ $searchContent }}">
                     <div class="card-header">
                         <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--gray-800);">
                             <i class="fas fa-code" style="color: var(--primary);"></i>
@@ -97,43 +101,43 @@
                         <div class="flex gap-1">
                             <button class="btn btn-secondary" style="padding: 0.5rem;"
                                 onclick="openViewTeamModal(
-                                    '{{ $team->team_name }}',
+                                    '{{ addslashes($team->team_name) }}',
                                     '{{ $team->team_id }}',
-                                    '{{ optional($departments->firstWhere('department_id', $team->department_id))->department_name ?? '' }}',
-                                    '{{ $team->team_lead ?? '' }}',
+                                    '{{ addslashes(optional($departments->firstWhere('department_id', $team->department_id))->department_name ?? '') }}',
+                                    '{{ addslashes($team->team_lead ?? '') }}',
                                     '{{ $team->max_team_size }}',
                                     '{{ $team->monthly_budget }}',
-                                    '{{ $team->team_status }}',
-                                    '{{ $team->team_priority }}',
+                                    '{{ addslashes($team->team_status) }}',
+                                    '{{ addslashes($team->team_priority) }}',
                                     '',
-                                    '{{ $team->work_mode }}',
-                                    `{{ $team->team_description ?? '' }}`,
-                                    `{{ $team->team_goals ?? '' }}`,
-                                    `{{ $team->skills_required ?? '' }}`
+                                    '{{ addslashes($team->work_mode) }}',
+                                    `{{ addslashes($team->team_description ?? '') }}`,
+                                    `{{ addslashes($team->team_goals ?? '') }}`,
+                                    `{{ addslashes($team->skills_required ?? '') }}`
                                 )">
                                 <i class="fas fa-eye"></i>
                             </button>
                             <button class="btn btn-warning" style="padding: 0.5rem;"
                                 onclick="openEditTeamModal(
                                     '{{ $team->team_id }}',
-                                    '{{ $team->team_name }}',
+                                    '{{ addslashes($team->team_name) }}',
                                     '{{ $team->department_id }}',
-                                    '{{ $team->team_lead ?? '' }}',
+                                    '{{ addslashes($team->team_lead ?? '') }}',
                                     '{{ $team->max_team_size }}',
                                     '{{ $team->monthly_budget }}',
-                                    '{{ $team->team_status }}',
-                                    '{{ $team->team_priority }}',
-                                    '{{ $team->work_mode }}',
-                                    `{{ $team->team_description ?? '' }}`,
-                                    `{{ $team->team_goals ?? '' }}`,
-                                    `{{ $team->skills_required ?? '' }}`
+                                    '{{ addslashes($team->team_status) }}',
+                                    '{{ addslashes($team->team_priority) }}',
+                                    '{{ addslashes($team->work_mode) }}',
+                                    `{{ addslashes($team->team_description ?? '') }}`,
+                                    `{{ addslashes($team->team_goals ?? '') }}`,
+                                    `{{ addslashes($team->skills_required ?? '') }}`
                                 )">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <form action="{{ route('teams.destroy', $team->team_id) }}" method="POST" style="display:inline;">
+                            <form id="delete-form-{{ $team->team_id }}" action="{{ route('teams.destroy', $team->team_id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-danger" style="padding: 0.5rem; background: #dc3545; color: white;" onclick="return confirm('Are you sure you want to delete this team?')">
+                                <button type="button" class="btn btn-danger" style="padding: 0.5rem; background: #dc3545; color: white;" onclick="confirmDelete('{{ $team->team_id }}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -146,12 +150,17 @@
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 @php
                                     $leadName = $team->team_lead ?? 'N/A';
+                                    $leadEmployee = $leadName !== 'N/A' ? $employees->firstWhere('employee_name', $leadName) : null;
                                     $leadInitials = $leadName !== 'N/A'
                                         ? collect(explode(' ', $leadName))->map(fn($w) => strtoupper(substr($w,0,1)))->implode('')
                                         : 'NA';
                                 @endphp
-                                <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700;">
-                                    {{ $leadInitials }}
+                                <div style="width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; {{ $leadEmployee && $leadEmployee->profile_photo ? 'padding: 0; background: none;' : 'background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; font-size: 0.75rem; font-weight: 700;' }}">
+                                    @if($leadEmployee && $leadEmployee->profile_photo)
+                                        <img src="{{ asset('storage/' . $leadEmployee->profile_photo) }}" alt="{{ $leadName }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                    @else
+                                        {{ $leadInitials }}
+                                    @endif
                                 </div>
                                 <div style="font-weight: 600;">{{ $leadName }}</div>
                             </div>
@@ -162,25 +171,34 @@
                             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
                                 <div style="display: flex; -webkit-box-orient: horizontal; -webkit-box-direction: reverse; flex-direction: row-reverse; justify-content: flex-end;">
                                     @php
-                                        $members = $team->employees->take(3);
+                                        // Exclude Team Lead from the members list
+                                        $filteredMembers = $team->employees->filter(function($employee) use ($team) {
+                                            return $employee->employee_name !== $team->team_lead;
+                                        });
+                                        $displayMembers = $filteredMembers->take(3);
+                                        $remainingCount = $filteredMembers->count() - 3;
                                     @endphp
-                                    @foreach($members as $member)
+                                    @foreach($displayMembers as $member)
                                         @php
                                             $initials = collect(explode(' ', $member->employee_name))->map(fn($w) => strtoupper(substr($w,0,1)))->implode('');
                                         @endphp
-                                        <div style="width: 2rem; height: 2rem; background: linear-gradient(135deg, var(--success), var(--info)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; margin-left: -0.5rem; border: 2px solid white;">
-                                            {{ $initials }}
+                                        <div style="width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: -0.5rem; border: 2px solid white; {{ $member->profile_photo ? 'padding: 0; background: none;' : 'background: linear-gradient(135deg, var(--success), var(--info)); color: white; font-size: 0.75rem; font-weight: 700;' }}">
+                                            @if($member->profile_photo)
+                                                <img src="{{ asset('storage/' . $member->profile_photo) }}" alt="{{ $member->employee_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                            @else
+                                                {{ $initials }}
+                                            @endif
                                         </div>
                                     @endforeach
-                                    @if($team->employees->count() > 3)
+                                    @if($remainingCount > 0)
                                         <div style="width: 2rem; height: 2rem; background: var(--gray-400); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700; margin-left: -0.5rem; border: 2px solid white;">
-                                            +{{ $team->employees->count() - 3 }}
+                                            +{{ $remainingCount }}
                                         </div>
                                     @endif
                                 </div>
                             </div>
                             <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary);">
-                                {{ $team->employees->count() }} Members
+                                {{ $filteredMembers->count() }} Members
                             </div>
                         </div>
                         <!-- Active Projects -->
@@ -205,7 +223,7 @@
                             <button
                                 class="btn btn-secondary"
                                 style="padding: 0.5rem 1rem; font-size: 0.75rem;"
-                                onclick="openManageMembersModal({{ $team->team_id }}, @json($team->employees->pluck('employee_id')), '{{ $team->team_name }}')"
+                                onclick="openManageMembersModal({{ $team->team_id }}, @json($team->employees->pluck('employee_id')), '{{ addslashes($team->team_name) }}', '{{ addslashes($team->team_lead ?? '') }}')"
                                 type="button"
                             >
                                 <i class="fas fa-users"></i>
@@ -898,7 +916,7 @@ function openEditTeamModalFromView() {
     }
 }
 
-function openManageMembersModal(teamId, selectedEmployeeIds, teamName) {
+function openManageMembersModal(teamId, selectedEmployeeIds, teamName, teamLeadName) {
     document.getElementById('manageMembersModal').classList.add('active');
     document.body.style.overflow = 'hidden';
     document.getElementById('manageMembersTeamId').value = teamId;
@@ -909,8 +927,27 @@ function openManageMembersModal(teamId, selectedEmployeeIds, teamName) {
         '/admin/teams/' + teamId + '/manage-members';
 
     const select = document.getElementById('manage_employee_ids');
+    const normalizedLeadName = (teamLeadName || '').trim().toLowerCase();
+
     for (let i = 0; i < select.options.length; i++) {
-        select.options[i].selected = selectedEmployeeIds.includes(parseInt(select.options[i].value));
+        const option = select.options[i];
+        const optionText = option.text.toLowerCase();
+        
+        // Reset visibility first
+        option.style.display = '';
+        option.disabled = false;
+
+        // Hide if matches team lead
+        // Option format: "Name (Email)"
+        // We check if option starts with "leadname ("
+        if (normalizedLeadName && optionText.includes(normalizedLeadName + ' (')) {
+            option.style.display = 'none';
+            option.disabled = true; // Also disable to prevent submission if hidden
+            option.selected = false; // Deselect if was selected
+        } else {
+            // Restore selection state
+            option.selected = selectedEmployeeIds.includes(parseInt(option.value));
+        }
     }
 }
 
@@ -962,7 +999,12 @@ document.getElementById('teamForm').addEventListener('submit', function(e) {
     });
 
     if (!isValid) {
-        alert('Please fill in all required fields');
+        Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            text: 'Please fill in all required fields',
+            confirmButtonColor: '#d33'
+        });
         if (firstInvalid) firstInvalid.focus();
         e.preventDefault();
         return;
@@ -971,12 +1013,87 @@ document.getElementById('teamForm').addEventListener('submit', function(e) {
     // Max size validation
     const maxSize = document.getElementById('max_team_size').value;
     if (maxSize && (maxSize < 1 || maxSize > 50)) {
-        alert('Maximum team size must be between 1 and 50');
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Team Size',
+            text: 'Maximum team size must be between 1 and 50',
+            confirmButtonColor: '#d33'
+        });
         e.preventDefault();
         return;
     }
     // If validation passes, allow the form to submit
 });
+
+// Form validation and confirmation for team edit
+document.getElementById('editTeamForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // Prevent default submission immediately
+
+    // Validation
+    const maxSize = document.getElementById('edit_max_team_size').value;
+    if (maxSize && (maxSize < 1 || maxSize > 50)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Team Size',
+            text: 'Maximum team size must be between 1 and 50',
+            confirmButtonColor: '#d33'
+        });
+        return;
+    }
+
+    // Confirmation
+    Swal.fire({
+        title: 'Update Team?',
+        text: "Are you sure you want to update this team's details?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, update it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            this.submit();
+        }
+    });
+});
+
+function confirmDelete(teamId) {
+    Swal.fire({
+        title: 'Delete Team?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('delete-form-' + teamId).submit();
+        }
+    });
+}
+
+// Flash Messages
+@if(session('success'))
+    Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: "{{ session('success') }}",
+        timer: 3000,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+    });
+@endif
+
+@if(session('error'))
+    Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: "{{ session('error') }}",
+        confirmButtonColor: '#d33'
+    });
+@endif
 
 
 // Close modal when clicking outside
@@ -1019,6 +1136,64 @@ document.addEventListener('keydown', function(e) {
         }
         if (viewTeamModal.classList.contains('active')) {
             closeViewTeamModal();
+        }
+    }
+});
+
+// Real-time Search Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('teamSearchInput');
+    const searchForm = document.getElementById('teamSearchForm');
+    const teamCards = document.querySelectorAll('.teams-grid .card');
+
+    function performSearch() {
+        const query = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        teamCards.forEach(card => {
+            // Get searchable content from data attribute or fallback to text content
+            const content = card.getAttribute('data-search-content') || card.textContent.toLowerCase();
+            
+            if (content.includes(query)) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Toggle "No results" message
+        let noResultsMsg = document.getElementById('noTeamsFoundMsg');
+        
+        if (visibleCount === 0 && teamCards.length > 0) {
+            if (!noResultsMsg) {
+                // Create message if it doesn't exist
+                const msg = document.createElement('div');
+                msg.id = 'noTeamsFoundMsg';
+                msg.style.gridColumn = '1/-1';
+                msg.style.textAlign = 'center';
+                msg.style.color = 'var(--text-secondary)';
+                msg.style.padding = '2rem';
+                msg.innerHTML = '<i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>No teams found matching your search.';
+                document.querySelector('.teams-grid').appendChild(msg);
+            } else {
+                noResultsMsg.style.display = 'block';
+            }
+        } else if (noResultsMsg) {
+            noResultsMsg.style.display = 'none';
+        }
+    }
+
+    if (searchInput) {
+        // Search on typing
+        searchInput.addEventListener('input', performSearch);
+        
+        // Prevent form submission and search instead
+        if (searchForm) {
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                performSearch();
+            });
         }
     }
 });

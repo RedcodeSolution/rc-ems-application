@@ -24,7 +24,7 @@ class EmployeeRatingController extends Controller
     public function employeeRatings()
     {
         // Get all employee ratings with employee and rater information
-        $ratings = EmployeeRating::with(['employee', 'rater'])
+        $ratings = EmployeeRating::with(['employee', 'rater.employee', 'rater.admin', 'rater.superAdmin'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -74,6 +74,23 @@ class EmployeeRatingController extends Controller
             'ratingDistribution' => $ratingDistribution,
             'topRatedEmployees' => $topRatedEmployees
         ];
+
+        // Group ratings by employee for the list
+        $groupedRatings = $ratings->groupBy('employee_id');
+
+        // Manual Pagination for the grouped items
+        $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
+        $perPage = 6;
+        $currentItems = $groupedRatings->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $paginatedRatings = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentItems,
+            $groupedRatings->count(),
+            $perPage,
+            $currentPage,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+        );
+
+        $data['paginatedRatings'] = $paginatedRatings;
 
         return view('super_admin.employee_ratings', $data);
     }
@@ -133,12 +150,16 @@ class EmployeeRatingController extends Controller
     /**
      * Get ratings summary for a specific employee (used by modal summary in blade).
      */
-    public function getEmployeeRatings($employeeId)
+    public function getEmployeeRatings(Request $request, $employeeId)
     {
-        $ratings = EmployeeRating::with(['rater', 'employee'])
+        $query = EmployeeRating::with(['rater', 'employee'])
             ->where('employee_id', $employeeId)
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('created_at', 'desc');
+
+        $totalRatings = $query->count();
+        $averageRating = $totalRatings > 0 ? round($query->avg('rating'), 1) : 0;
+
+        $ratings = $query->paginate(3);
 
         $employee = Employee::find($employeeId);
 
@@ -149,9 +170,7 @@ class EmployeeRatingController extends Controller
             ], 404);
         }
 
-        $averageRating = $ratings->count() > 0 ? round($ratings->avg('rating'), 1) : 0;
-
-        $recentRatings = $ratings->take(10)->map(function ($rating) {
+        $formattedRatings = collect($ratings->items())->map(function ($rating) {
             return [
                 'id' => $rating->id,
                 'rating' => $rating->rating,
@@ -160,7 +179,7 @@ class EmployeeRatingController extends Controller
                 'rater_name' => $rating->rater->name ?? 'Unknown',
                 'rater_role' => $rating->rater->role ?? 'unknown',
             ];
-        })->values();
+        });
 
         return response()->json([
             'success' => true,
@@ -170,8 +189,15 @@ class EmployeeRatingController extends Controller
                 'role' => $employee->role,
             ],
             'average_rating' => $averageRating,
-            'total_ratings' => $ratings->count(),
-            'recent_ratings' => $recentRatings,
+            'total_ratings' => $totalRatings,
+            'recent_ratings' => $formattedRatings,
+            'ratings' => $formattedRatings,
+            'pagination' => [
+                'current_page' => $ratings->currentPage(),
+                'last_page' => $ratings->lastPage(),
+                'has_more' => $ratings->hasMorePages(),
+                'total' => $ratings->total(),
+            ]
         ]);
     }
 }

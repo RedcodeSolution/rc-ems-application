@@ -17,51 +17,59 @@
     @endif
 
     <!-- Summary Cards -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
         <!-- Total Employees -->
         <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(37, 99, 235, 0.1); color: var(--redcode-blue); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+            <div
+                style="width: 50px; height: 50px; border-radius: 12px; background: rgba(37, 99, 235, 0.1); color: var(--redcode-blue); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
                 <i class="fas fa-users"></i>
             </div>
             <div>
                 <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Total Employees</div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $employees->count() }}</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $employees->count() }}
+                </div>
             </div>
         </div>
 
         <!-- Active Employees -->
         <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(5, 150, 105, 0.1); color: var(--redcode-green); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+            <div
+                style="width: 50px; height: 50px; border-radius: 12px; background: rgba(5, 150, 105, 0.1); color: var(--redcode-green); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
                 <i class="fas fa-user-check"></i>
             </div>
             <div>
                 <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">Active Employees</div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $employees->where('employee_status', 'Active')->count() }}</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">
+                    {{ $employees->where('employee_status', 'Active')->count() }}</div>
             </div>
         </div>
 
         <!-- On Leave -->
         <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(245, 158, 11, 0.1); color: var(--redcode-orange); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+            <div
+                style="width: 50px; height: 50px; border-radius: 12px; background: rgba(245, 158, 11, 0.1); color: var(--redcode-orange); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
                 <i class="fas fa-user-clock"></i>
             </div>
             <div>
                 <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">On Leave</div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ $employees->where('employee_status', 'On Leave')->count() }}</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">
+                    {{ $employees->where('employee_status', 'On Leave')->count() }}</div>
             </div>
         </div>
 
         <!-- New Joiners -->
         <div class="card" style="padding: 1.5rem; display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(107, 114, 128, 0.1); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+            <div
+                style="width: 50px; height: 50px; border-radius: 12px; background: rgba(107, 114, 128, 0.1); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
                 <i class="fas fa-user-plus"></i>
             </div>
             <div>
                 <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">New Joiners (Month)</div>
                 <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">
-                    {{ $employees->filter(function($employee) {
-                        return $employee->created_at && $employee->created_at->isCurrentMonth();
-                    })->count() }}
+                    {{ $employees->filter(function ($employee) {
+                            return $employee->created_at && $employee->created_at->isCurrentMonth();
+                        })->count() }}
                 </div>
             </div>
         </div>
@@ -257,127 +265,89 @@
             </div>
 
             <div class="table-container">
-                @if($employees->count() > 0)
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Employee</th>
-                            <th>Department</th>
-                            <th>Position</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Status</th>
-                            <th>Leave Count</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($employees as $employee)
+                @if ($employees->count() > 0)
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <td data-label="Employee">
-                                    <div class="flex items-center gap-3" style="flex-wrap: nowrap;">
-                                        <div class="user-avatar" style="width: 2rem; height: 2rem; font-size: 0.875rem; flex-shrink: 0;">
-                                            {{ strtoupper(substr($employee->employee_name, 0, 1)) }}{{ strtoupper(substr(str_replace(' ', '', $employee->employee_name), 1, 1)) }}
+                                <th>Employee</th>
+                                <th>Department</th>
+                                <th>Position</th>
+                                <th>Email</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($employees as $employee)
+                                <tr>
+                                    <td data-label="Employee">
+                                        <div class="flex items-center gap-3" style="flex-wrap: nowrap;">
+                                            <div class="user-avatar"
+                                                style="width: 2rem; height: 2rem; font-size: 0.875rem; flex-shrink: 0;">
+                                                @if($employee->profile_photo)
+                                                    <img src="{{ asset('storage/' . $employee->profile_photo) }}" alt="{{ $employee->employee_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                                @else
+                                                    {{ strtoupper(substr($employee->employee_name, 0, 1)) }}{{ strtoupper(substr(str_replace(' ', '', $employee->employee_name), 1, 1)) }}
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <div style="font-weight: 600;">{{ $employee->employee_name }}</div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <div style="font-weight: 600;">{{ $employee->employee_name }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td data-label="Department">{{ $employee->department->department_name ?? 'Not Assigned' }}
-                                </td>
-                                <td data-label="Position">{{ $employee->role ?? 'Not Specified' }}</td>
-                                <td data-label="Email">
-                                    @if ($employee->email)
-                                        {{ $employee->email }}
-                                    @else
-                                        <span style="color: var(--text-secondary); font-style: italic;">No email
-                                            provided</span>
-                                    @endif
-                                </td>
-                                <td data-label="Phone">{{ $employee->contact_no ?? 'Not Provided' }}</td>
-                                <td data-label="Status">
-                                    @if ($employee->employee_status == 'Active')
-                                        <span class="badge"
-                                            style="background: rgba(5, 150, 105, 0.1); color: var(--success); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Active</span>
-                                    @elseif($employee->employee_status == 'On Leave')
-                                        <span class="badge"
-                                            style="background: rgba(245, 158, 11, 0.1); color: var(--warning); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">On
-                                            Leave</span>
-                                    @elseif($employee->employee_status == 'Inactive')
-                                        <span class="badge"
-                                            style="background: rgba(107, 114, 128, 0.1); color: var(--text-secondary); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Inactive</span>
-                                    @elseif($employee->employee_status == 'Terminated')
-                                        <span class="badge"
-                                            style="background: rgba(220, 38, 38, 0.1); color: var(--danger); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">Terminated</span>
-                                    @else
-                                        <span class="badge"
-                                            style="background: rgba(107, 114, 128, 0.1); color: var(--text-secondary); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem;">{{ $employee->employee_status }}</span>
-                                    @endif
-                                </td>
-                                <td data-label="Leave Count">
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <span class="badge"
-                                            style="background: rgba(37, 99, 235, 0.1); color: var(--info); padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;">
-                                            {{ $employee->leaves->count() }}
-                                        </span>
-                                        <span style="font-size: 0.75rem; color: var(--text-secondary);">leaves</span>
-                                    </div>
-                                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                                        @php
-                                            $pendingLeaves = $employee->leaves->where('status', 'pending')->count();
-                                            $approvedLeaves = $employee->leaves->where('status', 'approved')->count();
-                                            $rejectedLeaves = $employee->leaves->where('status', 'rejected')->count();
-                                        @endphp
-                                        @if ($pendingLeaves > 0)
-                                            <span style="color: var(--warning);">{{ $pendingLeaves }} pending</span>
+                                    </td>
+                                    <td data-label="Department">
+                                        {{ $employee->department->department_name ?? 'Not Assigned' }}
+                                    </td>
+                                    <td data-label="Position">{{ $employee->role ?? 'Not Specified' }}</td>
+                                    <td data-label="Email">
+                                        @if ($employee->email)
+                                            {{ $employee->email }}
+                                        @else
+                                            <span style="color: var(--text-secondary); font-style: italic;">No email
+                                                provided</span>
                                         @endif
-                                        @if ($approvedLeaves > 0)
-                                            <span style="color: var(--success);">{{ $approvedLeaves }} approved</span>
-                                        @endif
-                                        @if ($rejectedLeaves > 0)
-                                            <span style="color: var(--danger);">{{ $rejectedLeaves }} rejected</span>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td data-label="Actions">
-                                    <div class="flex gap-1">
-                                        <button class="btn btn-secondary" style="padding: 0.5rem;" title="View Employee"
-                                            onclick="openViewModal(
+                                    </td>
+                                    <td data-label="Actions">
+                                        <div class="flex gap-1" style="flex-wrap: nowrap; gap: 0.5rem;">
+                                            <button class="btn btn-secondary" style="padding: 0.5rem;"
+                                                title="View Employee"
+                                                onclick="openViewModal(
                                     '{{ $employee->employee_id }}',
-                                    '{{ $employee->employee_name }}',
-                                    '{{ $employee->email }}',
-                                    '{{ $employee->contact_no }}',
-                                    '{{ $employee->employee_type }}',
-                                    '{{ $employee->role }}',
-                                    '{{ $employee->department->department_name ?? 'Not Assigned' }}',
-                            '{{ $employee->admin->admin_name ?? 'Not Assigned' }}',
-                            '{{ $employee->employee_status }}',
-                            '{{ $employee->paid_status }}',
+                                    '{{ addslashes($employee->employee_name) }}',
+                                    '{{ addslashes($employee->email) }}',
+                                    '{{ addslashes($employee->contact_no) }}',
+                                    '{{ addslashes($employee->employee_type) }}',
+                                    '{{ addslashes($employee->role) }}',
+                                    '{{ addslashes($employee->department->department_name ?? 'Not Assigned') }}',
+                            '{{ addslashes($employee->admin->admin_name ?? 'Not Assigned') }}',
+                            '{{ addslashes($employee->employee_status) }}',
+                            '{{ addslashes($employee->paid_status) }}',
                             '{{ $employee->created_at ? $employee->created_at->format('M d, Y') : 'N/A' }}',
-                            '{{ $employee->teams->pluck('team_name')->join(', ') ?: 'No teams assigned' }}',
-                            '{{ $employee->profile_photo ? asset('storage/' . $employee->profile_photo) : '' }}'
+                            '{{ addslashes($employee->teams->pluck('team_name')->join(', ') ?: 'No teams assigned') }}',
+                            '{{ $employee->profile_photo ? addslashes(asset('storage/' . $employee->profile_photo)) : '' }}'
                             )">
-                                            <i class="fas fa-eye"></i>
+                                                <i class="fas fa-eye"></i>
+                                            </button>
                                             <button class="btn btn-warning" style="padding: 0.5rem;"
                                                 title="Edit Employee"
-                                                onclick="openEditModal('{{ $employee->employee_id }}', '{{ $employee->employee_name }}', '{{ $employee->email }}', '{{ $employee->contact_no }}', '{{ $employee->employee_type }}', '{{ $employee->role }}', '{{ $employee->department_id }}', '{{ $employee->admin_id }}', '{{ $employee->employee_status }}', '{{ $employee->paid_status }}')">
+                                                onclick="openEditModal('{{ $employee->employee_id }}', '{{ addslashes($employee->employee_name) }}', '{{ addslashes($employee->email) }}', '{{ addslashes($employee->contact_no) }}', '{{ addslashes($employee->employee_type) }}', '{{ addslashes($employee->role) }}', '{{ $employee->department_id }}', '{{ $employee->admin_id }}', '{{ addslashes($employee->employee_status) }}', '{{ addslashes($employee->paid_status) }}', '{{ $employee->profile_photo ? addslashes(asset('storage/' . $employee->profile_photo)) : '' }}')">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             <button class="btn btn-danger" style="padding: 0.5rem;"
                                                 title="Delete Employee"
-                                                onclick="confirmDelete('{{ $employee->employee_id }}', '{{ $employee->employee_name }}')">
+                                                onclick="confirmDelete('{{ $employee->employee_id }}', '{{ addslashes($employee->employee_name) }}')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 @else
-                    <div class="text-center no-records" style="padding: 4rem 2rem; color: var(--text-secondary); display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                        <p style="margin: 0; font-size: 1rem;">Click "Add Employee" to create your first employee record</p>
+                    <div class="text-center no-records"
+                        style="padding: 4rem 2rem; color: var(--text-secondary); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <p style="margin: 0; font-size: 1rem;">Click "Add Employee" to create your first employee record
+                        </p>
                     </div>
                 @endif
             </div>
@@ -391,16 +361,30 @@
 
             <div class="flex justify-between items-center mt-4">
                 <div style="color: var(--text-secondary); font-size: 0.875rem;">
-                    Showing {{ $employees->count() }} of {{ $employees->count() }} employees
+                    Showing {{ $employees->firstItem() ?? 0 }} of {{ $employees->total() }} employees
                 </div>
-                <div class="flex gap-1">
-                    <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;" disabled>
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="btn btn-primary" style="padding: 0.5rem 0.75rem;">1</button>
-                    <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;" disabled>
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
+                <div class="flex gap-1" style="display: flex; gap: 0.25rem;">
+                    @if ($employees->onFirstPage())
+                        <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    @else
+                        <a href="{{ $employees->previousPageUrl() }}" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    @endif
+
+                    <button class="btn btn-primary" style="padding: 0.5rem 0.75rem;">{{ $employees->currentPage() }}</button>
+
+                    @if ($employees->hasMorePages())
+                        <a href="{{ $employees->nextPageUrl() }}" class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    @else
+                        <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -1341,5 +1325,36 @@
 
     {{-- Link external JS file for employee functionality --}}
     <script src="{{ asset('js/admin/Employee.js') }}"></script>
+
+    @if ($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Show SweetAlert2 Error
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    html: `
+                        <div style="text-align: left;">
+                            <ul style="margin: 0; padding-left: 20px; color: #ef4444;">
+                                @foreach ($errors->all() as $error)
+                                    <li style="margin-bottom: 4px;">{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    `,
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'OK'
+                });
+
+                // Re-open Create Modal if it was a Create request
+                // (Create request uses POST without _method field)
+                @if (!old('_method'))
+                    if (typeof openEmployeeModal === 'function') {
+                        openEmployeeModal();
+                    }
+                @endif
+            });
+        </script>
+    @endif
 
 @endsection

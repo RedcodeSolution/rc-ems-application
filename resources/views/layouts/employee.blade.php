@@ -25,6 +25,15 @@
     <link rel="stylesheet" href="{{ asset('build/assets/app-CObZ5BOq.css') }}">
     <link rel="stylesheet" href="{{ asset('css/Employee/employee_side_bar.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-update {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
 </head>
 
 <body>
@@ -135,21 +144,219 @@
                 <i class="fas fa-star"></i>
                 @yield('title', 'Employee Dashboard')
             </div>
+
+            <!-- Top Rated Employees Scroller -->
+            <div class="top-rated-container" id="topRatedContainer" style="{{ (isset($topRatedEmployees) && $topRatedEmployees->count() > 0) ? '' : 'display:none;' }}">
+                @if(isset($topRatedEmployees) && $topRatedEmployees->count() > 0)
+                    @foreach($topRatedEmployees as $emp)
+                        @php
+                            $avgRating = round($emp->ratings_avg_rating, 1);
+                            $initials = strtoupper(substr($emp->employee_name ?? 'U', 0, 1));
+                            $photo = $emp->profile_photo;
+                        @endphp
+                        <div class="top-rated-item" data-id="{{ $emp->employee_id }}" data-rating="{{ $avgRating }}" title="{{ $emp->employee_name }} - {{ $avgRating }}/5">
+                             @if($photo)
+                                 <img src="{{ asset('storage/' . $photo) }}" alt="{{ $emp->employee_name }}" class="top-rated-avatar">
+                            @else
+                                <div class="top-rated-avatar">{{ $initials }}</div>
+                            @endif
+                            <span class="top-rated-score">{{ $avgRating }}</span>
+                        </div>
+                    @endforeach
+                @endif
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const container = document.getElementById('topRatedContainer');
+                    if (!container) return;
+                    
+                    // Simple Polling Mechanism (Every 30 seconds)
+                    setInterval(fetchTopRatedList, 30000);
+
+                    // Also Run FLIP on page load (State from previous page load)
+                     const items = Array.from(container.children);
+                     if (items.length > 0) {
+                        const currentOrder = items.map(item => item.getAttribute('data-id'));
+                        const storedOrderJSON = localStorage.getItem('topRatedOrder');
+                        // Store current immediately for next time
+                        localStorage.setItem('topRatedOrder', JSON.stringify(currentOrder));
+
+                        if (storedOrderJSON) {
+                             const previousOrder = JSON.parse(storedOrderJSON);
+                             if (JSON.stringify(previousOrder) !== JSON.stringify(currentOrder)) {
+                                 const itemWidth = items[0].offsetWidth + 15;
+                                 items.forEach((item, currentIndex) => {
+                                     const id = item.getAttribute('data-id');
+                                     const previousIndex = previousOrder.indexOf(id);
+                                     if (previousIndex !== -1) {
+                                         const deltaX = (previousIndex - currentIndex) * itemWidth;
+                                         if (deltaX !== 0) {
+                                             item.style.transform = `translateX(${deltaX}px)`;
+                                             item.style.transition = 'none';
+                                         }
+                                     }
+                                 });
+                                 requestAnimationFrame(() => {
+                                     requestAnimationFrame(() => {
+                                         items.forEach(item => {
+                                             item.classList.add('leaderboard-move');
+                                             item.style.transform = '';
+                                         });
+                                         setTimeout(() => items.forEach(i => i.classList.remove('leaderboard-move')), 600);
+                                     });
+                                 });
+                             }
+                        }
+                     }
+                });
+
+                // Global function to update/fetch list
+                function fetchTopRatedList() {
+                     const url = '{{ route("employee.ratings.top-rated") }}' + '?t=' + new Date().getTime();
+                     fetch(url)
+                        .then(res => res.json())
+                        .then(res => {
+                            if(res.success) {
+                                const container = document.getElementById('topRatedContainer');
+                                if (!container) return;
+                                
+                                // Robust FLIP for Polling
+                                const itemsArray = Array.from(container.children);
+                                
+                                // Handling empty list: If new data is empty, hide container and return.
+                                if (res.data.length === 0) {
+                                    container.style.display = 'none';
+                                    container.innerHTML = ''; // Clean up
+                                    return;
+                                } else {
+                                    container.style.display = 'flex'; // Restore if hidden
+                                }
+
+                                const currentPositions = new Map();
+                                itemsArray.forEach(el => currentPositions.set(el.getAttribute('data-id'), el.getBoundingClientRect()));
+                                
+                                // Diff & Update DOM
+                                // 1. Remove items not in new list
+                                const newIds = res.data.map(e => String(e.id));
+                                itemsArray.forEach(el => {
+                                    if (!newIds.includes(el.getAttribute('data-id'))) {
+                                        el.remove();
+                                    }
+                                });
+
+                                // 2. Update existing & Create new
+                                res.data.forEach((emp, index) => {
+                                    let item = container.querySelector(`.top-rated-item[data-id="${emp.id}"]`);
+                                    
+                                    if (item) {
+                                        // Update content if changed
+                                        const scoreSpan = item.querySelector('.top-rated-score');
+                                        if (scoreSpan.textContent != emp.avg_rating) {
+                                            scoreSpan.textContent = emp.avg_rating;
+                                            item.setAttribute('data-rating', emp.avg_rating);
+                                            // Optional: Add highlight if score changed
+                                            item.classList.add('leaderboard-highlight');
+                                            setTimeout(() => item.classList.remove('leaderboard-highlight'), 1000);
+                                        }
+                                    } else {
+                                        // Create new item
+                                        const initials = emp.employee_name.charAt(0).toUpperCase();
+                                        const avatar = emp.profile_photo 
+                                            ? `<img src="${emp.profile_photo}" alt="${emp.employee_name}" class="top-rated-avatar">`
+                                            : `<div class="top-rated-avatar">${initials}</div>`;
+                                        
+                                        const div = document.createElement('div');
+                                        div.className = 'top-rated-item';
+                                        div.setAttribute('data-id', emp.id);
+                                        div.setAttribute('data-rating', emp.avg_rating);
+                                        div.title = `${emp.employee_name} - ${emp.avg_rating}/5`;
+                                        div.innerHTML = `${avatar}<span class="top-rated-score">${emp.avg_rating}</span>`;
+                                        
+                                        // Initially hidden for fade in
+                                        div.style.opacity = '0';
+                                        div.style.transform = 'scale(0.8)';
+                                        container.appendChild(div);
+                                        item = div;
+                                        
+                                        // Animate appearance
+                                        requestAnimationFrame(() => {
+                                            div.style.transition = 'all 0.5s ease';
+                                            div.style.opacity = '1';
+                                            div.style.transform = 'scale(1)';
+                                        });
+                                    }
+                                    
+                                    // 3. Reorder: Ensure item is at correct index
+                                    // appending moves the node to the end, effectively sorting if we iterate in order
+                                    container.appendChild(item);
+                                });
+
+                                // 4. FLIP: Invert & Play
+                                const newItems = Array.from(container.children);
+                                newItems.forEach(el => {
+                                    const id = el.getAttribute('data-id');
+                                    const oldRect = currentPositions.get(id);
+                                    
+                                    if (oldRect) {
+                                        const newRect = el.getBoundingClientRect();
+                                        const deltaX = oldRect.left - newRect.left;
+                                        
+                                        if (deltaX !== 0) {
+                                            el.style.transform = `translateX(${deltaX}px)`;
+                                            el.style.transition = 'none';
+                                            
+                                            requestAnimationFrame(() => {
+                                                requestAnimationFrame(() => {
+                                                    el.classList.add('leaderboard-move');
+                                                    el.style.transform = '';
+                                                });
+                                            });
+                                            
+                                            setTimeout(() => el.classList.remove('leaderboard-move'), 600);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                }
+                
+                function removeWhitespace(str) {
+                    return str.replace(/\s+/g, '');
+                }
+
+                // Global update function (can be called by other scripts)
+                window.updateTopRatedNavbar = function(id, rating) {
+                    // Logic to update locally if needed, or just call fetch
+                    fetchTopRatedList();
+                };
+            </script>
+
             <div class="nav-actions">
+                @php
+                    $loggedInEmployee = \App\Models\Employee::where('email', auth()->user()->email)->first();
+                @endphp
+
                 <a href="{{ route('employee.notifications.latest') }}" class="nav-bell" title="Notifications"
                     id="navBellBtn" type="button">
                     <span class="nav-bell-icon">
-                        <i class="fas fa-bell"></i>
-                        <span class="nav-bell-dot"></span>
+                        <i class="fa-regular fa-bell"></i>
+                        @if (($notificationStats['unread'] ?? 0) > 0)
+                            <span class="nav-bell-dot"></span>
+                        @endif
                     </span>
                 </a>
 
                 <div class="user-menu" id="userMenuBtn">
                     <div class="user-avatar">
-                        {{ strtoupper(substr(auth()->user()?->name ?? 'E', 0, 1)) }}
+                        @if($loggedInEmployee && $loggedInEmployee->profile_photo)
+                            <img src="{{ asset('storage/' . $loggedInEmployee->profile_photo) }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        @else
+                            {{ strtoupper(substr(auth()->user()?->name ?? 'E', 0, 1)) }}
+                        @endif
                     </div>
                     <div class="user-info">
-                        <h4>{{ auth()->user()?->name ?? 'Employee' }}</h4>
+                        <h4>{{ explode(' ', auth()->user()?->name ?? 'Employee')[0] }}</h4>
                         <p>{{ auth()->user()?->email ?? 'employee@company.com' }}</p>
                     </div>
                     <i class="fas fa-chevron-down" style="color: var(--gray-400); margin-left: 0.5rem;"></i>
@@ -171,7 +378,11 @@
                 <!-- Mobile Profile Button (Visible only on mobile) -->
                 <button class="mobile-profile-btn" id="mobileProfileBtn" style="display: none;">
                     <div class="user-avatar">
-                        {{ strtoupper(substr(auth()->user()?->name ?? 'E', 0, 1)) }}
+                        @if($loggedInEmployee && $loggedInEmployee->profile_photo)
+                            <img src="{{ asset('storage/' . $loggedInEmployee->profile_photo) }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        @else
+                            {{ strtoupper(substr(auth()->user()?->name ?? 'E', 0, 1)) }}
+                        @endif
                     </div>
                 </button>
 
@@ -190,7 +401,7 @@
                     <h3><i class="fas fa-bell"></i> Notifications</h3>
                     <div style="display: flex; align-items: center; gap: 15px;">
                         <button id="markAllBtn" class="mark-all-btn">
-                            <i class="fas fa-check-double"></i> Mark all read
+                            <i class="fas fa-check-double"></i> <span class="btn-text">Mark all read</span>
                         </button>
                         <button class="modal-close" id="closenotificationModalDrop">&times;</button>
                     </div>
@@ -209,10 +420,14 @@
         <div class="mobile-profile-content">
             <div class="mobile-profile-header">
                 <div class="user-avatar large">
-                    {{ strtoupper(substr(auth()->user()?->name ?? 'E', 0, 1)) }}
+                        @if($loggedInEmployee && $loggedInEmployee->profile_photo)
+                            <img src="{{ asset('storage/' . $loggedInEmployee->profile_photo) }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        @else
+                            {{ strtoupper(substr(auth()->user()?->name ?? 'E', 0, 1)) }}
+                        @endif
                 </div>
                 <div class="mobile-user-info">
-                    <h4>{{ auth()->user()?->name ?? 'Employee' }}</h4>
+                    <h4>{{ explode(' ', auth()->user()?->name ?? 'Employee')[0] }}</h4>
                     <p>{{ auth()->user()?->email ?? 'employee@company.com' }}</p>
                 </div>
                 <!-- Close button removed -->
@@ -543,6 +758,8 @@
                 }
             });
         }
+
+        
     </script>
 
     @stack('scripts')

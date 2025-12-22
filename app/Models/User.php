@@ -67,6 +67,16 @@ class User extends Authenticatable
         return $this->hasOne(Employee::class, 'employee_id', 'employee_id');
     }
 
+    public function admin()
+    {
+        return $this->hasOne(Admin::class, 'email', 'email');
+    }
+
+    public function superAdmin()
+    {
+        return $this->hasOne(SuperAdmin::class, 'super_admin_email', 'email');
+    }
+
 
 
 }

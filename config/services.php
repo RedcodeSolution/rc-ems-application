@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'super_admin' => [
+        'name' => env('SUPER_ADMIN_NAME', 'Amal Perera'),
+        'email' => env('SUPER_ADMIN_EMAIL', 'amal@gmail.com'),
+        'password' => env('SUPER_ADMIN_PASSWORD', '12345678'),
+    ],
+
 ];

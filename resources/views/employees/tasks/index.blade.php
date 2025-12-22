@@ -793,18 +793,30 @@
                                                                                                             <div class="comments-list">
                                                                                                                 ${taskData.comments.map(comment => {
                                                                                                                     const commentDate = new Date(comment.created_at);
+                                                                                                                    const hasPhoto = comment.employee && comment.employee.profile_photo;
+                                                                                                                    const photoUrl = hasPhoto ? `/storage/${comment.employee.profile_photo}` : '';
+                                                                                                                    const initials = comment.employee.employee_name ? comment.employee.employee_name.charAt(0).toUpperCase() : 'U';
+
                                                                                                                     return `
-                                <div class="comment-item">
-                                    <div class="comment-header">
-                                        <strong>${comment.employee.employee_name}</strong>
-                                        <span class="comment-date">
-                                            ${commentDate.toLocaleString('en-US', {
-                                                month: 'short', day: '2-digit', year: 'numeric',
-                                                hour: '2-digit', minute: '2-digit'
-                                            })}
-                                        </span>
+                                <div class="comment-item" style="display: flex; gap: 12px; align-items: flex-start; padding: 12px; border-bottom: 1px solid #eee;">
+                                    <div class="comment-avatar" style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        ${hasPhoto 
+                                            ? `<img src="${photoUrl}" alt="${comment.employee.employee_name}" style="width: 100%; height: 100%; object-fit: cover;">` 
+                                            : `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">${initials}</div>`
+                                        }
                                     </div>
-                                    <div class="comment-text">${comment.comment}</div>
+                                    <div class="comment-content" style="flex: 1;">
+                                        <div class="comment-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                            <strong style="color: #333; font-size: 0.95rem;">${comment.employee.employee_name}</strong>
+                                            <span class="comment-date" style="font-size: 0.8rem; color: #888;">
+                                                ${commentDate.toLocaleString('en-US', {
+                                                    month: 'short', day: '2-digit', year: 'numeric',
+                                                    hour: '2-digit', minute: '2-digit'
+                                                })}
+                                            </span>
+                                        </div>
+                                        <div class="comment-text" style="color: #555; font-size: 0.9rem; line-height: 1.5;">${comment.comment}</div>
+                                    </div>
                                 </div>
                             `;
                                                                                                                 }).join('')}

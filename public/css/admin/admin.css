@@ -286,63 +286,7 @@ body {
     position: relative;
 }
 
-.nav-bell {
-    color: var(--text-secondary);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    margin-right: 0.25rem;
-    text-decoration: none;
-    transition: color 0.2s;
-}
 
-.nav-bell:hover .nav-bell-icon {
-    background: var(--gradient-primary);
-    color: #fff;
-    box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.10);
-}
-
-.nav-bell-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    background: #f3f4f6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    position: relative;
-    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-}
-
-.nav-bell-dot {
-    background: var(--danger);
-    position: absolute;
-    top: 0.7rem;
-    right: 0.7rem;
-    width: 0.6rem;
-    height: 0.6rem;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    box-shadow: 0 0 0 2px #fff;
-    animation: bell-pulse 1.5s infinite;
-    display: inline-block;
-}
-
-@keyframes bell-pulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    50% {
-        transform: scale(1.3);
-        opacity: 0.7;
-    }
-}
 
 .user-menu {
     background: var(--primary-light);
@@ -377,7 +321,7 @@ body {
 .user-info h4 {
     color: var(--text-primary);
     font-size: 0.875rem;
-    font-weight: 600;
+
 }
 
 .user-info p {
@@ -1302,4 +1246,62 @@ body {
 .mark-all-btn:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
+}
+
+.nav-bell {
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-right: 0.25rem;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.nav-bell:hover .nav-bell-icon {
+    background: var(--gradient-primary);
+    color: #fff;
+    box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.10);
+}
+
+.nav-bell-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    position: relative;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.nav-bell-dot {
+    background: var(--danger);
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid #fff;
+    box-shadow: 0 0 0 1px #fff;
+    animation: bell-pulse 1.5s infinite;
+    display: inline-block;
+}
+
+@keyframes bell-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.3);
+        opacity: 0.7;
+    }
 }

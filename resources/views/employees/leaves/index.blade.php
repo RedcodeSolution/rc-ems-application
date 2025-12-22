@@ -1,6 +1,6 @@
 @extends('layouts.employee')
 <link rel="stylesheet" href="{{ asset('css/Employee/myLeave.css') }}">
-@section('title', 'Leave Management')
+@section('title', 'My Leaves')
 
 @section('content')
     <div class="leave-management-container">

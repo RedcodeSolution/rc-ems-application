@@ -17,6 +17,7 @@ class Admin extends Model
         'email',
         'contact_no',
         'status',
+        'profile_image',
     ];
 
     public function department()

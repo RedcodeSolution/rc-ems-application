@@ -27,7 +27,12 @@ class AdminController
             'email'         => 'required|email|unique:admins,email',
             'contact_no'    => 'required|string|max:20',
             'status'        => 'required|string',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('profile_image')) {
+            $validated['profile_image'] = $request->file('profile_image')->store('profile_images', 'public');
+        }
 
         Admin::create($validated);
 
@@ -81,7 +86,15 @@ class AdminController
             'email'         => 'required|email|unique:admins,email,' . $admin->admin_id . ',admin_id',
             'contact_no'    => 'required|string|max:20',
             'status'        => 'required|string',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('profile_image')) {
+            if ($admin->profile_image) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($admin->profile_image);
+            }
+            $validated['profile_image'] = $request->file('profile_image')->store('profile_images', 'public');
+        }
 
         $admin->update($validated);
         $notify = new NotificationService();

@@ -1375,8 +1375,8 @@ body {
     .table {
         display: table;
         width: 100%;
-        min-width: 2000px;
-        /* Force scrollbar on smaller screens */
+        min-width: 100%;
+        /* Adjusted from 2000px to fit screen */
         border-collapse: separate;
         border-spacing: 0;
     }
@@ -1403,8 +1403,8 @@ body {
         border: none;
         position: relative;
         box-sizing: border-box;
-        white-space: nowrap;
-        /* Prevent text wrapping to force scroll */
+        white-space: normal;
+        /* Allowed wrapping */
     }
 
     .table tbody td:before {

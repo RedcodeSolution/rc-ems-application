@@ -40,11 +40,11 @@
         <div class="detail-grid">
             <div class="detail-item">
                 <label>Name:</label>
-                <span>{{ $leave->employee->employee_name ?? $leave->user->name ?? 'Unknown' }}</span>
+                <span>{{ $leave->user->admin->admin_name ?? $leave->user->name ?? 'Unknown' }}</span>
             </div>
             <div class="detail-item">
-                <label>Employee ID:</label>
-                <span>{{ $leave->employee->employee_id ?? $leave->user->email ?? 'N/A' }}</span>
+                <label>User ID:</label>
+                <span>{{ $leave->user->id ?? 'N/A' }}</span>
             </div>
             <div class="detail-item">
                 <label>Admin Role:</label>
@@ -52,7 +52,7 @@
             </div>
             <div class="detail-item">
                 <label>Contact:</label>
-                <span>{{ $leave->contact_number ?? 'N/A' }}</span>
+                <span>{{ $leave->contact_number ?? $leave->user->admin->contact_no ?? 'N/A' }}</span>
             </div>
         </div>
     </div>

@@ -12,13 +12,13 @@ class SuperAdminController extends Controller
 {
     public function dashboard()
     {
-        // Ensure Amal Perera exists with the correct password
-        $email = 'amal@gmail.com';
-        $password = '12345678';
-        $name = 'Amal Perera';
+        // Ensure Super Admin exists with the correct password from config
+        $email = config('services.super_admin.email');
+        $password = config('services.super_admin.password');
+        $name = config('services.super_admin.name');
 
-        $superAdmin = SuperAdmin::where('super_admin_email', $email)->first();
-        if (!$superAdmin) {
+        // Create default Super Admin if no accounts exist
+        if (SuperAdmin::count() === 0) {
             SuperAdmin::create([
                 'super_admin_id' => Str::uuid(),
                 'super_admin_name' => $name,

@@ -17,13 +17,13 @@ class AdminLeaveController extends Controller
     public function index()
     {
 
-        $adminLeaves = Leave::with(['employee', 'employee.department', 'user'])
+        $adminLeaves = Leave::with(['employee', 'employee.department', 'user.admin'])
             ->whereHas('user', function ($query) {
                 $query->where('role', 'admin');
             })
             ->get();
 
-        $baseQuery = Leave::with(['employee', 'employee.department', 'user'])
+        $baseQuery = Leave::with(['employee', 'employee.department', 'user.admin'])
             ->whereHas('user', function ($query) {
                 $query->whereIn('role', ['admin']);
             });

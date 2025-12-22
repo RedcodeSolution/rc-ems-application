@@ -17,10 +17,15 @@ class SuperAdmin extends Model
         'password',
         'permissions',
         'status',
-        'role'
+        'role',
+        'profile_image'
     ];
 
     public function reports() {
         return $this->hasMany(Report::class, 'super_admin_id');
+    }
+
+    public function user() {
+        return $this->belongsTo(User::class, 'super_admin_email', 'email');
     }
 }

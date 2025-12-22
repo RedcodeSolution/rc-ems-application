@@ -131,12 +131,17 @@
                                 <td>
                                     <div class="employee-info">
                                         <div class="employee-avatar">
-                                            {{ strtoupper(substr($leave->employee->employee_name ?? $leave->user->name ?? 'A', 0, 1)) }}
+                                            @if($leave->user && $leave->user->admin && $leave->user->admin->profile_image)
+                                                <img src="{{ asset('storage/' . $leave->user->admin->profile_image) }}" alt="{{ $leave->user->admin->admin_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                            @else
+                                                {{ strtoupper(substr($leave->user->admin->admin_name ?? $leave->user->name ?? 'A', 0, 1)) }}
+                                            @endif
                                         </div>
                                         <div class="employee-details">
                                             <div class="employee-name">
-                                                {{ $leave->employee->employee_name ?? $leave->user->name ?? 'Unknown Admin' }}</div>
-                                            <div class="employee-id">{{ $leave->employee->employee_id ?? $leave->user->email ?? 'N/A' }}</div>
+                                                {{ $leave->user->admin->admin_name ?? $leave->user->name ?? 'Unknown Admin' }}
+                                            </div>
+                                            <div class="employee-id">ID: {{ $leave->user->id ?? 'N/A' }}</div>
                                             <div class="employee-role">Admin</div>
                                         </div>
                                     </div>
@@ -231,12 +236,17 @@
                                 <td>
                                     <div class="employee-info">
                                         <div class="employee-avatar">
-                                            {{ strtoupper(substr($leave->employee->employee_name ?? $leave->user->name ?? 'A', 0, 1)) }}
+                                            @if($leave->user && $leave->user->admin && $leave->user->admin->profile_image)
+                                                <img src="{{ asset('storage/' . $leave->user->admin->profile_image) }}" alt="{{ $leave->user->admin->admin_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                            @else
+                                                {{ strtoupper(substr($leave->user->admin->admin_name ?? $leave->user->name ?? 'A', 0, 1)) }}
+                                            @endif
                                         </div>
                                         <div class="employee-details">
                                             <div class="employee-name">
-                                                {{ $leave->employee->employee_name ?? $leave->user->name ?? 'Unknown Admin' }}</div>
-                                            <div class="employee-id">{{ $leave->employee->employee_id ?? $leave->user->email ?? 'N/A' }}</div>
+                                                {{ $leave->user->admin->admin_name ?? $leave->user->name ?? 'Unknown Admin' }}
+                                            </div>
+                                            <div class="employee-id">ID: {{ $leave->user->id ?? 'N/A' }}</div>
                                             <div class="employee-role">Admin</div>
                                         </div>
                                     </div>
@@ -329,12 +339,17 @@
                                 <td>
                                     <div class="employee-info">
                                         <div class="employee-avatar">
-                                            {{ strtoupper(substr($leave->employee->employee_name ?? $leave->user->name ?? 'A', 0, 1)) }}
+                                            @if($leave->user && $leave->user->admin && $leave->user->admin->profile_image)
+                                                <img src="{{ asset('storage/' . $leave->user->admin->profile_image) }}" alt="{{ $leave->user->admin->admin_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                            @else
+                                                {{ strtoupper(substr($leave->user->admin->admin_name ?? $leave->user->name ?? 'A', 0, 1)) }}
+                                            @endif
                                         </div>
                                         <div class="employee-details">
                                             <div class="employee-name">
-                                                {{ $leave->employee->employee_name ?? $leave->user->name ?? 'Unknown Admin' }}</div>
-                                            <div class="employee-id">{{ $leave->employee->employee_id ?? $leave->user->email ?? 'N/A' }}</div>
+                                                {{ $leave->user->admin->admin_name ?? $leave->user->name ?? 'Unknown Admin' }}
+                                            </div>
+                                            <div class="employee-id">ID: {{ $leave->user->id ?? 'N/A' }}</div>
                                             <div class="employee-role">Admin</div>
                                         </div>
                                     </div>
@@ -426,12 +441,17 @@
                                 <td>
                                     <div class="employee-info">
                                         <div class="employee-avatar">
-                                            {{ strtoupper(substr($leave->employee->employee_name ?? $leave->user->name ?? 'A', 0, 1)) }}
+                                            @if($leave->user && $leave->user->admin && $leave->user->admin->profile_image)
+                                                <img src="{{ asset('storage/' . $leave->user->admin->profile_image) }}" alt="{{ $leave->user->admin->admin_name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                            @else
+                                                {{ strtoupper(substr($leave->user->admin->admin_name ?? $leave->user->name ?? 'A', 0, 1)) }}
+                                            @endif
                                         </div>
                                         <div class="employee-details">
                                             <div class="employee-name">
-                                                {{ $leave->employee->employee_name ?? $leave->user->name ?? 'Unknown Admin' }}</div>
-                                            <div class="employee-id">{{ $leave->employee->employee_id ?? $leave->user->email ?? 'N/A' }}</div>
+                                                {{ $leave->user->admin->admin_name ?? $leave->user->name ?? 'Unknown Admin' }}
+                                            </div>
+                                            <div class="employee-id">ID: {{ $leave->user->id ?? 'N/A' }}</div>
                                             <div class="employee-role">Admin</div>
                                         </div>
                                     </div>

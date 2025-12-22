@@ -104,20 +104,28 @@
             </div>
 
             <div class="nav-actions">
+
+
                 <a href="{{ route('super_admin.notifications') }}" class="nav-bell" id="navBellBtn">
                     <div class="nav-bell-icon">
-                        <i class="fas fa-bell"></i>
+                        <i class="fa-regular fa-bell"></i>
                         <span class="nav-bell-dot" style="display: none;"></span>
                     </div>
                 </a>
 
                 <div class="user-menu" id="userMenuBtn">
                     <div class="user-avatar">
-                        {{ strtoupper(substr(auth()->user()?->name ?? 'SA', 0, 1)) }}
+                        @php
+                            $loggedInSuperAdmin = \App\Models\SuperAdmin::where('super_admin_email', auth()->user()->email)->first();
+                        @endphp
+                        @if($loggedInSuperAdmin && $loggedInSuperAdmin->profile_image)
+                             <img src="{{ asset('storage/' . $loggedInSuperAdmin->profile_image) }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        @else
+                            {{ strtoupper(substr(auth()->user()?->name ?? 'SA', 0, 1)) }}
+                        @endif
                     </div>
                     <div class="user-info">
-                        <h4>{{ auth()->user()?->name ?? 'Super Admin' }}</h4>
-                        <p>{{ auth()->user()?->email ?? 'superadmin@company.com' }}</p>
+                        <h4>{{ explode(' ', auth()->user()?->name ?? 'Super Admin')[0] }}</h4>
                     </div>
                     <i class="fas fa-chevron-down"></i>
 

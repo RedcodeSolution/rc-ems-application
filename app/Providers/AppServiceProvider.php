@@ -54,5 +54,14 @@ class AppServiceProvider extends ServiceProvider
                 $view->with(compact('notifications', 'notificationStats'));
             }
         });
+
+        View::composer('layouts.employee', function ($view) {
+            $topRatedEmployees = \App\Models\Employee::whereHas('ratings')
+                ->withAvg('ratings', 'rating')
+                ->orderByDesc('ratings_avg_rating')
+                ->take(10)
+                ->get();
+            $view->with('topRatedEmployees', $topRatedEmployees);
+        });
     }
 }

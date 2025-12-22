@@ -1,6 +1,6 @@
 @extends('layouts.employee')
 
-@section('title', 'Employee Ratings')
+@section('title', 'Ratings')
 
 @section('content')
 <style>
@@ -307,6 +307,62 @@
         opacity: 0.9;
     }
 
+    @keyframes highlightUpdate {
+    0% { background-color: #f0fdf4; transform: scale(0.98); }
+    50% { background-color: #dcfce7; transform: scale(1.02); }
+    100% { background-color: #fff; transform: scale(1); }
+}
+
+    /* Custom Pagination Styling */
+    .ratings-pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    .ratings-pagination nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: #fff;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .ratings-pagination .pagination {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        gap: 0.25rem;
+    }
+    .ratings-pagination .page-item .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.375rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+    }
+    .ratings-pagination .page-item.active .page-link {
+        background: var(--gradient-primary);
+        color: white;
+        box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2);
+    }
+    .ratings-pagination .page-item:not(.active) .page-link:hover {
+        background-color: #f3f4f6;
+        color: var(--redcode-primary);
+    }
+    .ratings-pagination .page-item.disabled .page-link {
+        color: #d1d5db;
+        pointer-events: none;
+    }
+
     /* Empty State */
     .empty-state {
         text-align: center;
@@ -460,13 +516,8 @@
     @endif
 
     <div class="employee-ratings-grid">
-        @php
-        // Group ratings by employee
-        $employeeRatings = $ratings->groupBy('employee_id');
-        @endphp
-
-        @if($employeeRatings->count() > 0)
-        @foreach($employeeRatings as $employeeId => $employeeRatingGroup)
+        @if($paginatedRatings->count() > 0)
+        @foreach($paginatedRatings as $employeeId => $employeeRatingGroup)
         @php
         $employeeData = $employeeRatingGroup->first()->employee;
         $totalRatings = $employeeRatingGroup->count();
@@ -487,7 +538,7 @@
         $qaPercent = $totalRoleRatings > 0 ? ($qaRatings / $totalRoleRatings) * 100 : 0;
         @endphp
 
-        <div class="employee-rating-card">
+        <div class="employee-rating-card" id="employee-card-{{ $employeeData->employee_id ?? $employeeData->id }}">
             <div class="employee-info-section">
                 @if(!empty($employeeData->profile_photo))
                     <div class="employee-avatar" style="padding:0;">
@@ -564,6 +615,12 @@
             </div>
         </div>
         @endforeach
+
+        <!-- Pagination Links -->
+        <div class="ratings-pagination">
+            {{ $paginatedRatings->links('pagination::bootstrap-4') }}
+        </div>
+
         @else
         <div class="empty-state">
             <div class="empty-icon">
@@ -659,21 +716,120 @@
                     'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                 }
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        closeRateEmployeeModal();
-                        location.reload();
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                   Swal.fire({
+        icon: 'success',
+        title: 'Rated!',
+        text: data.message,
+        showConfirmButton: false,
+        timer: 1500
+    });
+
+    closeRateEmployeeModal();
+
+    // 1. UPDATE NAVBAR (Existing Logic)
+    if(data.employee_id && data.new_average_rating !== undefined) {
+        updateTopRatedNavbar(data.employee_id, data.new_average_rating);
+    }
+
+    // 2. UPDATE THE MAIN GRID CARD (New Logic)
+    refreshEmployeeCard(data.employee_id);                    
+                    // Update Navbar Real-time using backend data
+                    // Update Navbar Real-time using backend data
+                    if(data.employee_id && data.new_average_rating !== undefined) {
+                        updateTopRatedNavbar(data.employee_id, data.new_average_rating);
                     } else {
-                        alert('Error: ' + data.message);
+                        // Fallback just in case
+                        fetchTopRatedList();
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while submitting the rating.');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while submitting the rating.'
                 });
+            });
         });
+
+
+        function refreshEmployeeCard(employeeId) {
+    const cardId = `employee-card-${employeeId}`;
+    const existingCard = document.getElementById(cardId);
+
+    // Add a loading effect
+    if (existingCard) {
+        existingCard.style.opacity = '0.5';
+    }
+
+    // Fetch the fresh HTML for this specific card
+    fetch(`/admin/employee-ratings/card/${employeeId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.html) {
+                if (existingCard) {
+                    // Replace the old card with the new one
+                    existingCard.outerHTML = data.html;
+                    
+                    // Add a flash animation to the new card
+                    const newCard = document.getElementById(cardId);
+                    newCard.style.animation = 'highlightUpdate 1s ease';
+                } else {
+                    // If the card didn't exist (e.g., first rating ever), reload page
+                    // or append to the grid container
+                    location.reload(); 
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error refreshing card:', error);
+            if(existingCard) existingCard.style.opacity = '1'; // Revert opacity on error
+        });
+}
+
+        // Real-time update logic is now handled globally in layouts/employee.blade.php
+        // We can still call updateTopRatedNavbar if we want immediate local feedback without waiting for poll
+        // But we need to ensure the function exists globally.
+        // For now, let's assume we will move it to layout.
+
+        // Fallback fetch function if employee is not in current DOM list
+        function fetchTopRatedList() {
+             const url = '{{ route("employee.ratings.top-rated") }}' + '?t=' + new Date().getTime();
+             fetch(url)
+                .then(res => res.json())
+                .then(res => {
+                    if(res.success) {
+                        const container = document.getElementById('topRatedContainer');
+                        if (!container) return;
+                        
+                        let html = '';
+                        res.data.forEach(emp => {
+                            const initials = emp.employee_name.charAt(0).toUpperCase();
+                            const avatar = emp.profile_photo 
+                                ? `<img src="${emp.profile_photo}" alt="${emp.employee_name}" class="top-rated-avatar">`
+                                : `<div class="top-rated-avatar" style="background:#3b82f6;color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;">${initials}</div>`;
+                            
+                            html += `
+                                <div class="top-rated-item" data-id="${emp.id}" data-rating="${emp.avg_rating}" title="${emp.employee_name} - ${emp.avg_rating}/5">
+                                    ${avatar}
+                                    <span class="top-rated-score">${emp.avg_rating}</span>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                    }
+                });
+        }
     @endif
 </script>
 @endsection

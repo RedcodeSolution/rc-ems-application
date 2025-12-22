@@ -77,22 +77,14 @@ class RegistrationController extends Controller
          */
         if ($role === 'super_admin') {
             $superAdmin = SuperAdmin::where('super_admin_email', $request->email)->first();
-
             if (!$superAdmin) {
-                return back()->withErrors([
-                    'email' => 'Super admin record not found. You cannot register.'
-                ])->withInput();
+                return redirect()->back()->withErrors(['email' => 'Super admin not found.'])->withInput();
             }
-
-            // Special case: only "amal@gmail.com" can skip password check
-            if ($request->email !== 'amal@gmail.com') {
+            if ($request->email !== config('services.super_admin.email')) {
                 if (!Hash::check($request->password, $superAdmin->password)) {
-                    return back()->withErrors([
-                        'password' => 'Password does not match the super admin record.'
-                    ])->withInput();
+                    return redirect()->back()->withErrors(['password' => 'Password does not match the super admin account.'])->withInput();
                 }
             }
-
             // Enforce role
             $role = 'super_admin';
         }

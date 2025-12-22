@@ -73,11 +73,6 @@
                 <option value="Terminated">Terminated</option>
             </select>
 
-            <select id="roleFilter" class="filter-select">
-                <option value="">All Roles</option>
-                <option value="admin">Admin</option>
-                <option value="super_admin">Super Admin</option>
-            </select>
         </div>
     </div>
 
@@ -112,7 +107,11 @@
                         <td data-label="Admin Name">
                             <div class="admin-name">
                                 <div class="name-avatar">
-                                    <i class="fas fa-user-shield"></i>
+                                    @if($admin->profile_image)
+                                        <img src="{{ asset('storage/' . $admin->profile_image) }}" alt="{{ $admin->admin_name }}">
+                                    @else
+                                        {{ strtoupper(substr($admin->admin_name, 0, 1)) }}
+                                    @endif
                                 </div>
                                 <div class="name-info">
                                     <div class="name-primary">{{ $admin->admin_name }}</div>
@@ -190,7 +189,7 @@
                                 <h3>No Administrators Found</h3>
                                 <p>There are currently no administrators in the system.</p>
                                 <button class="btn btn-primary" onclick="openAddAdminModal()">
-                                    <i class="fas fa-plus"></i> Add First Admin
+                                    Add First Admin
                                 </button>
                             </div>
                         </td>
@@ -224,7 +223,7 @@
             </div>
             @endif
 
-            <form id="addAdminForm" action="{{ route('super_admin.store') }}" method="POST">
+            <form id="addAdminForm" action="{{ route('super_admin.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="form-container">
                     <div class="form-row">
@@ -293,6 +292,18 @@
                         </div>
                     </div>
 
+                    <div class="form-row">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="profile_image" class="form-label">
+                                <i class="fas fa-image"></i> Profile Image
+                            </label>
+                            <input type="file" id="profile_image" name="profile_image" class="form-input" accept="image/*" onchange="previewImage(this, 'add_admin_preview')">
+                            <div id="add_admin_preview_container" style="margin-top: 10px; display: none;">
+                                <img id="add_admin_preview" src="" alt="Preview" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeAddAdminModal()">Cancel</button>
                         <button type="submit" class="btn btn-primary">
@@ -314,7 +325,7 @@
         </div>
 
         <div class="modal-body">
-            <form id="editAdminForm" action="" method="POST" onsubmit="confirmUpdateForm(event)">
+            <form id="editAdminForm" action="" method="POST" onsubmit="confirmUpdateForm(event)" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -378,11 +389,23 @@
                         </div>
                     </div>
 
+                    <div class="form-row">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="edit_profile_image" class="form-label">
+                                <i class="fas fa-image"></i> Profile Image
+                            </label>
+                            <input type="file" id="edit_profile_image" name="profile_image" class="form-input" accept="image/*" onchange="previewImage(this, 'current_profile_image')">
+                            <div id="current_profile_image_container" style="margin-top: 10px; display: none;">
+                                <img id="current_profile_image" src="" alt="Current Profile" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeEditAdminModal()">
                             <i class="fas fa-times"></i> Cancel
                         </button>
-                        <button type="submit" class="btn btn-danger">
+                        <button type="submit" class="btn btn-danger" style="background-color: #dc2626; border-color: #dc2626; color: white;">
                             <i class="fas fa-save" style="color: white; margin-right:5px;"></i>Update Admin
                         </button>
                     </div>
@@ -402,7 +425,10 @@
         <div class="modal-body">
             <div class="profile-card">
                 <div class="profile-section">
-                    <div class="avatar" id="view_admin_initials" aria-hidden="true">—</div>
+                    <div class="avatar" id="view_admin_avatar" aria-hidden="true" style="overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        <span id="view_admin_initials">—</span>
+                        <img id="view_admin_image" src="" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                    </div>
                     <div class="profile-info">
                         <h2 id="view_admin_name">—</h2>
                         <div class="profile-sub">
@@ -514,8 +540,20 @@
             const initials = admin.admin_name
                 ? admin.admin_name.split(' ').map(n => n[0]).join('').toUpperCase()
                 : 'NA';
-            const avatar = document.getElementById('view_admin_initials');
-            if (avatar) avatar.textContent = initials;
+            const avatarInitials = document.getElementById('view_admin_initials');
+            const avatarImage = document.getElementById('view_admin_image');
+            
+            if (admin.profile_image) {
+                avatarImage.src = `/storage/${admin.profile_image}`;
+                avatarImage.style.display = 'block';
+                if (avatarInitials) avatarInitials.style.display = 'none';
+            } else {
+                if (avatarInitials) {
+                    avatarInitials.textContent = initials;
+                    avatarInitials.style.display = 'block';
+                }
+                if (avatarImage) avatarImage.style.display = 'none';
+            }
 
             document.getElementById('view_admin_email').textContent = admin.email || 'N/A';
             document.getElementById('view_admin_contact').textContent = admin.contact_no || 'N/A';
@@ -568,6 +606,47 @@
         if (!modal) return console.warn('addAdminModal not found');
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
+        
+        // Reset preview
+        const previewContainer = document.getElementById('add_admin_preview_container');
+        if (previewContainer) previewContainer.style.display = 'none';
+        const preview = document.getElementById('add_admin_preview');
+        if (preview) preview.src = '';
+    }
+
+    function previewImage(input, previewId) {
+        const preview = document.getElementById(previewId);
+        const container = document.getElementById(previewId + '_container');
+        
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const maxSize = 2 * 1024 * 1024; // 2MB
+
+            if (file.size > maxSize) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'File Too Large',
+                        text: 'The selected image exceeds the 2MB limit. Please choose a smaller file.',
+                        confirmButtonColor: '#dc2626'
+                    });
+                } else {
+                    alert('The selected image exceeds the 2MB limit.');
+                }
+                
+                input.value = ''; 
+                if (preview) preview.src = '';
+                if (container) container.style.display = 'none';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (preview) preview.src = e.target.result;
+                if (container) container.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
     }
 
     function closeAddAdminModal() {
@@ -632,6 +711,12 @@
             }
         });
 
+        const editImageInput = document.getElementById('edit_profile_image');
+        if (editImageInput) editImageInput.value = '';
+        
+        const currentImageContainer = document.getElementById('current_profile_image_container');
+        if (currentImageContainer) currentImageContainer.style.display = 'none';
+
         fetch(`/super-admin/${adminId}/show`, {
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
         })
@@ -654,6 +739,18 @@
                     else deptSelect.value = admin.department.department_id;
                 } else {
                     deptSelect.value = '';
+                }
+            }
+
+            const currentImageContainer = document.getElementById('current_profile_image_container');
+            const currentImage = document.getElementById('current_profile_image');
+            if (currentImageContainer && currentImage) {
+                if (admin.profile_image) {
+                    currentImage.src = `/storage/${admin.profile_image}`;
+                    currentImageContainer.style.display = 'block';
+                } else {
+                    currentImageContainer.style.display = 'none';
+                    currentImage.src = '';
                 }
             }
         })

@@ -115,14 +115,66 @@
     @endif
 
     <!-- Employee Ratings Grid -->
-    <div class="employee-ratings-grid">
-        @php
-        // Group ratings by employee
-        $employeeRatings = $ratings->groupBy('employee_id');
-        @endphp
+    <style>
+        .ratings-pagination-wrapper {
+            width: 100%;
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        .ratings-pagination {
+            display: flex;
+            justify-content: center;
+        }
+        .ratings-pagination nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: #fff;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .ratings-pagination .pagination {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            gap: 0.25rem;
+        }
+        .ratings-pagination .page-item .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.375rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .ratings-pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #DC2626 0%, #991b1b 100%); /* SuperAdmin Red */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2);
+        }
+        .ratings-pagination .page-item:not(.active) .page-link:hover {
+            background-color: #fef2f2;
+            color: #DC2626;
+        }
+        .ratings-pagination .page-item.disabled .page-link {
+            color: #d1d5db;
+            pointer-events: none;
+        }
+    </style>
 
-        @if($employeeRatings->count() > 0)
-        @foreach($employeeRatings as $employeeId => $employeeRatingGroup)
+    <div class="employee-ratings-grid">
+        @if($paginatedRatings->count() > 0)
+        @foreach($paginatedRatings as $employeeId => $employeeRatingGroup)
         @php
         $employeeData = $employeeRatingGroup->first()->employee;
         $totalRatings = $employeeRatingGroup->count();
@@ -158,6 +210,44 @@
                     <div class="employee-name">{{ $employeeData->employee_name ?? 'Unknown Employee' }}</div>
                     <div class="employee-role">{{ $employeeData->department->name ?? 'No Department' }}</div>
                     <div class="employee-email">{{ $employeeData->email ?? 'No email' }}</div>
+
+                    @php
+                        // Get unique ratings keyed by rater to show latest rating per person
+                        $uniqueRatings = $employeeRatingGroup->sortByDesc('created_at')->unique('rated_by')->filter(fn($r) => $r->rater);
+                        $displayRatings = $uniqueRatings->take(4);
+                        $remainingCount = $uniqueRatings->count() - 4;
+                    @endphp
+                    <div class="raters-info" style="margin-top: 8px; display: flex; align-items: center;">
+                        <span style="font-size: 0.75rem; color: #64748b; margin-right: 8px;">Rated by:</span>
+                        <div class="avatar-stack" style="display: flex; padding-left: 8px;">
+                            @foreach($displayRatings as $rating)
+                                @php
+                                    $rater = $rating->rater;
+                                    $photo = $rater->employee->profile_photo 
+                                            ?? $rater->admin->profile_image 
+                                            ?? $rater->superAdmin->profile_image 
+                                            ?? null;
+                                    $initials = strtoupper(substr($rater->name ?? 'U', 0, 1));
+                                    $color = $rater->role === 'super_admin' ? '#DC2626' : ($rater->role === 'admin' ? '#fbbf24' : '#3b82f6');
+                                    $score = $rating->rating;
+                                @endphp
+                                <div class="rater-avatar" title="{{ $rater->name ?? 'Unknown' }} ({{ ucfirst(str_replace('_', ' ', $rater->role ?? 'user')) }}) • Rating: {{ $score }}/5" 
+                                     style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; margin-left: -8px; background-color: {{ $color }}; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; overflow: hidden; cursor:help;">
+                                    @if($photo)
+                                        <img src="{{ asset('storage/' . $photo) }}" alt="{{ $rater->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    @else
+                                        {{ $initials }}
+                                    @endif
+                                </div>
+                            @endforeach
+                            @if($remainingCount > 0)
+                                <div class="rater-avatar remaining-count" title="{{ $uniqueRatings->skip(4)->map(fn($r) => $r->rater->name . ' (' . $r->rating . '/5)')->implode(', ') }}"
+                                     style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; margin-left: -8px; background-color: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold;">
+                                    +{{ $remainingCount }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -191,6 +281,14 @@
             </div>
         </div>
         @endforeach
+
+        <!-- Pagination Links -->
+        <div class="ratings-pagination-wrapper">
+            <div class="ratings-pagination">
+                {{ $paginatedRatings->links('pagination::bootstrap-4') }}
+            </div>
+        </div>
+
         @else
         <div class="empty-state">
             <div class="empty-icon">

@@ -25,6 +25,13 @@ function openRateEmployeeModal() {
     }
 
 
+    // Reset update/submit button state
+    const submitBtn = document.querySelector('#rateEmployeeModal .btn-primary');
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Submit Rating';
+    }
+
     document.getElementById('rateEmployeeModal').style.display = 'block';
 }
 
@@ -123,24 +130,30 @@ function submitRating() {
     })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                closeModal('rateEmployeeModal');
-                showNotification(data.message, 'success');
+    if (data.success) {
+        closeModal('rateEmployeeModal');
+        showNotification(data.message, 'success');
 
-                setTimeout(() => {
-                    location.reload();
-                }, 800);
-            } else {
-                showNotification(data.message || 'Error submitting rating', 'error');
+        // ✅ REAL-TIME UPDATE or PAGE RELOAD
+        if (document.getElementById('leaderboard')) {
+            updateLeaderboard(
+                data.employee_id,
+                data.new_average_rating
+            );
+        } else {
+            // If not on leaderboard page (e.g. Admin Ratings list), reload to show new data
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+    } else {
+        showNotification(data.message || 'Error submitting rating', 'error');
+    }
+        }).finally(() => {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error submitting rating. Please try again.', 'error');
-        })
-        .finally(() => {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
         });
 }
 
@@ -148,6 +161,48 @@ function submitRating() {
 function exportRatings() {
     console.log('Exporting ratings data...');
     showNotification('Export feature coming soon!', 'info');
+}
+
+function updateLeaderboard(employeeId, newRating) {
+    const leaderboard = document.getElementById('leaderboard');
+    if (!leaderboard) return;
+
+    const items = Array.from(leaderboard.children);
+
+    const target = items.find(
+        el => el.dataset.employeeId == employeeId
+    );
+    if (!target) return;
+
+    // Update rating badge
+    target.dataset.rating = newRating;
+    target.querySelector('.badge').textContent = newRating.toFixed(1);
+
+    // FIRST
+    const first = items.map(el => el.getBoundingClientRect());
+
+    // Sort by rating
+    items.sort((a, b) => b.dataset.rating - a.dataset.rating);
+    items.forEach(el => leaderboard.appendChild(el));
+
+    // LAST
+    const last = items.map(el => el.getBoundingClientRect());
+
+    // FLIP animation
+    items.forEach((el, i) => {
+        const dx = first[i].left - last[i].left;
+        el.style.transition = 'none';
+        el.style.transform = `translateX(${dx}px)`;
+
+        requestAnimationFrame(() => {
+            el.style.transition = 'transform 400ms cubic-bezier(.4,0,.2,1)';
+            el.style.transform = '';
+        });
+    });
+
+    // Highlight updated employee
+    target.classList.add('highlight');
+    setTimeout(() => target.classList.remove('highlight'), 500);
 }
 
 
@@ -171,19 +226,26 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-function loadEmployeeRatings(employeeId) {
+let currentEmployeeId = null;
+
+function loadEmployeeRatings(employeeId, page = 1) {
     if (!employeeId) {
         document.getElementById('employee-rating-summary').style.display = 'none';
         return;
     }
 
+    currentEmployeeId = employeeId;
     const summaryDiv = document.getElementById('employee-rating-summary');
     summaryDiv.style.display = 'block';
-    document.getElementById('avg-rating').textContent = 'Loading...';
-    document.getElementById('total-ratings').textContent = 'Loading...';
-    document.getElementById('recent-ratings-list').innerHTML = '<p>Loading recent ratings...</p>';
+    
+    document.getElementById('recent-ratings-list').innerHTML = '<p class="text-center text-gray-500 py-2">Loading...</p>';
 
-    fetch(`/admin/employeeRatings/employee/${employeeId}`)
+    if (page === 1) {
+        document.getElementById('avg-rating').textContent = '...';
+        document.getElementById('total-ratings').textContent = '...';
+    }
+
+    fetch(`/admin/employeeRatings/employee/${employeeId}?page=${page}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -191,23 +253,50 @@ function loadEmployeeRatings(employeeId) {
                 document.getElementById('total-ratings').textContent = data.total_ratings;
 
                 const recentRatingsList = document.getElementById('recent-ratings-list');
-                if (data.ratings && data.ratings.length > 0) {
-                    recentRatingsList.innerHTML = data.ratings.slice(0, 3).map(rating => `
+                const ratings = data.ratings || [];
+
+                if (ratings.length > 0) {
+                    let html = ratings.map(rating => `
                         <div class="recent-rating-item">
                             <div class="rating-info">
                                 <div class="rating-stars">
                                     ${Array.from({length: 5}, (_, i) => {
-                        const isFilled = i < rating.rating;
-                        return `<i class="fas fa-star ${isFilled ? 'filled' : ''}"></i>`;
-                    }).join('')}
+                                        const isFilled = i < rating.rating;
+                                        return `<i class="fas fa-star ${isFilled ? 'filled' : ''}"></i>`;
+                                    }).join('')}
+                                    <span style="font-size:0.85em;color:#666;margin-left:5px;">(${rating.rating}/5)</span>
                                 </div>
-                                <div class="rating-date">${rating.created_at}</div>
+                                <div class="rating-meta" style="display:flex; justify-content:space-between; width:100%; margin-top:5px; gap:15px;">
+                                    <span class="rater-name" style="font-size:0.85em; color:#555;">By: ${rating.rater_name || 'Unknown'}</span>
+                                    <span class="rating-date" style="font-size:0.85em; color:#888;">${rating.created_at}</span>
+                                </div>
                             </div>
                             <div class="rating-comment" title="${rating.comment || 'No comment'}">
                                 ${rating.comment || 'No comment'}
                             </div>
                         </div>
                     `).join('');
+
+                    if (data.pagination && data.pagination.last_page > 1) {
+                        html += `
+                            <div class="pagination-controls" style="display:flex; justify-content:center; gap:10px; margin-top:10px; align-items:center;">
+                                <button type="button" class="btn btn-sm btn-secondary" 
+                                    ${data.pagination.current_page === 1 ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}
+                                    onclick="loadEmployeeRatings('${employeeId}', ${data.pagination.current_page - 1})">
+                                    <i class="fas fa-chevron-left"></i> Prev
+                                </button>
+                                <span style="font-size:0.85rem; color:#6b7280;">
+                                    Page ${data.pagination.current_page} of ${data.pagination.last_page}
+                                </span>
+                                <button type="button" class="btn btn-sm btn-secondary" 
+                                    ${!data.pagination.has_more ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}
+                                    onclick="loadEmployeeRatings('${employeeId}', ${data.pagination.current_page + 1})">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+                    recentRatingsList.innerHTML = html;
                 } else {
                     recentRatingsList.innerHTML = '<p>No recent ratings found.</p>';
                 }

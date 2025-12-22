@@ -13,7 +13,7 @@ class TeamController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Team::query();
+        $query = Team::with('employees');
         if ($request->has('search') && $request->search) {
             $query->where('team_name', 'like', '%' . $request->search . '%');
         }
@@ -63,6 +63,11 @@ class TeamController extends Controller
             'team_goals' => $validated['team_goals'] ?? null,
             'skills_required' => $validated['skills_required'] ?? null,
         ]);
+
+        // Auto-add Team Lead to the Team (employee_team table)
+        if (!empty($validated['team_lead'])) {
+             $team->employees()->syncWithoutDetaching([$validated['team_lead']]);
+        }
 
         return redirect()->route('admin.teams')->with('success', 'Team created successfully.');
     }
@@ -115,6 +120,8 @@ class TeamController extends Controller
             $teamLeadName = $employee ? $employee->employee_name : null;
         }
 
+        $oldTeamLeadName = $team->team_lead;
+
         $team->update([
             'team_name' => $validated['team_name'],
             'department_id' => $validated['department_id'],
@@ -129,12 +136,67 @@ class TeamController extends Controller
             'skills_required' => $validated['skills_required'] ?? null,
         ]);
 
+        // Auto-add Team Lead to the Team (employee_team table)
+        if (!empty($validated['team_lead'])) {
+             $team->employees()->syncWithoutDetaching([$validated['team_lead']]);
+        }
+
+        // If Team Lead has changed (matched by name), update Project Assignments
+        if ($teamLeadName && $teamLeadName !== $oldTeamLeadName) {
+            
+            // 1. Remove Old Leader from Team and Projects
+            if ($oldTeamLeadName) {
+                $oldLead = \App\Models\Employee::where('employee_name', $oldTeamLeadName)->first();
+                if ($oldLead) {
+                    // Remove from Team
+                    $team->employees()->detach($oldLead->employee_id);
+
+                    // Remove from Active Projects
+                    $teamProjects = $team->projects()
+                        ->whereIn('status', ['In Progress', 'Planning', 'Testing', 'On Hold'])
+                        ->get();
+                    
+                    foreach ($teamProjects as $project) {
+                        $project->employees()->detach($oldLead->employee_id);
+                    }
+                }
+            }
+
+            // 2. Add New Leader to Active Projects
+            // Find the new team lead employee object
+            $newLead = \App\Models\Employee::where('employee_name', $teamLeadName)->first();
+            
+            if ($newLead) {
+                // Get active projects (fetch again or reuse if optimized, but fetch is safer here)
+                $teamProjects = $team->projects()
+                    ->whereIn('status', ['In Progress', 'Planning', 'Testing', 'On Hold'])
+                    ->get();
+
+                foreach ($teamProjects as $project) {
+                    // Attach new lead to project with role 'Team Lead'
+                    $project->employees()->syncWithoutDetaching([
+                        $newLead->employee_id => [
+                            'role' => 'Team Lead',
+                            'status' => 'Active',
+                            'progress' => 0,
+                            'assigned_date' => now(),
+                            'deadline' => $project->end_date
+                        ]
+                    ]);
+                }
+            }
+        }
+
         return redirect()->route('admin.teams')->with('success', 'Team updated successfully.');
     }
     public function assignEmployeesForm($team_id)
     {
         $team = Team::with('employees')->findOrFail($team_id);
-        $employees = Employee::all();
+        
+        // Exclude the current team lead from the list of selectable members
+        // Note: team_lead column stores the Name, so we filter by name
+        $employees = Employee::where('employee_name', '!=', $team->team_lead ?? '')->get();
+
         return view('admin.teams.assign_employees', compact('team', 'employees'));
     }
 
@@ -147,9 +209,59 @@ class TeamController extends Controller
         ]);
 
         $team = Team::findOrFail($team_id);
-        $team->employees()->sync($request->employee_ids);
+    
+        // Get current employee IDs before syncing
+        $currentEmployeeIds = $team->employees->pluck('employee_id')->toArray();
+        $newEmployeeIds = $request->employee_ids;
 
-        return redirect()->route('admin.teams')->with('success', 'Team members updated successfully.');
+        // CRITICAL: Ensure Team Lead is NOT removed (since they are excluded from the form)
+        if ($team->team_lead) {
+            $leader = Employee::where('employee_name', $team->team_lead)->first();
+            if ($leader && !in_array($leader->employee_id, $newEmployeeIds)) {
+                $newEmployeeIds[] = $leader->employee_id;
+            }
+        }
+
+        // Calculate removed employees
+        // We use the UPDATED $newEmployeeIds (including leader) to determine who is actually removed
+        $removedEmployeeIds = array_diff($currentEmployeeIds, $newEmployeeIds);
+
+        // 1. Sync Team Members
+        $team->employees()->sync($newEmployeeIds);
+
+        // Get all active projects for this team
+        // Statuses based on Admin\ProjectController validation: Planning, In Progress, On Hold, Testing
+        $teamProjects = $team->projects()
+            ->whereIn('status', ['In Progress', 'Planning', 'Testing', 'On Hold']) 
+            ->get();
+
+        // 2. Remove detached members from Team Projects
+        if (!empty($removedEmployeeIds)) {
+            foreach ($teamProjects as $project) {
+                $project->employees()->detach($removedEmployeeIds);
+            }
+        }
+
+        // 3. Auto-assign New Team Projects to these Members
+        foreach ($newEmployeeIds as $empId) {
+            $employee = Employee::find($empId);
+            if ($employee) {
+                foreach ($teamProjects as $project) {
+                    // Attach employee to project if not already attached
+                    $project->employees()->syncWithoutDetaching([
+                        $empId => [
+                            'role' => 'Member',
+                            'status' => 'Active', // Pivot status should be 'Active' to show up
+                            'progress' => 0,
+                            'assigned_date' => now(),
+                            'deadline' => $project->end_date // Optional: inherit project deadline
+                        ]
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->route('admin.teams')->with('success', 'Team members updated. Projects synced (New members added, removed members unassigned).');
     }
 
 
