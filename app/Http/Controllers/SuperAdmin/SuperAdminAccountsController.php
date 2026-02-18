@@ -1,0 +1,274 @@
+<?php
+
+namespace App\Http\Controllers\SuperAdmin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\SuperAdmin;
+use App\Models\SuperAdminActivity;
+use App\Models\Notification;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
+class SuperAdminAccountsController extends Controller
+{
+    public function index()
+    {
+        $superAdmins = SuperAdmin::all();
+
+        $totalSuperAdmins = $superAdmins->count();
+        $activeSuperAdmins = $superAdmins->where('status', 'active')->count();
+        $inactiveSuperAdmins = $superAdmins->where('status', 'inactive')->count();
+        $recentLogins = 0;
+
+        $superAdmins->transform(function ($user) {
+            $user->last_login = $user->last_login ?? null;
+            return $user;
+        });
+
+        $recentActivities = SuperAdminActivity::orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function ($activity) {
+                return [
+                    'type' => $activity->type,
+                    'icon' => $activity->icon,
+                    'action' => $activity->action,
+                    'details' => $activity->details,
+                    'timestamp' => $activity->created_at
+                ];
+            });
+
+        return view('super_admin.super_admin_accounts', [
+            'superAdminUsers' => $superAdmins,
+            'totalSuperAdmins' => $totalSuperAdmins,
+            'activeSuperAdmins' => $activeSuperAdmins,
+            'inactiveSuperAdmins' => $inactiveSuperAdmins,
+            'recentLogins' => $recentLogins,
+            'recentActivities' => $recentActivities
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        try {
+
+            if (!$request->has('permissions')) {
+                $request->merge(['permissions' => []]);
+            }
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:super_admins,super_admin_email',
+                'password' => 'required|string|min:8|confirmed',
+                'permissions' => 'nullable|array'
+            ]);
+
+            $superAdmin = SuperAdmin::create([
+                'super_admin_id' => Str::uuid(),
+                'super_admin_name' => $validated['name'],
+                'super_admin_email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'permissions' => json_encode($validated['permissions'] ?? []),
+
+            ]);
+
+
+            SuperAdminActivity::create([
+                'super_admin_id' => $superAdmin->super_admin_id,
+                'type' => 'create',
+                'icon' => 'fas fa-user-plus',
+                'action' => 'Account Created',
+                'details' => "Super admin account created: {$superAdmin->super_admin_name}"
+            ]);
+
+
+            Notification::create([
+                'notifi_id' => Str::uuid(),
+                'title' => 'Super Admin Account Created',
+                'message' => 'A new super admin account has been created: ' . $validated['name'],
+                'type' => 'super_admin',
+                'priority' => 'high',
+                'read' => false,
+                'from' => auth()->user()->name ?? 'System',
+                'icon' => 'fas fa-user-shield',
+                'color' => 'indigo',
+                'timestamp' => now(),
+            ]);
+
+            return response()->json(['success' => true, 'super_admin' => $superAdmin]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors(),
+                'message' => 'Validation failed.'
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Server error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function show($id)
+    {
+        $user = SuperAdmin::findOrFail($id);
+
+        $data = [
+            'id' => $user->super_admin_id,
+            'name' => $user->super_admin_name,
+            'email' => $user->super_admin_email,
+            'created' => $user->created_at ? $user->created_at->format('F d, Y') : '',
+            'status' => $user->status ?? 'active',
+            'role' => $user->role ?? 'super_admin',
+            'lastLogin' => 'Never',
+            'loginCount' => 0,
+            'lastIp' => '',
+            'permissions' => collect(json_decode($user->permissions, true))->map(function ($perm) {
+                switch ($perm) {
+                    case 'user_management':
+                        return 'User Management';
+                    case 'system_settings':
+                        return 'System Settings';
+                    case 'security':
+                        return 'Security Settings';
+                    case 'reports':
+                        return 'Reports & Analytics';
+                    case 'backup':
+                        return 'Backup & Restore';
+                    case 'logs':
+                        return 'System Logs';
+                    default:
+                        return ucfirst(str_replace('_', ' ', $perm));
+                }
+            })->toArray()
+        ];
+
+        return response()->json($data);
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $user = SuperAdmin::findOrFail($id);
+
+            if (!$request->has('permissions')) {
+                $request->merge(['permissions' => []]);
+            }
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:super_admins,super_admin_email,' . $id . ',super_admin_id',
+                'status' => 'required|string|in:active,inactive,suspended',
+                'role' => 'required|string|in:super_admin,system_admin,security_admin',
+                'permissions' => 'nullable|array'
+            ]);
+
+            $user->super_admin_name = $validated['name'];
+            $user->super_admin_email = $validated['email'];
+            $user->status = $validated['status'];
+            $user->role = $validated['role'];
+            $user->permissions = json_encode($validated['permissions'] ?? []);
+            $user->save();
+
+            // Log activity
+            SuperAdminActivity::create([
+                'super_admin_id' => $user->super_admin_id,
+                'type' => 'update',
+                'icon' => 'fas fa-edit',
+                'action' => 'Account Updated',
+                'details' => "Account updated: {$user->super_admin_name}"
+            ]);
+
+            // Create notification for super admin account update
+            Notification::create([
+                'notifi_id' => Str::uuid(),
+                'title' => 'Super Admin Account Updated',
+                'message' => 'Super admin account updated: ' . $validated['name'],
+                'type' => 'super_admin',
+                'priority' => 'medium',
+                'read' => false,
+                'from' => auth()->user()->name ?? 'System',
+                'icon' => 'fas fa-user-shield',
+                'color' => 'purple',
+                'timestamp' => now(),
+            ]);
+
+            return response()->json(['success' => true, 'super_admin' => $user]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors(),
+                'message' => 'Validation failed.'
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Server error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function changePassword(Request $request, $id)
+    {
+        $superAdmin = SuperAdmin::findOrFail($id);
+
+        $validated = $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed'
+        ]);
+
+        // Check current password
+        if (!\Hash::check($validated['current_password'], $superAdmin->password)) {
+            return response()->json(['success' => false, 'message' => 'Current password incorrect.'], 422);
+        }
+
+        // Update SuperAdmin password
+        $hashedPassword = \Hash::make($validated['new_password']);
+        $superAdmin->password = $hashedPassword;
+        $superAdmin->save();
+
+        $user = User::where('email', $superAdmin->super_admin_email)->first();
+        if ($user) {
+            $user->password = $hashedPassword;
+            $user->save();
+        }
+
+        // Log activity
+        SuperAdminActivity::create([
+            'super_admin_id' => $superAdmin->super_admin_id,
+            'type' => 'security',
+            'icon' => 'fas fa-key',
+            'action' => 'Password Changed',
+            'details' => "Password changed for: {$superAdmin->super_admin_name}"
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Password updated successfully.']);
+    }
+
+
+
+    public function destroy($id)
+    {
+        $user = SuperAdmin::find($id);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Account not found.'], 404);
+        }
+
+        $userName = $user->super_admin_name;
+        $user->delete();
+
+
+        SuperAdminActivity::create([
+            'super_admin_id' => $id,
+            'type' => 'delete',
+            'icon' => 'fas fa-trash',
+            'action' => 'Account Deleted',
+            'details' => "Super admin account deleted: {$userName}"
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+}
